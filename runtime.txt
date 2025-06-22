@@ -1,8 +1,8 @@
-I ran sudo docker compose pull in my terminal and got the following error messages: 
+I ran sudo docker compose pull and now get the following errors:
 [+] Pulling 4/4
- ! homeassistant   Interrupted                                                                                           0.9s 
- ! piper           Interrupted                                                                                           0.9s 
- ✘ satellite Error Head "https://ghcr.io/v2/rhasspy/wyoming-satellite/manifests/latest": denied                          0.9s 
- ! whisper         Interrupted                                                                                           0.9s 
-Error response from daemon: Head "https://ghcr.io/v2/rhasspy/wyoming-satellite/manifests/latest": denied
+ ! whisper         Interrupted                                                                                           1.1s 
+ ✘ satellite Error Head "https://ghcr.io/v2/wunderflats/wyoming-satellite/manifests/latest": denied                      1.1s 
+ ! piper           Interrupted                                                                                           1.1s 
+ ! homeassistant   Interrupted                                                                                           1.1s 
+Error response from daemon: Head "https://ghcr.io/v2/wunderflats/wyoming-satellite/manifests/latest": denied
 nickspi5@raspberrypi1:~/ha-voice $ How can I fix this?
