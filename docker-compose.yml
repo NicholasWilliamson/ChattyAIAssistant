@@ -30,7 +30,7 @@ services:
 
   satellite:
     container_name: wyoming-satellite
-    image: ghcr.io/rhasspy/wyoming-satellite:latest
+    image: ghcr.io/wunderflats/wyoming-satellite:latest
     restart: unless-stopped
     network_mode: host
     devices:
@@ -45,7 +45,7 @@ services:
       - AUDIO_INPUT=arecord
       - AUDIO_OUTPUT=paplay
       - AUDIO_INPUT_DEVICE=plughw:2,0
-      - AUDIO_OUTPUT_DEVICE=bluez_output.DA_1F_35_B9_D8_F5.1  # Replace with your actual speaker sink if different
+      - AUDIO_OUTPUT_DEVICE=bluez_output.DA_1F_35_B9_D8_F5.1
       - WAKE_WORD_ENABLED=true
       - WAKE_WORD_ENGINE=porcupine
       - WAKE_WORD_MODEL=/wake-word-models/chatty.ppn
