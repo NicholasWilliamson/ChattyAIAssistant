@@ -1,20 +1,96 @@
-I ran sudo docker logs whisper
-nickspi5@raspberrypi1:~ $ sudo docker logs piper
-nickspi5@raspberrypi1:~ $ sudo docker logs wyoming-satellite
-nickspi5@raspberrypi1:~ $ sudo docker rm whisper piper wyoming-satellite
-whisper
-piper
-wyoming-satellite
-nickspi5@raspberrypi1:~ $ cd ~/ha-voice
+I ran sudo docker stop homeassistant
+homeassistant
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker rm homeassistant
+homeassistant
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 1/4
- ⠋ Container wyoming-satellite  Creating                                                                                 0.0s 
- ✘ Container homeassistant      Error response from daemon: Conflict. The container name "/...                           0.0s 
- ⠋ Container whisper            Creating                                                                                 0.0s 
- ⠋ Container piper              Creating                                                                                 0.0s 
-Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "d67222f42041b38bdb07df3a5f370ed49bd72d768dcad9d7451bd20bb162fc5d". You have to remove (or rename) that container to be able to reuse that name.
+[+] Running 5/5
+ ✔ Container homeassistant                                                  Started                                      0.4s 
+ ! homeassistant Published ports are discarded when using host network mode                                              0.0s 
+ ✔ Container wyoming-satellite                                              Started                                      0.3s 
+ ✔ Container whisper                                                        Started                                      1.0s 
+ ✔ Container piper                                                          Started                                      1.0s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
-CONTAINER ID   IMAGE                                          COMMAND   CREATED       STATUS       PORTS     NAMES
-d67222f42041   ghcr.io/home-assistant/home-assistant:stable   "/init"   2 hours ago   Up 2 hours             homeassistant
+CONTAINER ID   IMAGE                                          COMMAND                  CREATED          STATUS                          PORTS                                                     NAMES
+bf71795c1a3b   ghcr.io/home-assistant/home-assistant:stable   "/init"                  42 seconds ago   Up 41 seconds                                                                             homeassistant
+2f8a2184abbf   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   9 minutes ago    Up 41 seconds                   5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
+8053bc4156fd   sker65/wyoming-satellite:latest                "/app/run"               9 minutes ago    Restarting (1) 11 seconds ago                                                             wyoming-satellite
+81438dce2158   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   9 minutes ago    Up 41 seconds                   0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f wyoming-satellite
-nickspi5@raspberrypi1:~/ha-voice $ How can I fix this?
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+Either --mic-uri or --mic-command is required
+Traceback (most recent call last):
+  File "/app/script/run", line 12, in <module>
+    subprocess.check_call([context.env_exe, "-m", "wyoming_satellite"] + sys.argv[1:])
+  File "/usr/local/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/app/.venv/bin/python3', '-m', 'wyoming_satellite', '--uri', 'tcp://0.0.0.0:10700']' returned non-zero exit status 1.
+ How can I fix this?
