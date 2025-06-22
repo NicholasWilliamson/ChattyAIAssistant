@@ -1,9 +1,37 @@
-I ran sudo docker compose pull from my terminal and now get the following error message:
-[+] Pulling 4/4
- ! whisper              Interrupted                                                                                      3.3s 
- ✘ satellite Error      pull access denied for synesthesiam/wyoming-satellite, repository does not e...                  3.3s 
- ! piper                Interrupted                                                                                      3.3s 
- ✔ homeassistant Pulled                                                                                                  1.1s 
-Error response from daemon: pull access denied for synesthesiam/wyoming-satellite, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
-nickspi5@raspberrypi1:~/ha-voice $ 
+I ran sudo docker compose pull
+[+] Pulling 25/25
+ ✔ homeassistant Pulled                                                                                                  1.5s 
+ ✔ whisper Pulled                                                                                                     1157.2s 
+   ✔ 8861e715dd4a Pull complete                                                                                        290.4s 
+   ✔ 4f4fb700ef54 Pull complete                                                                                        363.4s 
+   ✔ 26f4468c937e Pull complete                                                                                       1152.8s 
+   ✔ 560d866274d3 Pull complete                                                                                       1152.9s 
+ ✔ satellite Pulled                                                                                                   1388.4s 
+   ✔ 59f5764b1f6d Pull complete                                                                                        643.3s 
+   ✔ 55af26b7addf Pull complete                                                                                        681.7s 
+   ✔ 580c698f01d5 Pull complete                                                                                        810.8s 
+   ✔ 20b492075b43 Pull complete                                                                                        812.7s 
+   ✔ 17c53b71cbcc Pull complete                                                                                        840.6s 
+   ✔ f6582eb9e852 Pull complete                                                                                       1037.5s 
+   ✔ fbf9789ca03b Pull complete                                                                                       1037.5s 
+   ✔ f3460c7681b7 Pull complete                                                                                       1037.6s 
+   ✔ 344a3a0ade54 Pull complete                                                                                       1044.4s 
+   ✔ 93c094d6cf84 Pull complete                                                                                       1044.5s 
+   ✔ 2ee149a0a6d8 Pull complete                                                                                       1047.5s 
+   ✔ c7ca44b23227 Pull complete                                                                                       1383.8s 
+   ✔ f63cba6718ab Pull complete                                                                                       1383.8s 
+   ✔ 945cd74498ad Pull complete                                                                                       1383.9s 
+ ✔ piper Pulled                                                                                                       1025.7s 
+   ✔ 943331d8a9a9 Pull complete                                                                                        363.3s 
+   ✔ 133de7f5316d Pull complete                                                                                       1021.2s 
+   ✔ b113b77d99df Pull complete                                                                                       1021.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+[+] Running 2/5
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✘ Container homeassistant      Error response from daemon: Conflict. The container name "/...                           0.0s 
+ ⠋ Container whisper            Creating                                                                                 0.0s 
+ ⠋ Container piper              Creating                                                                                 0.0s 
+ ⠋ Container wyoming-satellite  Creating                                                                                 0.0s 
+Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "1eebfb2d598614c915ac48bbbf4b7ed55f5f7ac1e242f56b323eddd161dec1a6". You have to remove (or rename) that container to be able to reuse that name.
 
+I got the above error message. How can I fix this?
