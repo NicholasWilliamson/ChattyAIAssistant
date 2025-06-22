@@ -1,4 +1,12 @@
 I ran sudo docker ps -a
+CONTAINER ID   IMAGE                                          COMMAND                  CREATED         STATUS              PORTS     NAMES
+f32269474d68   sker65/wyoming-satellite:latest                "/app/run"               6 minutes ago   Created                       wyoming-satellite
+258ee849a2dc   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   6 minutes ago   Created                       piper
+520a65059fcb   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   6 minutes ago   Created                       whisper
+1eebfb2d5986   ghcr.io/home-assistant/home-assistant:stable   "/init"                  20 hours ago    Up About a minute             homeassistant
+nickspi5@raspberrypi1:~ $ sudo docker rm <1eebfb2d5986>
+bash: syntax error near unexpected token `newline'
+nickspi5@raspberrypi1:~ $ sudo docker ps -a
 CONTAINER ID   IMAGE                                          COMMAND                  CREATED         STATUS         PORTS     NAMES
 f32269474d68   sker65/wyoming-satellite:latest                "/app/run"               9 minutes ago   Created                  wyoming-satellite
 258ee849a2dc   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   9 minutes ago   Created                  piper
@@ -13,4 +21,29 @@ WARN[0000] /home/nickspi5/docker-compose.yml: the attribute `version` is obsolet
 [+] Running 2/2
  ✔ Container homeassistant                                                  Started                                      0.4s 
  ! homeassistant Published ports are discarded when using host network mode                                              0.0s 
-I think everything is runnig correctly now. How can I test if chatty is running correctly now?
+nickspi5@raspberrypi1:~ $ sudo docker logs -f wyoming-satellite
+nickspi5@raspberrypi1:~ $ sudo docker ps -a | grep wyoming-satellite
+f32269474d68   sker65/wyoming-satellite:latest                "/app/run"               40 minutes ago   Created                   wyoming-satellite
+nickspi5@raspberrypi1:~ $ sudo docker logs wyoming-satellite
+nickspi5@raspberrypi1:~ $ ls ~/ha-voice/chatty-ww/chatty.ppn
+/home/nickspi5/ha-voice/chatty-ww/chatty.ppn
+nickspi5@raspberrypi1:~ $ sudo docker exec -it wyoming-satellite /bin/bash
+Error response from daemon: Container f32269474d680157b000425ccbbfb877f1aeb790c8b693a0046788100cc5548b is not running
+nickspi5@raspberrypi1:~ $ arecord -D plughw:2,0 -f cd test.wav
+Recording WAVE 'test.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo
+^CAborted by signal Interrupt...
+nickspi5@raspberrypi1:~ $ paplay --device=bluez_output.DA_1F_35_B9_D8_F5.1 test.wav
+nickspi5@raspberrypi1:~ $ sudo docker compose restart satellite
+WARN[0000] /home/nickspi5/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+no such service: satellite
+nickspi5@raspberrypi1:~ $ sudo docker logs -f wyoming-satellite
+nickspi5@raspberrypi1:~ $ sudo docker compose up -d
+WARN[0000] /home/nickspi5/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+[+] Running 1/1
+ ✔ Container homeassistant  Running                                                                                      0.0s 
+nickspi5@raspberrypi1:~ $ sudo docker logs -f wyoming-satellite
+nickspi5@raspberrypi1:~ $ sudo docker ps
+CONTAINER ID   IMAGE                                          COMMAND   CREATED             STATUS             PORTS     NAMES
+d67222f42041   ghcr.io/home-assistant/home-assistant:stable   "/init"   About an hour ago   Up About an hour             homeassistant
+
+It seems whisper,piper, and wyoming-staellite are not running. How can I fix this?
