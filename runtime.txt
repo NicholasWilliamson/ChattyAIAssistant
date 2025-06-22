@@ -1,8 +1,9 @@
-I ran sudo docker compose pull and now get the following errors:
+I ran sudo docker compose pull from my terminal and now get the following error message:
 [+] Pulling 4/4
- ! whisper         Interrupted                                                                                           1.1s 
- ✘ satellite Error Head "https://ghcr.io/v2/wunderflats/wyoming-satellite/manifests/latest": denied                      1.1s 
- ! piper           Interrupted                                                                                           1.1s 
- ! homeassistant   Interrupted                                                                                           1.1s 
-Error response from daemon: Head "https://ghcr.io/v2/wunderflats/wyoming-satellite/manifests/latest": denied
-nickspi5@raspberrypi1:~/ha-voice $ How can I fix this?
+ ! whisper              Interrupted                                                                                      3.3s 
+ ✘ satellite Error      pull access denied for synesthesiam/wyoming-satellite, repository does not e...                  3.3s 
+ ! piper                Interrupted                                                                                      3.3s 
+ ✔ homeassistant Pulled                                                                                                  1.1s 
+Error response from daemon: pull access denied for synesthesiam/wyoming-satellite, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+nickspi5@raspberrypi1:~/ha-voice $ 
+
