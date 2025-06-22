@@ -30,7 +30,7 @@ services:
 
   satellite:
     container_name: wyoming-satellite
-    image: ghcr.io/wunderflats/wyoming-satellite:latest
+    image: sker65/wyoming-satellite:latest
     restart: unless-stopped
     network_mode: host
     devices:
@@ -42,11 +42,10 @@ services:
       - STT_PORT=10300
       - TTS_HOST=localhost
       - TTS_PORT=10200
-      - AUDIO_INPUT=arecord
-      - AUDIO_OUTPUT=paplay
-      - AUDIO_INPUT_DEVICE=plughw:2,0
-      - AUDIO_OUTPUT_DEVICE=bluez_output.DA_1F_35_B9_D8_F5.1
       - WAKE_WORD_ENABLED=true
       - WAKE_WORD_ENGINE=porcupine
       - WAKE_WORD_MODEL=/wake-word-models/chatty.ppn
       - WAKE_WORD_SENSITIVITY=0.6
+    command: >
+      --mic-command 'arecord -D plughw:2,0 -f S16_LE -r 16000 -c 1' 
+      --speaker-command 'paplay --device=bluez_output.DA_1F_35_B9_D8_F5.1 -n Chatty'
