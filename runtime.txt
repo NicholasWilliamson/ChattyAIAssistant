@@ -1,18 +1,19 @@
-I ran cd ~/ha-voice
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
-[+] Running 4/4
- ✔ Container piper           Removed                                                                                     0.0s 
- ✔ Container homeassistant   Removed                                                                                     0.0s 
- ✔ Container whisper         Removed                                                                                     0.0s 
- ✔ Network ha-voice_default  Removed                                                                                     0.2s 
+I ran sudo docker stop wyoming-satellite
+wyoming-satellite
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker rm wyoming-satellite
+wyoming-satellite
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 0/1
- ⠋ Network ha-voice_default  Creating                                                                                    0.1s 
-[+] Running 2/5d orphan containers ([wyoming-satellite]) for this project. If you removed or renamed this service in your comp ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ⠋ Container homeassistant      Creating                                                                                 0.0s 
- ⠋ Container whisper            Creating                                                                                 0.0s 
- ⠋ Container piper              Creating                                                                                 0.0s 
- ✘ Container wyoming-satellite  Error response from daemon: Conflict. The container nam...                               0.0s 
-Error response from daemon: Conflict. The container name "/wyoming-satellite" is already in use by container "d3dcc7271096e31761335245d5df3d742332dfa174b39f1a221ee493822472da". You have to remove (or rename) that container to be able to reuse that name.
-nickspi5@raspberrypi1:~/ha-voice $ and got the above error messages. How can I fix this?
+[+] Running 4/4
+ ✔ Container wyoming-satellite  Started                                                                                  0.9s 
+ ✔ Container piper              Started                                                                                  1.0s 
+ ✔ Container homeassistant      Started                                                                                  0.2s 
+ ✔ Container whisper            Started                                                                                  1.0s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
+CONTAINER ID   IMAGE                                          COMMAND                  CREATED          STATUS          PORTS                                                     NAMES
+505e07cb30cc   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   30 seconds ago   Up 28 seconds   0.0.0.0:10700->10700/tcp, :::10700->10700/tcp             wyoming-satellite
+4fce96ca2225   ghcr.io/home-assistant/home-assistant:stable   "/init"                  20 minutes ago   Up 28 seconds                                                             homeassistant
+de463625a3cf   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   20 minutes ago   Up 28 seconds   0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
+3543a974a962   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   20 minutes ago   Up 28 seconds   5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
+nickspi5@raspberrypi1:~/ha-voice $ 
 
+It appears everything is now working properly. Thank you so much ChatGPT. You are awesome. Yes, how can I test the mic/speaker and trigger Chatty to respond.
