@@ -49,5 +49,10 @@ services:
       - ./models:/models
     ports:
       - "8000:8000"
-    command: --model /models/tinyllama.gguf --host 0.0.0.0 --port 8000 --n_threads 4
+    command: >
+      server
+      --model /models/tinyllama.gguf
+      --host 0.0.0.0
+      --port 8000
+      --n_threads 4
     restart: unless-stopped
