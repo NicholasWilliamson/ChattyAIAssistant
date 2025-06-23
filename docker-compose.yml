@@ -28,10 +28,12 @@ services:
   wyoming-satellite:
     container_name: wyoming-satellite
     image: sker65/wyoming-satellite:latest
+    devices:
+      - "/dev/snd:/dev/snd"
     volumes:
       - ./chatty-ww:/wake-word-models
     command: >
-      --mic-command "arecord -D plughw:2,0 -f S16_LE -r 16000 -c 1"
+      --mic-command "arecord -D plughw:1,0 -f S16_LE -r 16000 -c 1"
       --snd-command "paplay --device=bluez_output.DA_1F_35_B9_D8_F5.1 -n Chatty"
       --uri tcp://0.0.0.0:10700
       --wake-word-name chatty
