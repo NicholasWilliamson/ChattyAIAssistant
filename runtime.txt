@@ -1,10 +1,11 @@
-I ran sudo compose up -d
-
-I then received the following warning and error messages:
-
-Warning: unknown mime-type for "up" -- using "application/octet-stream"
-Warning: unknown mime-type for "-d" -- using "application/octet-stream"
-Error: no "compose" mailcap rules found for type "application/octet-stream"
-Error: no "compose" mailcap rules found for type "application/octet-stream"
+I ran sudo docker compose up -d
+[+] Running 5/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container whisper            Started                                                                                  1.4s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.6s 
+ ⠋ Container llama-cpp          Starting                                                                                 2.0s 
+ ✔ Container piper              Started                                                                                  1.3s 
+ ✔ Container homeassistant      Started                                                                                  0.6s 
+Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "--model": executable file not found in $PATH: unknown
 
 How can I fix this?
