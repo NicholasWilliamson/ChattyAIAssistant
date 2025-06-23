@@ -1,47 +1,14 @@
-Log in to your Hugging Face account:
-https://huggingface.co/login
+--2025-06-23 13:58:14--  https://cdn-lfs-us-1.hf.co/repos/6c/c2/6cc203a4b605b1f54529984e310dd5d122bd444bc30b4123a35527d02845d4cb/9fecc3b3cd76bba89d504f29b616eedf7da85b96540e490ca5824d3f7d2776a0?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf%3B+filename%3D%22tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf%22%3B&Expires=1750654694&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MDY1NDY5NH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy11cy0xLmhmLmNvL3JlcG9zLzZjL2MyLzZjYzIwM2E0YjYwNWIxZjU0NTI5OTg0ZTMxMGRkNWQxMjJiZDQ0NGJjMzBiNDEyM2EzNTUyN2QwMjg0NWQ0Y2IvOWZlY2MzYjNjZDc2YmJhODlkNTA0ZjI5YjYxNmVlZGY3ZGE4NWI5NjU0MGU0OTBjYTU4MjRkM2Y3ZDI3NzZhMD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPSoifV19&Signature=eyVP3xlnAX%7EZyoxWAJ0uqD1Ad-YR14V%7EEWFIFjFvRwx%7ExIZnD7bOtI60YeQUC9chzV-QAb92dmjH4GOiL6QhP4WoPMu%7EmARyMwpFZqPbBHzWDfvy7lwwhIh8xHgbEWB8Y7upxIhCdVG09Ww04QIhWZS3LTa97c7rZvPEB4PF39R02m0DTbag1ntixE1m56EJBrfZVvWlNKjcDURu2hQwcEDV2MqmDH95dhcE65ytZJlSlzEACWByys-%7EqSW92HNNjCQWblmNTeC5Uks9P3mSuY8uJP2Zo07EaQNHFFHhHaulI%7EOeYwm3%7EdF1Ele-NHRRJ7tghYK4IhCmPSZu5WlMqg__&Key-Pair-Id=K24J24Z295AEI9
+Resolving cdn-lfs-us-1.hf.co (cdn-lfs-us-1.hf.co)... 99.86.212.95, 99.86.212.23, 99.86.212.34, ...
+Connecting to cdn-lfs-us-1.hf.co (cdn-lfs-us-1.hf.co)|99.86.212.95|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 668788096 (638M) [binary/octet-stream]
+Saving to: ‘tinyllama.gguf’
 
-Go to Settings → Access Tokens or directly here:
-https://huggingface.co/settings/tokens
+tinyllama.gguf                    0%[                                                      ]   6.35M   189KB/s    eta 46m 20satinyllama.gguf                    1%[                                                      ]   6.52M   192KB/s    eta 46m 53sotinyllama.gguf                  100%[=====================================================>] 637.81M   231KB/s    in 42m 34s 
 
-Click "New token"
+2025-06-23 14:40:48 (256 KB/s) - ‘tinyllama.gguf’ saved [668788096/668788096]
 
-Name: Give it a name like chatty-ai-download
+nickspi5@raspberrypi1:~/ha-voice/models $ Thank you
 
-Role: Select Read (this is required to download models)
-
-Leave scopes as default unless you're doing API dev
-
-Click "Generate"
-
-You’ll see a token that starts with hf_ — copy this immediately
-(you won’t be able to see it again!)
-
-🧪 Optional: Test the Token with curl
-To make sure it works before using wget, test it like this:
-
-bash
-Copy
-Edit
-curl -L -H "Authorization: Bearer hf_your_token_here" \
-https://huggingface.co/api/models/cmp-nct/tinyllama-gguf
-If you get JSON metadata about the model, you're good to go ✅
-If you get a 401 error, the token is incorrect or lacks permission ❌
-
-🚀 Now Download the Model
-Once verified, run:
-
-bash
-Copy
-Edit
-wget --header="Authorization: Bearer hf_your_token_here" \
-https://huggingface.co/cmp-nct/tinyllama-gguf/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
--O tinyllama.gguf
-Let me know when the model finishes downloading and I’ll help you:
-
-Add the local LLM container to docker-compose.yml
-
-Connect it to Chatty using Wyoming LLM
-
-Let’s get Chatty working fully offline! 🧠🔊
 
