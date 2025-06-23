@@ -1,6 +1,10 @@
-I ran sudo docker compose down and then sudo docker compose up -d
-[+] Running 1/1
- ✘ llama-cpp Error Head "https://ghcr.io/v2/ggerganov/llama-cpp-python/manifests/latest": denied                         0.8s 
-Error response from daemon: Head "https://ghcr.io/v2/ggerganov/llama-cpp-python/manifests/latest": denied
-and received the following error message.
+I ran sudo compose up -d
+
+I then received the following warning and error messages:
+
+Warning: unknown mime-type for "up" -- using "application/octet-stream"
+Warning: unknown mime-type for "-d" -- using "application/octet-stream"
+Error: no "compose" mailcap rules found for type "application/octet-stream"
+Error: no "compose" mailcap rules found for type "application/octet-stream"
+
 How can I fix this?
