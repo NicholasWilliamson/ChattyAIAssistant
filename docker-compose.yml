@@ -44,7 +44,7 @@ services:
 
   llama-cpp:
     container_name: llama-cpp
-    image: ghcr.io/ggerganov/llama-cpp-python:latest
+    image: ghcr.io/abetlen/llama-cpp-python:latest
     volumes:
       - ./models:/models
     ports:
