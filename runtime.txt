@@ -1,31 +1,20 @@
-I ran curl http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello Chatty, what can you do?", "max_tokens": 50}'
-curl: (7) Failed to connect to localhost port 8000 after 0 ms: Couldn't connect to server
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f llama-cpp
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/app/llama_cpp/__init__.py", line 1, in <module>
-    from .llama_cpp import *
-  File "/app/llama_cpp/llama_cpp.py", line 38, in <module>
-    _lib = load_shared_library(_lib_base_name, _base_path)
-  File "/app/llama_cpp/_ctypes_extensions.py", line 71, in load_shared_library
-    raise FileNotFoundError(
-        f"Shared library with base name '{lib_base_name}' not found"
-    )
-FileNotFoundError: Shared library with base name 'llama' not found
-Traceback (most recent call last):
-  File "<frozen runpy>", line 189, in _run_module_as_main
-  File "<frozen runpy>", line 112, in _get_module_details
-  File "/app/llama_cpp/__init__.py", line 1, in <module>
-    from .llama_cpp import *
-  File "/app/llama_cpp/llama_cpp.py", line 38, in <module>
-    _lib = load_shared_library(_lib_base_name, _base_path)
-  File "/app/llama_cpp/_ctypes_extensions.py", line 71, in load_shared_library
-    raise FileNotFoundError(
-        f"Shared library with base name '{lib_base_name}' not found"
-    )
-FileNotFoundError: Shared library with base name 'llama' not found
+I ran sudo docker compose down
+[+] Running 6/6
+ ✔ Container whisper            Removed                                                                                 10.5s 
+ ✔ Container llama-cpp          Removed                                                                                  0.1s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.6s 
+ ✔ Container piper              Removed                                                                                  0.4s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
+[+] Pulling 5/5
+ ✘ llama-cpp Error      manifest unknown                                                                                 2.2s 
+ ! whisper              Interrupted                                                                                      2.2s 
+ ! piper                Interrupted                                                                                      2.2s 
+ ! wyoming-satellite    Interrupted                                                                                      2.2s 
+ ✔ homeassistant Pulled                                                                                                  1.8s 
+Error response from daemon: manifest unknown
+nickspi5@raspberrypi1:~/ha-voice $ 
+
 
 How can I fix this?
