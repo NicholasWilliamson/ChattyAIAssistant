@@ -42,15 +42,14 @@ services:
       - "10700:10700"
     restart: unless-stopped
 
-  llama-cpp:
-    container_name: llama-cpp
+  localai:
     image: quay.io/go-skynet/local-ai:latest
+    container_name: localai
+    ports:
+      - "8000:8000"
     volumes:
       - ./models:/models
-    ports:
-      - "8000:8080"
     environment:
       - MODELS_PATH=/models
-      - MODEL_FILE=tinyllama.gguf
-      - THREADS=4
+    command: ["/usr/bin/local-ai", "--models-path", "/models"]
     restart: unless-stopped
