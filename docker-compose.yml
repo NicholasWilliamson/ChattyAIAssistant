@@ -12,7 +12,7 @@ services:
   whisper:
     container_name: whisper
     image: rhasspy/wyoming-whisper
-    command: --model small-int8
+    command: --model tiny-int8
     ports:
       - "10300:10300"
     restart: unless-stopped
@@ -31,13 +31,13 @@ services:
     devices:
       - "/dev/snd:/dev/snd"
     volumes:
-      - ./chatty-ww:/wake-word-models
+      - ./chatty-ww:/wake-word-models:ro
     command: >
       --mic-command "arecord -D plughw:1,0 -f S16_LE -r 16000 -c 1"
       --snd-command "paplay --device=bluez_output.DA_1F_35_B9_D8_F5.1 -n Chatty"
       --uri tcp://0.0.0.0:10700
       --wake-word-name chatty
-      --wake-command /wake-word-models/chatty.ppn
+      --wake-uri /wake-word-models/chatty.ppn
     ports:
       - "10700:10700"
     restart: unless-stopped
