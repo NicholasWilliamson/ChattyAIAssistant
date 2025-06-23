@@ -1,13 +1,11 @@
-I ran sudo docker compose pull
-[+] Pulling 5/5
- ✔ wyoming-satellite Pulled                                                                                              2.7s 
- ✘ llama-cpp Error          pull access denied for abetlen/llama-cpp-python, repository does not exi...                  3.2s 
- ✔ whisper Pulled                                                                                                        2.6s 
- ✔ homeassistant Pulled                                                                                                  1.4s 
- ✔ piper Pulled                                                                                                          2.7s 
-Error response from daemon: pull access denied for abetlen/llama-cpp-python, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+I ran curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama.gguf",
+        "prompt": "Hey chatty, what can you do?",
+        "max_tokens": 50
+      }'
+curl: (56) Recv failure: Connection reset by peer
 nickspi5@raspberrypi1:~/ha-voice $ 
-
-
 
 How can I fix this?
