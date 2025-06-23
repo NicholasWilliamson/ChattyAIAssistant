@@ -1,4 +1,8 @@
 curl http://localhost:8000/v1/completions \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello Chatty, what can you do?", "max_tokens": 50}'
+  -d '{
+        "model": "tinyllama.gguf",
+        "prompt": "Hey chatty, what can you do?",
+        "max_tokens": 50
+      }'
 
