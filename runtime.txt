@@ -1,19 +1,6 @@
-HTTP/2 401 
-content-type: text/plain; charset=utf-8
-content-length: 43
-date: Mon, 23 Jun 2025 03:04:27 GMT
-etag: W/"2b-rB0grUx/Kqo6uDuRqrxxTUceNFg"
-x-powered-by: huggingface-moon
-cross-origin-opener-policy: same-origin
-referrer-policy: strict-origin-when-cross-origin
-x-request-id: Root=1-6858c43b-42c76c3c19d9d82677addcca
-access-control-allow-origin: https://huggingface.co
-vary: Origin
-access-control-expose-headers: X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
-x-error-message: Invalid credentials in Authorization header
-www-authenticate: Bearer realm="Authentication required", charset="UTF-8"
-x-cache: Error from cloudfront
-via: 1.1 7563cdb400fdf01a6013c0143ee53c58.cloudfront.net (CloudFront)
-x-amz-cf-pop: MEL50-C1
-x-amz-cf-id: 7MpKDFhrcpuBwIWkWjDN_4510KSiGMmSHSEWfh2lvdzfVR-xU-eTEw==
-
+I ran sudo docker compose down and then sudo docker compose up -d
+[+] Running 1/1
+ ✘ llama-cpp Error Head "https://ghcr.io/v2/ggerganov/llama-cpp-python/manifests/latest": denied                         0.8s 
+Error response from daemon: Head "https://ghcr.io/v2/ggerganov/llama-cpp-python/manifests/latest": denied
+and received the following error message.
+How can I fix this?
