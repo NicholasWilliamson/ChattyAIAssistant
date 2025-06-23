@@ -1,26 +1,31 @@
-I ran sudo docker compose down
-[+] Running 6/6
- ✔ Container homeassistant      Removed                                                                                  4.7s 
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
- ✔ Container llama-cpp          Removed                                                                                  0.0s 
- ✔ Container whisper            Removed                                                                                 10.5s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
-[+] Pulling 5/5
- ✔ piper Pulled                                                                                                          2.7s 
- ✔ wyoming-satellite Pulled                                                                                              2.8s 
- ✔ llama-cpp Pulled                                                                                                      1.3s 
- ✔ homeassistant Pulled                                                                                                  1.6s 
- ✔ whisper Pulled                                                                                                        2.9s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 5/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ⠏ Container llama-cpp          Starting                                                                                 2.1s 
- ✔ Container homeassistant      Started                                                                                  0.6s 
- ✔ Container wyoming-satellite  Started                                                                                  1.6s 
- ✔ Container whisper            Started                                                                                  1.2s 
- ✔ Container piper              Started                                                                                  1.3s 
-Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "server": executable file not found in $PATH: unknown
+I ran curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello Chatty, what can you do?", "max_tokens": 50}'
+curl: (7) Failed to connect to localhost port 8000 after 0 ms: Couldn't connect to server
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f llama-cpp
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/app/llama_cpp/__init__.py", line 1, in <module>
+    from .llama_cpp import *
+  File "/app/llama_cpp/llama_cpp.py", line 38, in <module>
+    _lib = load_shared_library(_lib_base_name, _base_path)
+  File "/app/llama_cpp/_ctypes_extensions.py", line 71, in load_shared_library
+    raise FileNotFoundError(
+        f"Shared library with base name '{lib_base_name}' not found"
+    )
+FileNotFoundError: Shared library with base name 'llama' not found
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/app/llama_cpp/__init__.py", line 1, in <module>
+    from .llama_cpp import *
+  File "/app/llama_cpp/llama_cpp.py", line 38, in <module>
+    _lib = load_shared_library(_lib_base_name, _base_path)
+  File "/app/llama_cpp/_ctypes_extensions.py", line 71, in load_shared_library
+    raise FileNotFoundError(
+        f"Shared library with base name '{lib_base_name}' not found"
+    )
+FileNotFoundError: Shared library with base name 'llama' not found
 
 How can I fix this?
