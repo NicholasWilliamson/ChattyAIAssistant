@@ -1,37 +1,53 @@
 Thank you ChatGPT. You are great.
 
-I ran ls -lh ~/ha-voice/models/tinyllama.gguf
--rw-r--r-- 1 nickspi5 nickspi5 638M Jan  1  2024 /home/nickspi5/ha-voice/models/tinyllama.gguf
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
-[+] Running 6/6
- ✔ Container localai            Removed                                                                                  0.6s 
- ✔ Container whisper            Removed                                                                                 10.5s 
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Container homeassistant      Removed                                                                                  4.7s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.7s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 6/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container wyoming-satellite  Started                                                                                  1.6s 
- ✔ Container localai            Started                                                                                  1.9s 
- ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container piper              Started                                                                                  1.3s 
- ✔ Container whisper            Started                                                                                  1.3s 
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-        "model": "tinyllama.gguf",
-        "prompt": "Hey Chatty, what can you do?",
-        "max_tokens": 50
-      }'
+I ran curl http://localhost:8000/readyz
 curl: (56) Recv failure: Connection reset by peer
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-        "model": "tinyllama.gguf",
-        "prompt": "Hey Chatty, what can you do?",
-        "max_tokens": 50
-      }'
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
+===> LocalAI All-in-One (AIO) container starting...
+GPU acceleration is not enabled or supported. Defaulting to CPU.
+===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
+@@@@@
+Skipping rebuild
+@@@@@
+If you are experiencing issues with the pre-compiled builds, try setting REBUILD=true
+If you are still experiencing issues with the build, try setting CMAKE_ARGS and disable the instructions set as needed:
+CMAKE_ARGS="-DGGML_F16C=OFF -DGGML_AVX512=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF"
+see the documentation at: https://localai.io/basics/build/index.html
+Note: See also https://github.com/go-skynet/LocalAI/issues/288
+@@@@@
+CPU info:
+CPU: no AVX    found
+CPU: no AVX2   found
+CPU: no AVX512 found
+@@@@@
+10:14AM INF env file found, loading environment variables from file envFile=.env
+10:14AM DBG Setting logging to debug
+10:14AM INF Starting LocalAI using 4 threads, with models path: /models
+10:14AM INF LocalAI version: v3.0.0 (f9b968e19d7cbc556d59dceb2e0e450b828a3fda)
+10:14AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+WARNING: error parsing the pci address "1002000000.v3d"
+WARNING: error parsing the pci address "axi:gpu"
+10:14AM DBG GPU count: 2
+10:14AM DBG GPU: card #0 @1002000000.v3d
+10:14AM DBG GPU: card #1 @axi:gpu
+10:14AM DBG [startup] resolved local model: /aio/cpu/embeddings.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/rerank.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/text-to-speech.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/image-gen.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/text-to-text.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/speech-to-text.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/vad.yaml
+10:14AM DBG [startup] resolved local model: /aio/cpu/vision.yaml
+10:14AM WRN [startup] failed resolving model '/usr/bin/local-ai'
+10:14AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+10:14AM ERR guessDefaultsFromFile: panic while parsing gguf file
+10:14AM ERR config is not valid Name=tinyllama
+10:14AM INF Preloading models from /models
+
+It seems the same problem is occuring again and again - error installing models error="failed resolving model '/usr/bin/local-ai'"
 
 How can I fix this?
