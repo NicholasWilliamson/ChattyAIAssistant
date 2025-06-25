@@ -23,4 +23,25 @@ nickspi5@raspberrypi1:~ $
 
 I then shut down my Raspberry PI 5 and re-started it.
 
+I then ran sudo docker compose down
+[+] Running 4/4
+ ✔ Container piper              Removed                                    0.3s 
+ ✔ Container wyoming-satellite  Removed                                   10.5s 
+ ✔ Container whisper            Removed                                   10.5s 
+ ! Network ha-voice_default     Resource is ...                            0.0s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+WARN[0000] Found orphan containers ([llama-cpp]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up. 
+[+] Running 1/5
+ ⠋ Container whisper            Creating                                   0.0s 
+ ⠋ Container wyoming-satellite  Creating                                   0.0s 
+ ⠋ Container localai            Creating                                   0.0s 
+ ⠋ Container piper              Creating                                   0.0s 
+ ✘ Container homeassistant      Error respons...                           0.0s 
+Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "cc6f24f88dee583027bb8006d65e6a85cb9fe51857f63329262b47567ae2148e". You have to remove (or rename) that container to be able to reuse that name.
+nickspi5@raspberrypi1:~/ha-voice $ 
+
+I got the above error messages.
+
+How can I fix this?
+
 
