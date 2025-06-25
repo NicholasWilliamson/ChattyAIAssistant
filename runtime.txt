@@ -1,88 +1,37 @@
 Thank you ChatGPT. You are great.
 
-I copied the updated docker-compose.yml file to my ~/ha-voice folder.
-
-I ran sudo docker compose down
+I ran ls -lh ~/ha-voice/models/tinyllama.gguf
+-rw-r--r-- 1 nickspi5 nickspi5 638M Jan  1  2024 /home/nickspi5/ha-voice/models/tinyllama.gguf
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
 [+] Running 6/6
- ✔ Container wyoming-satellite  Removed                                                                                 10.6s 
- ✔ Container localai            Removed                                                                                  0.5s 
- ✔ Container homeassistant      Removed                                                                                  4.8s 
- ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container localai            Removed                                                                                  0.6s 
+ ✔ Container whisper            Removed                                                                                 10.5s 
  ✔ Container piper              Removed                                                                                  0.4s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.7s 
  ✔ Network ha-voice_default     Removed                                                                                  0.3s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
 [+] Running 6/6
  ✔ Network ha-voice_default     Created                                                                                  0.1s 
  ✔ Container wyoming-satellite  Started                                                                                  1.6s 
- ✔ Container whisper            Started                                                                                  1.3s 
- ✔ Container localai            Started                                                                                  1.6s 
- ✔ Container homeassistant      Started                                                                                  0.6s 
+ ✔ Container localai            Started                                                                                  1.9s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
  ✔ Container piper              Started                                                                                  1.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
-CONTAINER ID   IMAGE                                          COMMAND                  CREATED              STATUS                             PORTS                                                     NAMES
-8e234e3afb12   ghcr.io/home-assistant/home-assistant:stable   "/init"                  About a minute ago   Up 59 seconds                                                                                homeassistant
-ae45df4b9632   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   About a minute ago   Up 43 seconds                      0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
-35b1a3242c37   quay.io/go-skynet/local-ai:latest              "/aio/entrypoint.sh …"   About a minute ago   Up 58 seconds (health: starting)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 8080/tcp       localai
-8126c23f136f   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   About a minute ago   Up 58 seconds                      0.0.0.0:10700->10700/tcp, :::10700->10700/tcp             wyoming-satellite
-b9f07e9d68c8   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   About a minute ago   Up 43 seconds                      5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
-===> LocalAI All-in-One (AIO) container starting...
-GPU acceleration is not enabled or supported. Defaulting to CPU.
-===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
-@@@@@
-Skipping rebuild
-@@@@@
-If you are experiencing issues with the pre-compiled builds, try setting REBUILD=true
-If you are still experiencing issues with the build, try setting CMAKE_ARGS and disable the instructions set as needed:
-CMAKE_ARGS="-DGGML_F16C=OFF -DGGML_AVX512=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF"
-see the documentation at: https://localai.io/basics/build/index.html
-Note: See also https://github.com/go-skynet/LocalAI/issues/288
-@@@@@
-CPU info:
-CPU: no AVX    found
-CPU: no AVX2   found
-CPU: no AVX512 found
-@@@@@
-9:30AM INF env file found, loading environment variables from file envFile=.env
-9:30AM DBG Setting logging to debug
-9:30AM INF Starting LocalAI using 4 threads, with models path: /models
-9:30AM INF LocalAI version: v3.0.0 (f9b968e19d7cbc556d59dceb2e0e450b828a3fda)
-9:30AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: error parsing the pci address "1002000000.v3d"
-WARNING: error parsing the pci address "axi:gpu"
-9:30AM DBG GPU count: 2
-9:30AM DBG GPU: card #0 @1002000000.v3d
-9:30AM DBG GPU: card #1 @axi:gpu
-9:30AM DBG [startup] resolved local model: /aio/cpu/embeddings.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/rerank.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/text-to-speech.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/image-gen.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/text-to-text.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/speech-to-text.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/vad.yaml
-9:30AM DBG [startup] resolved local model: /aio/cpu/vision.yaml
-9:30AM WRN [startup] failed resolving model '/usr/bin/local-ai'
-9:30AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-9:30AM ERR guessDefaultsFromFile: panic while parsing gguf file
-9:30AM ERR config is not valid Name=tinyllama
-9:30AM INF Preloading models from /models
-9:30AM INF Downloading "https://huggingface.co/bartowski/granite-embedding-107m-multilingual-GGUF/resolve/main/granite-embedding-107m-multilingual-f16.gguf"
-9:30AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 8.0 KiB/210.7 MiB (0.00%) ETA: 185h14m44.213244088s
-9:30AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 508.7 KiB/210.7 MiB (0.24%) ETA: 3h37m26.266130528s
-9:30AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 769.4 KiB/210.7 MiB (0.36%) ETA: 2h47m49.825882569s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 1.0 MiB/210.7 MiB (0.49%) ETA: 2h22m48.458374419s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 1.3 MiB/210.7 MiB (0.63%) ETA: 2h5m53.232939291s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 1.5 MiB/210.7 MiB (0.70%) ETA: 3h17m10.823980713s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 1.8 MiB/210.7 MiB (0.87%) ETA: 2h49m28.691390225s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 2.1 MiB/210.7 MiB (1.02%) ETA: 2h32m40.277512931s
-9:31AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 2.7 MiB/210.7 MiB (1.30%) ETA: 2h4m56.717416947s
-9:33AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 3.0 MiB/210.7 MiB (1.42%) ETA: 3h15m54.135804471s
-9:33AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 3.0 MiB/210.7 MiB (1.44%) ETA: 3h24m53.069475949s
-9:33AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 3.1 MiB/210.7 MiB (1.46%) ETA: 3h29m19.382685597s
-9:33AM INF Downloading /models/granite-embedding-107m-multilingual-f16.gguf.partial: 3.1 MiB/210.7 MiB (1.47%) ETA: 3h37m49.586065727s
-^C
-nickspi5@raspberrypi1:~/ha-voice $ 
+ ✔ Container whisper            Started                                                                                  1.3s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama.gguf",
+        "prompt": "Hey Chatty, what can you do?",
+        "max_tokens": 50
+      }'
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama.gguf",
+        "prompt": "Hey Chatty, what can you do?",
+        "max_tokens": 50
+      }'
+
+How can I fix this?
