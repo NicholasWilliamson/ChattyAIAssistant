@@ -1,37 +1,58 @@
 Thank you ChatGPT. You are great.
 
-I ran sudo docker ps -a
-CONTAINER ID   IMAGE                                          COMMAND                  CREATED         STATUS                  PORTS                                       NAMES
-5720cead8fad   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   5 minutes ago   Created                                                             whisper
-9a1abbad64ac   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   5 minutes ago   Created                                                             piper
-7f8973a81f53   quay.io/go-skynet/local-ai:latest              "/aio/entrypoint.sh …"   5 minutes ago   Created                                                             localai
-b14dd5a93471   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   5 minutes ago   Created                                                             wyoming-satellite
-cc6f24f88dee   ghcr.io/home-assistant/home-assistant:stable   "/init"                  36 hours ago    Up 35 hours                                                         homeassistant
-5f5531a27c3c   quay.io/go-skynet/local-ai:latest              "/aio/entrypoint.sh"     44 hours ago    Up 35 hours (healthy)   0.0.0.0:8000->8080/tcp, :::8000->8080/tcp   llama-cpp
-nickspi5@raspberrypi1:~ $ sudo docker rm homeassistant
-Error response from daemon: You cannot remove a running container cc6f24f88dee583027bb8006d65e6a85cb9fe51857f63329262b47567ae2148e. Stop the container before attempting removal or force remove
-nickspi5@raspberrypi1:~ $ sudo docker stop homeassistant
+I ran sudo docker compose down --remove-orphans
+[+] Running 6/6
+ ✔ Container whisper            Removed                                                                                  0.0s 
+ ✔ Container localai            Removed                                                                                  0.0s 
+ ✔ Container piper              Removed                                                                                  0.0s 
+ ✔ Container wyoming-satellite  Removed                                                                                  0.0s 
+ ✔ Container llama-cpp          Removed                                                                                  0.4s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+[+] Running 2/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ⠋ Container localai            Creating                                                                                 0.0s 
+ ⠋ Container piper              Creating                                                                                 0.0s 
+ ✘ Container homeassistant      Error response from daemon: Conflict. The container name "/...                           0.0s 
+ ⠋ Container wyoming-satellite  Creating                                                                                 0.0s 
+ ⠋ Container whisper            Creating                                                                                 0.0s 
+Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "0d2df3da9f3b62ad51681af5eb90205c7f03717de178a551206b7416b81f7abf". You have to remove (or rename) that container to be able to reuse that name.
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker stop homeassistant
 homeassistant
-nickspi5@raspberrypi1:~ $ sudo docker rm homeassistant
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker rm homeassistant
 homeassistant
-nickspi5@raspberrypi1:~ $ sudo docker compose down --remove-orphans
-WARN[0000] /home/nickspi5/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
-WARN[0000] Warning: No resource found to remove for project "nickspi5". 
-nickspi5@raspberrypi1:~ $ sudo docker compose up -d
-WARN[0000] /home/nickspi5/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
-[+] Running 1/2
- ⠙ Container homeassistant                                                  Star[+] Running 1/2
- ⠹ Container homeassistant                                                  Star[+] Running 2/2
- ✔ Container homeassistant                                                  Started0.4s 
- ! homeassistant Published ports are discarded when using host network mode 0.0s 
-nickspi5@raspberrypi1:~ $ sudo docker ps
-CONTAINER ID   IMAGE                                          COMMAND                CREATED          STATUS                  PORTS                                       NAMES
-0d2df3da9f3b   ghcr.io/home-assistant/home-assistant:stable   "/init"                24 seconds ago   Up 23 seconds                                                       homeassistant
-5f5531a27c3c   quay.io/go-skynet/local-ai:latest              "/aio/entrypoint.sh"   44 hours ago     Up 36 hours (healthy)   0.0.0.0:8000->8080/tcp, :::8000->8080/tcp   llama-cpp
-nickspi5@raspberrypi1:~ $ 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down --remove-orphans
+[+] Running 5/5
+ ✔ Container piper              Removed                                                                                  0.0s 
+ ✔ Container whisper            Removed                                                                                  0.0s 
+ ✔ Container localai            Removed                                                                                  0.0s 
+ ✔ Container wyoming-satellite  Removed                                                                                  0.0s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container homeassistant      Started                                                                                  0.6s 
+ ✔ Container whisper            Started                                                                                  1.1s 
+ ✔ Container piper              Started                                                                                  1.3s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.8s 
+ ✔ Container localai            Started                                                                                  1.7s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
+CONTAINER ID   IMAGE                                          COMMAND                  CREATED          STATUS                             PORTS                                                     NAMES
+0675ea276075   ghcr.io/home-assistant/home-assistant:stable   "/init"                  17 seconds ago   Up 16 seconds                                                                                homeassistant
+690726068fdd   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   17 seconds ago   Up 15 seconds                      0.0.0.0:10700->10700/tcp, :::10700->10700/tcp             wyoming-satellite
+1f6ceaa86927   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   17 seconds ago   Up 15 seconds                      5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
+ddf7e13d180e   quay.io/go-skynet/local-ai:latest              "/aio/entrypoint.sh …"   17 seconds ago   Up 15 seconds (health: starting)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 8080/tcp       localai
+8033c3fb807a   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   17 seconds ago   Up 15 seconds                      0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama.gguf",
+        "prompt": "Hey Chatty, what can you do?",
+        "max_tokens": 50
+      }'
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ 
 
 I got the above error messages.
 
 How can I fix this?
-
-
