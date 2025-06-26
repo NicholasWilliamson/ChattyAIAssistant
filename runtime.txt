@@ -1,61 +1,99 @@
-Thank you ChatGPT. You are great.
+Thank you ChatGPT.
 
-I ran sudo docker exec -t localai ping -c 3 github.com
-OCI runtime exec failed: exec failed: unable to start container process: exec: "ping": executable file not found in $PATH: unknown
-nickspi5@raspberrypi1:~/ha-voice $ sudo nano /etc/docker/daemon.json
-nickspi5@raspberrypi1:~/ha-voice $ sudo systemctl restart docker
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down -v
+I updated my docker-compose.yml file as follows:
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./home-assistant-config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  whisper:
+    container_name: whisper
+    image: rhasspy/wyoming-whisper
+    command: --model small-int8
+    ports:
+      - "10300:10300"
+    restart: unless-stopped
+
+  piper:
+    container_name: piper
+    image: rhasspy/wyoming-piper
+    command: --voice en_US-lessac-medium
+    ports:
+      - "10200:10200"
+    restart: unless-stopped
+
+  wyoming-satellite:
+    container_name: wyoming-satellite
+    image: sker65/wyoming-satellite:latest
+    devices:
+      - "/dev/snd:/dev/snd"
+    volumes:
+      - ./chatty-ww:/wake-word-models
+    command: >
+      --mic-command "arecord -D plughw:1,0 -f S16_LE -r 16000 -c 1"
+      --snd-command "paplay --device=bluez_output.DA_1F_35_B9_D8_F5.1 -n Chatty"
+      --uri tcp://0.0.0.0:10700
+      --wake-word-name chatty
+      --wake-command /wake-word-models/chatty.ppn
+    ports:
+      - "10700:10700"
+    restart: unless-stopped
+
+  localai:
+    image: localai/localai:latest
+    container_name: localai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/models
+    environment:
+      - MODELS_PATH=/models
+      - THREADS=4
+      - DEBUG=true
+      - DISABLE_MODEL_DOWNLOADS=true
+      - DISABLE_AUTO_BUILD=true
+    command: ["/usr/bin/local-ai", "--models-path", "/models"]
+    restart: unless-stopped
+
+I update my models.yaml as per your advice:
+models:
+  - name: tinyllama
+    backend: llama-cpp
+    path: ./tinyllama.gguf
+    parameters:
+      n_ctx: 2048
+      n_threads: 4
+
+I ran sudo docker compose down -v
 [+] Running 6/6
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Container localai            Removed                                                                                 10.7s 
- ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Container whisper            Removed                                                                                  3.9s 
+ ✔ Container localai            Removed                                                                                 10.6s 
  ✔ Container wyoming-satellite  Removed                                                                                 10.7s 
- ✔ Container whisper            Removed                                                                                 10.7s 
+ ✔ Container piper              Removed                                                                                  0.4s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
  ✔ Network ha-voice_default     Removed                                                                                  0.3s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
 Total reclaimed space: 0B
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
-[+] Running 6/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container whisper            Started                                                                                  1.2s 
- ✔ Container piper              Started                                                                                  1.4s 
- ✔ Container localai            Started                                                                                  1.8s 
- ✔ Container wyoming-satellite  Started                                                                                  1.5s 
- ✔ Container homeassistant      Started                                                                                  0.7s 
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/readyz
-curl: (56) Recv failure: Connection reset by peer
+[+] Running 0/1
+ ⠴ localai Pulling                                                                                                       5.5s 
+no matching manifest for linux/arm64/v8 in the manifest list entries
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama",
+        "prompt": "Hey Chatty, what can you do?",
+        "max_tokens": 50
+      }'
+curl: (7) Failed to connect to localhost port 8000 after 0 ms: Couldn't connect to server
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
-===> LocalAI All-in-One (AIO) container starting...
-GPU acceleration is not enabled or supported. Defaulting to CPU.
-===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
-LLAMA_VERSION=8d947136546773f6410756f37fcc5d3e65b8135d make -C backend/cpp/llama llama.cpp
-make[1]: Entering directory '/build/backend/cpp/llama'
-mkdir -p llama.cpp
-cd llama.cpp && \
-git init && \
-git remote add origin https://github.com/ggerganov/llama.cpp  && \
-git fetch origin && \
-git checkout -b build 8d947136546773f6410756f37fcc5d3e65b8135d && \
-git submodule update --init --recursive --depth 1 --single-branch
-hint: Using 'master' as the name for the initial branch. This default branch name
-hint: is subject to change. To configure the initial branch name to use in all
-hint: of your new repositories, which will suppress this warning, call:
-hint: 
-hint: 	git config --global init.defaultBranch <name>
-hint: 
-hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
-hint: 'development'. The just-created branch can be renamed via this command:
-hint: 
-hint: 	git branch -m <name>
-Initialized empty Git repository in /build/backend/cpp/llama/llama.cpp/.git/
-error: RPC failed; curl 56 GnuTLS recv error (-54): Error in the pull function.
-error: 21099 bytes of body are still expected
-fetch-pack: unexpected disconnect while reading sideband packet
-fatal: early EOF
-fatal: fetch-pack: invalid index-pack output
-make[1]: *** [Makefile:55: llama.cpp] Error 128
-make[1]: Leaving directory '/build/backend/cpp/llama'
-make: *** [Makefile:682: backend/cpp/llama/llama.cpp] Error 2
+Error: No such container: localai
 nickspi5@raspberrypi1:~/ha-voice $ 
 
-It seems this keeps failing. Perhaps it is time to use the ready-to-go .gguf to skip compiling.
+What is wrong now and how do we fix this? I am close to just throwing this out!
