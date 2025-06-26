@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
 
   localai:
-    image: ghcr.io/go-skynet/local-ai:latest-arm64
+    image: quay.io/go-skynet/local-ai:latest
     container_name: localai
     ports:
       - "8000:8000"
@@ -65,14 +65,52 @@ services:
 I ran sudo docker compose down -v
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
 Total reclaimed space: 0B
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pullttt
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
 [+] Pulling 5/5
- ! piper              Interrupted                                                                                        1.9s 
- ✘ localai Error      Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/latest-arm64": denied                        1.9s 
- ! homeassistant      Interrupted                                                                                        1.9s 
- ! whisper            Interrupted                                                                                        1.9s 
- ! wyoming-satellite  Interrupted                                                                                        1.9s 
-Error response from daemon: Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/latest-arm64": denied
+ ✔ wyoming-satellite Pulled                                                                                              3.3s 
+ ✔ whisper Pulled                                                                                                        3.2s 
+ ✔ piper Pulled                                                                                                          3.3s 
+ ✔ homeassistant Pulled                                                                                                  1.5s 
+ ✔ localai Pulled                                                                                                        3.0s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 2/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✘ Container homeassistant      Error response from daemon: Conflict. The container name "/...                           0.0s 
+ ⠋ Container piper              Creating                                                                                 0.0s 
+ ⠋ Container localai            Creating                                                                                 0.0s 
+ ⠋ Container wyoming-satellite  Creating                                                                                 0.0s 
+ ⠋ Container whisper            Creating                                                                                 0.0s 
+Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "fea8cf4394943953c13b143cf83b43ab96210972e3c9f17150f9fc6a0598d919". You have to remove (or rename) that container to be able to reuse that name.
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose stop homeassistant
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose rm homesassistant
+no such service: homesassistant
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose rm homeassistant
+No stopped containers
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down -v
+[+] Running 5/5
+ ✔ Container wyoming-satellite  Removed                                                                                  0.0s 
+ ✔ Container whisper            Removed                                                                                  0.0s 
+ ✔ Container localai            Removed                                                                                  0.1s 
+ ✔ Container piper              Removed                                                                                  0.0s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
+Total reclaimed space: 0B
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
+[+] Pulling 5/5
+ ✔ wyoming-satellite Pulled                                                                                              3.5s 
+ ✔ localai Pulled                                                                                                        3.6s 
+ ✔ piper Pulled                                                                                                          3.4s 
+ ✔ whisper Pulled                                                                                                        3.5s 
+ ✔ homeassistant Pulled                                                                                                  1.8s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 2/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ⠋ Container wyoming-satellite  Creating                                                                                 0.0s 
+ ✘ Container homeassistant      Error response from daemon: Conflict. The container name "/...                           0.0s 
+ ⠋ Container whisper            Creating                                                                                 0.0s 
+ ⠋ Container piper              Creating                                                                                 0.0s 
+ ⠋ Container localai            Creating                                                                                 0.0s 
+Error response from daemon: Conflict. The container name "/homeassistant" is already in use by container "fea8cf4394943953c13b143cf83b43ab96210972e3c9f17150f9fc6a0598d919". You have to remove (or rename) that container to be able to reuse that name.
 nickspi5@raspberrypi1:~/ha-voice $ 
 
 I received the above error messages:
