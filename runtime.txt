@@ -1,6 +1,29 @@
 Thank you ChatGPT. You are great.
 
-I shut down my Raspberry PI 5 for today and just restarted it and ran cd ~/ha-voice
+I ran sudo docker exec -t localai ping -c 3 github.com
+OCI runtime exec failed: exec failed: unable to start container process: exec: "ping": executable file not found in $PATH: unknown
+nickspi5@raspberrypi1:~/ha-voice $ sudo nano /etc/docker/daemon.json
+nickspi5@raspberrypi1:~/ha-voice $ sudo systemctl restart docker
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down -v
+[+] Running 6/6
+ ✔ Container piper              Removed                                                                                  0.4s 
+ ✔ Container localai            Removed                                                                                 10.7s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.7s 
+ ✔ Container whisper            Removed                                                                                 10.7s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
+Total reclaimed space: 0B
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container whisper            Started                                                                                  1.2s 
+ ✔ Container piper              Started                                                                                  1.4s 
+ ✔ Container localai            Started                                                                                  1.8s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.5s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/readyz
+curl: (56) Recv failure: Connection reset by peer
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
 ===> LocalAI All-in-One (AIO) container starting...
 GPU acceleration is not enabled or supported. Defaulting to CPU.
@@ -26,27 +49,13 @@ hint:
 hint: 	git branch -m <name>
 Initialized empty Git repository in /build/backend/cpp/llama/llama.cpp/.git/
 error: RPC failed; curl 56 GnuTLS recv error (-54): Error in the pull function.
-error: 57 bytes of body are still expected
-fatal: expected flush after ref listing
-make[1]: Leaving directory '/build/backend/cpp/llama'
+error: 21099 bytes of body are still expected
+fetch-pack: unexpected disconnect while reading sideband packet
+fatal: early EOF
+fatal: fetch-pack: invalid index-pack output
 make[1]: *** [Makefile:55: llama.cpp] Error 128
+make[1]: Leaving directory '/build/backend/cpp/llama'
 make: *** [Makefile:682: backend/cpp/llama/llama.cpp] Error 2
-===> LocalAI All-in-One (AIO) container starting...
-GPU acceleration is not enabled or supported. Defaulting to CPU.
-===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
-go mod edit -replace github.com/ggerganov/whisper.cpp=/build/sources/whisper.cpp
-go: downloading go1.23.1 (linux/arm64)
-go: download go1.23.1: golang.org/toolchain@v0.0.1-go1.23.1.linux-arm64: Get "https://proxy.golang.org/golang.org/toolchain/@v/v0.0.1-go1.23.1.linux-arm64.zip": dial tcp: lookup proxy.golang.org on 127.0.0.11:53: read udp 127.0.0.1:60759->127.0.0.11:53: i/o timeout
-make: *** [Makefile:329: replace] Error 1
-===> LocalAI All-in-One (AIO) container starting...
-GPU acceleration is not enabled or supported. Defaulting to CPU.
-===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
-go mod edit -replace github.com/ggerganov/whisper.cpp=/build/sources/whisper.cpp
-go: downloading go1.23.1 (linux/arm64)
-go: download go1.23.1: golang.org/toolchain@v0.0.1-go1.23.1.linux-arm64: Get "https://proxy.golang.org/golang.org/toolchain/@v/v0.0.1-go1.23.1.linux-arm64.zip": dial tcp: lookup proxy.golang.org on 127.0.0.11:53: read udp 127.0.0.1:33023->127.0.0.11:53: i/o timeout
-make: *** [Makefile:329: replace] Error 1
-nickspi5@raspberrypi1:~/ha-voice $ ^C
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/readyz
-curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ 
 
-
+It seems this keeps failing. Perhaps it is time to use the ready-to-go .gguf to skip compiling.
