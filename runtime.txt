@@ -1,6 +1,6 @@
-Thank you ChatGPT.
+Hello ChatGPT.
 
-I updated my docker-compose.yml file as follows:
+I updated my docker-compose.yml file as you suggested as follows:
 services:
   homeassistant:
     container_name: homeassistant
@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
 
   localai:
-    image: localai/localai:latest
+    image: ghcr.io/go-skynet/local-ai:arm64
     container_name: localai
     ports:
       - "8000:8000"
@@ -61,39 +61,18 @@ services:
     command: ["/usr/bin/local-ai", "--models-path", "/models"]
     restart: unless-stopped
 
-I update my models.yaml as per your advice:
-models:
-  - name: tinyllama
-    backend: llama-cpp
-    path: ./tinyllama.gguf
-    parameters:
-      n_ctx: 2048
-      n_threads: 4
-
 I ran sudo docker compose down -v
-[+] Running 6/6
- ✔ Container whisper            Removed                                                                                  3.9s 
- ✔ Container localai            Removed                                                                                 10.6s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.7s 
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Container homeassistant      Removed                                                                                  4.7s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
 Total reclaimed space: 0B
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
-[+] Running 0/1
- ⠴ localai Pulling                                                                                                       5.5s 
-no matching manifest for linux/arm64/v8 in the manifest list entries
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-        "model": "tinyllama",
-        "prompt": "Hey Chatty, what can you do?",
-        "max_tokens": 50
-      }'
-curl: (7) Failed to connect to localhost port 8000 after 0 ms: Couldn't connect to server
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
-Error: No such container: localai
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
+[+] Pulling 5/5
+ ! piper              Interrupted                                                                                        4.1s 
+ ✘ localai Error      Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/arm64": denied                               4.1s 
+ ! whisper            Interrupted                                                                                        4.1s 
+ ! homeassistant      Interrupted                                                                                        4.1s 
+ ! wyoming-satellite  Interrupted                                                                                        4.1s 
+Error response from daemon: Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/arm64": denied
 nickspi5@raspberrypi1:~/ha-voice $ 
 
-What is wrong now and how do we fix this? I am close to just throwing this out!
+You said we were 95% finished many attempts ago. What is it going to take to get this 100% complete?
+
