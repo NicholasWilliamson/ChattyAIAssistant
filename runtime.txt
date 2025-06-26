@@ -1,66 +1,90 @@
 Thank you ChatGPT. You are great.
 
-I ran sudo docker compose down
+I made the change you recommended to my compose-docker.yml file and saved it in my ~/ha-voice folder.
+
+I ran ls -lh ~/ha-voice/models/
+total 1012M
+-rw------- 1 root     root      420 Jun 25 21:06 01ef9266c178bdcf654bb8730bf1d55f.yaml
+-rw------- 1 root     root      679 Jun 25 21:06 112ee7db86acb6c32ff0ad9e1d651094.yaml
+-rw------- 1 root     root      695 Jun 25 21:06 1bea8ef81b66dd63fcf3b68e5b959925.yaml
+-rw------- 1 root     root     1.6K Jun 25 21:06 23edd98fb1aee8a2cc1d8b07f2a8adec.yaml
+-rw------- 1 root     root      457 Jun 25 21:06 4e8bce301ebed58b98689146c493d8c4.yaml
+-rw------- 1 root     root      284 Jun 25 21:06 c1a3af45b7927c64663e1d5beac5fcac.yaml
+-rw------- 1 root     root     1.3K Jun 25 21:06 d5d777709b4378daa8979eb2e364a5d1.yaml
+-rw-r--r-- 1 root     root      61M Jun 25 18:24 en-us-amy-low.onnx
+-rw-r--r-- 1 root     root     5.7K Jun 25 18:24 en-us-amy-low.onnx.json
+-rw------- 1 root     root     2.4K Jun 25 21:06 f3cb558f560f3efdeadc6b36d9064998.yaml
+-rw-r--r-- 1 root     root      74M Jun 25 20:31 granite-embedding-107m-multilingual-f16.gguf.partial
+-rw-r--r-- 1 root     root     119M Jun 23 22:55 Hermes-3-Llama-3.2-3B-Q4_K_M.gguf.partial
+-rw-r--r-- 1 root     root      65M Jun 23 22:21 jina-reranker-v1-tiny-en.f16.gguf
+-rw-r--r-- 1 root     root      263 Jun 25 18:24 MODEL_CARD
+-rw-r--r-- 1 nickspi5 nickspi5  142 Jun 25 20:05 models.yaml
+-rw-r--r-- 1 root     root     2.2M Jun 23 21:47 silero-vad.onnx
+-rw-r--r-- 1 nickspi5 nickspi5 638M Jan  1  2024 tinyllama.gguf
+-rw-r--r-- 1 nickspi5 nickspi5   81 Jun 24 05:57 tinyllama.yaml
+-rw-r--r-- 1 root     root      56M Jun 25 18:24 voice-en-us-amy-low.tar.gz
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down -v
 [+] Running 6/6
  ✔ Container piper              Removed                                                                                  0.5s 
- ✔ Container localai            Removed                                                                                  0.5s 
- ✔ Container homeassistant      Removed                                                                                  4.8s 
  ✔ Container whisper            Removed                                                                                 10.5s 
+ ✔ Container localai            Removed                                                                                  0.6s 
  ✔ Container wyoming-satellite  Removed                                                                                 10.6s 
+ ✔ Container homeassistant      Removed                                                                                  4.8s 
  ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
+Deleted Volumes:
+60241d0271532dc07cf7d15dbca41cc886bd8c4481ccbc57622dd3b9f67d30ee
+3a8fd443036be011540604992e432224ff3cb475079f940f22a5e3f8ce49deed
+4f29a5039606bb5783e66b276ae36fc156f2c3b6c72fe8cfde87cc3c8e758ec9
+dda788bd4dcba780cecbf68cefddaf6743997f650571f89c405f84c294306ef6
+f7fad4b9a3588d1b17710f84d5ec6b5f51122b0f39a7999be0375142c7eaac4d
+597b26c9fa72b5ec9ac7bb91b3e8c861c3e3054dc41615cc1c78b0ba2b3a4008
+f3a5f6f46948d87fc63f35bc3c4e91740be4a529c4b2be04ed25dbff84e0c962
+35381b574ba9c80c49e314d69eb005299abc37ddab8ef64141caf8f25027d810
+ec3a4548773e9ec3a6a9c15162f50b9e2126e54b8a70d3abf569a014adea3b07
+8bac8f70cbf34697568d091e558c9e6cd8339de45751c325dfd9d620d4ca3a51
+5d67d101f912bb2be03ce45ccd52a1b4f8e2219ad0468d50628117ff66e7947a
+91f051fed1b3853d1096ccca67ed837d73859a7da931967dfa215bdb6d04f03c
+
+Total reclaimed space: 0B
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
 [+] Running 6/6
  ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container localai            Started                                                                                  1.5s 
  ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container whisper            Started                                                                                  1.1s 
- ✔ Container piper              Started                                                                                  1.6s 
- ✔ Container wyoming-satellite  Started                                                                                  1.8s 
+ ✔ Container whisper            Started                                                                                  1.7s 
+ ✔ Container piper              Started                                                                                  1.1s 
+ ✔ Container localai            Started                                                                                  1.4s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.7s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "tinyllama",
+        "prompt": "Hey Chatty, what can you do?",
+        "max_tokens": 50
+      }'
+curl: (56) Recv failure: Connection reset by peer
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
 ===> LocalAI All-in-One (AIO) container starting...
 GPU acceleration is not enabled or supported. Defaulting to CPU.
 ===> Starting LocalAI[cpu] with the following models: /aio/cpu/embeddings.yaml,/aio/cpu/rerank.yaml,/aio/cpu/text-to-speech.yaml,/aio/cpu/image-gen.yaml,/aio/cpu/text-to-text.yaml,/aio/cpu/speech-to-text.yaml,/aio/cpu/vad.yaml,/aio/cpu/vision.yaml
-@@@@@
-Skipping rebuild
-@@@@@
-If you are experiencing issues with the pre-compiled builds, try setting REBUILD=true
-If you are still experiencing issues with the build, try setting CMAKE_ARGS and disable the instructions set as needed:
-CMAKE_ARGS="-DGGML_F16C=OFF -DGGML_AVX512=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF"
-see the documentation at: https://localai.io/basics/build/index.html
-Note: See also https://github.com/go-skynet/LocalAI/issues/288
-@@@@@
-CPU info:
-CPU: no AVX    found
-CPU: no AVX2   found
-CPU: no AVX512 found
-@@@@@
-11:06AM INF env file found, loading environment variables from file envFile=.env
-11:06AM DBG Setting logging to debug
-11:06AM INF Starting LocalAI using 4 threads, with models path: /models
-11:06AM INF LocalAI version: v3.0.0 (f9b968e19d7cbc556d59dceb2e0e450b828a3fda)
-11:06AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: error parsing the pci address "1002000000.v3d"
-WARNING: error parsing the pci address "axi:gpu"
-11:06AM DBG GPU count: 2
-11:06AM DBG GPU: card #0 @1002000000.v3d
-11:06AM DBG GPU: card #1 @axi:gpu
-11:06AM DBG [startup] resolved local model: /aio/cpu/embeddings.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/rerank.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/text-to-speech.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/image-gen.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/text-to-text.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/speech-to-text.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/vad.yaml
-11:06AM DBG [startup] resolved local model: /aio/cpu/vision.yaml
-11:07AM WRN [startup] failed resolving model '/usr/bin/local-ai'
-11:07AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-11:07AM ERR guessDefaultsFromFile: panic while parsing gguf file
-11:07AM ERR config is not valid Name=tinyllama
-11:07AM INF Preloading models from /models
-11:07AM INF Downloading "https://huggingface.co/bartowski/granite-embedding-107m-multilingual-GGUF/resolve/main/granite-embedding-107m-multilingual-f16.gguf"
-11:07AM ERR error downloading models error="failed to check if uri server supports range header: Head \"https://huggingface.co/bartowski/granite-embedding-107m-multilingual-GGUF/resolve/main/granite-embedding-107m-multilingual-f16.gguf\": dial tcp: lookup huggingface.co on 127.0.0.11:53: read udp 127.0.0.1:40749->127.0.0.11:53: i/o timeout"
-11:07AM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0 TopP:0x400ce31ca0 TopK:0x400ce31ca8 Temperature:0x400ce31cb0 Maxtokens:0x400ce31ce0 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400ce31cd8 TypicalP:0x400ce31cd0 Seed:0x400ce31cf0 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x400ce31c98 Threads:0x400ce31c90 Debug:0x400ce31ce8 Roles:map[] Embeddings:0x400ce31ce9 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400ce31cc8 MirostatTAU:0x400ce31cc0 Mirostat:0x400ce31cb8 NGPULayers:<nil> MMap:0x400ce31ce8 MMlock:0x400ce31ce9 LowVRAM:0x400ce31ce9 Reranking:0x400ce31ce9 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400ce31cf8 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
+LLAMA_VERSION=8d947136546773f6410756f37fcc5d3e65b8135d make -C backend/cpp/llama llama.cpp
+make[1]: Entering directory '/build/backend/cpp/llama'
+mkdir -p llama.cpp
+cd llama.cpp && \
+git init && \
+git remote add origin https://github.com/ggerganov/llama.cpp  && \
+git fetch origin && \
+git checkout -b build 8d947136546773f6410756f37fcc5d3e65b8135d && \
+git submodule update --init --recursive --depth 1 --single-branch
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+Initialized empty Git repository in /build/backend/cpp/llama/llama.cpp/.git/
+
