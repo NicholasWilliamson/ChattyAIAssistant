@@ -1,6 +1,6 @@
 Hello ChatGPT.
 
-My docker-compose.yml is as follows:
+I updated my docker-compose.yml as you recommended:
 services:
   homeassistant:
     container_name: homeassistant
@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
 
   localai:
-    image: ghcr.io/go-skynet/local-ai:arm64
+    image: ghcr.io/go-skynet/local-ai:latest-arm64
     container_name: localai
     ports:
       - "8000:8000"
@@ -66,12 +66,12 @@ nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
 Total reclaimed space: 0B
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
 [+] Pulling 5/5
- ! piper              Interrupted                                                                                        4.1s 
- ✘ localai Error      Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/arm64": denied                               4.1s 
- ! whisper            Interrupted                                                                                        4.1s 
- ! homeassistant      Interrupted                                                                                        4.1s 
- ! wyoming-satellite  Interrupted                                                                                        4.1s 
-Error response from daemon: Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/arm64": denied
+ ✘ wyoming-satellite Error Get "https://registry-1.docker.io/v2/": net/http: request cancele...                         45.0s 
+ ! whisper                 Interrupted                                                                                  45.0s 
+ ! homeassistant           Interrupted                                                                                  45.0s 
+ ! localai                 Interrupted                                                                                  45.0s 
+ ! piper                   Interrupted                                                                                  45.0s 
+Error response from daemon: Get "https://registry-1.docker.io/v2/": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
 nickspi5@raspberrypi1:~/ha-voice $ 
 
 What is it going to take to get this 100% complete?
