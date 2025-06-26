@@ -1,6 +1,7 @@
-Hello ChatGPT.
+Hello ChatGPT. Thank you for your help.
 
-I updated my docker-compose.yml as you recommended:
+I update my docker-compose.yml file as you recommended as follows:
+
 services:
   homeassistant:
     container_name: homeassistant
@@ -64,15 +65,17 @@ services:
 I ran sudo docker compose down -v
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker volume prune -f
 Total reclaimed space: 0B
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pullttt
 [+] Pulling 5/5
- ✘ wyoming-satellite Error Get "https://registry-1.docker.io/v2/": net/http: request cancele...                         45.0s 
- ! whisper                 Interrupted                                                                                  45.0s 
- ! homeassistant           Interrupted                                                                                  45.0s 
- ! localai                 Interrupted                                                                                  45.0s 
- ! piper                   Interrupted                                                                                  45.0s 
-Error response from daemon: Get "https://registry-1.docker.io/v2/": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+ ! piper              Interrupted                                                                                        1.9s 
+ ✘ localai Error      Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/latest-arm64": denied                        1.9s 
+ ! homeassistant      Interrupted                                                                                        1.9s 
+ ! whisper            Interrupted                                                                                        1.9s 
+ ! wyoming-satellite  Interrupted                                                                                        1.9s 
+Error response from daemon: Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/latest-arm64": denied
 nickspi5@raspberrypi1:~/ha-voice $ 
 
-What is it going to take to get this 100% complete?
+I received the above error messages:
+
+How can we get this fixed and 100% correct?
 
