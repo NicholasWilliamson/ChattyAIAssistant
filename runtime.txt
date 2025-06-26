@@ -1,6 +1,6 @@
 Hello ChatGPT.
 
-I updated my docker-compose.yml file as you suggested as follows:
+My docker-compose.yml is as follows:
 services:
   homeassistant:
     container_name: homeassistant
@@ -74,5 +74,5 @@ nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose pull
 Error response from daemon: Head "https://ghcr.io/v2/go-skynet/local-ai/manifests/arm64": denied
 nickspi5@raspberrypi1:~/ha-voice $ 
 
-You said we were 95% finished many attempts ago. What is it going to take to get this 100% complete?
+What is it going to take to get this 100% complete?
 
