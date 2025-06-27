@@ -1,1 +1,3 @@
-wget -O ~/ha-voice/models/tinyllama.Q4_K_M.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/tinyllama-1.1B-chat.Q4_K_M.gguf
+wget --header="Authorization: Bearer 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" \
+  -O ~/ha-voice/models/tinyllama.Q4_K_M.gguf \
+  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/tinyllama-1.1B-chat.Q4_K_M.gguf
