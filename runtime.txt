@@ -2,21 +2,162 @@ Hello ChatGPT. Thank you for your help.
 
 I ran:
 
+cd ~/ha-voice
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
+[+] Running 6/6
+ ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Container localai            Removed                                                                                  0.6s 
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container piper              Removed                                                                                  0.6s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.7s 
+ ✔ Container whisper            Started                                                                                  2.6s 
+ ✔ Container piper              Started                                                                                  2.2s 
+ ✔ Container localai            Started                                                                                  1.1s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/readyz
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/models
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/readyz
+curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server
 nickspi5@raspberrypi1:~/ha-voice $ cat ./models/models.yaml
 models:
   - name: tinyllama
     backend: llama-cpp
-    path: ./tinyllama.gguf
+    path: /models/tinyllama.gguf
     parameters:
       n_ctx: 2048
-      n_threads: 4nickspi5@raspberrypi1:~/ha-voice $ ls -lh ./models/*.gguf
--rw-r--r-- 1 root     root     211M Jun 27 07:56 ./models/granite-embedding-107m-multilingual-f16.gguf
--rw-r--r-- 1 root     root     1.9G Jun 27 07:55 ./models/Hermes-3-Llama-3.2-3B-Q4_K_M.gguf
--rw-r--r-- 1 root     root      65M Jun 23 22:21 ./models/jina-reranker-v1-tiny-en.f16.gguf
--rw-r--r-- 1 root     root     997M Jun 27 17:18 ./models/minicpm-v-2_6-mmproj-f16.gguf
--rw-r--r-- 1 root     root     4.4G Jun 27 17:13 ./models/minicpm-v-2_6-Q4_K_M.gguf
--rw-r--r-- 1 root     root     1.5G Jun 27 17:03 ./models/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf
--rw-r--r-- 1 nickspi5 nickspi5 638M Jan  1  2024 ./models/tinyllama.gguf
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/models
-curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server
-nickspi5@raspberrypi1:~/ha-voice $ 
+      n_threads: 4nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
+CPU info:
+CPU: no AVX    found
+CPU: no AVX2   found
+CPU: no AVX512 found
+9:52AM DBG Setting logging to debug
+9:52AM INF Starting LocalAI using 4 threads, with models path: /models
+9:52AM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
+9:52AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+9:52AM DBG GPU count: 2
+9:52AM DBG GPU: card #0 @1002000000.v3d
+9:52AM DBG GPU: card #1 @axi:gpu
+9:52AM WRN [startup] failed resolving model '/usr/bin/local-ai'
+9:52AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+9:52AM DBG GPU vendor gpuVendor=
+9:52AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+9:52AM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
+9:52AM DBG guessDefaultsFromFile: family not identified
+9:52AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+9:52AM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
+9:52AM DBG guessDefaultsFromFile: family not identified
+9:52AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+9:52AM DBG guessDefaultsFromFile: template already set name=gpt-4o
+9:52AM ERR guessDefaultsFromFile: panic while parsing gguf file
+9:52AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+9:52AM DBG guessDefaultsFromFile: template already set name=gpt-4
+9:52AM ERR config is not valid Name=tinyllama
+9:52AM INF Preloading models from /models
+9:52AM DBG Checking "voice-en-us-amy-low.tar.gz" exists and matches SHA
+9:52AM DBG File "/models/voice-en-us-amy-low.tar.gz" already exists. Skipping download
+
+  Model name: tts-1                                                           
+
+
+
+  To test if this model works as expected, you can use the following curl     
+  command:                                                                    
+                                                                              
+  curl http://localhost:8080/tts -H "Content-Type: application/json" -d '{    
+  "model":"voice-en-us-amy-low", "input": "Hi, this is a test." }'            
+
+
+9:52AM DBG Checking "jina-reranker-v1-tiny-en.f16.gguf" exists and matches SHA
+9:52AM DBG File "/models/jina-reranker-v1-tiny-en.f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: jina-reranker-v1-base-en                                        
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/v1/rerank  -H "Content-Type: application/json"  -d
+  '{ "model": "jina-reranker-v1-base-en", "query": "Organic skincare products for
+  sensitive skin", "documents": [ "Eco-friendly kitchenware for modern homes",
+  "Biodegradable cleaning supplies for eco-conscious consumers", "Organic     
+  cotton baby clothes for sensitive skin", "Natural organic skincare range for
+  sensitive skin", "Tech gadgets for smart homes: 2024 edition", "Sustainable 
+  gardening tools and compost solutions", "Sensitive skin-friendly facial     
+  cleansers and toners", "Organic food wraps and storage solutions", "All-    
+  natural pet food for dogs with allergies", "Yoga mats made from recycled    
+  materials" ], "top_n": 3 }'                                                 
+
+
+9:52AM DBG Checking "Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" exists and matches SHA
+9:52AM DBG File "/models/Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
+9:52AM DBG Checking "minicpm-v-2_6-Q4_K_M.gguf" exists and matches SHA
+
+  Model name: gpt-4                                                           
+
+
+9:53AM DBG File "/models/minicpm-v-2_6-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
+9:53AM DBG Checking "minicpm-v-2_6-mmproj-f16.gguf" exists and matches SHA
+9:53AM DBG File "/models/minicpm-v-2_6-mmproj-f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: gpt-4o                                                          
+
+
+9:53AM DBG Checking "silero-vad.onnx" exists and matches SHA
+9:53AM DBG File "/models/silero-vad.onnx" already exists and matches the SHA. Skipping download
+
+  Model name: silero-vad                                                      
+
+
+
+  Model name: text-embedding-ada-002                                          
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/embeddings -X POST -H "Content-Type:             
+  application/json" -d '{ "input": "Your text string goes here", "model": "text-
+  embedding-ada-002" }'                                                       
+
+
+9:53AM DBG Checking "ggml-whisper-base.bin" exists and matches SHA
+9:53AM DBG File "/models/ggml-whisper-base.bin" already exists and matches the SHA. Skipping download
+
+  Model name: whisper-1                                                       
+
+
+
+  ## example audio file                                                       
+                                                                              
+  wget --quiet --show-progress -O gb1.ogg                                     
+  https://upload.wikimedia.org/wikipedia/commons/1/1f/George_W_Bush_Columbia_FINAL.ogg
+                                                                              
+  ## Send the example audio file to the transcriptions endpoint               
+                                                                              
+  curl http://localhost:8080/v1/audio/transcriptions  -H "Content-Type:       
+  multipart/form-data"  -F file="@$PWD/gb1.ogg" -F model="whisper-1"          
+
+
+9:53AM DBG Checking "stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf" exists and matches SHA
+9:53AM DBG File "/models/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: stablediffusion                                                 
+
+
+
+  curl http://localhost:8080/v1/images/generations  -H "Content-Type:         
+  application/json"  -d '{ "prompt": "|", "step": 25, "size": "512x512" }'    
+
+
+9:53AM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0
