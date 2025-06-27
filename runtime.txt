@@ -1,70 +1,89 @@
 Thank you ChatGPT. You are great!
 
-I ran: cat ./models/models.yaml
-models:
-  - name: tinyllama
-    backend: llama-cpp
-    path: /models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
-    parameters:
-      n_ctx: 2048
-      n_threads: 4nickspi5@raspberrypi1:~/ha-voice $ rm ~/ha-voice/models/tinyllama.Q4_K_M.gguf
+I did what you recommended. I ran: nano ~/ha-voice/models/models.yaml
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
 [+] Running 6/6
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
+ ✔ Container localai            Removed                                                                                  0.6s 
  ✔ Container homeassistant      Removed                                                                                  4.8s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.6s 
- ✔ Container localai            Removed                                                                                  0.7s 
- ✔ Container whisper            Removed                                                                                 10.5s 
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Network ha-voice_default     Removed                                                                                  0.2s 
+ ✔ Container piper              Removed                                                                                  0.6s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
 [+] Running 6/6
  ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container whisper            Started                                                                                  1.9s 
- ✔ Container localai            Started                                                                                  1.3s 
- ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container wyoming-satellite  Started                                                                                  1.8s 
- ✔ Container piper              Started                                                                                  2.0s 
+ ✔ Container localai            Started                                                                                  1.7s 
+ ✔ Container whisper            Started                                                                                  1.2s 
+ ✔ Container homeassistant      Started                                                                                  0.8s 
+ ✔ Container wyoming-satellite  Started                                                                                  2.0s 
+ ✔ Container piper              Started                                                                                  1.4s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
 CPU info:
 CPU: no AVX    found
 CPU: no AVX2   found
 CPU: no AVX512 found
-11:02PM DBG Setting logging to debug
-11:02PM INF Starting LocalAI using 4 threads, with models path: /models
-11:02PM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
-11:02PM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+11:21PM DBG Setting logging to debug
+11:21PM INF Starting LocalAI using 4 threads, with models path: /models
+11:21PM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
+11:21PM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
 WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
 WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
 WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
 WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-11:02PM DBG GPU count: 2
-11:02PM DBG GPU: card #0 @1002000000.v3d
-11:02PM DBG GPU: card #1 @axi:gpu
-11:02PM WRN [startup] failed resolving model '/usr/bin/local-ai'
-11:02PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-11:02PM DBG GPU vendor gpuVendor=
-11:02PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-11:02PM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
-11:02PM DBG guessDefaultsFromFile: family not identified
-11:02PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-11:02PM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
-11:02PM DBG guessDefaultsFromFile: family not identified
-11:02PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-11:02PM DBG guessDefaultsFromFile: template already set name=gpt-4o
-11:02PM ERR guessDefaultsFromFile: panic while parsing gguf file
-11:02PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-11:02PM DBG guessDefaultsFromFile: template already set name=gpt-4
-11:02PM ERR config is not valid Name=tinyllama
-11:02PM INF Preloading models from /models
-11:02PM DBG Checking "ggml-whisper-base.bin" exists and matches SHA
-11:02PM DBG File "/models/ggml-whisper-base.bin" already exists and matches the SHA. Skipping download
+11:21PM DBG GPU count: 2
+11:21PM DBG GPU: card #0 @1002000000.v3d
+11:21PM DBG GPU: card #1 @axi:gpu
+11:21PM WRN [startup] failed resolving model '/usr/bin/local-ai'
+11:21PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+11:21PM DBG GPU vendor gpuVendor=
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
+11:21PM DBG guessDefaultsFromFile: family not identified
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
+11:21PM DBG guessDefaultsFromFile: family not identified
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG guessDefaultsFromFile: template already set name=gpt-4o
+11:21PM ERR guessDefaultsFromFile: panic while parsing gguf file
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG guessDefaultsFromFile: template already set name=gpt-4
+11:21PM ERR config is not valid Name=tinyllama
+11:21PM INF Preloading models from /models
+11:21PM DBG Checking "silero-vad.onnx" exists and matches SHA
+11:21PM DBG File "/models/silero-vad.onnx" already exists and matches the SHA. Skipping download
+
+  Model name: silero-vad                                                      
+
+
+11:21PM DBG Checking "jina-reranker-v1-tiny-en.f16.gguf" exists and matches SHA
+11:21PM DBG File "/models/jina-reranker-v1-tiny-en.f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: jina-reranker-v1-base-en                                        
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/v1/rerank  -H "Content-Type: application/json"  -d
+  '{ "model": "jina-reranker-v1-base-en", "query": "Organic skincare products for
+  sensitive skin", "documents": [ "Eco-friendly kitchenware for modern homes",
+  "Biodegradable cleaning supplies for eco-conscious consumers", "Organic     
+  cotton baby clothes for sensitive skin", "Natural organic skincare range for
+  sensitive skin", "Tech gadgets for smart homes: 2024 edition", "Sustainable 
+  gardening tools and compost solutions", "Sensitive skin-friendly facial     
+  cleansers and toners", "Organic food wraps and storage solutions", "All-    
+  natural pet food for dogs with allergies", "Yoga mats made from recycled    
+  materials" ], "top_n": 3 }'                                                 
+
+
+11:21PM DBG Checking "ggml-whisper-base.bin" exists and matches SHA
+11:21PM DBG File "/models/ggml-whisper-base.bin" already exists and matches the SHA. Skipping download
 
   Model name: whisper-1                                                       
 
 
 
   ## example audio file                                                       
-11:02PM DBG Checking "Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" exists and matches SHA
                                                                               
   wget --quiet --show-progress -O gb1.ogg                                     
   https://upload.wikimedia.org/wikipedia/commons/1/1f/George_W_Bush_Columbia_FINAL.ogg
@@ -75,40 +94,35 @@ WARNING: failed to determine memory area for node: open /sys/devices/system/node
   multipart/form-data"  -F file="@$PWD/gb1.ogg" -F model="whisper-1"          
 
 
-11:03PM DBG File "/models/Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
-11:03PM DBG Checking "voice-en-us-amy-low.tar.gz" exists and matches SHA
-11:03PM DBG File "/models/voice-en-us-amy-low.tar.gz" already exists. Skipping download
+11:21PM DBG Checking "minicpm-v-2_6-Q4_K_M.gguf" exists and matches SHA
+11:22PM DBG File "/models/minicpm-v-2_6-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
+11:22PM DBG Checking "minicpm-v-2_6-mmproj-f16.gguf" exists and matches SHA
+11:22PM DBG File "/models/minicpm-v-2_6-mmproj-f16.gguf" already exists and matches the SHA. Skipping download
 
-  Model name: gpt-4                                                           
-
-
-
-  Model name: tts-1                                                           
+  Model name: gpt-4o                                                          
 
 
-11:03PM DBG Checking "silero-vad.onnx" exists and matches SHA
-
-  To test if this model works as expected, you can use the following curl     
-  command:                                                                    
-                                                                              
-  curl http://localhost:8080/tts -H "Content-Type: application/json" -d '{    
-  "model":"voice-en-us-amy-low", "input": "Hi, this is a test." }'            
-
-
-11:03PM DBG File "/models/silero-vad.onnx" already exists and matches the SHA. Skipping download
-
-  Model name: silero-vad                                                      
-
-
-11:03PM DBG Checking "jina-reranker-v1-tiny-en.f16.gguf" exists and matches SHA
-11:03PM DBG File "/models/jina-reranker-v1-tiny-en.f16.gguf" already exists and matches the SHA. Skipping download
+11:22PM DBG Checking "voice-en-us-amy-low.tar.gz" exists and matches SHA
+11:22PM DBG File "/models/voice-en-us-amy-low.tar.gz" already exists. Skipping download
 ^C
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
-CONTAINER ID   IMAGE                                          COMMAND                  CREATED         STATUS                   PORTS                                                     NAMES
-0d25bd09c0c0   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   5 minutes ago   Up 5 minutes             0.0.0.0:10700->10700/tcp, :::10700->10700/tcp             wyoming-satellite
-1c42811a6c80   ghcr.io/home-assistant/home-assistant:stable   "/init"                  5 minutes ago   Up 5 minutes                                                                       homeassistant
-f9ff611f89db   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   5 minutes ago   Up 5 minutes             5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
-573de7a61c9d   quay.io/go-skynet/local-ai:latest              "/entrypoint.sh /usr…"   5 minutes ago   Up 5 minutes (healthy)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 8080/tcp       localai
-03bc6da36871   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   5 minutes ago   Up 5 minutes             0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
 nickspi5@raspberrypi1:~/ha-voice $ 
 
+The same errors still exist:
+
+WRN [startup] failed resolving model '/usr/bin/local-ai'
+11:21PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+11:21PM DBG GPU vendor gpuVendor=
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
+11:21PM DBG guessDefaultsFromFile: family not identified
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
+11:21PM DBG guessDefaultsFromFile: family not identified
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG guessDefaultsFromFile: template already set name=gpt-4o
+11:21PM ERR guessDefaultsFromFile: panic while parsing gguf file
+11:21PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+11:21PM DBG guessDefaultsFromFile: template already set name=gpt-4
+11:21PM ERR config is not valid Name=tinyllama
+
+Please ChatGPT, you are great. I believe in you. Please help me to get this working and 100% correct right now.
