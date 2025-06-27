@@ -1,12 +1,161 @@
-Hello ChatGPT.
+Thank you ChatGPT. You are great!
 
-I ran: wget -O ~/ha-voice/models/tinyllama.Q4_K_M.gguf https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/tinyllama-1.1B-chat.Q4_K_M.gguf
---2025-06-27 20:59:44--  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/tinyllama-1.1B-chat.Q4_K_M.gguf
-Resolving huggingface.co (huggingface.co)... 65.8.134.116, 65.8.134.63, 65.8.134.40, ...
-Connecting to huggingface.co (huggingface.co)|65.8.134.116|:443... connected.
-HTTP request sent, awaiting response... 401 Unauthorized
+I ran: curl -L -o ~/ha-voice/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
+  -H "Authorization: Bearer MY HUGGINGFACE CODE" \
+  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1152  100  1152    0     0    629      0  0:00:01  0:00:01 --:--:--   630
+100  637M  100  637M    0     0  4131k      0  0:02:38  0:02:38 --:--:-- 3524k
+nickspi5@raspberrypi1:~/ha-voice/models $ cd ..
+nickspi5@raspberrypi1:~/ha-voice $ cd ..
+nickspi5@raspberrypi1:~ $ sudo apt update
+Ign:1 http://deb.debian.org/debian bookworm InRelease
+Ign:2 https://download.docker.com/linux/debian bookworm InRelease             
+Ign:3 http://archive.raspberrypi.com/debian bookworm InRelease                
+Ign:4 http://deb.debian.org/debian-security bookworm-security InRelease       
+Ign:5 http://deb.debian.org/debian bookworm-updates InRelease
+Ign:1 http://deb.debian.org/debian bookworm InRelease
+Ign:3 http://archive.raspberrypi.com/debian bookworm InRelease
+Ign:4 http://deb.debian.org/debian-security bookworm-security InRelease
+Ign:2 https://download.docker.com/linux/debian bookworm InRelease
+Ign:5 http://deb.debian.org/debian bookworm-updates InRelease
+Ign:1 http://deb.debian.org/debian bookworm InRelease
+Ign:3 http://archive.raspberrypi.com/debian bookworm InRelease
+Ign:2 https://download.docker.com/linux/debian bookworm InRelease
+Ign:4 http://deb.debian.org/debian-security bookworm-security InRelease
+Ign:5 http://deb.debian.org/debian bookworm-updates InRelease
+Err:1 http://deb.debian.org/debian bookworm InRelease
+  Temporary failure resolving 'deb.debian.org'
+Err:3 http://archive.raspberrypi.com/debian bookworm InRelease
+  Temporary failure resolving 'archive.raspberrypi.com'
+Err:4 http://deb.debian.org/debian-security bookworm-security InRelease
+  Temporary failure resolving 'deb.debian.org'
+Err:2 https://download.docker.com/linux/debian bookworm InRelease
+  Temporary failure resolving 'download.docker.com'
+Err:5 http://deb.debian.org/debian bookworm-updates InRelease
+  Temporary failure resolving 'deb.debian.org'
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+W: Failed to fetch http://deb.debian.org/debian/dists/bookworm/InRelease  Temporary failure resolving 'deb.debian.org'
+W: Failed to fetch http://deb.debian.org/debian-security/dists/bookworm-security/InRelease  Temporary failure resolving 'deb.debian.org'
+W: Failed to fetch http://deb.debian.org/debian/dists/bookworm-updates/InRelease  Temporary failure resolving 'deb.debian.org'
+W: Failed to fetch https://download.docker.com/linux/debian/dists/bookworm/InRelease  Temporary failure resolving 'download.docker.com'
+W: Failed to fetch http://archive.raspberrypi.com/debian/dists/bookworm/InRelease  Temporary failure resolving 'archive.raspberrypi.com'
+W: Some index files failed to download. They have been ignored, or old ones used instead.
+nickspi5@raspberrypi1:~ $ sudo apt full-upgrade
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+nickspi5@raspberrypi1:~ $ cd ~/ha-voice
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
+[+] Running 6/6
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
+ ✔ Container localai            Removed                                                                                  0.6s 
+ ✔ Container homeassistant      Removed                                                                                  4.9s 
+ ✔ Container piper              Removed                                                                                  0.4s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ ls -lh ~/ha-voice/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+-rw-r--r-- 1 nickspi5 nickspi5 638M Jun 28 07:34 /home/nickspi5/ha-voice/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+nickspi5@raspberrypi1:~/ha-voice $ ls -lh ./models/*.gguf
+-rw-r--r-- 1 root     root     211M Jun 27 07:56 ./models/granite-embedding-107m-multilingual-f16.gguf
+-rw-r--r-- 1 root     root     1.9G Jun 27 07:55 ./models/Hermes-3-Llama-3.2-3B-Q4_K_M.gguf
+-rw-r--r-- 1 root     root      65M Jun 23 22:21 ./models/jina-reranker-v1-tiny-en.f16.gguf
+-rw-r--r-- 1 root     root     997M Jun 27 17:18 ./models/minicpm-v-2_6-mmproj-f16.gguf
+-rw-r--r-- 1 root     root     4.4G Jun 27 17:13 ./models/minicpm-v-2_6-Q4_K_M.gguf
+-rw-r--r-- 1 root     root     1.5G Jun 27 17:03 ./models/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf
+-rw-r--r-- 1 nickspi5 nickspi5 638M Jun 28 07:34 ./models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+-rw-r--r-- 1 nickspi5 nickspi5    0 Jun 28 07:20 ./models/tinyllama.Q4_K_M.gguf
+nickspi5@raspberrypi1:~/ha-voice $ cat ./models/models.yaml
+models:
+  - name: tinyllama-1.1b-chat-v1.0.Q4_K_M
+    backend: llama-cpp
+    path: /models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+    parameters:
+      n_ctx: 2048
+      n_threads: 4nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.4s 
+ ✔ Container piper              Started                                                                                  1.6s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+ ✔ Container localai            Started                                                                                  1.6s 
+ ✔ Container whisper            Started                                                                                  1.2s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
+CPU info:
+CPU: no AVX    found
+CPU: no AVX2   found
+CPU: no AVX512 found
+10:39PM DBG Setting logging to debug
+10:39PM INF Starting LocalAI using 4 threads, with models path: /models
+10:39PM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
+10:39PM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+10:39PM DBG GPU count: 2
+10:39PM DBG GPU: card #0 @1002000000.v3d
+10:39PM DBG GPU: card #1 @axi:gpu
+10:39PM WRN [startup] failed resolving model '/usr/bin/local-ai'
+10:39PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+10:39PM DBG GPU vendor gpuVendor=
+10:39PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+10:39PM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
+10:39PM DBG guessDefaultsFromFile: family not identified
+10:39PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+10:39PM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
+10:39PM DBG guessDefaultsFromFile: family not identified
+10:39PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+10:39PM DBG guessDefaultsFromFile: template already set name=gpt-4o
+10:39PM ERR guessDefaultsFromFile: panic while parsing gguf file
+10:39PM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+10:39PM DBG guessDefaultsFromFile: template already set name=gpt-4
+10:39PM ERR config is not valid Name=tinyllama
+10:39PM INF Preloading models from /models
 
-Username/Password Authentication Failed.
-nickspi5@raspberrypi1:~/ha-voice/models $ 
+  Model name: text-embedding-ada-002                                          
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/embeddings -X POST -H "Content-Type:             
+  application/json" -d '{ "input": "Your text string goes here", "model": "text-
+  embedding-ada-002" }'                                                       
+
+
+10:39PM DBG Checking "jina-reranker-v1-tiny-en.f16.gguf" exists and matches SHA
+10:39PM DBG File "/models/jina-reranker-v1-tiny-en.f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: jina-reranker-v1-base-en                                        
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/v1/rerank  -H "Content-Type: application/json"  -d
+  '{ "model": "jina-reranker-v1-base-en", "query": "Organic skincare products for
+  sensitive skin", "documents": [ "Eco-friendly kitchenware for modern homes",
+  "Biodegradable cleaning supplies for eco-conscious consumers", "Organic     
+  cotton baby clothes for sensitive skin", "Natural organic skincare range for
+  sensitive skin", "Tech gadgets for smart homes: 2024 edition", "Sustainable 
+  gardening tools and compost solutions", "Sensitive skin-friendly facial     
+  cleansers and toners", "Organic food wraps and storage solutions", "All-    
+  natural pet food for dogs with allergies", "Yoga mats made from recycled    
+  materials" ], "top_n": 3 }' 
+^C
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/models
+curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/models
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ 
+
+
 
 
