@@ -1,3 +1,6 @@
 curl -L -o ~/ha-voice/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
   -H "Authorization: Bearer YOUR_HUGGINGFACE_TOKEN" \
   https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+
+curl -L -o ~/ha-voice/models/tinyllama.gguf \
+  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_0.gguf
