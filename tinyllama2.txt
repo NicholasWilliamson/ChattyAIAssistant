@@ -1,61 +1,6 @@
-Thank you ChatGPT for your help.
-
-I ran:
-
-nickspi5@raspberrypi1:~/ha-voice/models $ cd ~/ha-voice
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
-[+] Running 6/6
- ✔ Container piper              Removed                                                                                  0.4s 
- ✔ Container localai            Removed                                                                                  0.6s 
- ✔ Container homeassistant      Removed                                                                                  4.9s 
- ✔ Container whisper            Removed                                                                                 10.6s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose build --no-cache
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 6/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container localai            Started                                                                                  1.7s 
- ✔ Container homeassistant      Started                                                                                  0.6s 
- ✔ Container wyoming-satellite  Started                                                                                  1.2s 
- ✔ Container whisper            Started                                                                                  1.2s 
- ✔ Container piper              Started                                                                                  1.6s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
-CPU info:
-CPU: no AVX    found
-CPU: no AVX2   found
-CPU: no AVX512 found
-3:22AM DBG Setting logging to debug
-3:22AM INF Starting LocalAI using 4 threads, with models path: /models
-3:22AM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
-3:22AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-3:22AM DBG GPU count: 2
-3:22AM DBG GPU: card #0 @1002000000.v3d
-3:22AM DBG GPU: card #1 @axi:gpu
-3:22AM WRN [startup] failed resolving model '/usr/bin/local-ai'
-3:22AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-3:22AM DBG GPU vendor gpuVendor=
-3:22AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-3:22AM DBG guessDefaultsFromFile: template already set name=tinyllama
-3:22AM INF Preloading models from /models
-
-  Model name: tinyllama                                                       
-
-
-3:22AM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0 TopP:0x400d87ca88 TopK:0x400d87ca90 Temperature:0x400d87ca98 Maxtokens:0x400d87cac8 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d87cac0 TypicalP:0x400d87cab8 Seed:0x400d87cad8 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x400d87ca80 Threads:0x400d87ca78 Debug:0x400d87cad0 Roles:map[] Embeddings:0x400d87cad1 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d87cab0 MirostatTAU:0x400d87caa8 Mirostat:0x400d87caa0 NGPULayers:<nil> MMap:0x400d87cad0 MMlock:0x400d87cad1 LowVRAM:0x400d87cad1 Reranking:0x400d87cad1 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400d87cae0 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
-3:22AM DBG Model: tinyllama (config: {PredictionOptions:{BasicModelRequest:{Model:tinyllama.gguf} Language: Translate:false N:0 TopP:0x400d87cd90 TopK:0x400d87cd98 Temperature:0x400d87cda0 Maxtokens:0x400d87cdd0 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d87cdc8 TypicalP:0x400d87cdc0 Seed:0x400d87cde0 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name:tinyllama F16:0x400d87cd88 Threads:0x400d87cd80 Debug:0x400d87cdd8 Roles:map[] Embeddings:0x400d87cdd9 Backend:llama-cpp TemplateConfig:{Chat:llama-2 ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY FLAG_CHAT] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d87cdb8 MirostatTAU:0x400d87cdb0 Mirostat:0x400d87cda8 NGPULayers:0x400e33c838 MMap:0x400d87cdd8 MMlock:0x400d87cdd9 LowVRAM:0x400d87cdd9 Reranking:0x400d87cdd9 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400e33c830 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
-3:22AM DBG Extracting backend assets files to /tmp/localai/backend_data
-3:22AM DBG processing api keys runtime update
-3:22AM DBG processing external_backends.json
-3:22AM DBG external backends loaded from external_backends.json
-3:22AM INF core/startup process completed!
-3:22AM DBG No configuration file found at /tmp/localai/upload/uploadedFiles.json
-3:22AM DBG No configuration file found at /tmp/localai/config/assistants.json
-3:22AM DBG No configuration file found at /tmp/localai/config/assistantsFile.json
-3:22AM DBG GPU vendor gpuVendor=
-3:22AM INF LocalAI API is listening! Please connect to the endpoint for API documentation. endpoint=http://0.0.0.0:8080
-3:23AM INF Success ip=127.0.0.1 latency="63.068µs" method=GET status=200 url=/readyz
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tinyllama",
+    "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
+  }'
