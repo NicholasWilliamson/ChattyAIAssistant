@@ -24,4 +24,15 @@ Connecting to cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)|65.8.33.60|:443.
 HTTP request sent, awaiting response... 403 Forbidden
 2025-06-28 19:48:00 ERROR 403: Forbidden.
 
-nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ 
+nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ cd ..
+nickspi5@raspberrypi1:~/ha-voice/models $ cd ..
+nickspi5@raspberrypi1:~/ha-voice $ mkdir -p ~/ha-voice/models/tinymistral
+nickspi5@raspberrypi1:~/ha-voice $ cd ~/ha-voice/models/tinymistral
+nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ wget https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
+--2025-06-28 20:01:55--  https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
+Resolving huggingface.co (huggingface.co)... 18.67.93.58, 18.67.93.63, 18.67.93.102, ...
+Connecting to huggingface.co (huggingface.co)|18.67.93.58|:443... connected.
+HTTP request sent, awaiting response... 401 Unauthorized
+
+Username/Password Authentication Failed.
+nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ 
