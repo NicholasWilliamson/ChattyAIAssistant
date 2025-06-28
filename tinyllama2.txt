@@ -1,70 +1,31 @@
-1. Phi-2 Model Download Fails Midway
-You're seeing a 403 Forbidden after a long download. This happens because Hugging Face presigned URLs expire after ~1 hour, which breaks large downloads on slower networks like Raspberry Pi Wi-Fi.
+Thank you ChatGPT. You are great.
 
-✅ Fix:
-Instead of using wget, use aria2c which supports auto-resume and parallel segments:
+I was trying to download the TinyMistral model.
 
-🔧 Install aria2:
-bash
-Copy
-Edit
-sudo apt update
-sudo apt install aria2
-🚀 Re-download phi-2 with resume:
-bash
-Copy
-Edit
-aria2c -c -x 4 -s 4 https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf -o phi-2.Q4_K_M.gguf
--c: Continue if file exists
+I ran nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ aria2c -c -x 4 -s 4 https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf -o TinyMistral-248M-Chat.Q4_K_M.gguf
 
--x 4: 4 concurrent connections
+06/29 08:20:06 [NOTICE] Downloading 1 item(s)
+[#b1cf4b 0B/0B CN:1 DL:0B]                                                                                                   
+06/29 08:20:07 [ERROR] CUID#7 - Download aborted. URI=https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
+Exception: [AbstractCommand.cc:351] errorCode=24 URI=https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
+  -> [HttpSkipResponseCommand.cc:215] errorCode=24 Authorization failed.
 
--s 4: 4 segments
+06/29 08:20:07 [NOTICE] Download GID#b1cf4be448a0d0b8 not complete: /home/nickspi5/ha-voice/models/tinymistral/TinyMistral-248M-Chat.Q4_K_M.gguf
 
-This is much more reliable than wget for large GGUF models.
+Download Results:
+gid   |stat|avg speed  |path/URI
+======+====+===========+=======================================================
+b1cf4b|ERR |       0B/s|/home/nickspi5/ha-voice/models/tinymistral/TinyMistral-248M-Chat.Q4_K_M.gguf
 
-✅ 2. TinyMistral Download Asking for Login
-You tried:
+Status Legend:
+(ERR):error occurred.
 
-bash
-Copy
-Edit
-wget https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
-But that’s not a complete file name — Hugging Face interpreted it as private content.
+aria2 will resume download if the transfer is restarted.
+If there are any errors, then see the log file. See '-l' option in help/man page for details.
+nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ 
 
-✅ Fix:
-Here’s the full correct GGUF filename:
+How can I download it?
 
+I notice that I also have this model in my ~/ha-voice/models folder - minicpm-v-2_6-Q4_K_M.gguf - 4.4GiB file size.
 
-aria2c -c -x 4 -s 4 https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf -o TinyMistral-248M-Chat.Q4_K_M.gguf
-This file is public and requires no login, as long as the filename is fully correct.
-
-✅ After Downloading
-Once the .gguf file is in place, update models.yaml like this:
-
-- name: tinymistral
-  model: TinyMistral-248M-Chat.Q4_K_M.gguf
-  backend: llama-cpp
-  parameters:
-    temperature: 0.7
-    top_p: 0.9
-    threads: 4
-    stopwords: ["</s>"]
-  template:
-    chat: mistral-instruct
-Then restart:
-
-sudo docker compose down
-sudo docker compose up -d
-✅ Test the Assistant
-
-curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "tinymistral",
-    "messages": [
-      {"role": "system", "content": "You are a friendly Australian voice assistant."},
-      {"role": "user", "content": "Hey Chatty, what can you help with today?"}
-    ]
-  }' | jq '.choices[0].message.content'
-Would you like me to regenerate the full models.yaml with both TinyMistral and Phi-2 loaded — or just preload the fastest one (TinyMistral)?
+What can you tell me about minicpm-v-2_6-Q4_K_M.gguf?
