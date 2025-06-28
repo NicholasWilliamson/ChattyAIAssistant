@@ -1,38 +1,70 @@
-Thank you ChatGPT for your help. You are great.
+1. Phi-2 Model Download Fails Midway
+You're seeing a 403 Forbidden after a long download. This happens because Hugging Face presigned URLs expire after ~1 hour, which breaks large downloads on slower networks like Raspberry Pi Wi-Fi.
 
-I ran nickspi5@raspberrypi1:~/ha-voice $ mkdir -p ~/ha-voice/models/phi-2
-nickspi5@raspberrypi1:~/ha-voice $ cd ~/ha-voice/models/phi-2
-nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ wget https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf
---2025-06-28 18:16:25--  https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf
-Resolving huggingface.co (huggingface.co)... 65.8.134.116, 65.8.134.40, 65.8.134.63, ...
-Connecting to huggingface.co (huggingface.co)|65.8.134.116|:443... connected.
-HTTP request sent, awaiting response... 302 Found
-Location: https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC [following]
---2025-06-28 18:16:26--  https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC
-Resolving cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)... 65.8.33.60, 65.8.33.48, 65.8.33.68, ...
-Connecting to cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)|65.8.33.60|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 1789239136 (1.7G)
-Saving to: ‘phi-2.Q4_K_M.gguf’
+✅ Fix:
+Instead of using wget, use aria2c which supports auto-resume and parallel segments:
 
-phi-2.Q4_K_M.gguf                23%[===========>                                          ] 395.02M  3.21KB/s    in 91m 24s 
+🔧 Install aria2:
+bash
+Copy
+Edit
+sudo apt update
+sudo apt install aria2
+🚀 Re-download phi-2 with resume:
+bash
+Copy
+Edit
+aria2c -c -x 4 -s 4 https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf -o phi-2.Q4_K_M.gguf
+-c: Continue if file exists
 
-2025-06-28 19:47:51 (73.8 KB/s) - Read error at byte 414206616/1789239136 (Error in the pull function.). Retrying.
+-x 4: 4 concurrent connections
 
---2025-06-28 19:47:52--  (try: 2)  https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC
-Connecting to cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)|65.8.33.60|:443... connected.
-HTTP request sent, awaiting response... 403 Forbidden
-2025-06-28 19:48:00 ERROR 403: Forbidden.
+-s 4: 4 segments
 
-nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ cd ..
-nickspi5@raspberrypi1:~/ha-voice/models $ cd ..
-nickspi5@raspberrypi1:~/ha-voice $ mkdir -p ~/ha-voice/models/tinymistral
-nickspi5@raspberrypi1:~/ha-voice $ cd ~/ha-voice/models/tinymistral
-nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ wget https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
---2025-06-28 20:01:55--  https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
-Resolving huggingface.co (huggingface.co)... 18.67.93.58, 18.67.93.63, 18.67.93.102, ...
-Connecting to huggingface.co (huggingface.co)|18.67.93.58|:443... connected.
-HTTP request sent, awaiting response... 401 Unauthorized
+This is much more reliable than wget for large GGUF models.
 
-Username/Password Authentication Failed.
-nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ 
+✅ 2. TinyMistral Download Asking for Login
+You tried:
+
+bash
+Copy
+Edit
+wget https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat
+But that’s not a complete file name — Hugging Face interpreted it as private content.
+
+✅ Fix:
+Here’s the full correct GGUF filename:
+
+
+aria2c -c -x 4 -s 4 https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf -o TinyMistral-248M-Chat.Q4_K_M.gguf
+This file is public and requires no login, as long as the filename is fully correct.
+
+✅ After Downloading
+Once the .gguf file is in place, update models.yaml like this:
+
+- name: tinymistral
+  model: TinyMistral-248M-Chat.Q4_K_M.gguf
+  backend: llama-cpp
+  parameters:
+    temperature: 0.7
+    top_p: 0.9
+    threads: 4
+    stopwords: ["</s>"]
+  template:
+    chat: mistral-instruct
+Then restart:
+
+sudo docker compose down
+sudo docker compose up -d
+✅ Test the Assistant
+
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tinymistral",
+    "messages": [
+      {"role": "system", "content": "You are a friendly Australian voice assistant."},
+      {"role": "user", "content": "Hey Chatty, what can you help with today?"}
+    ]
+  }' | jq '.choices[0].message.content'
+Would you like me to regenerate the full models.yaml with both TinyMistral and Phi-2 loaded — or just preload the fastest one (TinyMistral)?
