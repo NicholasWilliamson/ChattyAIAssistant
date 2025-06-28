@@ -1,41 +1,13 @@
 Thank you ChatGPT for your help. You are great.
 
-I made the change you suggested to my docker-compose.yml file:
+I first want to point out that this development is not for use with my previous Chatty AI Meat Cooking Assistant. That was a different project based on the ESP32 Microcontroller.
 
-localai:
-  ...
-  ports:
-    - "8080:8080"
+This project is to create a local AI Assistant that accepts input from a microphone and speaks it's response via a USB Speaker, using a local AI model so that it does not require internet access to operate.
 
-I then ran:
+I checked my Raspberry PI's Memory usage as follows:
 
-sudo docker compose down
-[+] Running 6/6
- ✔ Container whisper            Removed                                                                                 10.5s 
- ✔ Container localai            Removed                                                                                  0.6s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
- ✔ Container homeassistant      Removed                                                                                  4.7s 
- ✔ Container piper              Removed                                                                                  0.6s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 6/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container piper              Started                                                                                  1.8s 
- ✔ Container localai            Started                                                                                  1.3s 
- ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container whisper            Started                                                                                  1.1s 
- ✔ Container wyoming-satellite  Started                                                                                  1.7s 
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "tinyllama",
-    "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
-  }' | jq '.choices[0].message.content'
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   110    0     0  100   110      0      1  0:01:50  0:01:49  0:00:01     0^C
+free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.9Gi       1.8Gi       3.2Gi        81Mi       3.0Gi       6.0Gi
+Swap:          511Mi          0B       511Mi
 nickspi5@raspberrypi1:~/ha-voice $ 
-
-However, I had to cancel this as it down not return any output.
-
-
