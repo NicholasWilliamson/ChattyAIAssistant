@@ -1,6 +1,16 @@
-curl http://localhost:8000/v1/chat/completions \
+Thank you ChatGPT for your help. You are great.
+
+I ran:
+
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama",
     "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
   }' | jq '.choices[0].message.content'
+bash: jq: command not found
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   110    0     0  100   110      0    97k --:--:-- --:--:-- --:--:--  107k
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ 
