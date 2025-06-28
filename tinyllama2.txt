@@ -1,6 +1,19 @@
+Thank you ChatGPT for your help. You are great.
+
+I ran:
+
 curl http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama",
     "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
   }'
+curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8000/v1/chat/completions \                                           
+  -H "Content-Type: application/json" \
+  -d '{                  
+    "model": "tinyllama",                                                     
+    "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
+  }'
+curl: (56) Recv failure: Connection reset by peer
+nickspi5@raspberrypi1:~/ha-voice $ 
