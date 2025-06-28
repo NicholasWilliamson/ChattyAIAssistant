@@ -1,4 +1,6 @@
-curl http://localhost:8080/v1/chat/completions \
+Thank you ChatGPT for your help. You are great.
+
+I ran nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Hermes-3-Llama-3.2-3B-Q4_K_M.gguf",
@@ -8,3 +10,62 @@ curl http://localhost:8080/v1/chat/completions \
       {"role": "user", "content": "Hey Chatty. What do you do?"}
     ]
   }' | jq '.choices[0].message.content'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   281    0     0  100   281      0      4  0:01:10  0:00:56  0:00:14     0^C
+nickspi5@raspberrypi1:~/ha-voice $ python3 test_chatty.py
+^CTraceback (most recent call last):
+  File "/home/nickspi5/ha-voice/test_chatty.py", line 4, in <module>
+    response = requests.post(
+               ^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 489, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 705, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 451, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+    httplib_response = conn.getresponse()
+                       ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/http/client.py", line 1374, in getresponse
+    response.begin()
+  File "/usr/lib/python3.11/http/client.py", line 318, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/http/client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tinyllama",
+    "messages": [
+      {"role": "system", "content": "You are a helpful voice assistant that speaks like a friendly Australian."},
+      {"role": "user", "content": "Hey Chatty. Why is the sky blue?"}
+    ]
+  }' | jq '.choices[0].message.content'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   515  100   276  100   239      7      6  0:00:39  0:00:35  0:00:04    66
+"600."
+nickspi5@raspberrypi1:~/ha-voice $ 
