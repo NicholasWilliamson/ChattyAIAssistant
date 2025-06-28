@@ -1,34 +1,9 @@
-Thank you ChatGPT. You are great.
-
-I was trying to download the TinyMistral model.
-
-I ran nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ aria2c -c -x 4 -s 4 \
-  --header "Authorization: MY TOKEN" \
-  "https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf"
-
-06/29 09:20:22 [NOTICE] Downloading 1 item(s)
-[#9160e2 0B/0B CN:1 DL:0B]                                                                                                   
-06/29 09:20:25 [ERROR] CUID#7 - Download aborted. URI=https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
-Exception: [AbstractCommand.cc:351] errorCode=24 URI=https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
-  -> [HttpSkipResponseCommand.cc:215] errorCode=24 Authorization failed.
-
-06/29 09:20:25 [NOTICE] Download GID#9160e2aa8bb2c937 not complete: 
-
-Download Results:
-gid   |stat|avg speed  |path/URI
-======+====+===========+=======================================================
-9160e2|ERR |       0B/s|https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
-
-Status Legend:
-(ERR):error occurred.
-
-aria2 will resume download if the transfer is restarted.
-If there are any errors, then see the log file. See '-l' option in help/man page for details.
-nickspi5@raspberrypi1:~/ha-voice/models/tinymistral $ 
-
-
-How can I download it?
-
-I notice that I also have this model in my ~/ha-voice/models folder - minicpm-v-2_6-Q4_K_M.gguf - 4.4GiB file size.
-
-What can you tell me about minicpm-v-2_6-Q4_K_M.gguf?
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minicpm",
+    "messages": [
+      {"role": "system", "content": "You are a helpful Australian voice assistant."},
+      {"role": "user", "content": "Hey Chatty, why is the sky blue?"}
+    ]
+  }' | jq '.choices[0].message.content'
