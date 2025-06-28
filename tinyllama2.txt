@@ -1,11 +1,27 @@
-curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "tinyllama",
-    "max_tokens": 50,
-    "temperature": 0.7,
-    "messages": [
-      {"role": "system", "content": "You are a helpful assistant who speaks with a friendly Australian tone."},
-      {"role": "user", "content": "Hey Chatty, why is the sky blue?"}
-    ]
-  }' | jq '.choices[0].message.content'
+Thank you ChatGPT for your help. You are great.
+
+I ran nickspi5@raspberrypi1:~/ha-voice $ mkdir -p ~/ha-voice/models/phi-2
+nickspi5@raspberrypi1:~/ha-voice $ cd ~/ha-voice/models/phi-2
+nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ wget https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf
+--2025-06-28 18:16:25--  https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf
+Resolving huggingface.co (huggingface.co)... 65.8.134.116, 65.8.134.40, 65.8.134.63, ...
+Connecting to huggingface.co (huggingface.co)|65.8.134.116|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC [following]
+--2025-06-28 18:16:26--  https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC
+Resolving cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)... 65.8.33.60, 65.8.33.48, 65.8.33.68, ...
+Connecting to cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)|65.8.33.60|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1789239136 (1.7G)
+Saving to: ‘phi-2.Q4_K_M.gguf’
+
+phi-2.Q4_K_M.gguf                23%[===========>                                          ] 395.02M  3.21KB/s    in 91m 24s 
+
+2025-06-28 19:47:51 (73.8 KB/s) - Read error at byte 414206616/1789239136 (Error in the pull function.). Retrying.
+
+--2025-06-28 19:47:52--  (try: 2)  https://cas-bridge.xethub.hf.co/xet-bridge-us/6580aa20419afba19a692cc8/cb5d304e5b36d2f91430fff1530842167680b0958c4083b09e04d4dbf8cf7a08?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20250628%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250628T081626Z&X-Amz-Expires=3600&X-Amz-Signature=64d8bf5a29d97f50ec6f70dd669b7389d02e024e839da3edb6f42a22394e9669&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27phi-2.Q4_K_M.gguf%3B+filename%3D%22phi-2.Q4_K_M.gguf%22%3B&x-id=GetObject&Expires=1751102186&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc1MTEwMjE4Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NTgwYWEyMDQxOWFmYmExOWE2OTJjYzgvY2I1ZDMwNGU1YjM2ZDJmOTE0MzBmZmYxNTMwODQyMTY3NjgwYjA5NThjNDA4M2IwOWUwNGQ0ZGJmOGNmN2EwOCoifV19&Signature=U2E2bNK76YA0GO2b%7EpNjABA%7EOFbSPhAWyL00SRcAo0UWSPh%7EL4MNZxHbmyXqbnLjcogKkOBSxf2JtlC2ZSvEciyWkd1EDwDyflz9IB0O6Kp%7E2cYUe9xKlEsbKQjme%7ErhObTWX9R1MNS8jquZXiWjSE9MnRN%7EYy-xdkXFc7xAZTe8xB1rtar7jk5OGdborSzG1RYUvn2Ne%7EWxnv1Y%7Ef7GarTkCVEXnRQ6sjwHVJ1jXOyPh2ey1VSSlRrsIgYJTETpSXFTXWIasIYN7Y3sHFyNBWjmTGErU54zRTT7EKTP0jm9UYldiZ8HoXE4j4%7EcsVM7Vj7oSYcX6xVCaU1bz--Fog__&Key-Pair-Id=K2L8F4GPSG1IFC
+Connecting to cas-bridge.xethub.hf.co (cas-bridge.xethub.hf.co)|65.8.33.60|:443... connected.
+HTTP request sent, awaiting response... 403 Forbidden
+2025-06-28 19:48:00 ERROR 403: Forbidden.
+
+nickspi5@raspberrypi1:~/ha-voice/models/phi-2 $ 
