@@ -1,13 +1,55 @@
 Thank you ChatGPT for your help. You are great.
 
-I first want to point out that this development is not for use with my previous Chatty AI Meat Cooking Assistant. That was a different project based on the ESP32 Microcontroller.
-
-This project is to create a local AI Assistant that accepts input from a microphone and speaks it's response via a USB Speaker, using a local AI model so that it does not require internet access to operate.
-
-I checked my Raspberry PI's Memory usage as follows:
-
-free -h
-               total        used        free      shared  buff/cache   available
-Mem:           7.9Gi       1.8Gi       3.2Gi        81Mi       3.0Gi       6.0Gi
-Swap:          511Mi          0B       511Mi
+I ran curl http://localhost:8080/models | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   557  100   557    0     0   339k      0 --:--:-- --:--:-- --:--:--  543k
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "",
+      "object": "model"
+    },
+    {
+      "id": "tinyllama",
+      "object": "model"
+    },
+    {
+      "id": "Hermes-3-Llama-3.2-3B-Q4_K_M.gguf",
+      "object": "model"
+    },
+    {
+      "id": "ggml-whisper-base.bin",
+      "object": "model"
+    },
+    {
+      "id": "granite-embedding-107m-multilingual-f16.gguf",
+      "object": "model"
+    },
+    {
+      "id": "jina-reranker-v1-tiny-en.f16.gguf",
+      "object": "model"
+    },
+    {
+      "id": "minicpm-v-2_6-Q4_K_M.gguf",
+      "object": "model"
+    },
+    {
+      "id": "minicpm-v-2_6-mmproj-f16.gguf",
+      "object": "model"
+    },
+    {
+      "id": "mpt-7b-chat-q4_0.gguf",
+      "object": "model"
+    },
+    {
+      "id": "stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf",
+      "object": "model"
+    }
+  ]
+}
 nickspi5@raspberrypi1:~/ha-voice $ 
+
+Why am I also see other models such as granite-embedding-107m-multilingual-f16.gguf?
+
