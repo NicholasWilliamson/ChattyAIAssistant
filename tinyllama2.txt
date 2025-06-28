@@ -1,19 +1,6 @@
-Thank you ChatGPT for your help. You are great.
-
-I ran:
-
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker ps
-CONTAINER ID   IMAGE                                          COMMAND                  CREATED          STATUS                    PORTS                                                     NAMES
-f7ad6c2ff912   rhasspy/wyoming-whisper                        "bash /run.sh --mode…"   37 minutes ago   Up 37 minutes             0.0.0.0:10300->10300/tcp, :::10300->10300/tcp             whisper
-a9e1742e9730   quay.io/go-skynet/local-ai:latest              "/entrypoint.sh /usr…"   37 minutes ago   Up 37 minutes (healthy)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 8080/tcp       localai
-3a7cba959408   ghcr.io/home-assistant/home-assistant:stable   "/init"                  37 minutes ago   Up 37 minutes                                                                       homeassistant
-d29e5fed60e4   rhasspy/wyoming-piper                          "bash /run.sh --voic…"   37 minutes ago   Up 37 minutes             5000/tcp, 0.0.0.0:10200->10200/tcp, :::10200->10200/tcp   piper
-f8822ad33be6   sker65/wyoming-satellite:latest                "/app/run --mic-comm…"   37 minutes ago   Up 37 minutes             0.0.0.0:10700->10700/tcp, :::10700->10700/tcp             wyoming-satellite
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai sh
-# curl http://localhost:8080/v1/chat/completions \
+curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama",
     "messages": [{"role": "user", "content": "Hello Chatty! What do you do?"}]
-  }'> > > > > 
-{"created":1751083263,"object":"chat.completion","id":"419f3faf-e945-4f74-ad88-f7c2a0e5762a","model":"tinyllama","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"2.png\" alt=\"Llamas 22\" width=\"800\" height=\"500\"\u003e\n\u003cimg src=\"https://cdn.pixabay.com/photo/2017/10/21/20/44/wild-2253887_1280.jpg\" alt=\"Wild Sheep\" width=\"800\" height=\"500\"\u003e\n\u003cimg src=\"https://cdn.pixabay.com/photo/2018/11/12/01/05/dog-2533971_1280.jpg\" alt=\"Dog 2533971\" width=\"800\" height=\"500\"\u003e\n\nI hope you enjoy this new layout! Let me know if you have any questions or if there's anything else I can help with."}}],"usage":{"prompt_tokens":5,"completion_tokens":205,"total_tokens":210}}# 
+  }' | jq '.choices[0].message.content'
