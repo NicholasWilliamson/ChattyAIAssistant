@@ -1,10 +1,149 @@
-curl -L -o ~/ha-voice/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf \
-  -H "Authorization: Bearer YOUR_HUGGINGFACE_TOKEN" \
-  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+Thank you ChatGPT for your help.
 
-curl -L -o ~/ha-voice/models/tinyllama.gguf \
+I ran:
+
+nickspi5@raspberrypi1:~/ha-voice $ curl -L -o ~/ha-voice/models/tinyllama.gguf \
   https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_0.gguf
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1146  100  1146    0     0   1522      0 --:--:-- --:--:-- --:--:--  1521
+100  608M  100  608M    0     0  2956k      0  0:03:30  0:03:30 --:--:-- 3285k
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up --build -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container wyoming-satellite  Started                                                                                  2.4s 
+ ✔ Container whisper            Started                                                                                  1.0s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+ ✔ Container localai            Started                                                                                  1.5s 
+ ✔ Container piper              Started                                                                                  1.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
+CPU info:
+CPU: no AVX    found
+CPU: no AVX2   found
+CPU: no AVX512 found
+2:48AM DBG Setting logging to debug
+2:48AM INF Starting LocalAI using 4 threads, with models path: /models
+2:48AM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
+2:48AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
+WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
+WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
+2:48AM DBG GPU count: 2
+2:48AM DBG GPU: card #0 @1002000000.v3d
+2:48AM DBG GPU: card #1 @axi:gpu
+2:48AM WRN [startup] failed resolving model '/usr/bin/local-ai'
+2:48AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+2:48AM DBG GPU vendor gpuVendor=
+2:48AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+2:48AM DBG Model file loaded: granite-embedding-107m-multilingual-f16.gguf architecture=bert bosTokenID=0 eosTokenID=2 modelName="Granite Embedding 107m Multilingual"
+2:48AM DBG guessDefaultsFromFile: family not identified
+2:48AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+2:48AM DBG Model file loaded: stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf architecture=diffusion bosTokenID=-1 eosTokenID=-1 modelName=
+2:48AM DBG guessDefaultsFromFile: family not identified
+2:48AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+2:48AM DBG guessDefaultsFromFile: template already set name=gpt-4o
+2:48AM ERR guessDefaultsFromFile: panic while parsing gguf file
+2:48AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
+2:48AM DBG guessDefaultsFromFile: template already set name=gpt-4
+2:48AM ERR config is not valid Name=tinyllama
+2:48AM INF Preloading models from /models
+2:48AM DBG Checking "ggml-whisper-base.bin" exists and matches SHA
+2:48AM DBG File "/models/ggml-whisper-base.bin" already exists and matches the SHA. Skipping download
+
+  Model name: whisper-1                                                       
 
 
-curl -L -o ~/ha-voice/models/mpt-7b-chat-q4_0.gguf \
-  https://gpt4all.io/models/ggml-mpt-7b-chat-q4_0.gguf
+2:48AM DBG Checking "stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf" exists and matches SHA
+
+  ## example audio file                                                       
+                                                                              
+  wget --quiet --show-progress -O gb1.ogg                                     
+  https://upload.wikimedia.org/wikipedia/commons/1/1f/George_W_Bush_Columbia_FINAL.ogg
+                                                                              
+  ## Send the example audio file to the transcriptions endpoint               
+                                                                              
+  curl http://localhost:8080/v1/audio/transcriptions  -H "Content-Type:       
+  multipart/form-data"  -F file="@$PWD/gb1.ogg" -F model="whisper-1"          
+
+
+2:49AM DBG File "/models/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: stablediffusion                                                 
+
+
+
+  curl http://localhost:8080/v1/images/generations  -H "Content-Type:         
+  application/json"  -d '{ "prompt": "|", "step": 25, "size": "512x512" }'    
+
+
+2:49AM DBG Checking "minicpm-v-2_6-Q4_K_M.gguf" exists and matches SHA
+2:50AM DBG File "/models/minicpm-v-2_6-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
+2:50AM DBG Checking "minicpm-v-2_6-mmproj-f16.gguf" exists and matches SHA
+2:50AM DBG File "/models/minicpm-v-2_6-mmproj-f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: gpt-4o                                                          
+
+
+2:50AM DBG Checking "silero-vad.onnx" exists and matches SHA
+2:50AM DBG File "/models/silero-vad.onnx" already exists and matches the SHA. Skipping download
+
+  Model name: silero-vad                                                      
+
+
+2:50AM DBG Checking "jina-reranker-v1-tiny-en.f16.gguf" exists and matches SHA
+2:50AM DBG File "/models/jina-reranker-v1-tiny-en.f16.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: jina-reranker-v1-base-en                                        
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/v1/rerank  -H "Content-Type: application/json"  -d
+  '{ "model": "jina-reranker-v1-base-en", "query": "Organic skincare products for
+  sensitive skin", "documents": [ "Eco-friendly kitchenware for modern homes",
+  "Biodegradable cleaning supplies for eco-conscious consumers", "Organic     
+  cotton baby clothes for sensitive skin", "Natural organic skincare range for
+  sensitive skin", "Tech gadgets for smart homes: 2024 edition", "Sustainable 
+  gardening tools and compost solutions", "Sensitive skin-friendly facial     
+  cleansers and toners", "Organic food wraps and storage solutions", "All-    
+  natural pet food for dogs with allergies", "Yoga mats made from recycled    
+  materials" ], "top_n": 3 }'                                                 
+
+
+
+  Model name: text-embedding-ada-002                                          
+
+
+
+  You can test this model with curl like this:                                
+                                                                              
+  curl http://localhost:8080/embeddings -X POST -H "Content-Type:             
+  application/json" -d '{ "input": "Your text string goes here", "model": "text-
+  embedding-ada-002" }'                                                       
+
+
+2:50AM DBG Checking "voice-en-us-amy-low.tar.gz" exists and matches SHA
+2:50AM DBG File "/models/voice-en-us-amy-low.tar.gz" already exists. Skipping download
+
+  Model name: tts-1                                                           
+
+
+
+  To test if this model works as expected, you can use the following curl     
+  command:                                                                    
+                                                                              
+  curl http://localhost:8080/tts -H "Content-Type: application/json" -d '{    
+  "model":"voice-en-us-amy-low", "input": "Hi, this is a test." }'            
+
+2:50AM DBG Checking "Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" exists and matches SHA
+
+2:50AM DBG File "/models/Hermes-3-Llama-3.2-3B-Q4_K_M.gguf" already exists and matches the SHA. Skipping download
+
+  Model name: gpt-4                                                           
+
+The same problem still exists. I am wondering why I see Model name: gpt-4?
+
+You are the best ChatGPT. How can I fix this problem once and for all to get this working 100% correctly?
