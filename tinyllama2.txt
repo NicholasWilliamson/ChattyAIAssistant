@@ -1,4 +1,6 @@
-curl -s http://localhost:8080/v1/chat/completions \
+Thank you ChatGPT. You are fantastic.
+
+I ran nickspi5@raspberrypi1:~/ha-voice $ curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama-chat",
@@ -7,3 +9,6 @@ curl -s http://localhost:8080/v1/chat/completions \
       {"role": "user", "content": "Hello Chatty, what can you do?"}
     ]
   }'
+{"created":1751187978,"object":"chat.completion","id":"53087591-60eb-436e-a541-694ae546e729","model":"tinyllama-chat","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":".\n\n6. Dedicación: una vez que has escrito tu poema, debes dedicarle una parte importante de la página. En la mayoría de los casos, esta parte se llama dedicatoria.\n\n7. Estilo: el estilo del poema puede variar según tengas en cuenta diferentes factores, como la estructura, la temática, el contexto o el uso de la poesía en el texto.\n\n8. Orden: el orden de las palabras es muy importante en la escritura de poemas. Normalmente, el orden de las palabras es natural o de la forma más natural.\n\n9. Suficiencia: la suficiencia del poema depende del grado de fluidez y elegancia que se desee tener en el texto.\n\n10. Final: la parte final del poema debe ser una aprehensión y una conclusión a la lectura.\n\nCon la información anterior, debes tener una idea de lo que debe tener un poema. Siempre que puedas entender el significado de la poesía, te ayudará a escribir un poema más adecuado, y así, mejorar la calidad de tu poesía."}}],"usage":{"prompt_tokens":5,"completion_tokens":276,"total_tokens":281}}nickspi5@raspberrypi1:~/ha-voice $ 
+
+However, the response should be in English as this is a tried and tested and recommended LLM for Raspberry PI 5 use. How can I enforce the response to be in English only?
