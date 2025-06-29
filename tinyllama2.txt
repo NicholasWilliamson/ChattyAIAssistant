@@ -1,4 +1,7 @@
-curl http://localhost:8080/v1/chat/completions \
+Thank you ChatGPT. You are great.
+
+I ran nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/models
+{"object":"list","data":[{"id":"tinyllama","object":"model"},{"id":"","object":"model"},{"id":"Hermes-3-Llama-3.2-3B-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-mmproj-f16.gguf","object":"model"},{"id":"mpt-7b-chat-q4_0.gguf","object":"model"},{"id":"phi-2.Q4_K_M.gguf","object":"model"},{"id":"stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf","object":"model"}]}nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama",
@@ -6,3 +9,5 @@ curl http://localhost:8080/v1/chat/completions \
       {"role": "user", "content": "Hello! What can you do?"}
     ]
   }'
+^C
+nickspi5@raspberrypi1:~/ha-voice $ 
