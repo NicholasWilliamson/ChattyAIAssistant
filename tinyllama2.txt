@@ -1,4 +1,33 @@
-curl http://localhost:8080/v1/chat/completions \
+Thank you ChatGPT. You are great.
+
+I was trying to download the TinyMistral model as you suggested using both wget and aria2 and received Not found errors..
+
+I even typed the url https://huggingface.co/TheBloke/TinyMistral-248M-Chat-GGUF/resolve/main/TinyMistral-248M-Chat.Q4_K_M.gguf
+into my browser and got a repository not found error.
+
+How can I download TinyMistral?
+
+I also tried to test minicpm as you recommended but it did not return a response after 3 minutes.
+
+I ran the following:
+
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
+[+] Running 6/6
+ ✔ Container localai            Removed                                                                                  0.5s 
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container piper              Removed                                                                                  0.5s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
+ ✔ Container homeassistant      Removed                                                                                  5.0s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.2s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+ ✔ Container whisper            Started                                                                                  1.5s 
+ ✔ Container piper              Started                                                                                  1.7s 
+ ✔ Container localai            Started                                                                                  1.4s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "minicpm",
@@ -7,3 +36,10 @@ curl http://localhost:8080/v1/chat/completions \
       {"role": "user", "content": "Hey Chatty, why is the sky blue?"}
     ]
   }' | jq '.choices[0].message.content'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   953  100   744  100   209      5      1  0:03:29  0:02:08  0:01:21   196
+null
+nickspi5@raspberrypi1:~/ha-voice $ 
+
+
