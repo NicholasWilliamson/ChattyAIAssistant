@@ -1,4 +1,40 @@
-curl -s http://localhost:8080/v1/chat/completions \
+Thank you ChatGPT. You are fantastic.
+
+I created my file phi-2-chat.yaml as follows:
+name: tinyllama-chat
+backend: llama-cpp
+parameters:
+  model: /models/phi-2.Q4_K_M.gguf
+  temperature: 0.7
+  top_p: 0.95
+  context_size: 2048
+  threads: 4
+template:
+  chat: llama-2
+  system: |
+    You are Chatty, a helpful, funny and friendly ai enabled voice assistant running on a Raspberry PI 5. Always reply quickly in clear and polite **English only**.
+
+I closed down and restarted everything.
+
+I ran nickspi5@raspberrypi1:~/ha-voice $ ls -lh models/phi-2.Q4_K_M.gguf
+-rw-r--r-- 1 nickspi5 nickspi5 1.7G Jun 28 23:35 models/phi-2.Q4_K_M.gguf
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
+[+] Running 6/6
+ ✔ Container homeassistant      Removed                                                                                  5.0s 
+ ✔ Container piper              Removed                                                                                  0.6s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.6s 
+ ✔ Container localai            Removed                                                                                  0.7s 
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
+[+] Running 6/6
+ ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container whisper            Started                                                                                  2.8s 
+ ✔ Container localai            Started                                                                                  1.4s 
+ ✔ Container piper              Started                                                                                  1.2s 
+ ✔ Container wyoming-satellite  Started                                                                                  2.5s 
+ ✔ Container homeassistant      Started                                                                                  0.7s 
+nickspi5@raspberrypi1:~/ha-voice $ curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "phi-2-chat",
@@ -6,9 +42,4 @@ curl -s http://localhost:8080/v1/chat/completions \
       {"role": "user", "content": "Hey Chatty, what can you help me with today?"}
     ]
   }'
-  
-  
-  
-  
-  
-  vvvvvvvvv
+{"error":{"code":400,"message":"Bad Request","type":""}}nickspi5@raspberrypi1:~/ha-voice $ 
