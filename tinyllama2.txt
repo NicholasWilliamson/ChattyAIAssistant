@@ -1,69 +1,54 @@
 Thank you ChatGPT. You are fantastic.
 
-I created my file phi-2-chat.yaml as follows:
-name: phi-2-chat
-backend: llama-cpp
-parameters:
-  model: /models/phi-2.Q4_K_M.gguf
-  temperature: 0.7
-  top_p: 0.95
-  context_size: 2048
-  threads: 4
-template:
-  chat: llama-2
-  system: |
-    You are Chatty, a helpful, funny and friendly ai enabled voice assistant running on a Raspberry PI 5. Always reply quickly in clear and polite **English only**.
-
-I closed down and restarted everything.
+I did as you said.
 
 I ran nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
 [+] Running 6/6
- ✔ Container homeassistant      Removed                                                                                  4.8s 
- ✔ Container piper              Removed                                                                                  0.5s 
- ✔ Container wyoming-satellite  Removed                                                                                 10.5s 
+ ✔ Container wyoming-satellite  Removed                                                                                 10.4s 
  ✔ Container localai            Removed                                                                                  0.5s 
+ ✔ Container homeassistant      Removed                                                                                  4.8s 
  ✔ Container whisper            Removed                                                                                 10.6s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
+ ✔ Container piper              Removed                                                                                  0.5s 
+ ✔ Network ha-voice_default     Removed                                                                                  0.2s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
 [+] Running 6/6
  ✔ Network ha-voice_default     Created                                                                                  0.1s 
+ ✔ Container piper              Started                                                                                  1.5s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.7s 
  ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container localai            Started                                                                                  1.8s 
- ✔ Container piper              Started                                                                                  1.4s 
- ✔ Container whisper            Started                                                                                  1.1s 
- ✔ Container wyoming-satellite  Started                                                                                  1.9s 
+ ✔ Container whisper            Started                                                                                  1.3s 
+ ✔ Container localai            Started                                                                                  1.7s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
 CPU info:
 CPU: no AVX    found
 CPU: no AVX2   found
 CPU: no AVX512 found
-12:08PM DBG Setting logging to debug
-12:08PM INF Starting LocalAI using 4 threads, with models path: /models
-12:08PM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
-12:08PM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
+12:39PM DBG Setting logging to debug
+12:39PM INF Starting LocalAI using 4 threads, with models path: /models
+12:39PM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
+12:39PM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
 WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
 WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
 WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
 WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-12:08PM DBG GPU count: 2
-12:08PM DBG GPU: card #0 @1002000000.v3d
-12:08PM DBG GPU: card #1 @axi:gpu
-12:08PM WRN [startup] failed resolving model '/usr/bin/local-ai'
-12:08PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-12:08PM DBG GPU vendor gpuVendor=
-12:08PM ERR config is not valid Name=phi-2-chat
-12:08PM INF Preloading models from /models
-12:08PM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0 TopP:0x400d551390 TopK:0x400d551398 Temperature:0x400d5513a0 Maxtokens:0x400d5513d0 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d5513c8 TypicalP:0x400d5513c0 Seed:0x400d5513e0 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x400d551388 Threads:0x400d551380 Debug:0x400d5513d8 Roles:map[] Embeddings:0x400d5513d9 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d5513b8 MirostatTAU:0x400d5513b0 Mirostat:0x400d5513a8 NGPULayers:<nil> MMap:0x400d5513d8 MMlock:0x400d5513d9 LowVRAM:0x400d5513d9 Reranking:0x400d5513d9 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400d5513e8 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
-12:08PM DBG Extracting backend assets files to /tmp/localai/backend_data
-12:08PM DBG processing api keys runtime update
-12:08PM DBG processing external_backends.json
-12:08PM DBG external backends loaded from external_backends.json
-12:08PM INF core/startup process completed!
-12:08PM DBG No configuration file found at /tmp/localai/upload/uploadedFiles.json
-12:08PM DBG No configuration file found at /tmp/localai/config/assistants.json
-12:08PM DBG No configuration file found at /tmp/localai/config/assistantsFile.json
-12:08PM DBG GPU vendor gpuVendor=
-12:08PM INF LocalAI API is listening! Please connect to the endpoint for API documentation. endpoint=http://0.0.0.0:8080
-12:09PM INF Success ip=127.0.0.1 latency="79.944µs" method=GET status=200 url=/readyz
+12:39PM DBG GPU count: 2
+12:39PM DBG GPU: card #0 @1002000000.v3d
+12:39PM DBG GPU: card #1 @axi:gpu
+12:39PM WRN [startup] failed resolving model '/usr/bin/local-ai'
+12:39PM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
+12:39PM DBG GPU vendor gpuVendor=
+12:39PM ERR config is not valid Name=phi-2-chat
+12:39PM INF Preloading models from /models
+12:39PM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0 TopP:0x400d4cdeb0 TopK:0x400d4cdeb8 Temperature:0x400d4cdec0 Maxtokens:0x400d4cdef0 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d4cdee8 TypicalP:0x400d4cdee0 Seed:0x400d4cdf00 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x400d4cdea8 Threads:0x400d4cdea0 Debug:0x400d4cdef8 Roles:map[] Embeddings:0x400d4cdef9 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d4cded8 MirostatTAU:0x400d4cded0 Mirostat:0x400d4cdec8 NGPULayers:<nil> MMap:0x400d4cdef8 MMlock:0x400d4cdef9 LowVRAM:0x400d4cdef9 Reranking:0x400d4cdef9 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400d4cdf08 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
+12:39PM DBG Extracting backend assets files to /tmp/localai/backend_data
+12:39PM DBG processing api keys runtime update
+12:39PM DBG processing external_backends.json
+12:39PM DBG external backends loaded from external_backends.json
+12:39PM INF core/startup process completed!
+12:39PM DBG No configuration file found at /tmp/localai/upload/uploadedFiles.json
+12:39PM DBG No configuration file found at /tmp/localai/config/assistants.json
+12:39PM DBG No configuration file found at /tmp/localai/config/assistantsFile.json
+12:39PM DBG GPU vendor gpuVendor=
+12:39PM INF LocalAI API is listening! Please connect to the endpoint for API documentation. endpoint=http://0.0.0.0:8080
 
 
