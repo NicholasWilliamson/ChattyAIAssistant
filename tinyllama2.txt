@@ -1,194 +1,41 @@
 Thank you ChatGPT. You are great.
 
-I ran nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai cat /models/models.yaml
-- name: phi2
-  model: phi-2.Q4_K_M.gguf
-  backend: llama-cpp
-  parameters:
-    threads: 4
-    temperature: 0.7
-    top_p: 0.95
-    n_predict: 200
-    stopwords:
-      - "<|endoftext|>"
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai ls -l /models/phi2
-ls: cannot access '/models/phi2': No such file or directory
+I ran nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai rm -rf /models/phi2
+nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai ls -l /models
+total 11527388
+-rw-r--r-- 1 root root 2019374176 Jun 26 21:55 Hermes-3-Llama-3.2-3B-Q4_K_M.gguf
+-rw-r--r-- 1 root root        263 Jun 25 08:24 MODEL_CARD
+-rw-r--r-- 1 root root   63104526 Jun 25 08:24 en-us-amy-low.onnx
+-rw-r--r-- 1 root root       5776 Jun 25 08:24 en-us-amy-low.onnx.json
+-rw-r--r-- 1 root root 4681089344 Jun 27 07:13 minicpm-v-2_6-Q4_K_M.gguf
+-rw-r--r-- 1 root root 1044425152 Jun 27 07:18 minicpm-v-2_6-mmproj-f16.gguf
+-rw-r--r-- 1 1000 1000        212 Jun 29 02:33 models.yaml
+-rw-r--r-- 1 1000 1000        225 Jun 28 23:49 modelstinyllama.yaml
+-rw-r--r-- 1 1000 1000      27150 Jun 28 00:31 mpt-7b-chat-q4_0.gguf
+-rw-r--r-- 1 1000 1000 1789239136 Jun 28 13:35 phi-2.Q4_K_M.gguf
+-rw-r--r-- 1 root root    2243022 Jun 23 11:47 silero-vad.onnx
+-rw-r--r-- 1 root root 1566768416 Jun 27 07:03 stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf
+-rw-r--r-- 1 1000 1000  637699456 Jun 28 02:44 tinyllama.gguf
+-rw-r--r-- 1 1000 1000        139 Jun 28 03:20 tinyllama.yaml
+drwxr-xr-x 2 1000 1000       4096 Jun 28 22:17 tinymistral
+drwxr-xr-x 2 1000 1000       4096 Jun 28 06:28 unused
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
 [+] Running 6/6
- ✔ Container homeassistant      Removed                                                                                  4.8s 
- ✔ Container whisper            Removed                                                                                 10.6s 
  ✔ Container wyoming-satellite  Removed                                                                                 10.4s 
- ✔ Container piper              Removed                                                                                  0.6s 
- ✔ Container localai            Removed                                                                                  0.6s 
+ ✔ Container homeassistant      Removed                                                                                  4.7s 
+ ✔ Container whisper            Removed                                                                                 10.6s 
+ ✔ Container piper              Removed                                                                                  0.7s 
+ ✔ Container localai            Removed                                                                                  0.7s 
  ✔ Network ha-voice_default     Removed                                                                                  0.3s 
 nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
 [+] Running 6/6
  ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container wyoming-satellite  Started                                                                                  1.6s 
- ✔ Container piper              Started                                                                                  1.5s 
+ ✔ Container whisper            Started                                                                                  1.2s 
+ ✔ Container localai            Started                                                                                  1.6s 
+ ✔ Container wyoming-satellite  Started                                                                                  1.3s 
  ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container localai            Started                                                                                  1.4s 
- ✔ Container whisper            Started                                                                                  1.3s 
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "phi2",
-    "messages": [
-      {"role": "system", "content": "You are a helpful Australian voice assistant."},
-      {"role": "user", "content": "Hey Chatty, what do you do?"}
-    ]
-  }' | jq '.choices[0].message.content'
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   201    0     0  100   201      0      2  0:01:40  0:01:31  0:00:09     0^C
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai cat /models/models.yaml
-- name: phi2
-  model: phi-2.Q4_K_M.gguf
-  path: /models
-  backend: llama-cpp
-  parameters:
-    threads: 4
-    temperature: 0.7
-    top_p: 0.95
-    n_predict: 200
-    stopwords:
-      - "<|endoftext|>"
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker logs -f localai
-CPU info:
-CPU: no AVX    found
-CPU: no AVX2   found
-CPU: no AVX512 found
-2:34AM DBG Setting logging to debug
-2:34AM INF Starting LocalAI using 4 threads, with models path: /models
-2:34AM INF LocalAI version: v3.1.0 (6a650e68cb37487615887e27039f5b85fe0d418d)
-2:34AM DBG CPU capabilities: [aes asimd asimddp asimdhp asimdrdm atomics cpuid crc32 dcpop evtstrm fp fphp lrcpc pmull sha1 sha2]
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card0/device/numa_node: no such file or directory
-WARNING: failed to read int from file: open /sys/class/drm/card1/device/numa_node: no such file or directory
-WARNING: failed to determine memory area for node: open /sys/devices/system/node/node0/hugepages: no such file or directory
-2:34AM DBG GPU count: 2
-2:34AM DBG GPU: card #0 @1002000000.v3d
-2:34AM DBG GPU: card #1 @axi:gpu
-2:34AM WRN [startup] failed resolving model '/usr/bin/local-ai'
-2:34AM ERR error installing models error="failed resolving model '/usr/bin/local-ai'"
-2:34AM DBG GPU vendor gpuVendor=
-2:34AM ERR LoadBackendConfigsFromPath cannot read config file error="readBackendConfigFromFile cannot unmarshal config file \"/models/models.yaml\": yaml: unmarshal errors:\n  line 1: cannot unmarshal !!seq into config.BCAlias" File Name=models.yaml
-2:34AM DBG guessDefaultsFromFile: NGPULayers set NGPULayers=99999999
-2:34AM DBG guessDefaultsFromFile: template already set name=tinyllama
-2:34AM INF Preloading models from /models
-2:34AM DBG Model:  (config: {PredictionOptions:{BasicModelRequest:{Model:} Language: Translate:false N:0 TopP:0x400d533620 TopK:0x400d533628 Temperature:0x400d533630 Maxtokens:0x400d533660 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d533658 TypicalP:0x400d533650 Seed:0x400d533670 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x400d533618 Threads:0x400d533610 Debug:0x400d533668 Roles:map[] Embeddings:0x400d533669 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d533648 MirostatTAU:0x400d533640 Mirostat:0x400d533638 NGPULayers:<nil> MMap:0x400d533668 MMlock:0x400d533669 LowVRAM:0x400d533669 Reranking:0x400d533669 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400d533678 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
-2:34AM DBG Model: tinyllama (config: {PredictionOptions:{BasicModelRequest:{Model:tinyllama.gguf} Language: Translate:false N:0 TopP:0x400d533920 TopK:0x400d533928 Temperature:0x400d533930 Maxtokens:0x400d533960 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x400d533958 TypicalP:0x400d533950 Seed:0x400d533970 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name:tinyllama F16:0x400d533918 Threads:0x400d533910 Debug:0x400d533968 Roles:map[] Embeddings:0x400d533969 Backend:llama-cpp TemplateConfig:{Chat:llama-2 ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[FLAG_ANY FLAG_CHAT] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x400d533948 MirostatTAU:0x400d533940 Mirostat:0x400d533938 NGPULayers:0x400e3e3038 MMap:0x400d533968 MMlock:0x400d533969 LowVRAM:0x400d533969 Reranking:0x400d533969 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x400e3e3030 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]})
-
-  Model name: tinyllama                                                       
+ ✔ Container piper              Started                                                                                  1.5s 
+nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/models
+{"object":"list","data":[{"id":"","object":"model"},{"id":"tinyllama","object":"model"},{"id":"Hermes-3-Llama-3.2-3B-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-mmproj-f16.gguf","object":"model"},{"id":"mpt-7b-chat-q4_0.gguf","object":"model"},{"id":"phi-2.Q4_K_M.gguf","object":"model"},{"id":"stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf","object":"model"}]}nickspi5@raspberrypi1:~/ha-voice $ 
 
 
-2:34AM DBG Extracting backend assets files to /tmp/localai/backend_data
-2:34AM DBG processing api keys runtime update
-2:34AM DBG processing external_backends.json
-2:34AM DBG external backends loaded from external_backends.json
-2:34AM INF core/startup process completed!
-2:34AM DBG No configuration file found at /tmp/localai/upload/uploadedFiles.json
-2:34AM DBG No configuration file found at /tmp/localai/config/assistants.json
-2:34AM DBG No configuration file found at /tmp/localai/config/assistantsFile.json
-2:34AM DBG GPU vendor gpuVendor=
-2:34AM INF LocalAI API is listening! Please connect to the endpoint for API documentation. endpoint=http://0.0.0.0:8080
-2:35AM INF Success ip=127.0.0.1 latency="68.851µs" method=GET status=200 url=/readyz
-2:35AM DBG context local model name not found, setting to the first model first model name=tinyllama
-2:35AM DBG Chat endpoint configuration read: &{PredictionOptions:{BasicModelRequest:{Model:phi2} Language: Translate:false N:0 TopP:0x4000534da0 TopK:0x4000534da8 Temperature:0x4000534db0 Maxtokens:0x4000534e50 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x4000534dd8 TypicalP:0x4000534dd0 Seed:0x4000534e70 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x4000534d78 Threads:0x4000534d70 Debug:0x4000534e58 Roles:map[] Embeddings:0x4000534e59 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x4000534dc8 MirostatTAU:0x4000534dc0 Mirostat:0x4000534db8 NGPULayers:<nil> MMap:0x4000534e58 MMlock:0x4000534e59 LowVRAM:0x4000534e59 Reranking:0x4000534e59 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x4000534e78 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]}
-2:35AM DBG Parameters: &{PredictionOptions:{BasicModelRequest:{Model:phi2} Language: Translate:false N:0 TopP:0x4000534da0 TopK:0x4000534da8 Temperature:0x4000534db0 Maxtokens:0x4000534e50 Echo:false Batch:0 IgnoreEOS:false RepeatPenalty:0 RepeatLastN:0 Keep:0 FrequencyPenalty:0 PresencePenalty:0 TFZ:0x4000534dd8 TypicalP:0x4000534dd0 Seed:0x4000534e70 NegativePrompt: RopeFreqBase:0 RopeFreqScale:0 NegativePromptScale:0 ClipSkip:0 Tokenizer:} Name: F16:0x4000534d78 Threads:0x4000534d70 Debug:0x4000534e58 Roles:map[] Embeddings:0x4000534e59 Backend: TemplateConfig:{Chat: ChatMessage: Completion: Edit: Functions: UseTokenizerTemplate:false JoinChatMessagesByCharacter:<nil> Multimodal: JinjaTemplate:false ReplyPrefix:} KnownUsecaseStrings:[] KnownUsecases:<nil> Pipeline:{TTS: LLM: Transcription: VAD:} PromptStrings:[] InputStrings:[] InputToken:[] functionCallString: functionCallNameString: ResponseFormat: ResponseFormatMap:map[] FunctionsConfig:{DisableNoAction:false GrammarConfig:{ParallelCalls:false DisableParallelNewLines:false MixedMode:false NoMixedFreeString:false NoGrammar:false Prefix: ExpectStringsAfterJSON:false PropOrder: SchemaType: GrammarTriggers:[]} NoActionFunctionName: NoActionDescriptionName: ResponseRegex:[] JSONRegexMatch:[] ArgumentRegex:[] ArgumentRegexKey: ArgumentRegexValue: ReplaceFunctionResults:[] ReplaceLLMResult:[] CaptureLLMResult:[] FunctionNameKey: FunctionArgumentsKey:} FeatureFlag:map[] LLMConfig:{SystemPrompt: TensorSplit: MainGPU: RMSNormEps:0 NGQA:0 PromptCachePath: PromptCacheAll:false PromptCacheRO:false MirostatETA:0x4000534dc8 MirostatTAU:0x4000534dc0 Mirostat:0x4000534db8 NGPULayers:<nil> MMap:0x4000534e58 MMlock:0x4000534e59 LowVRAM:0x4000534e59 Reranking:0x4000534e59 Grammar: StopWords:[] Cutstrings:[] ExtractRegex:[] TrimSpace:[] TrimSuffix:[] ContextSize:0x4000534e78 NUMA:false LoraAdapter: LoraBase: LoraAdapters:[] LoraScales:[] LoraScale:0 NoMulMatQ:false DraftModel: NDraft:0 Quantization: LoadFormat: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 DisableLogStatus:false DType: LimitMMPerPrompt:{LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0} MMProj: FlashAttention:false NoKVOffloading:false CacheTypeK: CacheTypeV: RopeScaling: ModelType: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 CFGScale:0} Diffusers:{CUDA:false PipelineType: SchedulerType: EnableParameters: IMG2IMG:false ClipSkip:0 ClipModel: ClipSubFolder: ControlNet:} Step:0 GRPC:{Attempts:0 AttemptsSleepTime:0} TTSConfig:{Voice: AudioPath:} CUDA:false DownloadFiles:[] Description: Usage: Options:[]}
-2:35AM DBG Prompt (before templating): You are a helpful Australian voice assistant.
-Hey Chatty, what do you do?
-2:35AM DBG Template found, input modified to: You are a helpful Australian voice assistant.
-Hey Chatty, what do you do?
-2:35AM DBG Prompt (after templating): You are a helpful Australian voice assistant.
-Hey Chatty, what do you do?
-2:35AM DBG Loading from the following backends (in order): [llama-cpp llama-cpp-fallback piper silero-vad whisper huggingface]
-2:35AM INF Trying to load the model 'phi2' with the backend '[llama-cpp llama-cpp-fallback piper silero-vad whisper huggingface]'
-2:35AM INF [llama-cpp] Attempting to load
-2:35AM INF BackendLoader starting backend=llama-cpp modelID=phi2 o.model=phi2
-2:35AM DBG Loading model in memory from file: /models/phi2
-2:35AM DBG Loading Model phi2 with gRPC (file: /models/phi2) (backend: llama-cpp): {backendString:llama-cpp model:phi2 modelID:phi2 assetDir:/tmp/localai/backend_data context:{emptyCtx:{}} gRPCOptions:0x4000735348 externalBackends:map[] grpcAttempts:20 grpcAttemptsDelay:2 parallelRequests:false}
-2:35AM DBG [llama-cpp-fallback] llama-cpp variant available
-2:35AM DBG Loading GRPC Process: /tmp/localai/backend_data/backend-assets/grpc/llama-cpp-fallback
-2:35AM DBG GRPC Service for phi2 will be running at: '127.0.0.1:40697'
-2:35AM DBG GRPC Service state dir: /tmp/go-processmanager649985428
-2:35AM DBG GRPC Service Started
-2:35AM DBG Wait for the service to start up
-2:35AM DBG Options: ContextSize:1024 Seed:982510841 NBatch:512 MMap:true NGPULayers:9999999 Threads:4
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.982695      31 config.cc:230] gRPC experiments enabled: call_status_override_on_cancellation, event_engine_dns, event_engine_listener, http2_stats_fix, monitoring_experiment, pick_first_new, trace_record_callops, work_serializer_clears_time_cache, work_serializer_dispatch
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.983147      31 ev_epoll1_linux.cc:125] grpc epoll fd: 3
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.983436      31 server_builder.cc:392] Synchronous server. Num CQs: 1, Min pollers: 1, Max Pollers: 2, CQ timeout (msec): 10000
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.984881      31 ev_epoll1_linux.cc:359] grpc epoll fd: 5
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.985639      31 tcp_socket_utils.cc:693] Disabling AF_INET6 sockets because ::1 is not available.
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr I0000 00:00:1751164525.985729      31 tcp_socket_utils.cc:634] TCP_USER_TIMEOUT is available. TCP_USER_TIMEOUT will be used thereafter
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr start_llama_server: starting llama server
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr start_llama_server: waiting for model to be loaded
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stdout Server listening on 127.0.0.1:40697
-2:35AM DBG GRPC Service Ready
-2:35AM DBG GRPC: Loading model with options: {state:{NoUnkeyedLiterals:{} DoNotCompare:[] DoNotCopy:[] atomicMessageInfo:0x4000396e58} sizeCache:0 unknownFields:[] Model:phi2 ContextSize:1024 Seed:982510841 NBatch:512 F16Memory:false MLock:false MMap:true VocabOnly:false LowVRAM:false Embeddings:false NUMA:false NGPULayers:9999999 MainGPU: TensorSplit: Threads:4 LibrarySearchPath: RopeFreqBase:0 RopeFreqScale:0 RMSNormEps:0 NGQA:0 ModelFile:/models/phi2 PipelineType: SchedulerType: CUDA:false CFGScale:0 IMG2IMG:false CLIPModel: CLIPSubfolder: CLIPSkip:0 ControlNet: Tokenizer: LoraBase: LoraAdapter: LoraScale:0 NoMulMatQ:false DraftModel: AudioPath: Quantization: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 LoadFormat: DisableLogStatus:false DType: LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0 MMProj: RopeScaling: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 Type: FlashAttention:false NoKVOffload:false ModelPath:/models LoraAdapters:[] LoraScales:[] Options:[] CacheTypeKey: CacheTypeValue: GrammarTriggers:[] Reranking:false}
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr build: 5763 (8846aace) with cc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 for aarch64-linux-gnu
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr system info: n_threads = 4, n_threads_batch = -1, total_threads = 4
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr 
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr system_info: n_threads = 4 / 4 | CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | 
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr 
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr srv    load_model: loading model '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr gguf_init_from_file: failed to open GGUF file '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr llama_model_load: error loading model: llama_model_loader: failed to load model from /models/phi2
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr llama_model_load_from_file_impl: failed to load model
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr common_init_from_params: failed to load model '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:40697): stderr srv    load_model: failed to load model, '/models/phi2'
-2:35AM ERR [llama-cpp] Failed loading model, trying with fallback 'llama-cpp-fallback', error: failed to load model with internal loader: could not load model: rpc error: code = Canceled desc = 
-2:35AM DBG Loading model in memory from file: /models/phi2
-2:35AM DBG Loading Model phi2 with gRPC (file: /models/phi2) (backend: llama-cpp-fallback): {backendString:llama-cpp model:phi2 modelID:phi2 assetDir:/tmp/localai/backend_data context:{emptyCtx:{}} gRPCOptions:0x4000735348 externalBackends:map[] grpcAttempts:20 grpcAttemptsDelay:2 parallelRequests:false}
-2:35AM DBG Loading GRPC Process: /tmp/localai/backend_data/backend-assets/grpc/llama-cpp-fallback
-2:35AM DBG GRPC Service for phi2 will be running at: '127.0.0.1:42671'
-2:35AM DBG GRPC Service state dir: /tmp/go-processmanager3385110642
-2:35AM DBG GRPC Service Started
-2:35AM DBG Wait for the service to start up
-2:35AM DBG Options: ContextSize:1024 Seed:982510841 NBatch:512 MMap:true NGPULayers:9999999 Threads:4
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.997497      44 config.cc:230] gRPC experiments enabled: call_status_override_on_cancellation, event_engine_dns, event_engine_listener, http2_stats_fix, monitoring_experiment, pick_first_new, trace_record_callops, work_serializer_clears_time_cache, work_serializer_dispatch
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.997837      44 ev_epoll1_linux.cc:125] grpc epoll fd: 4
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.998106      44 server_builder.cc:392] Synchronous server. Num CQs: 1, Min pollers: 1, Max Pollers: 2, CQ timeout (msec): 10000
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.999206      44 ev_epoll1_linux.cc:359] grpc epoll fd: 5
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.999819      44 tcp_socket_utils.cc:693] Disabling AF_INET6 sockets because ::1 is not available.
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr I0000 00:00:1751164527.999894      44 tcp_socket_utils.cc:634] TCP_USER_TIMEOUT is available. TCP_USER_TIMEOUT will be used thereafter
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr start_llama_server: starting llama server
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr start_llama_server: waiting for model to be loaded
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stdout Server listening on 127.0.0.1:42671
-2:35AM DBG GRPC Service Ready
-2:35AM DBG GRPC: Loading model with options: {state:{NoUnkeyedLiterals:{} DoNotCompare:[] DoNotCopy:[] atomicMessageInfo:0x4000396e58} sizeCache:0 unknownFields:[] Model:phi2 ContextSize:1024 Seed:982510841 NBatch:512 F16Memory:false MLock:false MMap:true VocabOnly:false LowVRAM:false Embeddings:false NUMA:false NGPULayers:9999999 MainGPU: TensorSplit: Threads:4 LibrarySearchPath: RopeFreqBase:0 RopeFreqScale:0 RMSNormEps:0 NGQA:0 ModelFile:/models/phi2 PipelineType: SchedulerType: CUDA:false CFGScale:0 IMG2IMG:false CLIPModel: CLIPSubfolder: CLIPSkip:0 ControlNet: Tokenizer: LoraBase: LoraAdapter: LoraScale:0 NoMulMatQ:false DraftModel: AudioPath: Quantization: GPUMemoryUtilization:0 TrustRemoteCode:false EnforceEager:false SwapSpace:0 MaxModelLen:0 TensorParallelSize:0 LoadFormat: DisableLogStatus:false DType: LimitImagePerPrompt:0 LimitVideoPerPrompt:0 LimitAudioPerPrompt:0 MMProj: RopeScaling: YarnExtFactor:0 YarnAttnFactor:0 YarnBetaFast:0 YarnBetaSlow:0 Type: FlashAttention:false NoKVOffload:false ModelPath:/models LoraAdapters:[] LoraScales:[] Options:[] CacheTypeKey: CacheTypeValue: GrammarTriggers:[] Reranking:false}
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr build: 5763 (8846aace) with cc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 for aarch64-linux-gnu
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr system info: n_threads = 4, n_threads_batch = -1, total_threads = 4
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr 
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr system_info: n_threads = 4 / 4 | CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | 
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr 
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr srv    load_model: loading model '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr gguf_init_from_file: failed to open GGUF file '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr llama_model_load: error loading model: llama_model_loader: failed to load model from /models/phi2
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr llama_model_load_from_file_impl: failed to load model
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr common_init_from_params: failed to load model '/models/phi2'
-2:35AM DBG GRPC(phi2-127.0.0.1:42671): stderr srv    load_model: failed to load model, '/models/phi2'
-2:35AM INF [llama-cpp] Fails: failed to load model with internal loader: could not load model: rpc error: code = Canceled desc = 
-2:35AM INF [llama-cpp-fallback] Attempting to load
-2:35AM INF BackendLoader starting backend=llama-cpp-fallback modelID=phi2 o.model=phi2
-2:35AM DBG Loading model in memory from file: /models/phi2
-2:35AM DBG Loading Model phi2 with gRPC (file: /models/phi2) (backend: llama-cpp-fallback): {backendString:llama-cpp-fallback model:phi2 modelID:phi2 assetDir:/tmp/localai/backend_data context:{emptyCtx:{}} gRPCOptions:0x4000735348 externalBackends:map[] grpcAttempts:20 grpcAttemptsDelay:2 parallelRequests:false}
-2:35AM DBG Loading GRPC Process: /tmp/localai/backend_data/backend-assets/grpc/llama-cpp-fallback
-2:35AM DBG GRPC Service for phi2 will be running at: '127.0.0.1:38263'
-2:35AM DBG GRPC Service state dir: /tmp/go-processmanager1997516171
-2:35AM DBG GRPC Service Started
-2:35AM DBG Wait for the service to start up
-2:35AM DBG Options: ContextSize:1024 Seed:982510841 NBatch:512 MMap:true NGPULayers:9999999 Threads:4
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.010104      58 config.cc:230] gRPC experiments enabled: call_status_override_on_cancellation, event_engine_dns, event_engine_listener, http2_stats_fix, monitoring_experiment, pick_first_new, trace_record_callops, work_serializer_clears_time_cache, work_serializer_dispatch
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.010430      58 ev_epoll1_linux.cc:125] grpc epoll fd: 3
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.010642      58 server_builder.cc:392] Synchronous server. Num CQs: 1, Min pollers: 1, Max Pollers: 2, CQ timeout (msec): 10000
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.011843      58 ev_epoll1_linux.cc:359] grpc epoll fd: 5
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.012530      58 tcp_socket_utils.cc:693] Disabling AF_INET6 sockets because ::1 is not available.
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr I0000 00:00:1751164530.012615      58 tcp_socket_utils.cc:634] TCP_USER_TIMEOUT is available. TCP_USER_TIMEOUT will be used thereafter
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr start_llama_server: starting llama server
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stderr start_llama_server: waiting for model to be loaded
-2:35AM DBG GRPC(phi2-127.0.0.1:38263): stdout Server listening on 127.0.0.1:38263
-2:35AM DBG GRPC Service Ready
