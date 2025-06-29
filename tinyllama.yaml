@@ -2,3 +2,5 @@ name: tinyllama
 backend: llama-cpp
 parameters:
   model: /models/tinyllama.gguf
+  threads: 4
+  context_size: 2048
