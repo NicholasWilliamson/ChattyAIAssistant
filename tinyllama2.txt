@@ -1,21 +1,31 @@
-How to Download Hermes 3 LLaMA 3.2 Q4_K_M
-From your Pi 5 (within your ha-voice folder):
+Most Proven LLaMA 3.1 / 3.2-Based GGUF Chat Models for Raspberry Pi 5 (Q4_K_M)
+Since LLaMA 3.2 GGUF models are still rolling out slowly, the best option currently fully available and proven is:
+
+🧠 NeuralHermes-2.5-Mistral-7B.Q4_K_M.gguf
+✅ Based on Mistral 7B (super fast & efficient)
+
+✅ Excellent instruction/chat performance
+
+✅ Available now in GGUF (from TheBloke)
+
+✅ Works well on Raspberry Pi 5 (needs ~4.5GB RAM)
+
+✅ Works with LocalAI
+
+🔗 Download:
 
 bash
 Copy
 Edit
-cd models
-wget https://huggingface.co/TheBloke/Hermes-3-Llama-3.2-8B-GGUF/resolve/main/Hermes-3-Llama-3.2-8B-Q4_K_M.gguf
-Then create the matching YAML file:
-
-🧾 Hermes-3-Llama-3.2-8B-Q4_K_M.yaml
+wget https://huggingface.co/TheBloke/NeuralHermes-2.5-Mistral-7B-GGUF/resolve/main/NeuralHermes-2.5-Mistral-7B.Q4_K_M.gguf -O models/neuralhermes.gguf
+🔄 YAML for LocalAI (models/neuralhermes.yaml)
 yaml
 Copy
 Edit
-name: hermes
+name: neuralhermes
 backend: llama-cpp
 parameters:
-  model: /models/Hermes-3-Llama-3.2-8B-Q4_K_M.gguf
+  model: /models/neuralhermes.gguf
   temperature: 0.7
   top_k: 50
   top_p: 0.9
@@ -28,22 +38,15 @@ parameters:
   batch: 64
   context_size: 4096
   f16: true
-  gpu_layers: 35  # For Pi 5 + Vulkan or CUDA if supported
-You can name it:
-
-bash
-Copy
-Edit
-/models/hermes.yaml
-🔄 Reload LocalAI
-After saving the model and YAML:
+  gpu_layers: 35
+Then restart:
 
 bash
 Copy
 Edit
 sudo docker compose down
 sudo docker compose up -d
-Then test it:
+And test it:
 
 bash
 Copy
@@ -51,15 +54,8 @@ Edit
 curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "hermes",
+    "model": "neuralhermes",
     "messages": [
-      {"role": "user", "content": "Hey Chatty, what's the best way to cook a steak?"}
+      {"role": "user", "content": "Hey Chatty, how do I cook a steak medium rare?"}
     ]
   }' | jq
-🧠 Optional: Make Hermes Default
-Edit your models.yaml and set:
-
-yaml
-Copy
-Edit
-default_model: hermes
