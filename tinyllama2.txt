@@ -1,15 +1,14 @@
 curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "tinyllama-chat",
+    "model": "phi-2-chat",
     "messages": [
-      {"role": "system", "content": "You are Chatty, a helpful voice AI assistant running on a Raspberry Pi. Answer clearly and politely."},
-      {"role": "user", "content": "Hello Chatty, what can you do?"}
+      {"role": "user", "content": "Hey Chatty, what can you help me with today?"}
     ]
   }'
   
   
-  aria2c -x 4 -s 4 -d models \
-https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf
-
-
+  
+  
+  
+  vvvvvvvvv
