@@ -1,41 +1,8 @@
-Thank you ChatGPT. You are great.
-
-I ran nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai rm -rf /models/phi2
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker exec -it localai ls -l /models
-total 11527388
--rw-r--r-- 1 root root 2019374176 Jun 26 21:55 Hermes-3-Llama-3.2-3B-Q4_K_M.gguf
--rw-r--r-- 1 root root        263 Jun 25 08:24 MODEL_CARD
--rw-r--r-- 1 root root   63104526 Jun 25 08:24 en-us-amy-low.onnx
--rw-r--r-- 1 root root       5776 Jun 25 08:24 en-us-amy-low.onnx.json
--rw-r--r-- 1 root root 4681089344 Jun 27 07:13 minicpm-v-2_6-Q4_K_M.gguf
--rw-r--r-- 1 root root 1044425152 Jun 27 07:18 minicpm-v-2_6-mmproj-f16.gguf
--rw-r--r-- 1 1000 1000        212 Jun 29 02:33 models.yaml
--rw-r--r-- 1 1000 1000        225 Jun 28 23:49 modelstinyllama.yaml
--rw-r--r-- 1 1000 1000      27150 Jun 28 00:31 mpt-7b-chat-q4_0.gguf
--rw-r--r-- 1 1000 1000 1789239136 Jun 28 13:35 phi-2.Q4_K_M.gguf
--rw-r--r-- 1 root root    2243022 Jun 23 11:47 silero-vad.onnx
--rw-r--r-- 1 root root 1566768416 Jun 27 07:03 stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf
--rw-r--r-- 1 1000 1000  637699456 Jun 28 02:44 tinyllama.gguf
--rw-r--r-- 1 1000 1000        139 Jun 28 03:20 tinyllama.yaml
-drwxr-xr-x 2 1000 1000       4096 Jun 28 22:17 tinymistral
-drwxr-xr-x 2 1000 1000       4096 Jun 28 06:28 unused
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose down
-[+] Running 6/6
- ✔ Container wyoming-satellite  Removed                                                                                 10.4s 
- ✔ Container homeassistant      Removed                                                                                  4.7s 
- ✔ Container whisper            Removed                                                                                 10.6s 
- ✔ Container piper              Removed                                                                                  0.7s 
- ✔ Container localai            Removed                                                                                  0.7s 
- ✔ Network ha-voice_default     Removed                                                                                  0.3s 
-nickspi5@raspberrypi1:~/ha-voice $ sudo docker compose up -d
-[+] Running 6/6
- ✔ Network ha-voice_default     Created                                                                                  0.1s 
- ✔ Container whisper            Started                                                                                  1.2s 
- ✔ Container localai            Started                                                                                  1.6s 
- ✔ Container wyoming-satellite  Started                                                                                  1.3s 
- ✔ Container homeassistant      Started                                                                                  0.7s 
- ✔ Container piper              Started                                                                                  1.5s 
-nickspi5@raspberrypi1:~/ha-voice $ curl http://localhost:8080/v1/models
-{"object":"list","data":[{"id":"","object":"model"},{"id":"tinyllama","object":"model"},{"id":"Hermes-3-Llama-3.2-3B-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-Q4_K_M.gguf","object":"model"},{"id":"minicpm-v-2_6-mmproj-f16.gguf","object":"model"},{"id":"mpt-7b-chat-q4_0.gguf","object":"model"},{"id":"phi-2.Q4_K_M.gguf","object":"model"},{"id":"stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf","object":"model"}]}nickspi5@raspberrypi1:~/ha-voice $ 
-
-
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tinyllama",
+    "messages": [
+      {"role": "user", "content": "Hello! What can you do?"}
+    ]
+  }'
