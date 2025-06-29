@@ -1,14 +1,28 @@
 Thank you ChatGPT. You are fantastic.
 
-I ran nickspi5@raspberrypi1:~/ha-voice $ curl -s http://localhost:8080/v1/chat/completions \
+I modified my file as follows:
+name: tinyllama-chat
+backend: llama-cpp
+parameters:
+  model: tinyllama-1.1b-chat-v1.0.Q8_0.gguf
+  temperature: 0.7
+  top_p: 0.95
+  context_size: 2048
+  threads: 4
+template:
+  chat: llama-2
+  system: |
+    You are Chatty, a helpful, funny and friendly ai enabled voice assistant running on a Raspberry PI 5. Always reply quickly in clear and polite **English only**.
+
+I closed down and restarted everything.
+
+I ran curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "tinyllama-chat",
     "messages": [
-      {"role": "system", "content": "You are Chatty, a helpful voice AI assistant running on a Raspberry Pi. Answer clearly and politely."},
+      {"role": "system", "content": "You are Chatty, a helpful voice AI assistant running on a Raspberry Pi. Answer quickly and politely."},
       {"role": "user", "content": "Hello Chatty, what can you do?"}
     ]
   }'
-{"created":1751187978,"object":"chat.completion","id":"53087591-60eb-436e-a541-694ae546e729","model":"tinyllama-chat","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":".\n\n6. Dedicación: una vez que has escrito tu poema, debes dedicarle una parte importante de la página. En la mayoría de los casos, esta parte se llama dedicatoria.\n\n7. Estilo: el estilo del poema puede variar según tengas en cuenta diferentes factores, como la estructura, la temática, el contexto o el uso de la poesía en el texto.\n\n8. Orden: el orden de las palabras es muy importante en la escritura de poemas. Normalmente, el orden de las palabras es natural o de la forma más natural.\n\n9. Suficiencia: la suficiencia del poema depende del grado de fluidez y elegancia que se desee tener en el texto.\n\n10. Final: la parte final del poema debe ser una aprehensión y una conclusión a la lectura.\n\nCon la información anterior, debes tener una idea de lo que debe tener un poema. Siempre que puedas entender el significado de la poesía, te ayudará a escribir un poema más adecuado, y así, mejorar la calidad de tu poesía."}}],"usage":{"prompt_tokens":5,"completion_tokens":276,"total_tokens":281}}nickspi5@raspberrypi1:~/ha-voice $ 
-
-However, the response should be in English as this is a tried and tested and recommended LLM for Raspberry PI 5 use. How can I enforce the response to be in English only?
+{"created":1751189806,"object":"chat.completion","id":"d5eb64e5-e67b-43d0-8a1f-a397d98f5f1e","model":"tinyllama-chat","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":", que se usa en la cocina en Argentina y en Chile.\n\n3. Leche: También se utiliza la leche en el curry hindio.\n\nEn el curry hindio, la leche puede variar en su grado de sabor y textura, pero en general se utiliza para agregar calidad a la sopa. Los productores de leche de cocina suelen usar leche de coco (que es un producto sintético) para su producción, pero también se utilizan leche de almendras y leche de coco natural.\n\nCada región de la India tiene sus propias variedades de curry hindio, y en algunas regiones también se utiliza la leche de almendras.\n\n4. Agua: En el curry hindio, la agua se utiliza para cubrir los alimentos antes de ser preparados. También se utiliza para servir el curry. La agua se bebe mientras se prepara el curry.\n\nEn el curry hindio, el agua es muy importante, ya que el curry requiere un proceso de cocción que requiere líquido. De forma similar a la cocción en el curry banglés, el curry hindio requiere un proceso de cocción de varios días. Los alimentos que se preparan durante este proceso de cocción se suelen cubrir con agua durante esta fase.\n\nEn el curry hindio, la agua es muy importante en su preparación. La leche, la agua, y otros ingredientes se usan como partes intermedias para preparar el curry, pero la agua es la parte más importante de la preparación.\n\nCon la leche en el curry hindio, la leche sirve como un complemento para la sopa y también como un ingrediente. La leche añade textura y calidad a la sopa, y también proporciona un sabor agradable.\n\nCuando se usa la leche en el curry hindio, se la llama \"leche de curry\". La leche de curry se utiliza en el curry hindio como una base para la sopa, y se utiliza también como un ingrediente adicional en las variadas formas de curry hindio."}}],"usage":{"prompt_tokens":5,"completion_tokens":528,"total_tokens":533}}nickspi5@raspberrypi1:~/ha-voice $ 
