@@ -1,0 +1,46 @@
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson5 $ sudo apt update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
+Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease             
+Fetched 55.4 kB in 1s (39.2 kB/s)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson5 $ sudo apt install espeak-ng python3-soundfile python3-pip
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+espeak-ng is already the newest version (1.51+dfsg-10+deb12u2).
+python3-pip is already the newest version (23.0.1+dfsg-1+rpt1).
+The following NEW packages will be installed:
+  python3-soundfile
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 28.4 kB of archives.
+After this operation, 108 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://deb.debian.org/debian bookworm/main arm64 python3-soundfile all 0.12.1-1 [28.4 kB]
+Fetched 28.4 kB in 0s (146 kB/s)         
+Selecting previously unselected package python3-soundfile.
+(Reading database ... 169317 files and directories currently installed.)
+Preparing to unpack .../python3-soundfile_0.12.1-1_all.deb ...
+Unpacking python3-soundfile (0.12.1-1) ...
+Setting up python3-soundfile (0.12.1-1) ...
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson5 $ pip3 install vosk
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+    
+    If you wish to install a non-Debian-packaged Python package,
+    create a virtual environment using python3 -m venv path/to/venv.
+    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make
+    sure you have python3-full installed.
+    
+    For more information visit http://rptl.io/venv
+
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
