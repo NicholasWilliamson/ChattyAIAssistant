@@ -1,25 +1,94 @@
-I ran (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson5 $ python3 H4-chatty_command_runner.py
-🎤 Recording 5s of audio...
-Traceback (most recent call last):
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/venv/lib/python3.11/site-packages/sounddevice.py", line 2503, in __init__
-    import numpy
-ModuleNotFoundError: No module named 'numpy'
+I ran nickspi5@raspberrypi1:~/Downloads/Academy-main $ cd Lesson6
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ python3 -m venv venv
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ source venv/bin/activate
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip install vosk sounddevice soundfile numpy
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting vosk
+  Using cached vosk-0.3.45-py3-none-manylinux2014_aarch64.whl (2.4 MB)
+Collecting sounddevice
+  Using cached sounddevice-0.5.2-py3-none-any.whl (32 kB)
+Collecting soundfile
+  Using cached soundfile-0.13.1-py2.py3-none-manylinux_2_28_aarch64.whl (1.2 MB)
+Collecting numpy
+  Using cached numpy-2.3.1-cp311-cp311-manylinux_2_28_aarch64.whl (14.6 MB)
+Collecting cffi>=1.0
+  Using cached cffi-1.17.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (469 kB)
+Collecting requests
+  Using cached requests-2.32.4-py3-none-any.whl (64 kB)
+Collecting tqdm
+  Using cached https://www.piwheels.org/simple/tqdm/tqdm-4.67.1-py3-none-any.whl (78 kB)
+Collecting srt
+  Using cached https://www.piwheels.org/simple/srt/srt-3.5.3-py3-none-any.whl (22 kB)
+Collecting websockets
+  Using cached websockets-15.0.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (182 kB)
+Collecting pycparser
+  Using cached https://www.piwheels.org/simple/pycparser/pycparser-2.22-py3-none-any.whl (117 kB)
+Collecting charset_normalizer<4,>=2
+  Using cached charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (142 kB)
+Collecting idna<4,>=2.5
+  Using cached https://www.piwheels.org/simple/idna/idna-3.10-py3-none-any.whl (70 kB)
+Collecting urllib3<3,>=1.21.1
+  Using cached urllib3-2.5.0-py3-none-any.whl (129 kB)
+Collecting certifi>=2017.4.17
+  Using cached certifi-2025.6.15-py3-none-any.whl (157 kB)
+Installing collected packages: websockets, urllib3, tqdm, srt, pycparser, numpy, idna, charset_normalizer, certifi, requests, cffi, vosk, soundfile, sounddevice
+Successfully installed certifi-2025.6.15 cffi-1.17.1 charset_normalizer-3.4.2 idna-3.10 numpy-2.3.1 pycparser-2.22 requests-2.32.4 sounddevice-0.5.2 soundfile-0.13.1 srt-3.5.3 tqdm-4.67.1 urllib3-2.5.0 vosk-0.3.45 websockets-15.0.1
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ sudo apt install espeak-ng
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+espeak-ng is already the newest version (1.51+dfsg-10+deb12u2).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ mkdir -p vosk-models
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ cd vosk-models
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+--2025-07-06 20:10:23--  https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+Resolving alphacephei.com (alphacephei.com)... 188.40.21.16, 2a01:4f8:13a:279f::2
+Connecting to alphacephei.com (alphacephei.com)|188.40.21.16|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 41205931 (39M) [application/zip]
+Saving to: ‘vosk-model-small-en-us-0.15.zip’
 
-The above exception was the direct cause of the following exception:
+vosk-model-small-en-us-0.15.zip 100%[=====================================================>]  39.30M  1.15MB/s    in 63s     
 
+2025-07-06 20:11:28 (640 KB/s) - ‘vosk-model-small-en-us-0.15.zip’ saved [41205931/41205931]
+
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ unzip vosk-model-small-en-us-0.15.zip
+Archive:  vosk-model-small-en-us-0.15.zip
+   creating: vosk-model-small-en-us-0.15/
+   creating: vosk-model-small-en-us-0.15/am/
+  inflating: vosk-model-small-en-us-0.15/am/final.mdl  
+   creating: vosk-model-small-en-us-0.15/graph/
+  inflating: vosk-model-small-en-us-0.15/graph/disambig_tid.int  
+  inflating: vosk-model-small-en-us-0.15/graph/HCLr.fst  
+  inflating: vosk-model-small-en-us-0.15/graph/Gr.fst  
+   creating: vosk-model-small-en-us-0.15/graph/phones/
+  inflating: vosk-model-small-en-us-0.15/graph/phones/word_boundary.int  
+   creating: vosk-model-small-en-us-0.15/conf/
+  inflating: vosk-model-small-en-us-0.15/conf/model.conf  
+  inflating: vosk-model-small-en-us-0.15/conf/mfcc.conf  
+   creating: vosk-model-small-en-us-0.15/ivector/
+  inflating: vosk-model-small-en-us-0.15/ivector/splice.conf  
+  inflating: vosk-model-small-en-us-0.15/ivector/final.dubm  
+  inflating: vosk-model-small-en-us-0.15/ivector/global_cmvn.stats  
+  inflating: vosk-model-small-en-us-0.15/ivector/final.ie  
+  inflating: vosk-model-small-en-us-0.15/ivector/online_cmvn.conf  
+  inflating: vosk-model-small-en-us-0.15/ivector/final.mat  
+  inflating: vosk-model-small-en-us-0.15/README  
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ python3 run_testllama_voice.py
+python3: can't open file '/home/nickspi5/Downloads/Academy-main/Lesson6/vosk-models/run_testllama_voice.py': [Errno 2] No such file or directory
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ cd ..
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ python3 run_testllama_voice.py
 Traceback (most recent call last):
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/H4-chatty_command_runner.py", line 150, in <module>
-    main()
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/H4-chatty_command_runner.py", line 107, in main
-    record_audio(WAV_FILENAME)
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/H4-chatty_command_runner.py", line 33, in record_audio
-    audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels, dtype='int16')
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/venv/lib/python3.11/site-packages/sounddevice.py", line 270, in rec
-    ctx = _CallbackContext()
-          ^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Downloads/Academy-main/Lesson5/venv/lib/python3.11/site-packages/sounddevice.py", line 2506, in __init__
-    raise ImportError(
-ImportError: NumPy must be installed for play()/rec()/playrec()
+  File "/home/nickspi5/Downloads/Academy-main/Lesson6/run_testllama_voice.py", line 15, in <module>
+    from llama_cpp import Llama
+ModuleNotFoundError: No module named 'llama_cpp'
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ cd vosk-models
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ python3 run_testllama_voice.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Downloads/Academy-main/Lesson6/vosk-models/run_testllama_voice.py", line 15, in <module>
+    from llama_cpp import Llama
+ModuleNotFoundError: No module named 'llama_cpp'
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/vosk-models $ 
 
 How can I fix this error?
