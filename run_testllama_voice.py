@@ -58,19 +58,41 @@ def transcribe_audio(filename):
 # -------------------------------
 def query_llama(prompt):
     print("🤖 Generating response...")
-    llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1)
-    prompt_text = f"[INST] <<SYS>>You are a helpful assistant.<</SYS>> {prompt} [/INST]"
-    response = llm(prompt_text, max_tokens=100)
-    reply = response["choices"][0]["text"].strip()
-    print(f"💬 TinyLLaMA says: {reply}")
-    return reply
+    try:
+        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0)
+    except Exception as e:
+        print(f"❌ Failed to load TinyLLaMA: {e}")
+        return "Sorry, I couldn't load the AI model."
+
+    formatted_prompt = (
+        "[INST] <<SYS>>You are a helpful assistant.<</SYS>> "
+        f"{prompt} [/INST]"
+    )
+
+    try:
+        result = llm(formatted_prompt, max_tokens=100)
+        if "choices" in result and len(result["choices"]) > 0:
+            reply_text = result["choices"][0]["text"].strip()
+            print(f"💬 TinyLLaMA says: {reply_text}")
+            speak_text(reply_text)
+            return reply_text
+        else:
+            print("⚠️ No response from model.")
+            return "I did not understand that."
+    except Exception as e:
+        print(f"❌ Inference failed: {e}")
+        return "An error occurred while generating a reply."
 
 # -------------------------------
 # Speak using espeak-ng
 # -------------------------------
-def speak(text):
+def speak_text(text):
     print("🔊 Speaking...")
-    subprocess.run(["espeak-ng", "-v", "en-us+f3", "-s", "150", "-p", "70", text])
+    try:
+        command = f'espeak-ng "{text}" --stdout | aplay'
+        subprocess.run(command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print("❌ Error during speech output:", e)
 
 # -------------------------------
 # Main Orchestration
@@ -81,8 +103,7 @@ def main():
     if not user_text:
         print("❌ No voice input detected.")
         return
-    reply = query_llama(user_text)
-    speak(reply)
+    query_llama(user_text)
 
 if __name__ == "__main__":
     main()
