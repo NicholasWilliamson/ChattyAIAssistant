@@ -1,64 +1,24 @@
-1. Update and Install Dependencies
-
-sudo apt update
-sudo apt upgrade -y
-sudo apt-get -y install python3-pip libjpeg-dev libopenblas-dev libopenmpi-dev libomp-dev
-
-2. Set Up Python Environment
-
-python3 -m venv yolov11-test
-source yolov11-test/bin/activate
-
-3. Install Required Python Packages
-
-pip install torch torchvision torchaudio
-pip install ultralytics
-pip install opencv-python
-pip install numpy --upgrade
-
-4. Test PyTorch Installation
-
-python3 -c "import torch; print(torch.__version__)"
-
-
-5. I created a script named yolov11-test.py to run YOLO 11.
-
-import cv2
-from ultralytics import YOLO
-
-# Load the YOLO model
-model = YOLO("best.pt")
-
-# Capture video from the camera
-cap = cv2.VideoCapture(0)
-
-while True:
-  ret, frame = cap.read()
-  if not ret:
-    break
-
-  # Run YOLO inference on the frame
-  results = model(frame)
-
-  # Visualize the results on the frame
-  annotated_frame = results[0].plot()
-
-  # Display the resulting frame
-  cv2.imshow("Camera", annotated_frame)
-
-  # Break the loop if 'q' is pressed
-  if cv2.waitKey(1) == ord("q"):
-    break
-
-cap.release()
-cv2.destroyAllWindows()
-
-I ran the script and got the following errors:
-
+Thank you ChatGPT. I ran: (yolov11-test) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson7 $ deactivate
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson7 $ python3 -m venv yolov11-test --system-site-packages
+nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson7 $ source yolov11-test/bin/activate
 (yolov11-test) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson7 $ python3 yolov11-test.py
-WARNING ⚠️ Ultralytics settings reset to default values. This may be due to a possible problem with your settings or a recent ultralytics package update. 
-View Ultralytics Settings with 'yolo settings' or at '/home/nickspi5/.config/Ultralytics/settings.json'
-Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings.
+Traceback (most recent call last):
+  File "/home/nickspi5/Downloads/Academy-main/Lesson7/yolov11-test.py", line 2, in <module>
+    from picamera2 import Picamera2
+  File "/usr/lib/python3/dist-packages/picamera2/__init__.py", line 11, in <module>
+    from .picamera2 import Picamera2, Preview
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 30, in <module>
+    from picamera2.encoders import Encoder, H264Encoder, MJPEGEncoder, Quality
+  File "/usr/lib/python3/dist-packages/picamera2/encoders/__init__.py", line 5, in <module>
+    from .encoder import Encoder, Quality
+  File "/usr/lib/python3/dist-packages/picamera2/encoders/encoder.py", line 12, in <module>
+    from ..request import _MappedBuffer
+  File "/usr/lib/python3/dist-packages/picamera2/request.py", line 13, in <module>
+    import simplejpeg
+  File "/usr/lib/python3/dist-packages/simplejpeg/__init__.py", line 1, in <module>
+    from ._jpeg import encode_jpeg, encode_jpeg_yuv_planes
+  File "simplejpeg/_jpeg.pyx", line 1, in init simplejpeg._jpeg
+ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
 (yolov11-test) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson7 $ 
 
-How can I fix this?
+It is still not working?
