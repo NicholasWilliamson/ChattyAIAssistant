@@ -1,29 +1,34 @@
-import cv2
 from ultralytics import YOLO
+from picamera2 import Picamera2
+import cv2
+import time
 
-# Load the YOLO model
-model = YOLO("yolo11n.pt")
+# Load model
+model = YOLO("best.pt")
 
-# Capture video from the camera
-cap = cv2.VideoCapture(0)
+# Set up camera
+picam2 = Picamera2()
+picam2.preview_configuration.main.size = (640, 480)
+picam2.preview_configuration.main.format = "RGB888"
+picam2.configure("preview")
+picam2.start()
+time.sleep(1)
 
 while True:
-ret, frame = cap.read()
-if not ret:
-break
+    # Capture frame
+    frame = picam2.capture_array()
 
-# Run YOLO inference on the frame
-results = model(frame)
+    # Run YOLO
+    results = model(frame)
 
-# Visualize the results on the frame
-annotated_frame = results[0].plot()
+    # Annotate frame
+    annotated = results[0].plot()
 
-# Display the resulting frame
-cv2.imshow("Camera", annotated_frame)
+    # Display
+    cv2.imshow("YOLOv8 + PiCamera2", annotated)
 
-# Break the loop if 'q' is pressed
-if cv2.waitKey(1) == ord("q"):
-break
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
 
-cap.release()
 cv2.destroyAllWindows()
+picam2.close()
