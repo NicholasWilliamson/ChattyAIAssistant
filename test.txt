@@ -1,48 +1,56 @@
-Thank you ChatGPT. I was manually stepping though the setup_wyoming_voice_ai.sh file.
+Thank you ChatGPT. I am manually stepping though the setup_wyoming_voice_ai.sh file.
 
-I ran: (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip3 install wyoming-satellite wyoming-faster-whisper wyoming-piper
+I ran: (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip uninstall -y wyoming wyoming-satellite wyoming-faster-whisper wyoming-piper || true
+Found existing installation: wyoming 1.4.1
+Uninstalling wyoming-1.4.1:
+  Successfully uninstalled wyoming-1.4.1
+Found existing installation: wyoming-satellite 1.0.0
+Uninstalling wyoming-satellite-1.0.0:
+  Successfully uninstalled wyoming-satellite-1.0.0
+WARNING: Skipping wyoming-faster-whisper as it is not installed.
+WARNING: Skipping wyoming-piper as it is not installed.
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip install \
+  wyoming==1.4.1 \
+  wyoming-satellite==1.0.0 \
+  wyoming-faster-whisper==1.0.1 \
+  wyoming-piper==1.5.3
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: wyoming-satellite in ./venv/lib/python3.11/site-packages (1.0.0)
-Collecting wyoming-faster-whisper
-  Downloading wyoming_faster_whisper-2.0.0-py3-none-any.whl.metadata (811 bytes)
-Collecting wyoming-piper
-  Downloading wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
-Requirement already satisfied: wyoming==1.4.1 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (1.4.1)
-Requirement already satisfied: zeroconf==0.88.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (0.88.0)
-Requirement already satisfied: pyring-buffer==1.0.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (1.0.0)
-Requirement already satisfied: ifaddr>=0.1.7 in ./venv/lib/python3.11/site-packages (from zeroconf==0.88.0->wyoming-satellite) (0.2.0)
+Collecting wyoming==1.4.1
+  Downloading wyoming-1.4.1-py3-none-any.whl.metadata (792 bytes)
+Collecting wyoming-satellite==1.0.0
+  Using cached wyoming_satellite-1.0.0-py3-none-any.whl.metadata (944 bytes)
+Collecting wyoming-faster-whisper==1.0.1
+  Using cached https://www.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-1.0.1-py3-none-any.whl (12 kB)
+Collecting wyoming-piper==1.5.3
+  Using cached wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
+Requirement already satisfied: zeroconf==0.88.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite==1.0.0) (0.88.0)
+Requirement already satisfied: pyring-buffer==1.0.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite==1.0.0) (1.0.0)
 INFO: pip is looking at multiple versions of wyoming-faster-whisper to determine which version is compatible with other requirements. This could take a while.
-Collecting wyoming-faster-whisper
-  Downloading https://www.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-1.0.1-py3-none-any.whl (12 kB)
-  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-1.0.0-py3-none-any.whl (12 kB)
-  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.3-py3-none-any.whl (12 kB)
-  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.2-py3-none-any.whl (12 kB)
-  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.1-py3-none-any.whl (11 kB)
-Collecting zeroconf==0.88.0 (from wyoming-satellite)
-  Using cached zeroconf-0.88.0-cp311-cp311-manylinux_2_36_aarch64.whl
-INFO: pip is still looking at multiple versions of wyoming-faster-whisper to determine which version is compatible with other requirements. This could take a while.
-Collecting pyring-buffer==1.0.0 (from wyoming-satellite)
-  Downloading pyring_buffer-1.0.0-py3-none-any.whl.metadata (1.2 kB)
-INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. See https://pip.pypa.io/warnings/backtracking for guidance. If you want to abort this run, press Ctrl + C.
-Collecting wyoming-satellite
-  Downloading wyoming_satellite-1.0.0-py3-none-any.whl.metadata (944 bytes)
-ERROR: Cannot install wyoming-faster-whisper==0.0.1, wyoming-faster-whisper==0.0.2, wyoming-faster-whisper==0.0.3, wyoming-faster-whisper==1.0.0, wyoming-faster-whisper==1.0.1, wyoming-faster-whisper==2.0.0 and wyoming-satellite==1.0.0 because these package versions have conflicting dependencies.
+ERROR: Cannot install wyoming-faster-whisper==1.0.1, wyoming-satellite==1.0.0 and wyoming==1.4.1 because these package versions have conflicting dependencies.
 
 The conflict is caused by:
+    The user requested wyoming==1.4.1
     wyoming-satellite 1.0.0 depends on wyoming==1.4.1
-    wyoming-faster-whisper 2.0.0 depends on wyoming==1.5.2
     wyoming-faster-whisper 1.0.1 depends on wyoming==1.1.0
-    wyoming-faster-whisper 1.0.0 depends on wyoming==1.1.0
-    wyoming-faster-whisper 0.0.3 depends on wyoming==0.0.1
-    wyoming-faster-whisper 0.0.2 depends on wyoming==0.0.1
-    wyoming-faster-whisper 0.0.1 depends on wyoming==0.0.1
 
 To fix this you could try to:
 1. loosen the range of package versions you've specified
 2. remove package versions to allow pip to attempt to solve the dependency conflict
 
 ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
-(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ 
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ cd models
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/models $ cd piper
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/models/piper $ cd ^[[200~en_US-amy-low~
+bash: cd: $'\E[200~en_US-amy-low~': No such file or directory
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/models/piper $ cd en_US-amy-low
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/models/piper/en_US-amy-low $ wget -O en_US-amy-low.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/amy-low/en_US-amy-low.onnx"
+--2025-07-14 20:56:12--  https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/amy-low/en_US-amy-low.onnx
+Resolving huggingface.co (huggingface.co)... 2600:9000:209a:9e00:17:b174:6d00:93a1, 2600:9000:209a:6400:17:b174:6d00:93a1, 2600:9000:209a:7800:17:b174:6d00:93a1, ...
+Connecting to huggingface.co (huggingface.co)|2600:9000:209a:9e00:17:b174:6d00:93a1|:443... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2025-07-14 20:56:13 ERROR 404: Not Found.
 
-How can I fix these errors or can I just ignore them and continue manually proceeding through the setup_wyoming_voice_ai.sh file?
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6/models/piper/en_US-amy-low $ 
+
+How can I fix these errors?
 
