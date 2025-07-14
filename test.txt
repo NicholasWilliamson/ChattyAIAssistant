@@ -1,25 +1,48 @@
-Thank you ChatGPT. I was manually stepping though the setup_wyoming_voice_ai.sh file to try to find out where the error is.
+Thank you ChatGPT. I was manually stepping though the setup_wyoming_voice_ai.sh file.
 
-I ran: nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip3 install --upgrade pip
-error: externally-managed-environment
+I ran: (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip3 install wyoming-satellite wyoming-faster-whisper wyoming-piper
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Requirement already satisfied: wyoming-satellite in ./venv/lib/python3.11/site-packages (1.0.0)
+Collecting wyoming-faster-whisper
+  Downloading wyoming_faster_whisper-2.0.0-py3-none-any.whl.metadata (811 bytes)
+Collecting wyoming-piper
+  Downloading wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
+Requirement already satisfied: wyoming==1.4.1 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (1.4.1)
+Requirement already satisfied: zeroconf==0.88.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (0.88.0)
+Requirement already satisfied: pyring-buffer==1.0.0 in ./venv/lib/python3.11/site-packages (from wyoming-satellite) (1.0.0)
+Requirement already satisfied: ifaddr>=0.1.7 in ./venv/lib/python3.11/site-packages (from zeroconf==0.88.0->wyoming-satellite) (0.2.0)
+INFO: pip is looking at multiple versions of wyoming-faster-whisper to determine which version is compatible with other requirements. This could take a while.
+Collecting wyoming-faster-whisper
+  Downloading https://www.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-1.0.1-py3-none-any.whl (12 kB)
+  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-1.0.0-py3-none-any.whl (12 kB)
+  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.3-py3-none-any.whl (12 kB)
+  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.2-py3-none-any.whl (12 kB)
+  Downloading https://archive1.piwheels.org/simple/wyoming-faster-whisper/wyoming_faster_whisper-0.0.1-py3-none-any.whl (11 kB)
+Collecting zeroconf==0.88.0 (from wyoming-satellite)
+  Using cached zeroconf-0.88.0-cp311-cp311-manylinux_2_36_aarch64.whl
+INFO: pip is still looking at multiple versions of wyoming-faster-whisper to determine which version is compatible with other requirements. This could take a while.
+Collecting pyring-buffer==1.0.0 (from wyoming-satellite)
+  Downloading pyring_buffer-1.0.0-py3-none-any.whl.metadata (1.2 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. See https://pip.pypa.io/warnings/backtracking for guidance. If you want to abort this run, press Ctrl + C.
+Collecting wyoming-satellite
+  Downloading wyoming_satellite-1.0.0-py3-none-any.whl.metadata (944 bytes)
+ERROR: Cannot install wyoming-faster-whisper==0.0.1, wyoming-faster-whisper==0.0.2, wyoming-faster-whisper==0.0.3, wyoming-faster-whisper==1.0.0, wyoming-faster-whisper==1.0.1, wyoming-faster-whisper==2.0.0 and wyoming-satellite==1.0.0 because these package versions have conflicting dependencies.
 
-× This environment is externally managed
-╰─> To install Python packages system-wide, try apt install
-    python3-xyz, where xyz is the package you are trying to
-    install.
-    
-    If you wish to install a non-Debian-packaged Python package,
-    create a virtual environment using python3 -m venv path/to/venv.
-    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make
-    sure you have python3-full installed.
-    
-    For more information visit http://rptl.io/venv
+The conflict is caused by:
+    wyoming-satellite 1.0.0 depends on wyoming==1.4.1
+    wyoming-faster-whisper 2.0.0 depends on wyoming==1.5.2
+    wyoming-faster-whisper 1.0.1 depends on wyoming==1.1.0
+    wyoming-faster-whisper 1.0.0 depends on wyoming==1.1.0
+    wyoming-faster-whisper 0.0.3 depends on wyoming==0.0.1
+    wyoming-faster-whisper 0.0.2 depends on wyoming==0.0.1
+    wyoming-faster-whisper 0.0.1 depends on wyoming==0.0.1
 
-note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
-hint: See PEP 668 for the detailed specification.
-nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ 
+To fix this you could try to:
+1. loosen the range of package versions you've specified
+2. remove package versions to allow pip to attempt to solve the dependency conflict
 
-I previously created a virtual environment named venv.
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+(venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ 
 
-Should I open the virtual environment first before running pip3 install --upgrade pip or is there another way to resolve this error?
+How can I fix these errors or can I just ignore them and continue manually proceeding through the setup_wyoming_voice_ai.sh file?
 
