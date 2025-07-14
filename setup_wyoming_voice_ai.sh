@@ -2,24 +2,24 @@
 
 set -e
 
-echo "🚀 Wyoming Voice Assistant Setup (with fixed versions & Python venv)"
+echo "🚀 Wyoming Voice Assistant Setup"
 
 # -------------------------
-# Config
+# Configuration
 # -------------------------
-VENV_DIR="$HOME/venv"
+VENV_DIR="$HOME/wyoming-venv"
 WHISPER_MODEL_DIR="$HOME/models/whisper/tiny"
 PIPER_MODEL_DIR="$HOME/models/piper/en_US-amy-low"
 
 # -------------------------
-# 1. Install System Dependencies
+# 1. System Dependencies
 # -------------------------
 echo "📦 Installing system dependencies..."
 sudo apt update
 sudo apt install -y python3 python3-pip python3-venv sox wget unzip
 
 # -------------------------
-# 2. Create & Activate Python Virtual Environment
+# 2. Python Virtual Environment
 # -------------------------
 if [ ! -d "$VENV_DIR" ]; then
   echo "🧪 Creating Python virtual environment in $VENV_DIR..."
@@ -30,52 +30,51 @@ echo "✅ Activating virtual environment..."
 source "$VENV_DIR/bin/activate"
 
 # -------------------------
-# 3. Install Wyoming packages (specific versions)
+# 3. Install Python Packages (compatible versions)
 # -------------------------
-echo "📥 Installing specific compatible Wyoming package versions..."
+echo "📥 Installing Wyoming packages..."
 pip install --upgrade pip
 
-# Uninstall any existing conflicting packages
+# Clean up existing packages
 pip uninstall -y wyoming wyoming-satellite wyoming-faster-whisper wyoming-piper || true
 
-# Install fixed versions
+# Install fixed, compatible versions
 pip install \
-  wyoming==1.4.1 \
-  wyoming-satellite==1.0.0 \
+  wyoming==1.1.0 \
+  wyoming-satellite==0.9.0 \
   wyoming-faster-whisper==1.0.1 \
   wyoming-piper==1.5.3
 
 # -------------------------
-# 4. Download Whisper (STT) Model
+# 4. Download FasterWhisper Tiny Model
 # -------------------------
-echo "📁 Downloading FasterWhisper tiny model..."
+echo "📁 Downloading FasterWhisper tiny STT model..."
 mkdir -p "$WHISPER_MODEL_DIR"
 cd "$WHISPER_MODEL_DIR"
 
-wget -O model.bin "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin" || { echo "❌ Failed to download model.bin"; exit 1; }
-wget -O config.json "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/config.json" || { echo "❌ Failed to download config.json"; exit 1; }
-wget -O tokenizer.json "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/tokenizer.json" || { echo "❌ Failed to download tokenizer.json"; exit 1; }
+wget -nc -O model.bin "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/model.bin"
+wget -nc -O config.json "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/config.json"
+wget -nc -O tokenizer.json "https://huggingface.co/Systran/faster-whisper-tiny/resolve/main/tokenizer.json"
 
 # -------------------------
-# 5. Download Piper (TTS) Voice
+# 5. Download Piper Voice (Amy - US English)
 # -------------------------
-echo "📁 Downloading Piper TTS model: en_US-amy-low..."
+echo "🗣️ Downloading Piper Amy voice..."
 mkdir -p "$PIPER_MODEL_DIR"
 cd "$PIPER_MODEL_DIR"
 
-wget -O en_US-amy-low.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/amy-low/en_US-amy-low.onnx" || { echo "❌ Failed to download ONNX voice"; exit 1; }
-wget -O en_US-amy-low.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/amy-low/en_US-amy-low.onnx.json" || { echo "❌ Failed to download voice config"; exit 1; }
+wget -nc "https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/en_US-amy-low.onnx"
+wget -nc "https://huggingface.co/rhasspy/piper-voices/resolve/main/en_US/en_US-amy-low.onnx.json"
 
 # -------------------------
-# 6. Start Services
+# 6. Start Wyoming Services
 # -------------------------
 echo "🚀 Starting Wyoming STT and TTS services..."
 
-# Commands to run the services
 STT_CMD="$VENV_DIR/bin/wyoming-faster-whisper --model $WHISPER_MODEL_DIR --language en --uri tcp://0.0.0.0:10300"
 TTS_CMD="$VENV_DIR/bin/wyoming-piper --voice $PIPER_MODEL_DIR/en_US-amy-low.onnx --uri tcp://0.0.0.0:10200"
 
-# Start in available terminal emulator
+# Try to launch in new terminal windows
 if command -v gnome-terminal &> /dev/null; then
   gnome-terminal -- bash -c "$STT_CMD; exec bash" &
   sleep 1
@@ -85,7 +84,7 @@ elif command -v lxterminal &> /dev/null; then
   sleep 1
   lxterminal -e "$TTS_CMD" &
 else
-  echo "⚠️ No supported terminal found. Start these manually:"
+  echo "⚠️ No supported terminal found. Please run these commands manually:"
   echo "$STT_CMD"
   echo "$TTS_CMD"
 fi
