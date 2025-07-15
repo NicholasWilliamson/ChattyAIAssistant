@@ -16,41 +16,20 @@ Installing collected packages: pip
       Successfully uninstalled pip-23.0.1
 Successfully installed pip-25.1.1
 (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ pip install \
-  wyoming==1.4.1 \
-  wyoming-satellite==1.0.0 \
+  wyoming==1.5.2 \
+  wyoming-satellite==1.1.0 \
   wyoming-faster-whisper==2.0.0 \
   wyoming-piper==1.5.3
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting wyoming==1.4.1
-  Using cached wyoming-1.4.1-py3-none-any.whl.metadata (792 bytes)
-Collecting wyoming-satellite==1.0.0
-  Using cached wyoming_satellite-1.0.0-py3-none-any.whl.metadata (944 bytes)
-Collecting wyoming-faster-whisper==2.0.0
-  Using cached wyoming_faster_whisper-2.0.0-py3-none-any.whl.metadata (811 bytes)
-Collecting wyoming-piper==1.5.3
-  Using cached wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
-Collecting zeroconf==0.88.0 (from wyoming-satellite==1.0.0)
-  Using cached zeroconf-0.88.0-cp311-cp311-manylinux_2_36_aarch64.whl
-Collecting pyring-buffer==1.0.0 (from wyoming-satellite==1.0.0)
-  Using cached pyring_buffer-1.0.0-py3-none-any.whl.metadata (1.2 kB)
-INFO: pip is looking at multiple versions of wyoming-faster-whisper to determine which version is compatible with other requirements. This could take a while.
-ERROR: Cannot install wyoming-faster-whisper==2.0.0, wyoming-satellite==1.0.0 and wyoming==1.4.1 because these package versions have conflicting dependencies.
-
-The conflict is caused by:
-    The user requested wyoming==1.4.1
-    wyoming-satellite 1.0.0 depends on wyoming==1.4.1
-    wyoming-faster-whisper 2.0.0 depends on wyoming==1.5.2
-
-To fix this you could try to:
-1. loosen the range of package versions you've specified
-2. remove package versions to allow pip to attempt to solve the dependency conflict
-
-ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+Collecting wyoming==1.5.2
+  Downloading wyoming-1.5.2-py3-none-any.whl.metadata (791 bytes)
+ERROR: Could not find a version that satisfies the requirement wyoming-satellite==1.1.0 (from versions: 1.0.0)
+ERROR: No matching distribution found for wyoming-satellite==1.1.0
 (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ 
 
-Again you have not fixed this. This is very frustrating. I think you do not want to fix this as you want me to use ChatGPT as my AI Assistant. I plan to offer the user an option to select a locally hosted LLM or ChatGPT via WiFi in the future if this issue can be fixed.
+This is just going around in circles with dependancy issues.
 
-However, if you cannot fix this issue now, I will ask Claude for help to fix this and offer the user an option to use Claude via WiFi as their AI Assistant.
+You do not know how to fix this.
 
-How can I fix this right now if you want me to offer the user an option to select ChatGPT via WiFi for their preferred AI Assistant model?
-?
+I am going to ask Claude for help to fix this.
+
