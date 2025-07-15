@@ -14,11 +14,13 @@ WARNING: Skipping wyoming-piper as it is not installed.
   wyoming-satellite==0.9.0 \
   wyoming-faster-whisper==1.0.1 \
   wyoming-piper==1.5.3
+  --index-url https://pypi.org/simple
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
 Collecting wyoming==1.1.0
-  Downloading https://www.piwheels.org/simple/wyoming/wyoming-1.1.0-py3-none-any.whl (12 kB)
+  Using cached https://www.piwheels.org/simple/wyoming/wyoming-1.1.0-py3-none-any.whl (12 kB)
 ERROR: Could not find a version that satisfies the requirement wyoming-satellite==0.9.0 (from versions: 1.0.0)
 ERROR: No matching distribution found for wyoming-satellite==0.9.0
+bash: --index-url: command not found
 (venv) nickspi5@raspberrypi1:~/Downloads/Academy-main/Lesson6 $ 
 
 How can I fix this?
