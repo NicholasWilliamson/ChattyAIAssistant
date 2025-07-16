@@ -1,13 +1,7 @@
-Thank you ChatGPT. I am manually stepping through the setup.sh file
-
-I next ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m wyoming_faster_whisper \
+python3 -m wyoming_faster_whisper \
   --uri tcp://0.0.0.0:10300 \
   --model tiny \
-  --language en
-usage: __main__.py [-h] --model MODEL --uri URI --data-dir DATA_DIR [--download-dir DOWNLOAD_DIR] [--device DEVICE]
-                   [--language LANGUAGE] [--compute-type COMPUTE_TYPE] [--beam-size BEAM_SIZE] [--debug]
-                   [--log-format LOG_FORMAT] [--version]
-__main__.py: error: the following arguments are required: --data-dir
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-How can we fix this?
+  --language en \
+  --data-dir ~/Chatty_AI/whisper-models \
+  --device cpu \
+  --compute-type int8_float16
