@@ -1,0 +1,13 @@
+{
+  "speech_recognition": {
+    "engine": "whisper",
+    "language": "en-US",
+    "timeout": 5,
+    "phrase_timeout": 0.3
+  },
+  "text_to_speech": {
+    "engine": "piper",
+    "voice": "en_US-amy-low",
+    "speed": 1.0
+  }
+}
