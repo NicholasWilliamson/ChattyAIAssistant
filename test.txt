@@ -1,167 +1,32 @@
-✅ 1. requirements.txt
-Create this file in your project directory:
+Thank you ChatGPT. I am manually stepping through the setup.sh file
 
-# requirements.txt
+I ran nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m venv chatty-venv
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --upgrade pip
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Requirement already satisfied: pip in ./chatty-venv/lib/python3.11/site-packages (23.0.1)
+Collecting pip
+  Using cached pip-25.1.1-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 23.0.1
+    Uninstalling pip-23.0.1:
+      Successfully uninstalled pip-23.0.1
+Successfully installed pip-25.1.1
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install -r requirements.txt
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting wyoming==1.5.3 (from -r requirements.txt (line 2))
+  Downloading wyoming-1.5.3-py3-none-any.whl.metadata (917 bytes)
+Collecting wyoming-piper==1.5.3 (from -r requirements.txt (line 3))
+  Using cached wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
+ERROR: Could not find a version that satisfies the requirement wyoming-whisper==1.0.0 (from versions: none)
+ERROR: No matching distribution found for wyoming-whisper==1.0.0
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+requirements.txt
 wyoming==1.5.3
 wyoming-piper==1.5.3
 wyoming-whisper==1.0.0
 python-dotenv
-This avoids all dependency conflicts and removes espeak-ng.
 
-Then install:
-
-bash
-Copy
-Edit
-pip install -r requirements.txt
-✅ 2. Install System Dependencies (No espeak-ng)
-bash
-Copy
-Edit
-sudo apt-get update
-sudo apt-get install -y alsa-utils python3-pyaudio portaudio19-dev
-These are required for audio I/O (mic/speaker support).
-
-✅ 3. Wyoming Services
-🧠 Whisper STT
-Check it's installed:
-
-bash
-Copy
-Edit
-python -m wyoming_whisper --help
-Run the service:
-
-bash
-Copy
-Edit
-python -m wyoming_whisper --model base.en
-You can also try tiny.en for faster performance.
-
-🗣️ Piper TTS
-Check it's installed:
-
-bash
-Copy
-Edit
-python -m wyoming_piper --help
-Run the service:
-
-bash
-Copy
-Edit
-python -m wyoming_piper --voice en_US-lessac-medium
-You can test other voices too. Let me know if you want a list.
-
-✅ 4. .env File
-Create .env in your project root:
-
-env
-Copy
-Edit
-# Wyoming Services
-WHISPER_HOST=localhost
-WHISPER_PORT=10300
-PIPER_HOST=localhost
-PIPER_PORT=10200
-
-# Audio Settings
-AUDIO_DEVICE_INDEX=0
-SAMPLE_RATE=16000
-CHUNK_SIZE=1024
-✅ 5. config.json File
-json
-Copy
-Edit
-{
-  "speech_recognition": {
-    "engine": "whisper",
-    "language": "en-US",
-    "timeout": 5,
-    "phrase_timeout": 0.3
-  },
-  "text_to_speech": {
-    "engine": "piper",
-    "voice": "en_US-lessac-medium",
-    "speed": 1.0
-  }
-}
-✅ 6. Optional: Test Audio Devices
-List devices:
-
-bash
-Copy
-Edit
-arecord -l
-aplay -l
-Test mic recording:
-
-bash
-Copy
-Edit
-arecord -D plughw:1,0 -f cd test.wav
-aplay test.wav
-✅ Summary
-Component	Tool	Purpose
-STT	wyoming-whisper	Converts mic input to text
-TTS	wyoming-piper	Converts text to speech
-Audio I/O	alsa-utils + pyaudio	Hardware interaction
-Config Support	.env + config.json	Centralized configuration
-
-Let me know if you want:
-
-🛠️ A setup.sh installer
-
-🧩 Example Python script that connects to these
-
-🔁 systemd unit files to autostart Whisper/Piper
-
-You're now fully set up — no espeak-ng, no dependency hell.
-
-You said:
-Thanks ChatGPT. Yes, please provide a list of other voices I can test as well. 
-
-
-ChatGPT said:
-You're welcome, Nick! Here's a full list of Piper TTS voices you can use with wyoming-piper, including language, gender, and size/quality.
-
-✅ Piper Voice List (Official, Compatible with wyoming-piper)
-Voice Name	Language Code	Gender	Quality	Notes
-en_US-lessac-medium	en-US	Female	Medium	✅ Default US English voice
-en_US-amy-low	en-US	Female	Low	Light and fast
-en_US-amy-medium	en-US	Female	Medium	Clearer than "low"
-en_US-kusal-low	en-US	Male	Low	Deep male voice
-en_GB-southern_english_female-medium	en-GB	Female	Medium	British accent
-en_GB-alba-medium	en-GB	Female	Medium	Scottish English
-en_GB-keziah-medium	en-GB	Female	Medium	Crisp UK accent
-en_AU-jack-medium	en-AU	Male	Medium	Australian male
-en_IN-shashi-low	en-IN	Male	Low	Indian English
-en_NG-opeyemi-low	en-NG	Male	Low	Nigerian English
-en-ZA-leah-medium	en-ZA	Female	Medium	South African English
-
-🔍 There are also voices for other languages like:
-
-de_DE-thorsten-medium (German)
-
-es_ES-rafael-low (Spanish)
-
-fr_FR-nathalie-medium (French)
-
-it_IT-riccardo-medium (Italian)
-
-hi_IN-kishore-low (Hindi)
-
-ja_JP-kana-medium (Japanese)
-
-zh_CN-huayan-medium (Chinese)
-
-Let me know which languages you’re interested in and I can narrow the list or provide download links if needed.
-
-🗣️ How to Use a Voice with wyoming-piper
-You can start the Piper service like this:
-
-bash
-Copy
-Edit
-python -m wyoming_piper --voice en_GB-keziah-medium
-Make sure you've downloaded the voice first. If not, the service will show you an error and tell you how to fetch it.
+Can we just install these services without version numbers and let pip decide the right versions, or how else can we fix this problem?
