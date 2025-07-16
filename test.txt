@@ -1,38 +1,102 @@
 Thank you ChatGPT. I am manually stepping through the setup.sh file
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install wyoming-faster-whisper
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
-  ERROR: HTTP error 404 while getting https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
-ERROR: Could not install requirement https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz for URL https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --no-input git+https://github.com/rhasspy/wyoming-whisper.git
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting git+https://github.com/rhasspy/wyoming-whisper.git
-  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-nqq1gnui
-  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui
-  fatal: could not read Username for 'https://github.com': terminal prompts disabled
-  error: subprocess-exited-with-error
-  
-  × git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui did not run successfully.
-  │ exit code: 128
-  ╰─> See above for output.
-  
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-error: subprocess-exited-with-error
+Collecting wyoming-faster-whisper
+  Using cached wyoming_faster_whisper-2.0.0-py3-none-any.whl.metadata (811 bytes)
+Collecting wyoming==1.5.2 (from wyoming-faster-whisper)
+  Using cached wyoming-1.5.2-py3-none-any.whl.metadata (791 bytes)
+Collecting faster-whisper==1.0.1 (from wyoming-faster-whisper)
+  Using cached https://www.piwheels.org/simple/faster-whisper/faster_whisper-1.0.1-py3-none-any.whl (1.5 MB)
+Collecting av==11.* (from faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading av-11.0.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (4.5 kB)
+Collecting ctranslate2<5,>=4.0 (from faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading ctranslate2-4.6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (10 kB)
+Collecting huggingface-hub>=0.13 (from faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading huggingface_hub-0.33.4-py3-none-any.whl.metadata (14 kB)
+Collecting tokenizers<0.16,>=0.13 (from faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading tokenizers-0.15.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.7 kB)
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))': /simple/onnxruntime/
+Collecting onnxruntime<2,>=1.14 (from faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading onnxruntime-1.22.1-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (4.6 kB)
+Requirement already satisfied: setuptools in ./chatty-venv/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper==1.0.1->wyoming-faster-whisper) (66.1.1)
+Collecting numpy (from ctranslate2<5,>=4.0->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading numpy-2.3.1-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (62 kB)
+Collecting pyyaml<7,>=5.3 (from ctranslate2<5,>=4.0->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (2.1 kB)
+Collecting coloredlogs (from onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/coloredlogs/coloredlogs-15.0.1-py2.py3-none-any.whl (46 kB)
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))': /simple/flatbuffers/
+Collecting flatbuffers (from onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/flatbuffers/flatbuffers-20181003210633-py2.py3-none-any.whl (14 kB)
+Collecting packaging (from onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting protobuf (from onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_aarch64.whl.metadata (593 bytes)
+Collecting sympy (from onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting filelock (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/filelock/filelock-3.18.0-py3-none-any.whl (16 kB)
+Collecting fsspec>=2023.5.0 (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+Collecting requests (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading requests-2.32.4-py3-none-any.whl.metadata (4.9 kB)
+Collecting tqdm>=4.42.1 (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/tqdm/tqdm-4.67.1-py3-none-any.whl (78 kB)
+Collecting typing-extensions>=3.7.4.3 (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))': /simple/hf-xet/
+Collecting hf-xet<2.0.0,>=1.1.2 (from huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading hf_xet-1.1.5-cp37-abi3-manylinux_2_28_aarch64.whl.metadata (879 bytes)
+Collecting humanfriendly>=9.1 (from coloredlogs->onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/humanfriendly/humanfriendly-10.0-py2.py3-none-any.whl (89 kB)
+Collecting charset_normalizer<4,>=2 (from requests->huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (35 kB)
+Collecting idna<4,>=2.5 (from requests->huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/idna/idna-3.10-py3-none-any.whl (70 kB)
+Collecting urllib3<3,>=1.21.1 (from requests->huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting certifi>=2017.4.17 (from requests->huggingface-hub>=0.13->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading certifi-2025.7.14-py3-none-any.whl.metadata (2.4 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy->onnxruntime<2,>=1.14->faster-whisper==1.0.1->wyoming-faster-whisper)
+  Downloading https://www.piwheels.org/simple/mpmath/mpmath-1.3.0-py3-none-any.whl (536 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 200.2 kB/s eta 0:00:00
+Downloading wyoming_faster_whisper-2.0.0-py3-none-any.whl (14 kB)
+Downloading wyoming-1.5.2-py3-none-any.whl (24 kB)
+Downloading av-11.0.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (32.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 32.0/32.0 MB 338.7 kB/s eta 0:00:00
+Downloading ctranslate2-4.6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (17.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.4/17.4 MB 259.2 kB/s eta 0:00:00
+Downloading onnxruntime-1.22.1-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (14.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.5/14.5 MB 229.2 kB/s eta 0:00:00
+Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (736 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 736.8/736.8 kB 374.1 kB/s eta 0:00:00
+Downloading tokenizers-0.15.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (3.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 209.0 kB/s eta 0:00:00
+Downloading huggingface_hub-0.33.4-py3-none-any.whl (515 kB)
+Downloading hf_xet-1.1.5-cp37-abi3-manylinux_2_28_aarch64.whl (3.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 271.4 kB/s eta 0:00:00
+Downloading fsspec-2025.7.0-py3-none-any.whl (199 kB)
+Downloading numpy-2.3.1-cp311-cp311-manylinux_2_28_aarch64.whl (14.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.6/14.6 MB 398.2 kB/s eta 0:00:00
+Downloading packaging-25.0-py3-none-any.whl (66 kB)
+Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_aarch64.whl (322 kB)
+Downloading requests-2.32.4-py3-none-any.whl (64 kB)
+Downloading charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (142 kB)
+Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+Downloading certifi-2025.7.14-py3-none-any.whl (162 kB)
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 274.6 kB/s eta 0:00:00
+Installing collected packages: wyoming, mpmath, flatbuffers, urllib3, typing-extensions, tqdm, sympy, pyyaml, protobuf, packaging, numpy, idna, humanfriendly, hf-xet, fsspec, filelock, charset_normalizer, certifi, av, requests, ctranslate2, coloredlogs, onnxruntime, huggingface-hub, tokenizers, faster-whisper, wyoming-faster-whisper
+  Attempting uninstall: wyoming
+    Found existing installation: wyoming 1.7.1
+    Uninstalling wyoming-1.7.1:
+      Successfully uninstalled wyoming-1.7.1
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+wyoming-piper 1.5.3 requires wyoming>=1.5.3, but you have wyoming 1.5.2 which is incompatible.
+Successfully installed av-11.0.0 certifi-2025.7.14 charset_normalizer-3.4.2 coloredlogs-15.0.1 ctranslate2-4.6.0 faster-whisper-1.0.1 filelock-3.18.0 flatbuffers-20181003210633 fsspec-2025.7.0 hf-xet-1.1.5 huggingface-hub-0.33.4 humanfriendly-10.0 idna-3.10 mpmath-1.3.0 numpy-2.3.1 onnxruntime-1.22.1 packaging-25.0 protobuf-6.31.1 pyyaml-6.0.2 requests-2.32.4 sympy-1.14.0 tokenizers-0.15.2 tqdm-4.67.1 typing-extensions-4.14.1 urllib3-2.5.0 wyoming-1.5.2 wyoming-faster-whisper-2.0.0
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-× git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui did not run successfully.
-│ exit code: 128
-╰─> See above for output.
-
-note: This error originates from a subprocess, and is likely not a problem with pip.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git config --global url."https://github.com/".insteadOf git@github.com:
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/wyoming-whisper.git
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting git+https://github.com/rhasspy/wyoming-whisper.git
-  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-wrt48eer
-  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-wrt48eer
-Username for 'https://github.com': 
-
-All 3 methods you recommended failed.
 
 How can we fix this?
