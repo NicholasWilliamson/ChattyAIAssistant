@@ -1,32 +1,23 @@
 Thank you ChatGPT. I am manually stepping through the setup.sh file
 
-I ran nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m venv chatty-venv
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --upgrade pip
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install -r requirements.txt
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: pip in ./chatty-venv/lib/python3.11/site-packages (23.0.1)
-Collecting pip
-  Using cached pip-25.1.1-py3-none-any.whl (1.8 MB)
-Installing collected packages: pip
-  Attempting uninstall: pip
-    Found existing installation: pip 23.0.1
-    Uninstalling pip-23.0.1:
-      Successfully uninstalled pip-23.0.1
-Successfully installed pip-25.1.1
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install -r requirements.txt
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting wyoming==1.5.3 (from -r requirements.txt (line 2))
-  Downloading wyoming-1.5.3-py3-none-any.whl.metadata (917 bytes)
-Collecting wyoming-piper==1.5.3 (from -r requirements.txt (line 3))
+Collecting wyoming (from -r requirements.txt (line 2))
+  Downloading wyoming-1.7.1-py3-none-any.whl.metadata (19 kB)
+Collecting wyoming-piper (from -r requirements.txt (line 3))
   Using cached wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
-ERROR: Could not find a version that satisfies the requirement wyoming-whisper==1.0.0 (from versions: none)
-ERROR: No matching distribution found for wyoming-whisper==1.0.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+Collecting python-dotenv (from -r requirements.txt (line 4))
+  Downloading python_dotenv-1.1.1-py3-none-any.whl.metadata (24 kB)
+Downloading wyoming-1.7.1-py3-none-any.whl (41 kB)
+Downloading wyoming_piper-1.5.3-py3-none-any.whl (43 kB)
+Downloading python_dotenv-1.1.1-py3-none-any.whl (20 kB)
+Installing collected packages: wyoming, python-dotenv, wyoming-piper
+Successfully installed python-dotenv-1.1.1 wyoming-1.7.1 wyoming-piper-1.5.3
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/wyoming-whisper.git
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting git+https://github.com/rhasspy/wyoming-whisper.git
+  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-6vl4rcm1
+  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-6vl4rcm1
+Username for 'https://github.com': 
 
-requirements.txt
-wyoming==1.5.3
-wyoming-piper==1.5.3
-wyoming-whisper==1.0.0
-python-dotenv
-
-Can we just install these services without version numbers and let pip decide the right versions, or how else can we fix this problem?
+How can we fix this?
