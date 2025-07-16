@@ -1,7 +1,41 @@
-python3 -m wyoming_faster_whisper \
+Thank you ChatGPT. I am manually stepping through the setup.sh file
+
+I next ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m wyoming_faster_whisper \
   --uri tcp://0.0.0.0:10300 \
   --model tiny \
   --language en \
   --data-dir ~/Chatty_AI/whisper-models \
   --device cpu \
   --compute-type int8_float16
+config.json: 2.25kB [00:00, 4.14MB/s]                                                             | 0.00/75.5M [00:00<?, ?B/s]
+vocabulary.txt: 460kB [00:00, 776kB/s]
+tokenizer.json: 2.20MB [00:02, 877kB/s]
+model.bin: 100%|██████████████████████████████████████████████████████████████████████████| 75.5M/75.5M [01:35<00:00, 787kB/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_faster_whisper/__main__.py", line 149, in <module>
+    run()
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_faster_whisper/__main__.py", line 144, in run
+    asyncio.run(main())
+  File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_faster_whisper/__main__.py", line 119, in main
+    whisper_model = faster_whisper.WhisperModel(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/faster_whisper/transcribe.py", line 133, in __init__
+    self.model = ctranslate2.models.Whisper(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Requested int8_float16 compute type, but the target device or backend do not support efficient int8_float16 computation.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+Is this an error we need to fix and, if so, how can we fix it?
+
+
