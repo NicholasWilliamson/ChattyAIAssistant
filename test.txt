@@ -1,23 +1,38 @@
 Thank you ChatGPT. I am manually stepping through the setup.sh file
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install -r requirements.txt
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting wyoming (from -r requirements.txt (line 2))
-  Downloading wyoming-1.7.1-py3-none-any.whl.metadata (19 kB)
-Collecting wyoming-piper (from -r requirements.txt (line 3))
-  Using cached wyoming_piper-1.5.3-py3-none-any.whl.metadata (2.5 kB)
-Collecting python-dotenv (from -r requirements.txt (line 4))
-  Downloading python_dotenv-1.1.1-py3-none-any.whl.metadata (24 kB)
-Downloading wyoming-1.7.1-py3-none-any.whl (41 kB)
-Downloading wyoming_piper-1.5.3-py3-none-any.whl (43 kB)
-Downloading python_dotenv-1.1.1-py3-none-any.whl (20 kB)
-Installing collected packages: wyoming, python-dotenv, wyoming-piper
-Successfully installed python-dotenv-1.1.1 wyoming-1.7.1 wyoming-piper-1.5.3
+Collecting https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
+  ERROR: HTTP error 404 while getting https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
+ERROR: Could not install requirement https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz for URL https://github.com/rhasspy/wyoming-whisper/archive/refs/heads/main.tar.gz
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --no-input git+https://github.com/rhasspy/wyoming-whisper.git
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting git+https://github.com/rhasspy/wyoming-whisper.git
+  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-nqq1gnui
+  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui
+  fatal: could not read Username for 'https://github.com': terminal prompts disabled
+  error: subprocess-exited-with-error
+  
+  × git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui did not run successfully.
+  │ exit code: 128
+  ╰─> See above for output.
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: subprocess-exited-with-error
+
+× git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-nqq1gnui did not run successfully.
+│ exit code: 128
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git config --global url."https://github.com/".insteadOf git@github.com:
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/wyoming-whisper.git
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
 Collecting git+https://github.com/rhasspy/wyoming-whisper.git
-  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-6vl4rcm1
-  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-6vl4rcm1
+  Cloning https://github.com/rhasspy/wyoming-whisper.git to /tmp/pip-req-build-wrt48eer
+  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/wyoming-whisper.git /tmp/pip-req-build-wrt48eer
 Username for 'https://github.com': 
+
+All 3 methods you recommended failed.
 
 How can we fix this?
