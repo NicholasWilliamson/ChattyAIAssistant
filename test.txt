@@ -1,31 +1,52 @@
 Thank you ChatGPT. I am manually stepping through the setup.sh file
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip uninstall wyoming
-Found existing installation: wyoming 1.5.2
-Uninstalling wyoming-1.5.2:
-  Would remove:
-    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming-1.5.2.dist-info/*
-    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming/*
-Proceed (Y/n)? y
-  Successfully uninstalled wyoming-1.5.2
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install wyoming==1.5.3
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting wyoming==1.5.3
-  Using cached wyoming-1.5.3-py3-none-any.whl.metadata (917 bytes)
-Downloading wyoming-1.5.3-py3-none-any.whl (26 kB)
-Installing collected packages: wyoming
-ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-wyoming-faster-whisper 2.0.0 requires wyoming==1.5.2, but you have wyoming 1.5.3 which is incompatible.
-Successfully installed wyoming-1.5.3
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --no-deps wyoming-piper==1.5.3
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: wyoming-piper==1.5.3 in ./chatty-venv/lib/python3.11/site-packages (1.5.3)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --no-deps wyoming-faster-whisper==2.0.0
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: wyoming-faster-whisper==2.0.0 in ./chatty-venv/lib/python3.11/site-packages (2.0.0)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+I next ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt-get update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
+Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:4 http://archive.raspberrypi.com/debian bookworm InRelease [55.0 kB]                     
+Get:5 http://archive.raspberrypi.com/debian bookworm/main arm64 Packages [547 kB]
+Get:6 http://archive.raspberrypi.com/debian bookworm/main armhf Packages [550 kB]
+Fetched 1,208 kB in 8s (153 kB/s)                                                                                            
+Reading package lists... Done
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt-get install -y alsa-utils python3-pyaudio
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+alsa-utils is already the newest version (1.2.8-1+rpt1).
+Suggested packages:
+  python-pyaudio-doc
+The following NEW packages will be installed:
+  python3-pyaudio
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 27.5 kB of archives.
+After this operation, 151 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian bookworm/main arm64 python3-pyaudio arm64 0.2.13-1+b1 [27.5 kB]
+Fetched 27.5 kB in 0s (67.6 kB/s)    
+Selecting previously unselected package python3-pyaudio.
+(Reading database ... 173329 files and directories currently installed.)
+Preparing to unpack .../python3-pyaudio_0.2.13-1+b1_arm64.deb ...
+Unpacking python3-pyaudio (0.2.13-1+b1) ...
+Setting up python3-pyaudio (0.2.13-1+b1) ...
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cd voices
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/voices $ cd en_US-amy-low
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/voices/en_US-amy-low $ curl -L -o voices/en_US-amy-low/en_US-amy-low.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.onnx
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1111  100  1111    0     0   1521      0 --:--:-- --:--:-- --:--:--  1524
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Warning: Failed to open the file voices/en_US-amy-low/en_US-amy-low.onnx: No 
+Warning: such file or directory
+  0 60.1M    0 15811    0     0  16000      0  1:05:44 --:--:--  1:05:44  205k
+curl: (23) Failure writing output to destination
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/voices/en_US-amy-low $ curl -L -o voices/en_US-amy-low/en_US-amy-low.json https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.json
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Warning: Failed to open the file voices/en_US-amy-low/en_US-amy-low.json: No 
+Warning: such file or directory
+100    15  100    15    0     0     36      0 --:--:-- --:--:-- --:--:--    36
+curl: (23) Failure writing output to destination
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/voices/en_US-amy-low $ 
 
-This all appears to be working correctly now.
+There was an error trying to download the en_US-amy-low voice. I would also like to download the en_US-amy-medium voice.
 
-Please regenerate setup.sh with the fixes we now know that work applied.
 How can we fix this?
