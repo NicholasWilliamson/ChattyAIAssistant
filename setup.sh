@@ -1,58 +1,50 @@
 #!/bin/bash
 
-set -e  # Exit on error
+# Setup script for Chatty_AI local voice assistant
+# By Nick Williamson | Raspberry Pi 5 | Python 3.11 venv
 
-# Step 1: Create project directory
-echo "[+] Creating ~/Chatty_AI directory..."
+set -e  # Exit immediately if a command fails
+
+# Create Chatty_AI project folder
 mkdir -p ~/Chatty_AI
 cd ~/Chatty_AI
 
-# Step 2: Create virtual environment
-echo "[+] Creating Python virtual environment (chatty-venv)..."
+# Create Python virtual environment
 python3 -m venv chatty-venv
 source chatty-venv/bin/activate
 
-# Step 3: Upgrade pip
-echo "[+] Upgrading pip..."
+# Upgrade pip
 pip install --upgrade pip
 
-# Step 4: Create requirements.txt
-cat <<EOF > requirements.txt
-wyoming==1.5.3
-wyoming-piper==1.5.3
-wyoming-whisper==1.0.0
-python-dotenv
-EOF
+# Install core packages without version conflicts
+pip install python-dotenv
 
-# Step 5: Install Python dependencies
-echo "[+] Installing Python dependencies..."
-pip install -r requirements.txt
+# Install Wyoming 1.5.3 manually
+pip install wyoming==1.5.3
 
-# Step 6: Install system dependencies
-echo "[+] Installing system dependencies..."
+# Install other Wyoming services without auto-dependency conflicts
+pip install --no-deps wyoming-piper==1.5.3
+pip install --no-deps wyoming-faster-whisper==2.0.0
+
+# Install system dependencies for audio (if not already installed)
 sudo apt-get update
-sudo apt-get install -y alsa-utils python3-pyaudio portaudio19-dev
+sudo apt-get install -y alsa-utils python3-pyaudio
 
-# Step 7: Download Piper voice: en_US-amy-low
-echo "[+] Downloading Piper voice: en_US-amy-low..."
-mkdir -p voices/en_US-amy-low
-curl -L -o voices/en_US-amy-low/en_US-amy-low.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.onnx
-curl -L -o voices/en_US-amy-low/en_US-amy-low.json https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.json
-
-# Step 8: Create .env file
-echo "[+] Creating .env file..."
+# Create .env file
 cat <<EOF > .env
+# Wyoming Services
 WHISPER_HOST=localhost
 WHISPER_PORT=10300
 PIPER_HOST=localhost
 PIPER_PORT=10200
+
+# Audio Settings
 AUDIO_DEVICE_INDEX=0
 SAMPLE_RATE=16000
 CHUNK_SIZE=1024
 EOF
 
-# Step 9: Create config.json
-echo "[+] Creating config.json..."
+# Create basic config.json
 cat <<EOF > config.json
 {
   "speech_recognition": {
@@ -69,15 +61,5 @@ cat <<EOF > config.json
 }
 EOF
 
-# Final Instructions
-echo ""
-echo "✅ Setup complete!"
-echo ""
-echo "To start working:"
-echo "1. cd ~/Chatty_AI"
-echo "2. source chatty-venv/bin/activate"
-echo "3. Start Whisper STT:"
-echo "     python -m wyoming_whisper --model base.en"
-echo "4. In another terminal, start Piper TTS:"
-echo "     python -m wyoming_piper --voice voices/en_US-amy-low/en_US-amy-low.onnx"
-echo ""
+echo "✅ Chatty_AI setup complete!"
+echo "➡️  To activate the environment later: source ~/Chatty_AI/chatty-venv/bin/activate"
