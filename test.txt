@@ -1,17 +1,23 @@
-Thank you ChatGPT. I am manually stepping through the setup.sh file
+Run in Terminal 1:
 
-I next ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m wyoming_faster_whisper \
+source ~/Chatty_AI/chatty-venv/bin/activate
+
+python3 -m wyoming_faster_whisper \
   --uri tcp://0.0.0.0:10300 \
   --model tiny \
   --language en \
   --data-dir ~/Chatty_AI/whisper-models \
   --device cpu \
   --compute-type int8
-INFO:__main__:Ready
-
-Is this an error we need to fix and, if so, how can we fix it?
 
 
 
+Run in Terminal 2:
 
+source ~/Chatty_AI/chatty-venv/bin/activate
 
+python3 -m wyoming_piper \
+  --voice ~/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx \
+  --voice-config ~/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json \
+  --uri tcp://0.0.0.0:10200
+  
