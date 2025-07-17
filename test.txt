@@ -1,29 +1,24 @@
 Thank you ChatGPT.
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+git://github.com/rhasspy/piper-tts.git
+I followed you advice to try to install a trusted, public version of piper-tts that does not need authorization:
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/piper-tts.git
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting git+git://github.com/rhasspy/piper-tts.git
-  Cloning git://github.com/rhasspy/piper-tts.git to /tmp/pip-req-build-y9algfkh
-  Running command git clone --filter=blob:none --quiet git://github.com/rhasspy/piper-tts.git /tmp/pip-req-build-y9algfkh
-  fatal: unable to connect to github.com:
-  github.com[0: 4.237.22.38]: errno=Connection timed out
-
-  error: subprocess-exited-with-error
-  
-  × git clone --filter=blob:none --quiet git://github.com/rhasspy/piper-tts.git /tmp/pip-req-build-y9algfkh did not run successfully.
-  │ exit code: 128
-  ╰─> See above for output.
-  
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-error: subprocess-exited-with-error
-
-× git clone --filter=blob:none --quiet git://github.com/rhasspy/piper-tts.git /tmp/pip-req-build-y9algfkh did not run successfully.
-│ exit code: 128
-╰─> See above for output.
-
-note: This error originates from a subprocess, and is likely not a problem with pip.
+Collecting git+https://github.com/rhasspy/piper-tts.git
+  Cloning https://github.com/rhasspy/piper-tts.git to /tmp/pip-req-build-n_hx3ffa
+  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/piper-tts.git /tmp/pip-req-build-n_hx3ffa
+Username for 'https://github.com': ^CERROR: Operation cancelled by user
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git clone https://github.com/rhasspy/piper-tts.git
+Cloning into 'piper-tts'...
+Username for 'https://github.com': ^C
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install rhasspy-piper
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+ERROR: Could not find a version that satisfies the requirement rhasspy-piper (from versions: none)
+ERROR: No matching distribution found for rhasspy-piper
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m pip show rhasspy-piper
+WARNING: Package(s) not found: rhasspy-piper
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-How can I generate a Personal Access Token (PAT) from GitHub?
+I also got a 404 Not found error when i typed https://github.com/rhasspy/piper-tts. There is a https://github.com/rhasspy/piper repository avaiable however.
 
-How can we fix this once and for all?
+Can we just get this fixed and running right now please instead of going around in a loop?
