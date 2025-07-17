@@ -1,21 +1,25 @@
 Thank you ChatGPT.
 
-I created:
+I modified chatty_ai_test_speaking.py as follows:
 
 chatty_ai_test_speaking.py
-rom piper_tts import PiperVoice
+from piper import PiperVoice
 
 voice = PiperVoice.load(
-    model_path="~/Chatty_AI/voices/en_US-amy-low.onnx",
-    config_path="~/Chatty_AI/voices/en_US-amy-low.onnx.json"
+    model_path="/home/nickspi5/Chatty_AI/voices/en_US-amy-low.onnx",
+    config_path="/home/nickspi5/Chatty_AI/voices/en_US-amy-low.onnx.json"
 )
 
 audio = voice.speak("Hello Nick, your Chatty AI Assistant is now speaking!", output_path="test.wav")
 
-
 I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai_test_speaking.py
 Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty_ai_test_speaking.py", line 1, in <module>
-    from piper_tts import PiperVoice
-ModuleNotFoundError: No module named 'piper_tts'
+  File "/home/nickspi5/Chatty_AI/chatty_ai_test_speaking.py", line 8, in <module>
+    audio = voice.speak("Hello Nick, your Chatty AI Assistant is now speaking!", output_path="test.wav")
+            ^^^^^^^^^^^
+AttributeError: 'PiperVoice' object has no attribute 'speak'
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ which python3
+/home/nickspi5/Chatty_AI/chatty-venv/bin/python3
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+How can we fix this?
