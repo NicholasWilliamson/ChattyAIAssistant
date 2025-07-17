@@ -1,23 +1,29 @@
-Run in Terminal 1:
+Thank you ChatGPT.
 
-source ~/Chatty_AI/chatty-venv/bin/activate
-
-python3 -m wyoming_faster_whisper \
+In the first terminal, I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source ~/Chatty_AI/chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m wyoming_faster_whisper \
   --uri tcp://0.0.0.0:10300 \
   --model tiny \
   --language en \
   --data-dir ~/Chatty_AI/whisper-models \
   --device cpu \
   --compute-type int8
+INFO:__main__:Ready
 
-
-
-Run in Terminal 2:
-
-source ~/Chatty_AI/chatty-venv/bin/activate
-
-python3 -m wyoming_piper \
+In the second terminal I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source ~/Chatty_AI/chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m wyoming_piper \
   --voice ~/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx \
   --voice-config ~/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json \
   --uri tcp://0.0.0.0:10200
-  
+usage: __main__.py [-h] --piper PIPER --voice VOICE [--uri URI] --data-dir DATA_DIR [--download-dir DOWNLOAD_DIR]
+                   [--speaker SPEAKER] [--noise-scale NOISE_SCALE] [--length-scale LENGTH_SCALE] [--noise-w NOISE_W]
+                   [--auto-punctuation AUTO_PUNCTUATION] [--samples-per-chunk SAMPLES_PER_CHUNK]
+                   [--max-piper-procs MAX_PIPER_PROCS] [--update-voices] [--debug] [--log-format LOG_FORMAT] [--version]
+__main__.py: error: the following arguments are required: --piper, --data-dir
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+How can I fix this?
+
+
