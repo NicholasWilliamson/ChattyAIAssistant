@@ -3,7 +3,7 @@ Thank you ChatGPT.
 I modified chatty_ai_test_speaking.py as follows:
 
 chatty_ai_test_speaking.py
-from piper import PiperVoice
+from piper_tts import PiperVoice
 
 voice = PiperVoice.load(
     model_path="/home/nickspi5/Chatty_AI/voices/en_US-amy-low.onnx",
@@ -14,12 +14,28 @@ audio = voice.speak("Hello Nick, your Chatty AI Assistant is now speaking!", out
 
 I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai_test_speaking.py
 Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty_ai_test_speaking.py", line 1, in <module>
+    from piper_tts import PiperVoice
+ModuleNotFoundError: No module named 'piper_tts'
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai_test_speaking.py
+Traceback (most recent call last):
   File "/home/nickspi5/Chatty_AI/chatty_ai_test_speaking.py", line 8, in <module>
     audio = voice.speak("Hello Nick, your Chatty AI Assistant is now speaking!", output_path="test.wav")
             ^^^^^^^^^^^
 AttributeError: 'PiperVoice' object has no attribute 'speak'
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ which python3
 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/piper-tts
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting git+https://github.com/rhasspy/piper-tts
+  Cloning https://github.com/rhasspy/piper-tts to /tmp/pip-req-build-iestgprz
+  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/piper-tts /tmp/pip-req-build-iestgprz
+Username for 'https://github.com': ^CERROR: Operation cancelled by user
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai_test_speaking.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty_ai_test_speaking.py", line 1, in <module>
+    from piper_tts import PiperVoice
+ModuleNotFoundError: No module named 'piper_tts'
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 How can we fix this?
