@@ -1,24 +1,62 @@
 Thank you ChatGPT.
 
-I followed you advice to try to install a trusted, public version of piper-tts that does not need authorization:
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git clone https://github.com/rhasspy/piper.git
+fatal: destination path 'piper' already exists and is not an empty directory.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cd piper
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ pip install .
+ERROR: Directory '.' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ piper --help
+usage: piper [-h] -m MODEL [-c CONFIG] [-i INPUT_FILE] [-f OUTPUT_FILE] [-d OUTPUT_DIR] [--output-raw] [-s SPEAKER]
+             [--length-scale LENGTH_SCALE] [--noise-scale NOISE_SCALE] [--noise-w-scale NOISE_W_SCALE] [--cuda]
+             [--sentence-silence SENTENCE_SILENCE] [--volume VOLUME] [--no-normalize] [--data-dir DATA_DIR] [--debug]
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install git+https://github.com/rhasspy/piper-tts.git
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting git+https://github.com/rhasspy/piper-tts.git
-  Cloning https://github.com/rhasspy/piper-tts.git to /tmp/pip-req-build-n_hx3ffa
-  Running command git clone --filter=blob:none --quiet https://github.com/rhasspy/piper-tts.git /tmp/pip-req-build-n_hx3ffa
-Username for 'https://github.com': ^CERROR: Operation cancelled by user
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git clone https://github.com/rhasspy/piper-tts.git
-Cloning into 'piper-tts'...
-Username for 'https://github.com': ^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install rhasspy-piper
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-ERROR: Could not find a version that satisfies the requirement rhasspy-piper (from versions: none)
-ERROR: No matching distribution found for rhasspy-piper
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m pip show rhasspy-piper
-WARNING: Package(s) not found: rhasspy-piper
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+options:
+  -h, --help            show this help message and exit
+  -m MODEL, --model MODEL
+                        Path to Onnx model file
+  -c CONFIG, --config CONFIG
+                        Path to model config file
+  -i INPUT_FILE, --input-file INPUT_FILE, --input_file INPUT_FILE
+                        Paths to input text files
+  -f OUTPUT_FILE, --output-file OUTPUT_FILE, --output_file OUTPUT_FILE
+                        Path to output WAV file (default: stdout)
+  -d OUTPUT_DIR, --output-dir OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Path to output directory (default: cwd)
+  --output-raw, --output_raw
+                        Stream raw audio to stdout
+  -s SPEAKER, --speaker SPEAKER
+                        Id of speaker (default: 0)
+  --length-scale LENGTH_SCALE, --length_scale LENGTH_SCALE
+                        Phoneme length
+  --noise-scale NOISE_SCALE, --noise_scale NOISE_SCALE
+                        Generator noise
+  --noise-w-scale NOISE_W_SCALE, --noise_w_scale NOISE_W_SCALE, --noise-w NOISE_W_SCALE, --noise_w NOISE_W_SCALE
+                        Phoneme width noise
+  --cuda                Use GPU
+  --sentence-silence SENTENCE_SILENCE, --sentence_silence SENTENCE_SILENCE
+                        Seconds of silence after each sentence
+  --volume VOLUME       Volume multiplier (default: 1.0)
+  --no-normalize        Don't normalize audio
+  --data-dir DATA_DIR, --data_dir DATA_DIR
+                        Data directory to check for voice models (default: current directory)
+  --debug               Print DEBUG messages to console
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ 
 
-I also got a 404 Not found error when i typed https://github.com/rhasspy/piper-tts. There is a https://github.com/rhasspy/piper repository avaiable however.
+I already have the following voice installed:
 
-Can we just get this fixed and running right now please instead of going around in a loop?
+/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json
+/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx
+
+and the following local LLM installed:
+
+/home/nickspi5/Chatty_AI/qwen-models/Qwen2.5-1.5B-Instruct-q4_k_s.gguf
+/home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf
+
+Can we please now test stt and tts to get this all running?
+
+
+
+
+
+
+
