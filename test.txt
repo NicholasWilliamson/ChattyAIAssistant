@@ -42,8 +42,54 @@ nickspi5@raspberrypi1:~ $ sudo updatedb
 sudo: updatedb: command not found
 nickspi5@raspberrypi1:~ $ locate protobuf-config.cmake
 bash: locate: command not found
+nickspi5@raspberrypi1:~ $ sudo apt install mlocate
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  liburing2 plocate
+The following NEW packages will be installed:
+  liburing2 mlocate plocate
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 119 kB of archives.
+After this operation, 493 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://deb.debian.org/debian bookworm/main arm64 liburing2 arm64 2.3-3 [12.6 kB]
+Get:2 http://deb.debian.org/debian bookworm/main arm64 plocate arm64 1.1.18-1 [101 kB]
+Get:3 http://deb.debian.org/debian bookworm/main arm64 mlocate all 1.1.18-1 [5,380 B]
+Fetched 119 kB in 0s (433 kB/s)    
+Selecting previously unselected package liburing2:arm64.
+(Reading database ... 174459 files and directories currently installed.)
+Preparing to unpack .../liburing2_2.3-3_arm64.deb ...
+Unpacking liburing2:arm64 (2.3-3) ...
+Selecting previously unselected package plocate.
+Preparing to unpack .../plocate_1.1.18-1_arm64.deb ...
+Unpacking plocate (1.1.18-1) ...
+Selecting previously unselected package mlocate.
+Preparing to unpack .../mlocate_1.1.18-1_all.deb ...
+Unpacking mlocate (1.1.18-1) ...
+Setting up liburing2:arm64 (2.3-3) ...
+Setting up plocate (1.1.18-1) ...
+update-alternatives: using /usr/bin/plocate to provide /usr/bin/locate (locate) in auto mode
+Adding group `plocate' (GID 123) ...
+Done.
+Created symlink /etc/systemd/system/timers.target.wants/plocate-updatedb.timer → /lib/systemd/system/plocate-updatedb.timer.
+plocate-updatedb.service is a disabled or a static unit, not starting it.
+Setting up mlocate (1.1.18-1) ...
+dpkg-statoverride: warning: no override present
+Processing triggers for man-db (2.11.2-2) ...
+Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
+nickspi5@raspberrypi1:~ $ sudo updatedb
+nickspi5@raspberrypi1:~ $ locate protobuf-config.cmake
+nickspi5@raspberrypi1:~ $ sudo find /usr /lib /opt /home -type f -name "protobuf-config.cmake" 2>/dev/null
+nickspi5@raspberrypi1:~ $ ls /usr/lib/aarch64-linux-gnu/cmake/protobuf/
+ls: cannot access '/usr/lib/aarch64-linux-gnu/cmake/protobuf/': No such file or directory
+nickspi5@raspberrypi1:~ $ ls /usr/share/cmake*/protobuf/
+ls: cannot access '/usr/share/cmake*/protobuf/': No such file or directory
 nickspi5@raspberrypi1:~ $ 
 
-How can I find out where the protobuf-config.cmake file actually is?
+Can we please fix this right now so that I can move on and get my AI Assistant working? This is taking far too long to fix!
+
+
 
 
