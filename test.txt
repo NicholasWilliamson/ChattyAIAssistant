@@ -42,20 +42,56 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 nickspi5@raspberrypi1:~ $ go version
 go version go1.23.0 linux/arm64
+nickspi5@raspberrypi1:~ $ nano ~/.bashrc
+nickspi5@raspberrypi1:~ $ source ~/.bashrc
+nickspi5@raspberrypi1:~ $ go version
+go version go1.23.0 linux/arm64
+nickspi5@raspberrypi1:~ $ go env
+GO111MODULE=''
+GOARCH='arm64'
+GOBIN=''
+GOCACHE='/home/nickspi5/.cache/go-build'
+GOENV='/home/nickspi5/.config/go/env'
+GOEXE=''
+GOEXPERIMENT=''
+GOFLAGS=''
+GOHOSTARCH='arm64'
+GOHOSTOS='linux'
+GOINSECURE=''
+GOMODCACHE='/home/nickspi5/go/pkg/mod'
+GONOPROXY=''
+GONOSUMDB=''
+GOOS='linux'
+GOPATH='/home/nickspi5/go'
+GOPRIVATE=''
+GOPROXY='https://proxy.golang.org,direct'
+GOROOT='/usr/local/go'
+GOSUMDB='sum.golang.org'
+GOTMPDIR=''
+GOTOOLCHAIN='auto'
+GOTOOLDIR='/usr/local/go/pkg/tool/linux_arm64'
+GOVCS=''
+GOVERSION='go1.23.0'
+GODEBUG=''
+GOTELEMETRY='local'
+GOTELEMETRYDIR='/home/nickspi5/.config/go/telemetry'
+GCCGO='gccgo'
+GOARM64='v8.0'
+AR='ar'
+CC='gcc'
+CXX='g++'
+CGO_ENABLED='1'
+GOMOD='/dev/null'
+GOWORK=''
+CGO_CFLAGS='-O2 -g'
+CGO_CPPFLAGS=''
+CGO_CXXFLAGS='-O2 -g'
+CGO_FFLAGS='-O2 -g'
+CGO_LDFLAGS='-O2 -g'
+PKG_CONFIG='pkg-config'
+GOGCCFLAGS='-fPIC -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build1693468865=/tmp/go-build -gno-record-gcc-switches'
 nickspi5@raspberrypi1:~ $ 
 
-
-
-export PATH=$PATH:/usr/local/go/bin
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-
-
-
-
-
-
-
-
+Is everything now correct? If it is correct, please help with cloning and building LocalAI and running the LLM API locally. I already have TinyLlama and Qwen downloaded but what folders should these .gguf files be stored in?
 
 
