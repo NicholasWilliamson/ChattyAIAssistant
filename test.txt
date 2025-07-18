@@ -1,25 +1,457 @@
 Thank you ChatGPT.
 
-I ran ((chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ wget https://github.com/rhasspy/piper/releases/tag/2023.11.14-2/piper-linux-aarch64.tar.gz
---2025-07-18 13:26:09--  https://github.com/rhasspy/piper/releases/tag/2023.11.14-2/piper-linux-aarch64.tar.gz
-Resolving github.com (github.com)... 4.237.22.38
-Connecting to github.com (github.com)|4.237.22.38|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: unspecified [text/html]
-Saving to: ‘piper-linux-aarch64.tar.gz’
-
-piper-linux-aarch64.tar.gz          [  <=>                                                 ] 185.91K   753KB/s    in 0.2s    
-
-2025-07-18 13:26:10 (753 KB/s) - ‘piper-linux-aarch64.tar.gz’ saved [190373]
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tar -xvzf piper-linux-aarch64.tar.gz
-
-gzip: stdin: not in gzip format
-tar: Child returned status 1
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tar -xvzf piper-linux-aarch64.tar.gz
+tar (child): piper-linux-aarch64.tar.gz: Cannot open: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
 tar: Error is not recoverable: exiting now
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tar -xvzf piper_linux_aarch64.tar.gz
+piper/
+piper/espeak-ng
+piper/libpiper_phonemize.so.1.2.0
+piper/piper_phonemize
+piper/libespeak-ng.so.1.52.0.1
+piper/libtashkeel_model.ort
+piper/pkgconfig/
+piper/libpiper_phonemize.so
+piper/libpiper_phonemize.so.1
+piper/piper
+piper/espeak-ng-data/
+piper/espeak-ng-data/ms_dict
+piper/espeak-ng-data/vi_dict
+piper/espeak-ng-data/haw_dict
+piper/espeak-ng-data/be_dict
+piper/espeak-ng-data/ur_dict
+piper/espeak-ng-data/am_dict
+piper/espeak-ng-data/as_dict
+piper/espeak-ng-data/ne_dict
+piper/espeak-ng-data/jbo_dict
+piper/espeak-ng-data/ja_dict
+piper/espeak-ng-data/phonindex
+piper/espeak-ng-data/qu_dict
+piper/espeak-ng-data/cs_dict
+piper/espeak-ng-data/bpy_dict
+piper/espeak-ng-data/ko_dict
+piper/espeak-ng-data/lv_dict
+piper/espeak-ng-data/sd_dict
+piper/espeak-ng-data/voices/
+piper/espeak-ng-data/voices/!v/
+piper/espeak-ng-data/voices/!v/robosoft2
+piper/espeak-ng-data/voices/!v/Andrea
+piper/espeak-ng-data/voices/!v/robosoft4
+piper/espeak-ng-data/voices/!v/linda
+piper/espeak-ng-data/voices/!v/robosoft8
+piper/espeak-ng-data/voices/!v/Tweaky
+piper/espeak-ng-data/voices/!v/rob
+piper/espeak-ng-data/voices/!v/m2
+piper/espeak-ng-data/voices/!v/robosoft6
+piper/espeak-ng-data/voices/!v/aunty
+piper/espeak-ng-data/voices/!v/m1
+piper/espeak-ng-data/voices/!v/iven
+piper/espeak-ng-data/voices/!v/Alicia
+piper/espeak-ng-data/voices/!v/robert
+piper/espeak-ng-data/voices/!v/Michael
+piper/espeak-ng-data/voices/!v/Mike
+piper/espeak-ng-data/voices/!v/klatt2
+piper/espeak-ng-data/voices/!v/fast
+piper/espeak-ng-data/voices/!v/shelby
+piper/espeak-ng-data/voices/!v/gustave
+piper/espeak-ng-data/voices/!v/pedro
+piper/espeak-ng-data/voices/!v/m5
+piper/espeak-ng-data/voices/!v/travis
+piper/espeak-ng-data/voices/!v/marcelo
+piper/espeak-ng-data/voices/!v/croak
+piper/espeak-ng-data/voices/!v/kaukovalta
+piper/espeak-ng-data/voices/!v/f4
+piper/espeak-ng-data/voices/!v/iven2
+piper/espeak-ng-data/voices/!v/grandpa
+piper/espeak-ng-data/voices/!v/steph3
+piper/espeak-ng-data/voices/!v/iven3
+piper/espeak-ng-data/voices/!v/Gene
+piper/espeak-ng-data/voices/!v/Reed
+piper/espeak-ng-data/voices/!v/klatt4
+piper/espeak-ng-data/voices/!v/Alex
+piper/espeak-ng-data/voices/!v/paul
+piper/espeak-ng-data/voices/!v/pablo
+piper/espeak-ng-data/voices/!v/robosoft5
+piper/espeak-ng-data/voices/!v/Denis
+piper/espeak-ng-data/voices/!v/m3
+piper/espeak-ng-data/voices/!v/robosoft
+piper/espeak-ng-data/voices/!v/belinda
+piper/espeak-ng-data/voices/!v/f1
+piper/espeak-ng-data/voices/!v/quincy
+piper/espeak-ng-data/voices/!v/Jacky
+piper/espeak-ng-data/voices/!v/edward
+piper/espeak-ng-data/voices/!v/sandro
+piper/espeak-ng-data/voices/!v/m4
+piper/espeak-ng-data/voices/!v/grandma
+piper/espeak-ng-data/voices/!v/miguel
+piper/espeak-ng-data/voices/!v/Storm
+piper/espeak-ng-data/voices/!v/klatt
+piper/espeak-ng-data/voices/!v/Mario
+piper/espeak-ng-data/voices/!v/Henrique
+piper/espeak-ng-data/voices/!v/anika
+piper/espeak-ng-data/voices/!v/f5
+piper/espeak-ng-data/voices/!v/Annie
+piper/espeak-ng-data/voices/!v/klatt3
+piper/espeak-ng-data/voices/!v/Andy
+piper/espeak-ng-data/voices/!v/whisperf
+piper/espeak-ng-data/voices/!v/Nguyen
+piper/espeak-ng-data/voices/!v/whisper
+piper/espeak-ng-data/voices/!v/benjamin
+piper/espeak-ng-data/voices/!v/anikaRobot
+piper/espeak-ng-data/voices/!v/Diogo
+piper/espeak-ng-data/voices/!v/steph2
+piper/espeak-ng-data/voices/!v/caleb
+piper/espeak-ng-data/voices/!v/adam
+piper/espeak-ng-data/voices/!v/ian
+piper/espeak-ng-data/voices/!v/steph
+piper/espeak-ng-data/voices/!v/antonio
+piper/espeak-ng-data/voices/!v/zac
+piper/espeak-ng-data/voices/!v/Mr serious
+piper/espeak-ng-data/voices/!v/david
+piper/espeak-ng-data/voices/!v/john
+piper/espeak-ng-data/voices/!v/AnxiousAndy
+piper/espeak-ng-data/voices/!v/mike2
+piper/espeak-ng-data/voices/!v/Demonic
+piper/espeak-ng-data/voices/!v/m6
+piper/espeak-ng-data/voices/!v/Marco
+piper/espeak-ng-data/voices/!v/victor
+piper/espeak-ng-data/voices/!v/Gene2
+piper/espeak-ng-data/voices/!v/robosoft3
+piper/espeak-ng-data/voices/!v/edward2
+piper/espeak-ng-data/voices/!v/m7
+piper/espeak-ng-data/voices/!v/klatt5
+piper/espeak-ng-data/voices/!v/max
+piper/espeak-ng-data/voices/!v/ed
+piper/espeak-ng-data/voices/!v/f2
+piper/espeak-ng-data/voices/!v/Hugo
+piper/espeak-ng-data/voices/!v/norbert
+piper/espeak-ng-data/voices/!v/michel
+piper/espeak-ng-data/voices/!v/boris
+piper/espeak-ng-data/voices/!v/RicishayMax
+piper/espeak-ng-data/voices/!v/klatt6
+piper/espeak-ng-data/voices/!v/announcer
+piper/espeak-ng-data/voices/!v/RicishayMax2
+piper/espeak-ng-data/voices/!v/robosoft7
+piper/espeak-ng-data/voices/!v/Lee
+piper/espeak-ng-data/voices/!v/UniRobot
+piper/espeak-ng-data/voices/!v/m8
+piper/espeak-ng-data/voices/!v/iven4
+piper/espeak-ng-data/voices/!v/RicishayMax3
+piper/espeak-ng-data/voices/!v/f3
+piper/espeak-ng-data/phontab
+piper/espeak-ng-data/gu_dict
+piper/espeak-ng-data/cy_dict
+piper/espeak-ng-data/nog_dict
+piper/espeak-ng-data/de_dict
+piper/espeak-ng-data/sv_dict
+piper/espeak-ng-data/qdb_dict
+piper/espeak-ng-data/py_dict
+piper/espeak-ng-data/kn_dict
+piper/espeak-ng-data/grc_dict
+piper/espeak-ng-data/om_dict
+piper/espeak-ng-data/bs_dict
+piper/espeak-ng-data/si_dict
+piper/espeak-ng-data/eu_dict
+piper/espeak-ng-data/nl_dict
+piper/espeak-ng-data/ta_dict
+piper/espeak-ng-data/sr_dict
+piper/espeak-ng-data/phondata-manifest
+piper/espeak-ng-data/af_dict
+piper/espeak-ng-data/ku_dict
+piper/espeak-ng-data/mto_dict
+piper/espeak-ng-data/ia_dict
+piper/espeak-ng-data/cv_dict
+piper/espeak-ng-data/io_dict
+piper/espeak-ng-data/fr_dict
+piper/espeak-ng-data/kk_dict
+piper/espeak-ng-data/tt_dict
+piper/espeak-ng-data/tk_dict
+piper/espeak-ng-data/da_dict
+piper/espeak-ng-data/or_dict
+piper/espeak-ng-data/is_dict
+piper/espeak-ng-data/uz_dict
+piper/espeak-ng-data/pl_dict
+piper/espeak-ng-data/sk_dict
+piper/espeak-ng-data/ky_dict
+piper/espeak-ng-data/intonations
+piper/espeak-ng-data/quc_dict
+piper/espeak-ng-data/nci_dict
+piper/espeak-ng-data/bn_dict
+piper/espeak-ng-data/hy_dict
+piper/espeak-ng-data/mk_dict
+piper/espeak-ng-data/ro_dict
+piper/espeak-ng-data/pa_dict
+piper/espeak-ng-data/sq_dict
+piper/espeak-ng-data/yue_dict
+piper/espeak-ng-data/piqd_dict
+piper/espeak-ng-data/qya_dict
+piper/espeak-ng-data/eo_dict
+piper/espeak-ng-data/gn_dict
+piper/espeak-ng-data/ht_dict
+piper/espeak-ng-data/hu_dict
+piper/espeak-ng-data/shn_dict
+piper/espeak-ng-data/mi_dict
+piper/espeak-ng-data/fi_dict
+piper/espeak-ng-data/el_dict
+piper/espeak-ng-data/hr_dict
+piper/espeak-ng-data/et_dict
+piper/espeak-ng-data/tr_dict
+piper/espeak-ng-data/id_dict
+piper/espeak-ng-data/gd_dict
+piper/espeak-ng-data/lb_dict
+piper/espeak-ng-data/chr_dict
+piper/espeak-ng-data/kl_dict
+piper/espeak-ng-data/ka_dict
+piper/espeak-ng-data/an_dict
+piper/espeak-ng-data/hi_dict
+piper/espeak-ng-data/mt_dict
+piper/espeak-ng-data/pt_dict
+piper/espeak-ng-data/sw_dict
+piper/espeak-ng-data/ca_dict
+piper/espeak-ng-data/th_dict
+piper/espeak-ng-data/ga_dict
+piper/espeak-ng-data/lt_dict
+piper/espeak-ng-data/ml_dict
+piper/espeak-ng-data/he_dict
+piper/espeak-ng-data/uk_dict
+piper/espeak-ng-data/ru_dict
+piper/espeak-ng-data/sl_dict
+piper/espeak-ng-data/es_dict
+piper/espeak-ng-data/ba_dict
+piper/espeak-ng-data/bg_dict
+piper/espeak-ng-data/az_dict
+piper/espeak-ng-data/pap_dict
+piper/espeak-ng-data/mr_dict
+piper/espeak-ng-data/te_dict
+piper/espeak-ng-data/my_dict
+piper/espeak-ng-data/la_dict
+piper/espeak-ng-data/fa_dict
+piper/espeak-ng-data/kok_dict
+piper/espeak-ng-data/sjn_dict
+piper/espeak-ng-data/no_dict
+piper/espeak-ng-data/smj_dict
+piper/espeak-ng-data/lang/
+piper/espeak-ng-data/lang/miz/
+piper/espeak-ng-data/lang/miz/mto
+piper/espeak-ng-data/lang/sai/
+piper/espeak-ng-data/lang/sai/gn
+piper/espeak-ng-data/lang/qu
+piper/espeak-ng-data/lang/zls/
+piper/espeak-ng-data/lang/zls/bg
+piper/espeak-ng-data/lang/zls/sr
+piper/espeak-ng-data/lang/zls/sl
+piper/espeak-ng-data/lang/zls/mk
+piper/espeak-ng-data/lang/zls/bs
+piper/espeak-ng-data/lang/zls/hr
+piper/espeak-ng-data/lang/bat/
+piper/espeak-ng-data/lang/bat/lt
+piper/espeak-ng-data/lang/bat/lv
+piper/espeak-ng-data/lang/bat/ltg
+piper/espeak-ng-data/lang/sit/
+piper/espeak-ng-data/lang/sit/yue
+piper/espeak-ng-data/lang/sit/cmn
+piper/espeak-ng-data/lang/sit/yue-Latn-jyutping
+piper/espeak-ng-data/lang/sit/my
+piper/espeak-ng-data/lang/sit/hak
+piper/espeak-ng-data/lang/sit/cmn-Latn-pinyin
+piper/espeak-ng-data/lang/itc/
+piper/espeak-ng-data/lang/itc/la
+piper/espeak-ng-data/lang/eu
+piper/espeak-ng-data/lang/urj/
+piper/espeak-ng-data/lang/urj/et
+piper/espeak-ng-data/lang/urj/hu
+piper/espeak-ng-data/lang/urj/smj
+piper/espeak-ng-data/lang/urj/fi
+piper/espeak-ng-data/lang/ine/
+piper/espeak-ng-data/lang/ine/hyw
+piper/espeak-ng-data/lang/ine/hy
+piper/espeak-ng-data/lang/ine/sq
+piper/espeak-ng-data/lang/map/
+piper/espeak-ng-data/lang/map/haw
+piper/espeak-ng-data/lang/azc/
+piper/espeak-ng-data/lang/azc/nci
+piper/espeak-ng-data/lang/ccs/
+piper/espeak-ng-data/lang/ccs/ka
+piper/espeak-ng-data/lang/iro/
+piper/espeak-ng-data/lang/iro/chr
+piper/espeak-ng-data/lang/zlw/
+piper/espeak-ng-data/lang/zlw/pl
+piper/espeak-ng-data/lang/zlw/cs
+piper/espeak-ng-data/lang/zlw/sk
+piper/espeak-ng-data/lang/gmq/
+piper/espeak-ng-data/lang/gmq/is
+piper/espeak-ng-data/lang/gmq/nb
+piper/espeak-ng-data/lang/gmq/sv
+piper/espeak-ng-data/lang/gmq/da
+piper/espeak-ng-data/lang/bnt/
+piper/espeak-ng-data/lang/bnt/tn
+piper/espeak-ng-data/lang/bnt/sw
+piper/espeak-ng-data/lang/art/
+piper/espeak-ng-data/lang/art/eo
+piper/espeak-ng-data/lang/art/qya
+piper/espeak-ng-data/lang/art/jbo
+piper/espeak-ng-data/lang/art/sjn
+piper/espeak-ng-data/lang/art/qdb
+piper/espeak-ng-data/lang/art/ia
+piper/espeak-ng-data/lang/art/piqd
+piper/espeak-ng-data/lang/art/io
+piper/espeak-ng-data/lang/art/py
+piper/espeak-ng-data/lang/art/lfn
+piper/espeak-ng-data/lang/trk/
+piper/espeak-ng-data/lang/trk/tt
+piper/espeak-ng-data/lang/trk/tk
+piper/espeak-ng-data/lang/trk/ky
+piper/espeak-ng-data/lang/trk/az
+piper/espeak-ng-data/lang/trk/tr
+piper/espeak-ng-data/lang/trk/uz
+piper/espeak-ng-data/lang/trk/nog
+piper/espeak-ng-data/lang/trk/ug
+piper/espeak-ng-data/lang/trk/kk
+piper/espeak-ng-data/lang/trk/ba
+piper/espeak-ng-data/lang/trk/cv
+piper/espeak-ng-data/lang/dra/
+piper/espeak-ng-data/lang/dra/kn
+piper/espeak-ng-data/lang/dra/ml
+piper/espeak-ng-data/lang/dra/ta
+piper/espeak-ng-data/lang/dra/te
+piper/espeak-ng-data/lang/jpx/
+piper/espeak-ng-data/lang/jpx/ja
+piper/espeak-ng-data/lang/aav/
+piper/espeak-ng-data/lang/aav/vi
+piper/espeak-ng-data/lang/aav/vi-VN-x-central
+piper/espeak-ng-data/lang/aav/vi-VN-x-south
+piper/espeak-ng-data/lang/zle/
+piper/espeak-ng-data/lang/zle/ru-LV
+piper/espeak-ng-data/lang/zle/be
+piper/espeak-ng-data/lang/zle/ru-cl
+piper/espeak-ng-data/lang/zle/uk
+piper/espeak-ng-data/lang/zle/ru
+piper/espeak-ng-data/lang/roa/
+piper/espeak-ng-data/lang/roa/es-419
+piper/espeak-ng-data/lang/roa/ca
+piper/espeak-ng-data/lang/roa/fr
+piper/espeak-ng-data/lang/roa/pt-BR
+piper/espeak-ng-data/lang/roa/fr-BE
+piper/espeak-ng-data/lang/roa/ht
+piper/espeak-ng-data/lang/roa/it
+piper/espeak-ng-data/lang/roa/fr-CH
+piper/espeak-ng-data/lang/roa/es
+piper/espeak-ng-data/lang/roa/pap
+piper/espeak-ng-data/lang/roa/an
+piper/espeak-ng-data/lang/roa/pt
+piper/espeak-ng-data/lang/roa/ro
+piper/espeak-ng-data/lang/cel/
+piper/espeak-ng-data/lang/cel/gd
+piper/espeak-ng-data/lang/cel/cy
+piper/espeak-ng-data/lang/cel/ga
+piper/espeak-ng-data/lang/poz/
+piper/espeak-ng-data/lang/poz/id
+piper/espeak-ng-data/lang/poz/mi
+piper/espeak-ng-data/lang/poz/ms
+piper/espeak-ng-data/lang/esx/
+piper/espeak-ng-data/lang/esx/kl
+piper/espeak-ng-data/lang/grk/
+piper/espeak-ng-data/lang/grk/el
+piper/espeak-ng-data/lang/grk/grc
+piper/espeak-ng-data/lang/cus/
+piper/espeak-ng-data/lang/cus/om
+piper/espeak-ng-data/lang/inc/
+piper/espeak-ng-data/lang/inc/gu
+piper/espeak-ng-data/lang/inc/or
+piper/espeak-ng-data/lang/inc/ur
+piper/espeak-ng-data/lang/inc/bpy
+piper/espeak-ng-data/lang/inc/as
+piper/espeak-ng-data/lang/inc/mr
+piper/espeak-ng-data/lang/inc/bn
+piper/espeak-ng-data/lang/inc/si
+piper/espeak-ng-data/lang/inc/hi
+piper/espeak-ng-data/lang/inc/ne
+piper/espeak-ng-data/lang/inc/pa
+piper/espeak-ng-data/lang/inc/sd
+piper/espeak-ng-data/lang/inc/kok
+piper/espeak-ng-data/lang/ira/
+piper/espeak-ng-data/lang/ira/fa-Latn
+piper/espeak-ng-data/lang/ira/fa
+piper/espeak-ng-data/lang/ira/ku
+piper/espeak-ng-data/lang/sem/
+piper/espeak-ng-data/lang/sem/he
+piper/espeak-ng-data/lang/sem/ar
+piper/espeak-ng-data/lang/sem/am
+piper/espeak-ng-data/lang/sem/mt
+piper/espeak-ng-data/lang/ko
+piper/espeak-ng-data/lang/myn/
+piper/espeak-ng-data/lang/myn/quc
+piper/espeak-ng-data/lang/tai/
+piper/espeak-ng-data/lang/tai/th
+piper/espeak-ng-data/lang/tai/shn
+piper/espeak-ng-data/lang/gmw/
+piper/espeak-ng-data/lang/gmw/en-GB-x-gbcwmd
+piper/espeak-ng-data/lang/gmw/en-US
+piper/espeak-ng-data/lang/gmw/de
+piper/espeak-ng-data/lang/gmw/en-GB-scotland
+piper/espeak-ng-data/lang/gmw/en-GB-x-rp
+piper/espeak-ng-data/lang/gmw/en-GB-x-gbclan
+piper/espeak-ng-data/lang/gmw/en
+piper/espeak-ng-data/lang/gmw/lb
+piper/espeak-ng-data/lang/gmw/nl
+piper/espeak-ng-data/lang/gmw/af
+piper/espeak-ng-data/lang/gmw/en-US-nyc
+piper/espeak-ng-data/lang/gmw/en-029
+piper/espeak-ng-data/phondata
+piper/espeak-ng-data/cmn_dict
+piper/espeak-ng-data/ug_dict
+piper/espeak-ng-data/it_dict
+piper/espeak-ng-data/lfn_dict
+piper/espeak-ng-data/tn_dict
+piper/espeak-ng-data/hak_dict
+piper/espeak-ng-data/en_dict
+piper/espeak-ng-data/ar_dict
+piper/libonnxruntime.so.1.14.1
+piper/libespeak-ng.so
+piper/libespeak-ng.so.1
+piper/libonnxruntime.so
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x piper
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./piper --help
+bash: ./piper: Is a directory
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ piper --help
+usage: piper [-h] -m MODEL [-c CONFIG] [-i INPUT_FILE] [-f OUTPUT_FILE] [-d OUTPUT_DIR] [--output-raw] [-s SPEAKER]
+             [--length-scale LENGTH_SCALE] [--noise-scale NOISE_SCALE] [--noise-w-scale NOISE_W_SCALE] [--cuda]
+             [--sentence-silence SENTENCE_SILENCE] [--volume VOLUME] [--no-normalize] [--data-dir DATA_DIR] [--debug]
+
+options:
+  -h, --help            show this help message and exit
+  -m MODEL, --model MODEL
+                        Path to Onnx model file
+  -c CONFIG, --config CONFIG
+                        Path to model config file
+  -i INPUT_FILE, --input-file INPUT_FILE, --input_file INPUT_FILE
+                        Paths to input text files
+  -f OUTPUT_FILE, --output-file OUTPUT_FILE, --output_file OUTPUT_FILE
+                        Path to output WAV file (default: stdout)
+  -d OUTPUT_DIR, --output-dir OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Path to output directory (default: cwd)
+  --output-raw, --output_raw
+                        Stream raw audio to stdout
+  -s SPEAKER, --speaker SPEAKER
+                        Id of speaker (default: 0)
+  --length-scale LENGTH_SCALE, --length_scale LENGTH_SCALE
+                        Phoneme length
+  --noise-scale NOISE_SCALE, --noise_scale NOISE_SCALE
+                        Generator noise
+  --noise-w-scale NOISE_W_SCALE, --noise_w_scale NOISE_W_SCALE, --noise-w NOISE_W_SCALE, --noise_w NOISE_W_SCALE
+                        Phoneme width noise
+  --cuda                Use GPU
+  --sentence-silence SENTENCE_SILENCE, --sentence_silence SENTENCE_SILENCE
+                        Seconds of silence after each sentence
+  --volume VOLUME       Volume multiplier (default: 1.0)
+  --no-normalize        Don't normalize audio
+  --data-dir DATA_DIR, --data_dir DATA_DIR
+                        Data directory to check for voice models (default: current directory)
+  --debug               Print DEBUG messages to console
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-How can we fix this error?
-
+How can we test TTS is working correctly?
 
 
