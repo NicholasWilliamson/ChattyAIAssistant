@@ -1,52 +1,139 @@
 Thank you ChatGPT. You are great.
 
-I had a en_US-amy-low.json file just containing the words "Entry not found". I copied the correct en_US-amy-low.onnx.json file to my voices/en_US-amy-low folder.
+I created my main Python script named chatty_ai.py which is as follows:
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat voices/en_US-amy-low/en_US-amy-low.onnx.json | head -n 10
-{
-  "audio": {
-    "sample_rate": 16000,
-    "quality": "low"
-  },
-  "espeak": {
-    "voice": "en-us"
-  },
-  "inference": {
-    "noise_scale": 0.667,
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I am confident this is what has been causing the problem all along.
-
-I modified my test_tts.py file as follows:
-
-test_tts.py
+chatty_ai.py
 import subprocess
+import requests
+import time
+from faster_whisper import WhisperModel
 
-VOICE = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-TEXT = "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5"
-OUTPUT = "output.wav"
+# Configuration
+PIPER_PATH = "./piper/piper"
+VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+OUTPUT_WAV = "output.wav"
+RECORD_WAV = "record.wav"
+LOCALAI_URL = "http://localhost:8080/v1/chat/completions"
 
-# Run Piper
-command = [
-    "./piper/piper",
-    "--model", VOICE,
-    "--config", CONFIG,
-    "--output_file", OUTPUT
-]
+# Step 1: Record audio (5 seconds)
+print("🎤 Recording 5 seconds of audio...")
+subprocess.run([
+    "arecord", "-f", "cd", "-t", "wav", "-d", "5", "-r", "16000", "-c", "1", RECORD_WAV
+])
+print("✅ Recording complete.")
 
-subprocess.run(command, input=TEXT.encode("utf-8"))
+# Step 2: Transcribe with Faster-Whisper
+print("🧠 Transcribing with Faster-Whisper...")
+model = WhisperModel("base", compute_type="int8")  # Use "tiny", "base", etc.
+segments, _ = model.transcribe(RECORD_WAV)
+transcription = "".join([seg.text for seg in segments])
+print(f"📝 You said: {transcription}")
 
-I then ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
-[2025-07-18 16:02:58.215] [piper] [info] Loaded voice in 0.988800676 second(s)
-[2025-07-18 16:02:58.216] [piper] [info] Initialized piper
-output.wav
-[2025-07-18 16:02:58.719] [piper] [info] Real-time factor: 0.09808212677444794 (infer=0.497472547 sec, audio=5.072 sec)
-[2025-07-18 16:02:58.719] [piper] [info] Terminated piper
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ aplay output.wav
-Playing WAVE 'output.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+# Step 3: Send to LocalAI
+print("🤖 Sending to TinyLLaMA via LocalAI...")
+payload = {
+    "model": "tinyllama",  # or the name you've set in your LocalAI config
+    "messages": [
+        {"role": "system", "content": "You are Chatty AI, a friendly AI assistant."},
+        {"role": "user", "content": transcription}
+    ],
+    "temperature": 0.7
+}
+
+response = requests.post(LOCALAI_URL, json=payload)
+llm_reply = response.json()["choices"][0]["message"]["content"]
+print(f"💬 Chatty AI says: {llm_reply}")
+
+# Step 4: Convert response to speech using Piper
+print("🗣️ Converting reply to speech...")
+subprocess.run([
+    PIPER_PATH,
+    "--model", VOICE_PATH,
+    "--config", CONFIG_PATH,
+    "--output_file", OUTPUT_WAV
+], input=llm_reply.encode("utf-8"))
+
+# Step 5: Play audio
+print("🔊 Playing Chatty's reply...")
+subprocess.run(["aplay", OUTPUT_WAV])
+
+In my terminal, I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+🎤 Recording 5 seconds of audio...
+Recording WAVE 'record.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+✅ Recording complete.
+🧠 Transcribing with Faster-Whisper...
+📝 You said:  Tell me some fun facts about Melbourne, Australia.
+🤖 Sending to TinyLLaMA via LocalAI...
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 494, in request
+    self.endheaders()
+  File "/usr/lib/python3.11/http/client.py", line 1277, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.11/http/client.py", line 1037, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.11/http/client.py", line 975, in send
+    self.connect()
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 325, in connect
+    self.sock = self._new_conn()
+                ^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 39, in <module>
+    response = requests.post(LOCALAI_URL, json=payload)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/adapters.py", line 700, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-Everything is now running perfectly and I am very happy with the outcome.
-
+How can I fix this?
 
