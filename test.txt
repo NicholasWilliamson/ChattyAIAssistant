@@ -1,35 +1,25 @@
 Thank you ChatGPT.
 
-I modified the test_tts.py file as you recommended.
+I ran ((chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ wget https://github.com/rhasspy/piper/releases/tag/2023.11.14-2/piper-linux-aarch64.tar.gz
+--2025-07-18 13:26:09--  https://github.com/rhasspy/piper/releases/tag/2023.11.14-2/piper-linux-aarch64.tar.gz
+Resolving github.com (github.com)... 4.237.22.38
+Connecting to github.com (github.com)|4.237.22.38|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: ‘piper-linux-aarch64.tar.gz’
 
-test_tts.py
-import subprocess
+piper-linux-aarch64.tar.gz          [  <=>                                                 ] 185.91K   753KB/s    in 0.2s    
 
-text = "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5"
+2025-07-18 13:26:10 (753 KB/s) - ‘piper-linux-aarch64.tar.gz’ saved [190373]
 
-# Run Piper
-subprocess.run([
-    "piper",
-    "-m", '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx',
-    "-c", '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json',
-    "-f", 'output.wav',
-    "-i", "-"  # Read input from stdin
-], input=text.encode('utf-8'))
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tar -xvzf piper-linux-aarch64.tar.gz
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/bin/piper", line 8, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/piper/__main__.py", line 142, in main
-    voice = PiperVoice.load(model_path, use_cuda=args.cuda)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/piper/voice.py", line 112, in load
-    with open(config_path, "r", encoding="utf-8") as config_file:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json'
+gzip: stdin: not in gzip format
+tar: Child returned status 1
+tar: Error is not recoverable: exiting now
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-How can we fix the error with test_tts.py
+How can we fix this error?
+
 
 
