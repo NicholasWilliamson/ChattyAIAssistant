@@ -90,8 +90,113 @@ CGO_FFLAGS='-O2 -g'
 CGO_LDFLAGS='-O2 -g'
 PKG_CONFIG='pkg-config'
 GOGCCFLAGS='-fPIC -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build1693468865=/tmp/go-build -gno-record-gcc-switches'
-nickspi5@raspberrypi1:~ $ 
+nickspi5@raspberrypi1:~ $ cd ~
+nickspi5@raspberrypi1:~ $ git clone https://github.com/go-skynet/LocalAI.git
+fatal: destination path 'LocalAI' already exists and is not an empty directory.
+nickspi5@raspberrypi1:~ $ cd LocalAI
+nickspi5@raspberrypi1:~/LocalAI $ make build
+go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
+go: downloading go1.23.1 (linux/arm64)
+go mod edit -replace github.com/ggerganov/whisper.cpp/bindings/go=/home/nickspi5/LocalAI/sources/whisper.cpp/bindings/go
+go mod edit -replace github.com/mudler/go-piper=/home/nickspi5/LocalAI/sources/go-piper
+go mod download
+mkdir -p backend-assets
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@1958fcbe2ca8bd93af633f11e97d44e567e945af
+go: downloading google.golang.org/grpc v1.65.0-dev.0.20240531204125-1958fcbe2ca8
+go: downloading google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.4.0
+go: downloading google.golang.org/protobuf v1.34.1
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
+go: downloading google.golang.org/protobuf v1.34.2
+go install github.com/GeertJohan/go.rice/rice@latest
+go: downloading github.com/GeertJohan/go.incremental v1.0.0
+go: downloading github.com/akavel/rsrc v0.8.0
+go: downloading github.com/jessevdk/go-flags v1.4.0
+go: downloading github.com/nkovacs/streamquote v1.0.0
+go: downloading github.com/valyala/fasttemplate v1.0.1
+mkdir -p pkg/grpc/proto
+protoc --experimental_allow_proto3_optional -Ibackend/ --go_out=pkg/grpc/proto/ --go_opt=paths=source_relative --go-grpc_out=pkg/grpc/proto/ --go-grpc_opt=paths=source_relative \
+    backend/backend.proto
+mkdir -p backend-assets/grpc
+go build -ldflags "-s -w -X "github.com/mudler/LocalAI/internal.Version=v3.1.1-87-g932f6b01" -X "github.com/mudler/LocalAI/internal.Commit=932f6b01a6fe2f66c96ee9ac2e04c87596d75260"" -tags "" -o backend-assets/grpc/huggingface ./backend/go/llm/langchain/
+I llama-cpp build info:avx
+cp -rf backend/cpp/llama backend/cpp/llama-avx
+make -C backend/cpp/llama-avx purge
+make[1]: Entering directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+rm -rf llama.cpp/build
+rm -rf llama.cpp/tools/grpc-server
+rm -rf grpc-server
+make[1]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+CMAKE_ARGS="-DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off" make VARIANT="llama-avx" build-llama-cpp-grpc-server
+make[1]: Entering directory '/home/nickspi5/LocalAI'
+echo "BUILD_GRPC_FOR_BACKEND_LLAMA is not defined."
+BUILD_GRPC_FOR_BACKEND_LLAMA is not defined.
+LLAMA_VERSION=d6fb3f6b49b27ef1c0f4cf5128e041f7e7dc03af make -C backend/cpp/llama-avx grpc-server
+make[2]: Entering directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+mkdir -p llama.cpp/tools/grpc-server
+bash prepare.sh
+Applying patch 01-llava.patch
+patching file tools/mtmd/clip.cpp
+patch unexpectedly ends in middle of line
+Hunk #1 FAILED at 2608.
+1 out of 1 hunk FAILED -- saving rejects to file tools/mtmd/clip.cpp.rej
+'llama.cpp/vendor/nlohmann/json.hpp' -> 'llama.cpp/tools/grpc-server/json.hpp'
+'llama.cpp/tools/server/utils.hpp' -> 'llama.cpp/tools/grpc-server/utils.hpp'
+'llama.cpp/vendor/cpp-httplib/httplib.h' -> 'llama.cpp/tools/grpc-server/httplib.h'
+Building grpc-server with  build type and -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF
+cd llama.cpp && mkdir -p build && cd build && cmake .. -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF && cmake --build . --config Release --target grpc-server
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Git: /usr/bin/git (found version "2.39.5") 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: aarch64
+-- GGML_SYSTEM_ARCH: ARM
+-- Including CPU backend
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- ARM detected
+-- Performing Test GGML_COMPILER_SUPPORTS_FP16_FORMAT_I3E
+-- Performing Test GGML_COMPILER_SUPPORTS_FP16_FORMAT_I3E - Failed
+-- ARM feature FMA enabled
+-- Adding CPU backend variant ggml-cpu:  
+-- ggml version: 0.0.5923
+-- ggml commit:  d6fb3f6b
+CMake Error at tools/grpc-server/CMakeLists.txt:20 (find_package):
+  Could not find a package configuration file provided by "absl" with any of
+  the following names:
 
-Is everything now correct? If it is correct, please help with cloning and building LocalAI and running the LLM API locally. I already have TinyLlama and Qwen downloaded but what folders should these .gguf files be stored in?
+    abslConfig.cmake
+    absl-config.cmake
+
+  Add the installation prefix of "absl" to CMAKE_PREFIX_PATH or set
+  "absl_DIR" to a directory containing one of the above files.  If "absl"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
+-- Configuring incomplete, errors occurred!
+See also "/home/nickspi5/LocalAI/backend/cpp/llama-avx/llama.cpp/build/CMakeFiles/CMakeOutput.log".
+See also "/home/nickspi5/LocalAI/backend/cpp/llama-avx/llama.cpp/build/CMakeFiles/CMakeError.log".
+make[2]: *** [Makefile:81: grpc-server] Error 1
+make[2]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+make[1]: *** [Makefile:713: build-llama-cpp-grpc-server] Error 2
+make[1]: Leaving directory '/home/nickspi5/LocalAI'
+make: *** [Makefile:742: backend-assets/grpc/llama-cpp-avx] Error 2
+nickspi5@raspberrypi1:~/LocalAI $ 
+
+Is everything now correct?
+
 
 
