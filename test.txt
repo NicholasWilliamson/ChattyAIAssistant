@@ -1,139 +1,220 @@
-Thank you ChatGPT. You are great.
+This means:
 
-I created my main Python script named chatty_ai.py which is as follows:
+🔌 Your script tried to connect to http://localhost:8080/v1/chat/completions, but nothing was listening on port 8080. So, the connection was refused.
 
-chatty_ai.py
-import subprocess
-import requests
-import time
-from faster_whisper import WhisperModel
+✅ Fix: Start LocalAI
+You need to start the LocalAI server, since it’s the backend serving TinyLLaMA. Here's how to proceed:
 
-# Configuration
-PIPER_PATH = "./piper/piper"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-OUTPUT_WAV = "output.wav"
-RECORD_WAV = "record.wav"
-LOCALAI_URL = "http://localhost:8080/v1/chat/completions"
+🧭 Step-by-Step Instructions
+1. 🧠 Start LocalAI
+If you've already built or downloaded LocalAI, run this command in a separate terminal from your project directory:
 
-# Step 1: Record audio (5 seconds)
-print("🎤 Recording 5 seconds of audio...")
-subprocess.run([
-    "arecord", "-f", "cd", "-t", "wav", "-d", "5", "-r", "16000", "-c", "1", RECORD_WAV
-])
-print("✅ Recording complete.")
+bash
+Copy
+Edit
+./local-ai -m models/tinyllama.gguf --model-name tinyllama
+Adjust the model path and name based on your setup:
 
-# Step 2: Transcribe with Faster-Whisper
-print("🧠 Transcribing with Faster-Whisper...")
-model = WhisperModel("base", compute_type="int8")  # Use "tiny", "base", etc.
-segments, _ = model.transcribe(RECORD_WAV)
-transcription = "".join([seg.text for seg in segments])
-print(f"📝 You said: {transcription}")
+-m: path to your .gguf model (TinyLLaMA).
 
-# Step 3: Send to LocalAI
-print("🤖 Sending to TinyLLaMA via LocalAI...")
-payload = {
-    "model": "tinyllama",  # or the name you've set in your LocalAI config
-    "messages": [
-        {"role": "system", "content": "You are Chatty AI, a friendly AI assistant."},
-        {"role": "user", "content": transcription}
-    ],
-    "temperature": 0.7
+--model-name: what you refer to in your script (tinyllama).
+
+You should see output like:
+
+csharp
+Copy
+Edit
+[INFO] Starting LocalAI on :8080
+[INFO] Model loaded: tinyllama
+If you don’t have local-ai installed yet, I can walk you through setting that up too.
+
+2. ✅ Verify It's Running
+Before rerunning chatty_ai.py, test that LocalAI is up:
+
+bash
+Copy
+Edit
+curl http://localhost:8080/v1/models
+You should see a response listing the models loaded, like:
+
+json
+Copy
+Edit
+{
+  "data": [
+    {
+      "id": "tinyllama",
+      "object": "model"
+    }
+  ]
 }
+3. ▶️ Rerun Your Script
+Now that LocalAI is up and serving on port 8080, go back to your chatty-venv terminal and rerun:
 
-response = requests.post(LOCALAI_URL, json=payload)
-llm_reply = response.json()["choices"][0]["message"]["content"]
-print(f"💬 Chatty AI says: {llm_reply}")
+bash
+Copy
+Edit
+python3 chatty_ai.py
+It should now successfully:
 
-# Step 4: Convert response to speech using Piper
-print("🗣️ Converting reply to speech...")
-subprocess.run([
-    PIPER_PATH,
-    "--model", VOICE_PATH,
-    "--config", CONFIG_PATH,
-    "--output_file", OUTPUT_WAV
-], input=llm_reply.encode("utf-8"))
+Record your voice.
 
-# Step 5: Play audio
-print("🔊 Playing Chatty's reply...")
-subprocess.run(["aplay", OUTPUT_WAV])
+Transcribe with Faster-Whisper.
 
-In my terminal, I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
-🎤 Recording 5 seconds of audio...
-Recording WAVE 'record.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
-✅ Recording complete.
-🧠 Transcribing with Faster-Whisper...
-📝 You said:  Tell me some fun facts about Melbourne, Australia.
-🤖 Sending to TinyLLaMA via LocalAI...
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
-    sock = connection.create_connection(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
-    raise err
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
-    sock.connect(sa)
-ConnectionRefusedError: [Errno 111] Connection refused
+Send the text to TinyLLaMA.
 
-The above exception was the direct cause of the following exception:
+Get a reply.
 
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
-    response = self._make_request(
-               ^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
-    conn.request(
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 494, in request
-    self.endheaders()
-  File "/usr/lib/python3.11/http/client.py", line 1277, in endheaders
-    self._send_output(message_body, encode_chunked=encode_chunked)
-  File "/usr/lib/python3.11/http/client.py", line 1037, in _send_output
-    self.send(msg)
-  File "/usr/lib/python3.11/http/client.py", line 975, in send
-    self.connect()
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 325, in connect
-    self.sock = self._new_conn()
-                ^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connection.py", line 213, in _new_conn
-    raise NewConnectionError(
-urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused
+Speak it using Piper.
 
-The above exception was the direct cause of the following exception:
+⚠️ Optional Improvements (Next Steps)
+Later, consider adding:
 
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/adapters.py", line 667, in send
-    resp = conn.urlopen(
-           ^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
-    retries = retries.increment(
-              ^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
-    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+🧪 Check if LocalAI is running before calling the API.
 
-During handling of the above exception, another exception occurred:
+🧵 Add retry logic or error message like:
+"LocalAI is not running. Please start it with ./local-ai ..."
 
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 39, in <module>
-    response = requests.post(LOCALAI_URL, json=payload)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/api.py", line 115, in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
-    resp = self.send(prep, **send_kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
-    r = adapter.send(request, **kwargs)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/requests/adapters.py", line 700, in send
-    raise ConnectionError(e, request=request)
-requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fff16ceecd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+Would you like help with:
 
-How can I fix this?
+Setting up LocalAI from scratch?
+
+Running it via Docker?
+
+Auto-launching it with your assistant?
+
+Let me know what you'd like next!
+
+
+
+
+
+
+
+
+You said:
+Thank you ChatGPT. You are great. Yes please, show me how to setup LocalAI from scratch.
+
+
+ChatGPT said:
+You're very welcome, Nick — and I'd be glad to walk you through setting up LocalAI from scratch on your Raspberry Pi 5 with TinyLLaMA and Piper. We’ll install it natively (no Docker) to ensure full performance and offline capability.
+
+✅ Step-by-Step: Install and Run LocalAI (Native Setup on Raspberry Pi 5)
+📦 1. Install Dependencies
+Open your terminal and run:
+
+bash
+Copy
+Edit
+sudo apt update && sudo apt install -y \
+    build-essential cmake protobuf-compiler \
+    libopenblas-dev libomp-dev libssl-dev curl \
+    git unzip wget pkg-config
+🧠 2. Download and Build LocalAI
+bash
+Copy
+Edit
+cd ~
+git clone https://github.com/go-skynet/LocalAI.git
+cd LocalAI
+🛠️ Build LocalAI (Optimized for ARM64 with GGUF support):
+bash
+Copy
+Edit
+make build
+This will produce the local-ai binary in the LocalAI directory.
+
+💡 Note: This can take ~10–30 minutes on a Raspberry Pi 5 (but only needs to be done once).
+
+🗂️ 3. Create models/ Folder and Place GGUF Model
+Create a models directory:
+
+bash
+Copy
+Edit
+mkdir -p ~/LocalAI/models/tinyllama
+Download your model (e.g. TinyLLaMA):
+
+bash
+Copy
+Edit
+cd ~/LocalAI/models/tinyllama
+wget https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1B-chat.Q4_K_M.gguf
+Rename for simplicity:
+
+bash
+Copy
+Edit
+mv tinyllama-1.1B-chat.Q4_K_M.gguf model.gguf
+🧾 4. Create the Model Configuration (model.yaml)
+In the same tinyllama folder:
+
+bash
+Copy
+Edit
+nano model.yaml
+Paste this:
+
+yaml
+Copy
+Edit
+name: tinyllama
+backend: llama-cpp
+parameters:
+  model: model.gguf
+  temperature: 0.7
+  top_p: 0.9
+  n_predict: 256
+  threads: 4
+  stopwords:
+    - "</s>"
+Save with Ctrl+O, Enter, then Ctrl+X.
+
+▶️ 5. Run LocalAI
+Back in the LocalAI/ directory:
+
+bash
+Copy
+Edit
+./local-ai --models-path ./models --host 0.0.0.0 --port 8080
+You should see:
+
+csharp
+Copy
+Edit
+[INFO] Loading model: tinyllama
+[INFO] Server started on http://0.0.0.0:8080
+🔍 6. Test in Terminal
+In a new terminal, test the server:
+
+bash
+Copy
+Edit
+curl http://localhost:8080/v1/models
+Expected response:
+
+json
+Copy
+Edit
+{
+  "data": [
+    {
+      "id": "tinyllama",
+      "object": "model"
+    }
+  ]
+}
+Now you're ready to use it with your Python script!
+
+🧪 Optional: Run as Background Service
+If you want to auto-start LocalAI:
+
+bash
+Copy
+Edit
+nohup ./local-ai --models-path ./models > localai.log 2>&1 &
+Or create a systemd service if you want it on boot (I can help with that too).
+
+✅ Next Step:
+Now run your chatty_ai.py again!
 
