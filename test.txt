@@ -1,94 +1,70 @@
 Thank you ChatGPT. You are great.
 
-I ran nickspi5@raspberrypi1:~ $ sudo apt install libprotobuf-dev protobuf-compiler cmake pkg-config
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-libprotobuf-dev is already the newest version (3.21.12-3).
-protobuf-compiler is already the newest version (3.21.12-3).
-cmake is already the newest version (3.25.1-1).
-pkg-config is already the newest version (1.8.1-1).
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-nickspi5@raspberrypi1:~ $ sudo apt install -y libprotobuf-c-dev protobuf-c-compiler
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  libprotobuf-c1
-The following NEW packages will be installed:
-  libprotobuf-c-dev libprotobuf-c1 protobuf-c-compiler
-0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
-Need to get 131 kB of archives.
-After this operation, 426 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 libprotobuf-c1 arm64 1.4.1-1+b1 [26.6 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 libprotobuf-c-dev arm64 1.4.1-1+b1 [34.6 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 protobuf-c-compiler arm64 1.4.1-1+b1 [69.7 kB]
-Fetched 131 kB in 1s (162 kB/s)               
-Selecting previously unselected package libprotobuf-c1:arm64.
-(Reading database ... 174432 files and directories currently installed.)
-Preparing to unpack .../libprotobuf-c1_1.4.1-1+b1_arm64.deb ...
-Unpacking libprotobuf-c1:arm64 (1.4.1-1+b1) ...
-Selecting previously unselected package libprotobuf-c-dev:arm64.
-Preparing to unpack .../libprotobuf-c-dev_1.4.1-1+b1_arm64.deb ...
-Unpacking libprotobuf-c-dev:arm64 (1.4.1-1+b1) ...
-Selecting previously unselected package protobuf-c-compiler.
-Preparing to unpack .../protobuf-c-compiler_1.4.1-1+b1_arm64.deb ...
-Unpacking protobuf-c-compiler (1.4.1-1+b1) ...
-Setting up libprotobuf-c1:arm64 (1.4.1-1+b1) ...
-Setting up libprotobuf-c-dev:arm64 (1.4.1-1+b1) ...
-Setting up protobuf-c-compiler (1.4.1-1+b1) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo updatedb
-sudo: updatedb: command not found
-nickspi5@raspberrypi1:~ $ locate protobuf-config.cmake
-bash: locate: command not found
-nickspi5@raspberrypi1:~ $ sudo apt install mlocate
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  liburing2 plocate
-The following NEW packages will be installed:
-  liburing2 mlocate plocate
-0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
-Need to get 119 kB of archives.
-After this operation, 493 kB of additional disk space will be used.
-Do you want to continue? [Y/n] y
-Get:1 http://deb.debian.org/debian bookworm/main arm64 liburing2 arm64 2.3-3 [12.6 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 plocate arm64 1.1.18-1 [101 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 mlocate all 1.1.18-1 [5,380 B]
-Fetched 119 kB in 0s (433 kB/s)    
-Selecting previously unselected package liburing2:arm64.
-(Reading database ... 174459 files and directories currently installed.)
-Preparing to unpack .../liburing2_2.3-3_arm64.deb ...
-Unpacking liburing2:arm64 (2.3-3) ...
-Selecting previously unselected package plocate.
-Preparing to unpack .../plocate_1.1.18-1_arm64.deb ...
-Unpacking plocate (1.1.18-1) ...
-Selecting previously unselected package mlocate.
-Preparing to unpack .../mlocate_1.1.18-1_all.deb ...
-Unpacking mlocate (1.1.18-1) ...
-Setting up liburing2:arm64 (2.3-3) ...
-Setting up plocate (1.1.18-1) ...
-update-alternatives: using /usr/bin/plocate to provide /usr/bin/locate (locate) in auto mode
-Adding group `plocate' (GID 123) ...
-Done.
-Created symlink /etc/systemd/system/timers.target.wants/plocate-updatedb.timer → /lib/systemd/system/plocate-updatedb.timer.
-plocate-updatedb.service is a disabled or a static unit, not starting it.
-Setting up mlocate (1.1.18-1) ...
-dpkg-statoverride: warning: no override present
-Processing triggers for man-db (2.11.2-2) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo updatedb
-nickspi5@raspberrypi1:~ $ locate protobuf-config.cmake
-nickspi5@raspberrypi1:~ $ sudo find /usr /lib /opt /home -type f -name "protobuf-config.cmake" 2>/dev/null
-nickspi5@raspberrypi1:~ $ ls /usr/lib/aarch64-linux-gnu/cmake/protobuf/
-ls: cannot access '/usr/lib/aarch64-linux-gnu/cmake/protobuf/': No such file or directory
-nickspi5@raspberrypi1:~ $ ls /usr/share/cmake*/protobuf/
-ls: cannot access '/usr/share/cmake*/protobuf/': No such file or directory
-nickspi5@raspberrypi1:~ $ 
+I saw:
 
-Can we please fix this right now so that I can move on and get my AI Assistant working? This is taking far too long to fix!
+-- Installing: /usr/local/include/google/protobuf/stubs/platform_macros.h
+-- Installing: /usr/local/include/google/protobuf/stubs/port.h
+-- Installing: /usr/local/include/google/protobuf/stubs/status.h
+-- Installing: /usr/local/include/google/protobuf/stubs/stl_util.h
+-- Installing: /usr/local/include/google/protobuf/stubs/stringpiece.h
+-- Installing: /usr/local/include/google/protobuf/stubs/strutil.h
+-- Installing: /usr/local/include/google/protobuf/stubs/template_util.h
+-- Installing: /usr/local/include/google/protobuf/text_format.h
+-- Installing: /usr/local/include/google/protobuf/timestamp.pb.h
+-- Installing: /usr/local/include/google/protobuf/type.pb.h
+-- Installing: /usr/local/include/google/protobuf/unknown_field_set.h
+-- Installing: /usr/local/include/google/protobuf/util/delimited_message_util.h
+-- Installing: /usr/local/include/google/protobuf/util/field_comparator.h
+-- Installing: /usr/local/include/google/protobuf/util/field_mask_util.h
+-- Installing: /usr/local/include/google/protobuf/util/json_util.h
+-- Installing: /usr/local/include/google/protobuf/util/message_differencer.h
+-- Installing: /usr/local/include/google/protobuf/util/time_util.h
+-- Installing: /usr/local/include/google/protobuf/util/type_resolver.h
+-- Installing: /usr/local/include/google/protobuf/util/type_resolver_util.h
+-- Installing: /usr/local/include/google/protobuf/wire_format.h
+-- Installing: /usr/local/include/google/protobuf/wire_format_lite.h
+-- Installing: /usr/local/include/google/protobuf/wrappers.pb.h
+-- Installing: /usr/local/include/google/protobuf/any.proto
+-- Installing: /usr/local/include/google/protobuf/api.proto
+-- Installing: /usr/local/include/google/protobuf/compiler/plugin.proto
+-- Installing: /usr/local/include/google/protobuf/descriptor.proto
+-- Installing: /usr/local/include/google/protobuf/duration.proto
+-- Installing: /usr/local/include/google/protobuf/empty.proto
+-- Installing: /usr/local/include/google/protobuf/field_mask.proto
+-- Installing: /usr/local/include/google/protobuf/source_context.proto
+-- Installing: /usr/local/include/google/protobuf/struct.proto
+-- Installing: /usr/local/include/google/protobuf/timestamp.proto
+-- Installing: /usr/local/include/google/protobuf/type.proto
+-- Installing: /usr/local/include/google/protobuf/wrappers.proto
+-- Up-to-date: /usr/local/include/google/protobuf/any.proto
+-- Up-to-date: /usr/local/include/google/protobuf/api.proto
+-- Up-to-date: /usr/local/include/google/protobuf/compiler/plugin.proto
+-- Up-to-date: /usr/local/include/google/protobuf/descriptor.proto
+-- Up-to-date: /usr/local/include/google/protobuf/duration.proto
+-- Up-to-date: /usr/local/include/google/protobuf/empty.proto
+-- Up-to-date: /usr/local/include/google/protobuf/field_mask.proto
+-- Up-to-date: /usr/local/include/google/protobuf/source_context.proto
+-- Up-to-date: /usr/local/include/google/protobuf/struct.proto
+-- Up-to-date: /usr/local/include/google/protobuf/timestamp.proto
+-- Up-to-date: /usr/local/include/google/protobuf/type.proto
+-- Up-to-date: /usr/local/include/google/protobuf/wrappers.proto
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-targets.cmake
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-targets-release.cmake
+-- Up-to-date: /usr/local/lib/cmake/protobuf
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-module.cmake
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-config.cmake
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-config-version.cmake
+-- Installing: /usr/local/lib/cmake/protobuf/protobuf-options.cmake
+nickspi5@raspberrypi1:~/protobuf/build $ sudo ldconfig
+nickspi5@raspberrypi1:~/protobuf/build $ find /usr/local -name "protobuf-config.cmake"
+/usr/local/lib/cmake/protobuf/protobuf-config.cmake
+nickspi5@raspberrypi1:~/protobuf/build $ 
+
+It appears this is working correctly now.
+
+Yes, please guide me through the process to build and configure LocalAI. Please be careful to ensure everything is correct so that we can move on to competing my AI Assistant.
+
+
 
 
 
