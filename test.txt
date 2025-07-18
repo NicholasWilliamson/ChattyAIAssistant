@@ -1,37 +1,61 @@
 Thank you ChatGPT. You are great.
 
-I did as you recommended to install Go properly.
+I ran nickspi5@raspberrypi1:~/LocalAI $ sudo apt remove --purge golang-go
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  golang-1.19 golang-1.19-doc golang-1.19-go golang-1.19-src golang-src
+Use 'sudo apt autoremove' to remove them.
+The following packages will be REMOVED:
+  golang* golang-doc* golang-go*
+0 upgraded, 0 newly installed, 3 to remove and 0 not upgraded.
+After this operation, 95.2 kB disk space will be freed.
+Do you want to continue? [Y/n] y
+(Reading database ... 187488 files and directories currently installed.)
+Removing golang:arm64 (2:1.19~1) ...
+Removing golang-doc (2:1.19~1) ...
+Removing golang-go:arm64 (2:1.19~1) ...
+Processing triggers for man-db (2.11.2-2) ...
+nickspi5@raspberrypi1:~/LocalAI $ cd ~
+nickspi5@raspberrypi1:~ $ wget https://go.dev/dl/go1.23.0.linux-arm64.tar.gz
+--2025-07-19 07:22:55--  https://go.dev/dl/go1.23.0.linux-arm64.tar.gz
+Resolving go.dev (go.dev)... 2001:4860:4802:34::15, 2001:4860:4802:36::15, 2001:4860:4802:32::15, ...
+Connecting to go.dev (go.dev)|2001:4860:4802:34::15|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://dl.google.com/go/go1.23.0.linux-arm64.tar.gz [following]
+--2025-07-19 07:22:55--  https://dl.google.com/go/go1.23.0.linux-arm64.tar.gz
+Resolving dl.google.com (dl.google.com)... 2404:6800:4006:80f::200e, 142.251.221.78
+Connecting to dl.google.com (dl.google.com)|2404:6800:4006:80f::200e|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 70223029 (67M) [application/x-gzip]
+Saving to: ‘go1.23.0.linux-arm64.tar.gz’
 
-At the end of the build, I received the following messages in my terminal:
+go1.23.0.linux-arm64.tar.gz     100%[=====================================================>]  66.97M   695KB/s    in 2m 32s  
 
-* [new tag]           master-f514d1b                           -> master-f514d1b
- * [new tag]           master-f5a77a6                           -> master-f5a77a6
- * [new tag]           master-f5bfea0                           -> master-f5bfea0
- * [new tag]           master-f647ce0                           -> master-f647ce0
- * [new tag]           master-f64d44a                           -> master-f64d44a
- * [new tag]           master-f7d0509                           -> master-f7d0509
- * [new tag]           master-f7d278f                           -> master-f7d278f
- * [new tag]           master-f7dc43b                           -> master-f7dc43b
- * [new tag]           master-f954edd                           -> master-f954edd
- * [new tag]           master-f9a6364                           -> master-f9a6364
- * [new tag]           master-fa84c4b                           -> master-fa84c4b
- * [new tag]           master-fab49c6                           -> master-fab49c6
- * [new tag]           master-fb62f92                           -> master-fb62f92
- * [new tag]           master-fbd4d38                           -> master-fbd4d38
- * [new tag]           master-fc8ef54                           -> master-fc8ef54
- * [new tag]           master-ff5d58f                           -> master-ff5d58f
- * [new tag]           master-ff966e7                           -> master-ff966e7
- * [new tag]           master-ffb06a3                           -> master-ffb06a3
- * [new tag]           master-fff0e0e                           -> master-fff0e0e
-Switched to a new branch 'build'
-make[1]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama'
-go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
-go: errors parsing go.mod:
-/home/nickspi5/LocalAI/go.mod:3: invalid go version '1.23.0': must match format 1.23
-/home/nickspi5/LocalAI/go.mod:5: unknown directive: toolchain
-make: *** [Makefile:339: replace] Error 1
-nickspi5@raspberrypi1:~/LocalAI $ 
+2025-07-19 07:25:28 (450 KB/s) - ‘go1.23.0.linux-arm64.tar.gz’ saved [70223029/70223029]
 
-Is this an error I should be concerned about or is it okay to continue?
+nickspi5@raspberrypi1:~ $ sudo rm -rf /usr/local/go
+nickspi5@raspberrypi1:~ $ sudo tar -C /usr/local -xzf go1.23.0.linux-arm64.tar.gz
+nickspi5@raspberrypi1:~ $ export PATH=$PATH:/usr/local/go/bin
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/go
+nickspi5@raspberrypi1:~ $ go version
+go version go1.23.0 linux/arm64
+nickspi5@raspberrypi1:~ $ 
+
+
+
+export PATH=$PATH:/usr/local/go/bin
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/go
+
+
+
+
+
+
+
+
 
 
