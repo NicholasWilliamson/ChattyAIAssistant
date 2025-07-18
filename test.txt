@@ -1,48 +1,52 @@
-Thank you ChatGPT.
+Thank you ChatGPT. You are great.
 
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5" | ./piper/piper \
-  --model voices/en_US-amy-low/en_US-amy-low.onnx \
-  --config voices/en_US-amy-low/en_US-amy-low.json \
-  --output_file output.wav
-terminate called after throwing an instance of 'nlohmann::json_abi_v3_11_2::detail::parse_error'
-  what():  [json.exception.parse_error.101] parse error at line 1, column 1: syntax error while parsing value - invalid literal; last read: 'E'
-Aborted
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ piper --help
-usage: piper [-h] -m MODEL [-c CONFIG] [-i INPUT_FILE] [-f OUTPUT_FILE] [-d OUTPUT_DIR] [--output-raw] [-s SPEAKER]
-             [--length-scale LENGTH_SCALE] [--noise-scale NOISE_SCALE] [--noise-w-scale NOISE_W_SCALE] [--cuda]
-             [--sentence-silence SENTENCE_SILENCE] [--volume VOLUME] [--no-normalize] [--data-dir DATA_DIR] [--debug]
+I had a en_US-amy-low.json file just containing the words "Entry not found". I copied the correct en_US-amy-low.onnx.json file to my voices/en_US-amy-low folder.
 
-options:
-  -h, --help            show this help message and exit
-  -m MODEL, --model MODEL
-                        Path to Onnx model file
-  -c CONFIG, --config CONFIG
-                        Path to model config file
-  -i INPUT_FILE, --input-file INPUT_FILE, --input_file INPUT_FILE
-                        Paths to input text files
-  -f OUTPUT_FILE, --output-file OUTPUT_FILE, --output_file OUTPUT_FILE
-                        Path to output WAV file (default: stdout)
-  -d OUTPUT_DIR, --output-dir OUTPUT_DIR, --output_dir OUTPUT_DIR
-                        Path to output directory (default: cwd)
-  --output-raw, --output_raw
-                        Stream raw audio to stdout
-  -s SPEAKER, --speaker SPEAKER
-                        Id of speaker (default: 0)
-  --length-scale LENGTH_SCALE, --length_scale LENGTH_SCALE
-                        Phoneme length
-  --noise-scale NOISE_SCALE, --noise_scale NOISE_SCALE
-                        Generator noise
-  --noise-w-scale NOISE_W_SCALE, --noise_w_scale NOISE_W_SCALE, --noise-w NOISE_W_SCALE, --noise_w NOISE_W_SCALE
-                        Phoneme width noise
-  --cuda                Use GPU
-  --sentence-silence SENTENCE_SILENCE, --sentence_silence SENTENCE_SILENCE
-                        Seconds of silence after each sentence
-  --volume VOLUME       Volume multiplier (default: 1.0)
-  --no-normalize        Don't normalize audio
-  --data-dir DATA_DIR, --data_dir DATA_DIR
-                        Data directory to check for voice models (default: current directory)
-  --debug               Print DEBUG messages to console
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat voices/en_US-amy-low/en_US-amy-low.onnx.json | head -n 10
+{
+  "audio": {
+    "sample_rate": 16000,
+    "quality": "low"
+  },
+  "espeak": {
+    "voice": "en-us"
+  },
+  "inference": {
+    "noise_scale": 0.667,
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
+I am confident this is what has been causing the problem all along.
+
+I modified my test_tts.py file as follows:
+
+test_tts.py
+import subprocess
+
+VOICE = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+TEXT = "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5"
+OUTPUT = "output.wav"
+
+# Run Piper
+command = [
+    "./piper/piper",
+    "--model", VOICE,
+    "--config", CONFIG,
+    "--output_file", OUTPUT
+]
+
+subprocess.run(command, input=TEXT.encode("utf-8"))
+
+I then ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
+[2025-07-18 16:02:58.215] [piper] [info] Loaded voice in 0.988800676 second(s)
+[2025-07-18 16:02:58.216] [piper] [info] Initialized piper
+output.wav
+[2025-07-18 16:02:58.719] [piper] [info] Real-time factor: 0.09808212677444794 (infer=0.497472547 sec, audio=5.072 sec)
+[2025-07-18 16:02:58.719] [piper] [info] Terminated piper
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ aplay output.wav
+Playing WAVE 'output.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+Everything is now running perfectly and I am very happy with the outcome.
 
 
