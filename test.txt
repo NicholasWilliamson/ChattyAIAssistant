@@ -1,123 +1,48 @@
 Thank you ChatGPT. You are great.
 
-I ran nickspi5@raspberrypi1:~/LocalAI $ sudo apt remove --purge golang-go
+I ran nickspi5@raspberrypi1:~ $ sudo apt update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
+Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease                                    
+Fetched 55.4 kB in 1s (55.8 kB/s)
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
+All packages are up to date.
+nickspi5@raspberrypi1:~ $ sudo apt install -y cmake libabsl-dev
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+cmake is already the newest version (3.25.1-1).
 The following packages were automatically installed and are no longer required:
   golang-1.19 golang-1.19-doc golang-1.19-go golang-1.19-src golang-src
 Use 'sudo apt autoremove' to remove them.
-The following packages will be REMOVED:
-  golang* golang-doc* golang-go*
-0 upgraded, 0 newly installed, 3 to remove and 0 not upgraded.
-After this operation, 95.2 kB disk space will be freed.
-Do you want to continue? [Y/n] y
-(Reading database ... 187488 files and directories currently installed.)
-Removing golang:arm64 (2:1.19~1) ...
-Removing golang-doc (2:1.19~1) ...
-Removing golang-go:arm64 (2:1.19~1) ...
-Processing triggers for man-db (2.11.2-2) ...
-nickspi5@raspberrypi1:~/LocalAI $ cd ~
-nickspi5@raspberrypi1:~ $ wget https://go.dev/dl/go1.23.0.linux-arm64.tar.gz
---2025-07-19 07:22:55--  https://go.dev/dl/go1.23.0.linux-arm64.tar.gz
-Resolving go.dev (go.dev)... 2001:4860:4802:34::15, 2001:4860:4802:36::15, 2001:4860:4802:32::15, ...
-Connecting to go.dev (go.dev)|2001:4860:4802:34::15|:443... connected.
-HTTP request sent, awaiting response... 302 Found
-Location: https://dl.google.com/go/go1.23.0.linux-arm64.tar.gz [following]
---2025-07-19 07:22:55--  https://dl.google.com/go/go1.23.0.linux-arm64.tar.gz
-Resolving dl.google.com (dl.google.com)... 2404:6800:4006:80f::200e, 142.251.221.78
-Connecting to dl.google.com (dl.google.com)|2404:6800:4006:80f::200e|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 70223029 (67M) [application/x-gzip]
-Saving to: ‘go1.23.0.linux-arm64.tar.gz’
-
-go1.23.0.linux-arm64.tar.gz     100%[=====================================================>]  66.97M   695KB/s    in 2m 32s  
-
-2025-07-19 07:25:28 (450 KB/s) - ‘go1.23.0.linux-arm64.tar.gz’ saved [70223029/70223029]
-
-nickspi5@raspberrypi1:~ $ sudo rm -rf /usr/local/go
-nickspi5@raspberrypi1:~ $ sudo tar -C /usr/local -xzf go1.23.0.linux-arm64.tar.gz
-nickspi5@raspberrypi1:~ $ export PATH=$PATH:/usr/local/go/bin
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-nickspi5@raspberrypi1:~ $ go version
-go version go1.23.0 linux/arm64
-nickspi5@raspberrypi1:~ $ nano ~/.bashrc
-nickspi5@raspberrypi1:~ $ source ~/.bashrc
-nickspi5@raspberrypi1:~ $ go version
-go version go1.23.0 linux/arm64
-nickspi5@raspberrypi1:~ $ go env
-GO111MODULE=''
-GOARCH='arm64'
-GOBIN=''
-GOCACHE='/home/nickspi5/.cache/go-build'
-GOENV='/home/nickspi5/.config/go/env'
-GOEXE=''
-GOEXPERIMENT=''
-GOFLAGS=''
-GOHOSTARCH='arm64'
-GOHOSTOS='linux'
-GOINSECURE=''
-GOMODCACHE='/home/nickspi5/go/pkg/mod'
-GONOPROXY=''
-GONOSUMDB=''
-GOOS='linux'
-GOPATH='/home/nickspi5/go'
-GOPRIVATE=''
-GOPROXY='https://proxy.golang.org,direct'
-GOROOT='/usr/local/go'
-GOSUMDB='sum.golang.org'
-GOTMPDIR=''
-GOTOOLCHAIN='auto'
-GOTOOLDIR='/usr/local/go/pkg/tool/linux_arm64'
-GOVCS=''
-GOVERSION='go1.23.0'
-GODEBUG=''
-GOTELEMETRY='local'
-GOTELEMETRYDIR='/home/nickspi5/.config/go/telemetry'
-GCCGO='gccgo'
-GOARM64='v8.0'
-AR='ar'
-CC='gcc'
-CXX='g++'
-CGO_ENABLED='1'
-GOMOD='/dev/null'
-GOWORK=''
-CGO_CFLAGS='-O2 -g'
-CGO_CPPFLAGS=''
-CGO_CXXFLAGS='-O2 -g'
-CGO_FFLAGS='-O2 -g'
-CGO_LDFLAGS='-O2 -g'
-PKG_CONFIG='pkg-config'
-GOGCCFLAGS='-fPIC -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build1693468865=/tmp/go-build -gno-record-gcc-switches'
-nickspi5@raspberrypi1:~ $ cd ~
-nickspi5@raspberrypi1:~ $ git clone https://github.com/go-skynet/LocalAI.git
-fatal: destination path 'LocalAI' already exists and is not an empty directory.
+The following NEW packages will be installed:
+  libabsl-dev
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 955 kB of archives.
+After this operation, 6,019 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian bookworm/main arm64 libabsl-dev arm64 20220623.1-1+deb12u2 [955 kB]
+Fetched 955 kB in 2s (601 kB/s)      
+Selecting previously unselected package libabsl-dev:arm64.
+(Reading database ... 187454 files and directories currently installed.)
+Preparing to unpack .../libabsl-dev_20220623.1-1+deb12u2_arm64.deb ...
+Unpacking libabsl-dev:arm64 (20220623.1-1+deb12u2) ...
+Setting up libabsl-dev:arm64 (20220623.1-1+deb12u2) ...
 nickspi5@raspberrypi1:~ $ cd LocalAI
 nickspi5@raspberrypi1:~/LocalAI $ make build
 go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
-go: downloading go1.23.1 (linux/arm64)
 go mod edit -replace github.com/ggerganov/whisper.cpp/bindings/go=/home/nickspi5/LocalAI/sources/whisper.cpp/bindings/go
 go mod edit -replace github.com/mudler/go-piper=/home/nickspi5/LocalAI/sources/go-piper
 go mod download
-mkdir -p backend-assets
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@1958fcbe2ca8bd93af633f11e97d44e567e945af
-go: downloading google.golang.org/grpc v1.65.0-dev.0.20240531204125-1958fcbe2ca8
-go: downloading google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.4.0
-go: downloading google.golang.org/protobuf v1.34.1
 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
-go: downloading google.golang.org/protobuf v1.34.2
 go install github.com/GeertJohan/go.rice/rice@latest
-go: downloading github.com/GeertJohan/go.incremental v1.0.0
-go: downloading github.com/akavel/rsrc v0.8.0
-go: downloading github.com/jessevdk/go-flags v1.4.0
-go: downloading github.com/nkovacs/streamquote v1.0.0
-go: downloading github.com/valyala/fasttemplate v1.0.1
 mkdir -p pkg/grpc/proto
 protoc --experimental_allow_proto3_optional -Ibackend/ --go_out=pkg/grpc/proto/ --go_opt=paths=source_relative --go-grpc_out=pkg/grpc/proto/ --go-grpc_opt=paths=source_relative \
     backend/backend.proto
 mkdir -p backend-assets/grpc
-go build -ldflags "-s -w -X "github.com/mudler/LocalAI/internal.Version=v3.1.1-87-g932f6b01" -X "github.com/mudler/LocalAI/internal.Commit=932f6b01a6fe2f66c96ee9ac2e04c87596d75260"" -tags "" -o backend-assets/grpc/huggingface ./backend/go/llm/langchain/
 I llama-cpp build info:avx
 cp -rf backend/cpp/llama backend/cpp/llama-avx
 make -C backend/cpp/llama-avx purge
@@ -142,6 +67,7 @@ Hunk #1 FAILED at 2608.
 'llama.cpp/vendor/nlohmann/json.hpp' -> 'llama.cpp/tools/grpc-server/json.hpp'
 'llama.cpp/tools/server/utils.hpp' -> 'llama.cpp/tools/grpc-server/utils.hpp'
 'llama.cpp/vendor/cpp-httplib/httplib.h' -> 'llama.cpp/tools/grpc-server/httplib.h'
+grpc-server already added
 Building grpc-server with  build type and -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF
 cd llama.cpp && mkdir -p build && cd build && cmake .. -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF && cmake --build . --config Release --target grpc-server
 -- The C compiler identification is GNU 12.2.0
@@ -174,17 +100,18 @@ cd llama.cpp && mkdir -p build && cd build && cmake .. -DBUILD_SHARED_LIBS=OFF -
 -- Adding CPU backend variant ggml-cpu:  
 -- ggml version: 0.0.5923
 -- ggml commit:  d6fb3f6b
-CMake Error at tools/grpc-server/CMakeLists.txt:20 (find_package):
-  Could not find a package configuration file provided by "absl" with any of
-  the following names:
+CMake Error at tools/grpc-server/CMakeLists.txt:21 (find_package):
+  Could not find a package configuration file provided by "Protobuf" with any
+  of the following names:
 
-    abslConfig.cmake
-    absl-config.cmake
+    ProtobufConfig.cmake
+    protobuf-config.cmake
 
-  Add the installation prefix of "absl" to CMAKE_PREFIX_PATH or set
-  "absl_DIR" to a directory containing one of the above files.  If "absl"
-  provides a separate development package or SDK, be sure it has been
-  installed.
+  Add the installation prefix of "Protobuf" to CMAKE_PREFIX_PATH or set
+  "Protobuf_DIR" to a directory containing one of the above files.  If
+  "Protobuf" provides a separate development package or SDK, be sure it has
+  been installed.
+
 
 -- Configuring incomplete, errors occurred!
 See also "/home/nickspi5/LocalAI/backend/cpp/llama-avx/llama.cpp/build/CMakeFiles/CMakeOutput.log".
@@ -195,6 +122,7 @@ make[1]: *** [Makefile:713: build-llama-cpp-grpc-server] Error 2
 make[1]: Leaving directory '/home/nickspi5/LocalAI'
 make: *** [Makefile:742: backend-assets/grpc/llama-cpp-avx] Error 2
 nickspi5@raspberrypi1:~/LocalAI $ 
+
 
 Is everything now correct?
 
