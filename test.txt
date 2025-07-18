@@ -1,27 +1,7 @@
 Thank you ChatGPT.
 
-I have modified my test_tts.py script as follows:
-
-test_tts.py
-import subprocess
-
-VOICE = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json"
-TEXT = "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5"
-OUTPUT = "output.wav"
-
-# Run Piper
-command = [
-    "./piper",
-    "--model", VOICE,
-    "--config", CONFIG,
-    "--output_file", OUTPUT,
-    "--sentence", TEXT
-]
-
-subprocess.run(command)
-
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x ./piper
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
 Traceback (most recent call last):
   File "/home/nickspi5/Chatty_AI/test_tts.py", line 17, in <module>
     subprocess.run(command)
