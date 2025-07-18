@@ -1,21 +1,13 @@
 Thank you ChatGPT. You are great.
 
-I ran cd ~
-git clone https://github.com/go-skynet/LocalAI.git
-cd LocalAI
-
-🛠️ Build LocalAI (Optimized for ARM64 with GGUF support):
-
-make build
-
-This will produce the local-ai binary in the LocalAI directory.
-
-💡 Note: This can take ~10–30 minutes on a Raspberry Pi 5 (but only needs to be done once).
+I did as you recommended to install Go properly.
 
 At the end of the build, I received the following messages in my terminal:
 
-... more
-* [new tag]           master-f647ce0                           -> master-f647ce0
+* [new tag]           master-f514d1b                           -> master-f514d1b
+ * [new tag]           master-f5a77a6                           -> master-f5a77a6
+ * [new tag]           master-f5bfea0                           -> master-f5bfea0
+ * [new tag]           master-f647ce0                           -> master-f647ce0
  * [new tag]           master-f64d44a                           -> master-f64d44a
  * [new tag]           master-f7d0509                           -> master-f7d0509
  * [new tag]           master-f7d278f                           -> master-f7d278f
@@ -34,8 +26,10 @@ At the end of the build, I received the following messages in my terminal:
 Switched to a new branch 'build'
 make[1]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama'
 go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
-make: go: No such file or directory
-make: *** [Makefile:339: replace] Error 127
+go: errors parsing go.mod:
+/home/nickspi5/LocalAI/go.mod:3: invalid go version '1.23.0': must match format 1.23
+/home/nickspi5/LocalAI/go.mod:5: unknown directive: toolchain
+make: *** [Makefile:339: replace] Error 1
 nickspi5@raspberrypi1:~/LocalAI $ 
 
 Is this an error I should be concerned about or is it okay to continue?
