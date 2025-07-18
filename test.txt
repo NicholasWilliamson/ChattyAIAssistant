@@ -1,11 +1,22 @@
-Thank you ChatGPT. You are great.
+Thank you ChatGPT.
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ arecord -D plughw:2,0 -f cd -t wav -d 5 -r 16000 test_audio.wav
-Recording WAVE 'test_audio.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Stereo
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_stt.py
-Transcription:
-[0.00s -> 2.00s]  Hello, Chatty.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
+I modified the test_tts.py file as you recommended.
+
+test_tts.py
+import subprocess
+
+text = "Hello Nick, this is a test of Piper text to speech on your Raspberry Pi 5"
+
+# Run Piper
+subprocess.run([
+    "piper",
+    "-m", '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx',
+    "-c", '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json',
+    "-f", 'output.wav',
+    "-i", "-"  # Read input from stdin
+], input=text.encode('utf-8'))
+
+I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
 Traceback (most recent call last):
   File "/home/nickspi5/Chatty_AI/chatty-venv/bin/piper", line 8, in <module>
     sys.exit(main())
@@ -17,12 +28,6 @@ Traceback (most recent call last):
     with open(config_path, "r", encoding="utf-8") as config_file:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 FileNotFoundError: [Errno 2] No such file or directory: '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json'
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/test_tts.py", line 9, in <module>
-    subprocess.run([
-  File "/usr/lib/python3.11/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['piper', '-m', '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx', '-c', '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json', '-f', 'output.wav', '-i', '-']' returned non-zero exit status 1.
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 How can we fix the error with test_tts.py
