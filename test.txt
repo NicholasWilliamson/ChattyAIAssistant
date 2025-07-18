@@ -1,62 +1,30 @@
-Thank you ChatGPT.
+Thank you ChatGPT. You are great.
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ git clone https://github.com/rhasspy/piper.git
-fatal: destination path 'piper' already exists and is not an empty directory.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cd piper
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ pip install .
-ERROR: Directory '.' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ piper --help
-usage: piper [-h] -m MODEL [-c CONFIG] [-i INPUT_FILE] [-f OUTPUT_FILE] [-d OUTPUT_DIR] [--output-raw] [-s SPEAKER]
-             [--length-scale LENGTH_SCALE] [--noise-scale NOISE_SCALE] [--noise-w-scale NOISE_W_SCALE] [--cuda]
-             [--sentence-silence SENTENCE_SILENCE] [--volume VOLUME] [--no-normalize] [--data-dir DATA_DIR] [--debug]
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ arecord -D plughw:2,0 -f cd -t wav -d 5 -r 16000 test_audio.wav
+Recording WAVE 'test_audio.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Stereo
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_stt.py
+Transcription:
+[0.00s -> 2.00s]  Hello, Chatty.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_tts.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/bin/piper", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/piper/__main__.py", line 142, in main
+    voice = PiperVoice.load(model_path, use_cuda=args.cuda)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/piper/voice.py", line 112, in load
+    with open(config_path, "r", encoding="utf-8") as config_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json'
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/test_tts.py", line 9, in <module>
+    subprocess.run([
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['piper', '-m', '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx', '-c', '/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json', '-f', 'output.wav', '-i', '-']' returned non-zero exit status 1.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-options:
-  -h, --help            show this help message and exit
-  -m MODEL, --model MODEL
-                        Path to Onnx model file
-  -c CONFIG, --config CONFIG
-                        Path to model config file
-  -i INPUT_FILE, --input-file INPUT_FILE, --input_file INPUT_FILE
-                        Paths to input text files
-  -f OUTPUT_FILE, --output-file OUTPUT_FILE, --output_file OUTPUT_FILE
-                        Path to output WAV file (default: stdout)
-  -d OUTPUT_DIR, --output-dir OUTPUT_DIR, --output_dir OUTPUT_DIR
-                        Path to output directory (default: cwd)
-  --output-raw, --output_raw
-                        Stream raw audio to stdout
-  -s SPEAKER, --speaker SPEAKER
-                        Id of speaker (default: 0)
-  --length-scale LENGTH_SCALE, --length_scale LENGTH_SCALE
-                        Phoneme length
-  --noise-scale NOISE_SCALE, --noise_scale NOISE_SCALE
-                        Generator noise
-  --noise-w-scale NOISE_W_SCALE, --noise_w_scale NOISE_W_SCALE, --noise-w NOISE_W_SCALE, --noise_w NOISE_W_SCALE
-                        Phoneme width noise
-  --cuda                Use GPU
-  --sentence-silence SENTENCE_SILENCE, --sentence_silence SENTENCE_SILENCE
-                        Seconds of silence after each sentence
-  --volume VOLUME       Volume multiplier (default: 1.0)
-  --no-normalize        Don't normalize audio
-  --data-dir DATA_DIR, --data_dir DATA_DIR
-                        Data directory to check for voice models (default: current directory)
-  --debug               Print DEBUG messages to console
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI/piper $ 
-
-I already have the following voice installed:
-
-/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.json
-/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx
-
-and the following local LLM installed:
-
-/home/nickspi5/Chatty_AI/qwen-models/Qwen2.5-1.5B-Instruct-q4_k_s.gguf
-/home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf
-
-Can we please now test stt and tts to get this all running?
-
-
-
-
-
+How can we fix the error with test_tts.py
 
 
