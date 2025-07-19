@@ -1,38 +1,8 @@
-No more errors have occured ....
+Now more errors have occured, again ....
 
 I saw:
 
 .... more ....
-Consolidate compiler generated dependencies of target ggml
-make[5]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-make  -f ggml/src/CMakeFiles/ggml.dir/build.make ggml/src/CMakeFiles/ggml.dir/build
-make[5]: Entering directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-make[5]: Nothing to be done for 'ggml/src/CMakeFiles/ggml.dir/build'.
-make[5]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-[100%] Built target ggml
-make[4]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-/usr/bin/cmake -E cmake_progress_start /home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build/CMakeFiles 0
-make[3]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-make[2]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert/bert.cpp/build'
-ar src libgobert.a gobert.o ggml.o 
-make[1]: Leaving directory '/home/nickspi5/LocalAI/sources/go-bert'
-CGO_LDFLAGS="" C_INCLUDE_PATH=/home/nickspi5/LocalAI/sources/go-bert LIBRARY_PATH=/home/nickspi5/LocalAI/sources/go-bert \
-go build -ldflags "-X "github.com/go-skynet/LocalAI/internal.Version=v2.12.0" -X "github.com/go-skynet/LocalAI/internal.Commit=2bbb221fb18cb119c384f86739c1433cec8a491b"" -tags "" -o backend-assets/grpc/bert-embeddings ./backend/go/llm/bert/
-echo "BUILD_GRPC_FOR_BACKEND_LLAMA is not defined."
-BUILD_GRPC_FOR_BACKEND_LLAMA is not defined.
-LLAMA_VERSION=cc4a95426d17417d3c83f12bdb514fbe8abe2a88 make -C backend/cpp/llama grpc-server
-make[1]: Entering directory '/home/nickspi5/LocalAI/backend/cpp/llama'
-git clone --recurse-submodules https://github.com/ggerganov/llama.cpp llama.cpp
-Cloning into 'llama.cpp'...
-remote: Enumerating objects: 56821, done.
-remote: Counting objects: 100% (97/97), done.
-remote: Compressing objects: 100% (73/73), done.
-remote: Total 56821 (delta 63), reused 24 (delta 24), pack-reused 56724 (from 3)
-Receiving objects: 100% (56821/56821), 135.65 MiB | 445.00 KiB/s, done.
-Resolving deltas: 100% (41147/41147), done.
-if [ -z "cc4a95426d17417d3c83f12bdb514fbe8abe2a88" ]; then \
-	exit 1; \
-fi
 cd llama.cpp && git checkout -b build cc4a95426d17417d3c83f12bdb514fbe8abe2a88 && git submodule update --init --recursive --depth 1
 Switched to a new branch 'build'
 Submodule 'kompute' (https://github.com/nomic-ai/kompute.git) registered for path 'kompute'
@@ -106,8 +76,9 @@ make[1]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama'
 make: *** [Makefile:517: backend/cpp/llama/grpc-server] Error 2
 nickspi5@raspberrypi1:~/LocalAI $ 
 
+I have now spent over 7 hours wasting my time with this.
 
+I do not want to use a Docker service for this. It is too slow. I want a Python script to run my AI Assistant.
 
-
-
+Why do we need to use LocalAI? I want to delete LocalAI and revert back to a simple Python script, such as I used previously when I used vosk and eSpeak, but this time I want to use Whisper and Piper instead.
 
