@@ -1,68 +1,80 @@
 Thank you ChatGPT. You are great.
 
-I saw:
+I ran nickspi5@raspberrypi1:~ $ go version
+go version go1.23.0 linux/arm64
+nickspi5@raspberrypi1:~ $ cd ~
+nickspi5@raspberrypi1:~ $ git clone https://github.com/go-skynet/LocalAI.git
+fatal: destination path 'LocalAI' already exists and is not an empty directory.
+nickspi5@raspberrypi1:~ $ sudo apt update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
+Hit:3 http://deb.debian.org/debian bookworm-updates InRelease   
+Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease  
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+nickspi5@raspberrypi1:~ $ sudo apt install -y build-essential cmake git golang
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+build-essential is already the newest version (12.9).
+cmake is already the newest version (3.25.1-1).
+git is already the newest version (1:2.39.5-0+deb12u2).
+The following NEW packages will be installed:
+  golang golang-1.19 golang-1.19-doc golang-doc
+0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.
+Need to get 127 kB of archives.
+After this operation, 671 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian bookworm/main arm64 golang-1.19-doc all 1.19.8-2 [97.3 kB]
+Get:2 http://deb.debian.org/debian bookworm/main arm64 golang-1.19 all 1.19.8-2 [18.2 kB]
+Get:3 http://deb.debian.org/debian bookworm/main arm64 golang-doc all 2:1.19~1 [5,804 B]
+Get:4 http://deb.debian.org/debian bookworm/main arm64 golang arm64 2:1.19~1 [5,744 B]
+Fetched 127 kB in 0s (394 kB/s)   
+Selecting previously unselected package golang-1.19-doc.
+(Reading database ... 188151 files and directories currently installed.)
+Preparing to unpack .../golang-1.19-doc_1.19.8-2_all.deb ...
+Unpacking golang-1.19-doc (1.19.8-2) ...
+Selecting previously unselected package golang-1.19.
+Preparing to unpack .../golang-1.19_1.19.8-2_all.deb ...
+Unpacking golang-1.19 (1.19.8-2) ...
+Selecting previously unselected package golang-doc.
+Preparing to unpack .../golang-doc_2%3a1.19~1_all.deb ...
+Unpacking golang-doc (2:1.19~1) ...
+Selecting previously unselected package golang:arm64.
+Preparing to unpack .../golang_2%3a1.19~1_arm64.deb ...
+Unpacking golang:arm64 (2:1.19~1) ...
+Setting up golang-1.19-doc (1.19.8-2) ...
+Setting up golang-doc (2:1.19~1) ...
+Setting up golang-1.19 (1.19.8-2) ...
+Setting up golang:arm64 (2:1.19~1) ...
+nickspi5@raspberrypi1:~ $ cd ~/LocalAI
+nickspi5@raspberrypi1:~/LocalAI $ make
 
--- Installing: /usr/local/include/google/protobuf/stubs/platform_macros.h
--- Installing: /usr/local/include/google/protobuf/stubs/port.h
--- Installing: /usr/local/include/google/protobuf/stubs/status.h
--- Installing: /usr/local/include/google/protobuf/stubs/stl_util.h
--- Installing: /usr/local/include/google/protobuf/stubs/stringpiece.h
--- Installing: /usr/local/include/google/protobuf/stubs/strutil.h
--- Installing: /usr/local/include/google/protobuf/stubs/template_util.h
--- Installing: /usr/local/include/google/protobuf/text_format.h
--- Installing: /usr/local/include/google/protobuf/timestamp.pb.h
--- Installing: /usr/local/include/google/protobuf/type.pb.h
--- Installing: /usr/local/include/google/protobuf/unknown_field_set.h
--- Installing: /usr/local/include/google/protobuf/util/delimited_message_util.h
--- Installing: /usr/local/include/google/protobuf/util/field_comparator.h
--- Installing: /usr/local/include/google/protobuf/util/field_mask_util.h
--- Installing: /usr/local/include/google/protobuf/util/json_util.h
--- Installing: /usr/local/include/google/protobuf/util/message_differencer.h
--- Installing: /usr/local/include/google/protobuf/util/time_util.h
--- Installing: /usr/local/include/google/protobuf/util/type_resolver.h
--- Installing: /usr/local/include/google/protobuf/util/type_resolver_util.h
--- Installing: /usr/local/include/google/protobuf/wire_format.h
--- Installing: /usr/local/include/google/protobuf/wire_format_lite.h
--- Installing: /usr/local/include/google/protobuf/wrappers.pb.h
--- Installing: /usr/local/include/google/protobuf/any.proto
--- Installing: /usr/local/include/google/protobuf/api.proto
--- Installing: /usr/local/include/google/protobuf/compiler/plugin.proto
--- Installing: /usr/local/include/google/protobuf/descriptor.proto
--- Installing: /usr/local/include/google/protobuf/duration.proto
--- Installing: /usr/local/include/google/protobuf/empty.proto
--- Installing: /usr/local/include/google/protobuf/field_mask.proto
--- Installing: /usr/local/include/google/protobuf/source_context.proto
--- Installing: /usr/local/include/google/protobuf/struct.proto
--- Installing: /usr/local/include/google/protobuf/timestamp.proto
--- Installing: /usr/local/include/google/protobuf/type.proto
--- Installing: /usr/local/include/google/protobuf/wrappers.proto
--- Up-to-date: /usr/local/include/google/protobuf/any.proto
--- Up-to-date: /usr/local/include/google/protobuf/api.proto
--- Up-to-date: /usr/local/include/google/protobuf/compiler/plugin.proto
--- Up-to-date: /usr/local/include/google/protobuf/descriptor.proto
--- Up-to-date: /usr/local/include/google/protobuf/duration.proto
--- Up-to-date: /usr/local/include/google/protobuf/empty.proto
--- Up-to-date: /usr/local/include/google/protobuf/field_mask.proto
--- Up-to-date: /usr/local/include/google/protobuf/source_context.proto
--- Up-to-date: /usr/local/include/google/protobuf/struct.proto
--- Up-to-date: /usr/local/include/google/protobuf/timestamp.proto
--- Up-to-date: /usr/local/include/google/protobuf/type.proto
--- Up-to-date: /usr/local/include/google/protobuf/wrappers.proto
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-targets.cmake
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-targets-release.cmake
--- Up-to-date: /usr/local/lib/cmake/protobuf
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-module.cmake
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-config.cmake
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-config-version.cmake
--- Installing: /usr/local/lib/cmake/protobuf/protobuf-options.cmake
-nickspi5@raspberrypi1:~/protobuf/build $ sudo ldconfig
-nickspi5@raspberrypi1:~/protobuf/build $ find /usr/local -name "protobuf-config.cmake"
-/usr/local/lib/cmake/protobuf/protobuf-config.cmake
-nickspi5@raspberrypi1:~/protobuf/build $ 
+Usage:
+  make <target>
 
-It appears this is working correctly now.
+Targets:
+  bark.cpp
+  go-piper
+  stablediffusion (ggml)
+  whisper
+  GENERIC
+    rebuild             Rebuilds the project
+    clean               Remove build related file
+  Install Go tools
+  Build:
+    build               Build the project
+  Run
+    run                 run local-ai
+  Test targets
+  Help:
+    help                Show this help.
+  GRPC
+  Documentation
+nickspi5@raspberrypi1:~/LocalAI $ 
 
-Yes, please guide me through the process to build and configure LocalAI. Please be careful to ensure everything is correct so that we can move on to competing my AI Assistant.
+What do I do now?
 
 
 
