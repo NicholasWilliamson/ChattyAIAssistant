@@ -1,80 +1,14 @@
 Thank you ChatGPT. You are great.
 
-I ran nickspi5@raspberrypi1:~ $ go version
-go version go1.23.0 linux/arm64
-nickspi5@raspberrypi1:~ $ cd ~
-nickspi5@raspberrypi1:~ $ git clone https://github.com/go-skynet/LocalAI.git
-fatal: destination path 'LocalAI' already exists and is not an empty directory.
-nickspi5@raspberrypi1:~ $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
-Hit:3 http://deb.debian.org/debian bookworm-updates InRelease   
-Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease  
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-nickspi5@raspberrypi1:~ $ sudo apt install -y build-essential cmake git golang
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-build-essential is already the newest version (12.9).
-cmake is already the newest version (3.25.1-1).
-git is already the newest version (1:2.39.5-0+deb12u2).
-The following NEW packages will be installed:
-  golang golang-1.19 golang-1.19-doc golang-doc
-0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.
-Need to get 127 kB of archives.
-After this operation, 671 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 golang-1.19-doc all 1.19.8-2 [97.3 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 golang-1.19 all 1.19.8-2 [18.2 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 golang-doc all 2:1.19~1 [5,804 B]
-Get:4 http://deb.debian.org/debian bookworm/main arm64 golang arm64 2:1.19~1 [5,744 B]
-Fetched 127 kB in 0s (394 kB/s)   
-Selecting previously unselected package golang-1.19-doc.
-(Reading database ... 188151 files and directories currently installed.)
-Preparing to unpack .../golang-1.19-doc_1.19.8-2_all.deb ...
-Unpacking golang-1.19-doc (1.19.8-2) ...
-Selecting previously unselected package golang-1.19.
-Preparing to unpack .../golang-1.19_1.19.8-2_all.deb ...
-Unpacking golang-1.19 (1.19.8-2) ...
-Selecting previously unselected package golang-doc.
-Preparing to unpack .../golang-doc_2%3a1.19~1_all.deb ...
-Unpacking golang-doc (2:1.19~1) ...
-Selecting previously unselected package golang:arm64.
-Preparing to unpack .../golang_2%3a1.19~1_arm64.deb ...
-Unpacking golang:arm64 (2:1.19~1) ...
-Setting up golang-1.19-doc (1.19.8-2) ...
-Setting up golang-doc (2:1.19~1) ...
-Setting up golang-1.19 (1.19.8-2) ...
-Setting up golang:arm64 (2:1.19~1) ...
-nickspi5@raspberrypi1:~ $ cd ~/LocalAI
-nickspi5@raspberrypi1:~/LocalAI $ make
-
-Usage:
-  make <target>
-
-Targets:
-  bark.cpp
-  go-piper
-  stablediffusion (ggml)
-  whisper
-  GENERIC
-    rebuild             Rebuilds the project
-    clean               Remove build related file
-  Install Go tools
-  Build:
-    build               Build the project
-  Run
-    run                 run local-ai
-  Test targets
-  Help:
-    help                Show this help.
-  GRPC
-  Documentation
+I ran nickspi5@raspberrypi1:~/LocalAI $ make build
+go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
+go: errors parsing go.mod:
+/home/nickspi5/LocalAI/go.mod:3: invalid go version '1.23.0': must match format 1.23
+/home/nickspi5/LocalAI/go.mod:5: unknown directive: toolchain
+make: *** [Makefile:339: replace] Error 1
 nickspi5@raspberrypi1:~/LocalAI $ 
 
-What do I do now?
+Now what is wrong?
 
 
 
