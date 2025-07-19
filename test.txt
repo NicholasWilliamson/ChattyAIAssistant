@@ -59,7 +59,7 @@ def query_llama(prompt):
         print(f"❌ Failed to load TinyLLaMA: {e}")
         return "Sorry, I couldn't load the AI model."
 
-    formatted_prompt = f"Answer clearly and concisely:\n{prompt}"
+    formatted_prompt = f"You are a friendly, helpful assistant.\nUser: {prompt}\nAssistant: "
 
     try:
         result = llm(formatted_prompt, max_tokens=64)
@@ -114,19 +114,21 @@ I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 run_chatty_ai_1
 🎤 Recording 5s of audio...
 ✅ Saved audio to: user_input.wav
 🧠 Transcribing with Faster Whisper...
-📝 Transcript: Tell me some fun facts about Darwin or Australia.
+📝 Transcript: Tell me some fun places to visit in Melbourne, Australia.
 🤖 Generating response...
 llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
-💬 Chatty AI says: 
+💬 Chatty AI says: 1. Fitzroy Gardens: This beautiful park offers a peaceful oasis in the middle of the city.
+2. Southbank Centre: This cultural hub hosts a variety of events, including music, theatre, and dance.
+3. Docklands: This area features a variety of restaurants, c
 🔊 Speaking with Piper ...
-[2025-07-20 08:16:14.542] [piper] [info] Loaded voice in 0.358937832 second(s)
-[2025-07-20 08:16:14.543] [piper] [info] Initialized piper
-[2025-07-20 08:16:14.543] [piper] [info] Terminated piper
-output.wav: No such file or directory
+[2025-07-20 08:53:45.292] [piper] [info] Loaded voice in 0.344784189 second(s)
+[2025-07-20 08:53:45.293] [piper] [info] Initialized piper
+output.wav
+[2025-07-20 08:53:47.089] [piper] [info] Real-time factor: 0.10138424573475886 (infer=1.7827405770000002 sec, audio=17.584000000000003 sec)
+[2025-07-20 08:53:47.090] [piper] [info] Terminated piper
+Playing WAVE 'output.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-There is no output.wav file being created to speak the LLM's response to the user question.
-
-How can we fix this?
+I am now very happy with the output and processing speed of about 8 seconds.
 
 
