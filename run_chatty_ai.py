@@ -1,105 +1,103 @@
-#!/usr/bin/env python3
-"""
-run_chatty_ai.py
-Record voice, transcribe using Whisper, reply with TinyLLaMA, and speak with Piper.
-"""
-
-import os
 import subprocess
-import sounddevice as sd
-import soundfile as sf
+import time
+import re
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
+import os
 
-# -------------------------------
-# Config
-# -------------------------------
-WHISPER_MODEL_SIZE = "base"
-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-WAV_FILENAME = "user_input.wav"
-RESPONSE_AUDIO = "output.wav"
+# === CONFIGURATION ===
 
-# -------------------------------
-# Record 5 seconds of audio
-# -------------------------------
-def record_audio(filename=WAV_FILENAME, duration=5, samplerate=16000, channels=1):
-    print("🎤 Recording 5s of audio...")
-    audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels, dtype='int16')
-    sd.wait()
-    sf.write(filename, audio, samplerate)
-    print(f"✅ Saved audio to: {filename}")
+# Piper voice
+PIPER_VOICE = "en_US-lessac-medium.onnx"
 
-# -------------------------------
-# Transcribe using Whisper
-# -------------------------------
-def transcribe_audio(filename):
-    print("🧠 Transcribing with Faster Whisper...")
-    model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-    segments, _ = model.transcribe(filename)
-    transcript = " ".join(segment.text for segment in segments).strip()
-    print(f"📝 Transcript: {transcript}")
-    return transcript
+# Model path (adjust if needed)
+LLM_MODEL_PATH = "/home/nick/models/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf"
 
-# -------------------------------
-# Generate LLM response
-# -------------------------------
-def query_llama(prompt):
-    print("🤖 Generating response...")
-    try:
-        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0, verbose=False)
-    except Exception as e:
-        print(f"❌ Failed to load TinyLLaMA: {e}")
-        return "Sorry, I couldn't load the AI model."
+# === INITIALIZATION ===
 
-    formatted_prompt = (
-        "[INST] <<SYS>>You are a helpful assistant.<</SYS>> "
-        f"{prompt} [/INST]"
+# Initialize Whisper model (use 'base', 'small', etc.)
+whisper_model = WhisperModel("base", compute_type="int8")
+
+# Initialize TinyLLaMA via llama-cpp
+llm = Llama(
+    model_path=LLM_MODEL_PATH,
+    n_ctx=2048,
+    n_threads=4,
+    n_batch=64,
+    verbose=False
+)
+
+# === FUNCTIONS ===
+
+def record_audio(filename="input.wav", duration=5):
+    print("🎙️ Recording...")
+    subprocess.run([
+        "arecord", "-D", "plughw:1", "-f", "cd", "-t", "wav",
+        "-d", str(duration), "-r", "16000", "-c", "1", filename
+    ])
+    print("✅ Audio recorded.")
+
+def transcribe_audio(filename="input.wav"):
+    print("🧠 Transcribing with Whisper...")
+    segments, _ = whisper_model.transcribe(filename)
+    transcription = "".join([segment.text for segment in segments]).strip()
+    print(f"📝 Transcribed: {transcription}")
+    return transcription
+
+def query_llm(prompt, max_tokens=128):
+    formatted_prompt = f"[INST] {prompt.strip()} [/INST]"
+    print(f"🤖 Sending to LLM: {formatted_prompt}")
+
+    response = llm(
+        formatted_prompt,
+        max_tokens=max_tokens,
+        stop=["User:", "###"]
     )
 
-    try:
-        result = llm(formatted_prompt, max_tokens=64)
-        if "choices" in result and result["choices"]:
-            reply_text = result["choices"][0]["text"].strip()
-            print(f"💬 Chatty AI says: {reply_text}")
-            speak_text(reply_text)
-            return reply_text
-        else:
-            print("⚠️ No response from model.")
-            return "I did not understand that."
-    except Exception as e:
-        print(f"❌ Inference failed: {e}")
-        return "An error occurred while generating a reply."
+    raw_text = response["choices"][0]["text"]
+    cleaned = re.sub(r"(User:|Assistant:)", "", raw_text).strip()
+    print(f"🤖 Response: {cleaned}")
+    return cleaned
 
-# -------------------------------
-# Speak with Piper
-# -------------------------------
 def speak_text(text):
-    print("🔊 Speaking with Piper...")
+    print(f"🔊 Speaking: {text}")
     try:
-        command = [
-            PIPER_EXECUTABLE,
-            "--model", VOICE_PATH,
-            "--config", CONFIG_PATH,
-            "--output_file", RESPONSE_AUDIO
-        ]
-        subprocess.run(command, input=text.encode("utf-8"), check=True)
-        subprocess.run(["aplay", RESPONSE_AUDIO])
-    except subprocess.CalledProcessError as e:
-        print("❌ Piper playback failed:", e)
+        subprocess.run(["piper", "--model", PIPER_VOICE, "--output-raw", "--sentence-silence", "0.3"],
+                       input=text.encode("utf-8"), stdout=subprocess.PIPE, check=True)
+        subprocess.run(["aplay", "-q"], input=subprocess.PIPE)
+    except Exception as e:
+        print(f"❌ Piper error: {e}")
 
-# -------------------------------
-# Main Orchestration
-# -------------------------------
+def save_log(transcript, response, log_path="chatty_log.txt"):
+    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]")
+    with open(log_path, "a") as f:
+        f.write(f"{timestamp} You: {transcript}\n")
+        f.write(f"{timestamp} Chatty: {response}\n\n")
+
+# === MAIN LOOP ===
+
 def main():
     record_audio()
-    user_text = transcribe_audio(WAV_FILENAME)
-    if not user_text:
-        print("❌ No voice input detected.")
+    user_input = transcribe_audio()
+
+    if not user_input:
+        print("❗ No speech detected.")
         return
-    query_llama(user_text)
+
+    reply = query_llm(user_input)
+
+    if not reply or len(reply.split()) < 2:
+        print("🤷 Response too short or empty. Skipping.")
+        return
+
+    speak_text(reply)
+
+    # Optional logging
+    save_log(user_input, reply)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        print("\n🎤 Say something to Chatty AI!")
+        main()
+        print("\n⏱️ Waiting 2 seconds before next input...\n")
+        time.sleep(2)
