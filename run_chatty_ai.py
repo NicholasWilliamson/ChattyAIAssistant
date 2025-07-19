@@ -15,7 +15,7 @@ from llama_cpp import Llama
 # Config
 # -------------------------------
 WHISPER_MODEL_SIZE = "base"
-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
 PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
@@ -36,7 +36,7 @@ def record_audio(filename=WAV_FILENAME, duration=5, samplerate=16000, channels=1
 # Transcribe using Whisper
 # -------------------------------
 def transcribe_audio(filename):
-    print("🧠 Transcribing with Whisper...")
+    print("🧠 Transcribing with Faster Whisper...")
     model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
     segments, _ = model.transcribe(filename)
     transcript = " ".join(segment.text for segment in segments).strip()
@@ -49,7 +49,7 @@ def transcribe_audio(filename):
 def query_llama(prompt):
     print("🤖 Generating response...")
     try:
-        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0)
+        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0, verbose=False)
     except Exception as e:
         print(f"❌ Failed to load TinyLLaMA: {e}")
         return "Sorry, I couldn't load the AI model."
@@ -60,10 +60,10 @@ def query_llama(prompt):
     )
 
     try:
-        result = llm(formatted_prompt, max_tokens=100)
+        result = llm(formatted_prompt, max_tokens=64)
         if "choices" in result and result["choices"]:
             reply_text = result["choices"][0]["text"].strip()
-            print(f"💬 TinyLLaMA says: {reply_text}")
+            print(f"💬 Chatty AI says: {reply_text}")
             speak_text(reply_text)
             return reply_text
         else:
