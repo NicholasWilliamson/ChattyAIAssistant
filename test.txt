@@ -1,14 +1,16 @@
-Thank you ChatGPT. You are great.
+I ran nickspi5@raspberrypi1:~ $ wget https://go.dev/dl/go1.27.7.linux-arm64.tar.gz
+--2025-07-19 10:41:24--  https://go.dev/dl/go1.27.7.linux-arm64.tar.gz
+Resolving go.dev (go.dev)... 2001:4860:4802:38::15, 2001:4860:4802:34::15, 2001:4860:4802:36::15, ...
+Connecting to go.dev (go.dev)|2001:4860:4802:38::15|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://dl.google.com/go/go1.27.7.linux-arm64.tar.gz [following]
+--2025-07-19 10:41:25--  https://dl.google.com/go/go1.27.7.linux-arm64.tar.gz
+Resolving dl.google.com (dl.google.com)... 2404:6800:4006:80f::200e, 142.250.204.14
+Connecting to dl.google.com (dl.google.com)|2404:6800:4006:80f::200e|:443... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2025-07-19 10:41:26 ERROR 404: Not Found.
 
-I ran nickspi5@raspberrypi1:~/LocalAI $ make build
-go mod edit -replace github.com/ggerganov/whisper.cpp=/home/nickspi5/LocalAI/sources/whisper.cpp
-go: errors parsing go.mod:
-/home/nickspi5/LocalAI/go.mod:3: invalid go version '1.23.0': must match format 1.23
-/home/nickspi5/LocalAI/go.mod:5: unknown directive: toolchain
-make: *** [Makefile:339: replace] Error 1
-nickspi5@raspberrypi1:~/LocalAI $ 
-
-Now what is wrong?
+nickspi5@raspberrypi1:~ $ 
 
 
 
