@@ -1,19 +1,88 @@
-I ran nickspi5@raspberrypi1:~ $ wget https://go.dev/dl/go1.27.7.linux-arm64.tar.gz
---2025-07-19 10:41:24--  https://go.dev/dl/go1.27.7.linux-arm64.tar.gz
-Resolving go.dev (go.dev)... 2001:4860:4802:38::15, 2001:4860:4802:34::15, 2001:4860:4802:36::15, ...
-Connecting to go.dev (go.dev)|2001:4860:4802:38::15|:443... connected.
-HTTP request sent, awaiting response... 302 Found
-Location: https://dl.google.com/go/go1.27.7.linux-arm64.tar.gz [following]
---2025-07-19 10:41:25--  https://dl.google.com/go/go1.27.7.linux-arm64.tar.gz
-Resolving dl.google.com (dl.google.com)... 2404:6800:4006:80f::200e, 142.250.204.14
-Connecting to dl.google.com (dl.google.com)|2404:6800:4006:80f::200e|:443... connected.
-HTTP request sent, awaiting response... 404 Not Found
-2025-07-19 10:41:26 ERROR 404: Not Found.
+Again it has failed!
 
-nickspi5@raspberrypi1:~ $ 
+I saw:
+
+I llama-cpp build info:avx
+cp -rf backend/cpp/llama backend/cpp/llama-avx
+make -C backend/cpp/llama-avx purge
+make[1]: Entering directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+rm -rf llama.cpp/build
+rm -rf llama.cpp/tools/grpc-server
+rm -rf grpc-server
+make[1]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+CMAKE_ARGS="-DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off" make VARIANT="llama-avx" build-llama-cpp-grpc-server
+make[1]: Entering directory '/home/nickspi5/LocalAI'
+echo "BUILD_GRPC_FOR_BACKEND_LLAMA is not defined."
+BUILD_GRPC_FOR_BACKEND_LLAMA is not defined.
+LLAMA_VERSION=d6fb3f6b49b27ef1c0f4cf5128e041f7e7dc03af make -C backend/cpp/llama-avx grpc-server
+make[2]: Entering directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+mkdir -p llama.cpp/tools/grpc-server
+bash prepare.sh
+Applying patch 01-llava.patch
+patching file tools/mtmd/clip.cpp
+patch unexpectedly ends in middle of line
+Hunk #1 FAILED at 2608.
+1 out of 1 hunk FAILED -- saving rejects to file tools/mtmd/clip.cpp.rej
+'llama.cpp/vendor/nlohmann/json.hpp' -> 'llama.cpp/tools/grpc-server/json.hpp'
+'llama.cpp/tools/server/utils.hpp' -> 'llama.cpp/tools/grpc-server/utils.hpp'
+'llama.cpp/vendor/cpp-httplib/httplib.h' -> 'llama.cpp/tools/grpc-server/httplib.h'
+Building grpc-server with  build type and -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF
+cd llama.cpp && mkdir -p build && cd build && cmake .. -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=on -DGGML_AVX2=off -DGGML_AVX512=off -DGGML_FMA=off -DGGML_F16C=off -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF && cmake --build . --config Release --target grpc-server
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Git: /usr/bin/git (found version "2.39.5") 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: aarch64
+-- GGML_SYSTEM_ARCH: ARM
+-- Including CPU backend
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- ARM detected
+-- Performing Test GGML_COMPILER_SUPPORTS_FP16_FORMAT_I3E
+-- Performing Test GGML_COMPILER_SUPPORTS_FP16_FORMAT_I3E - Failed
+-- ARM feature FMA enabled
+-- Adding CPU backend variant ggml-cpu:  
+-- ggml version: 0.0.5923
+-- ggml commit:  d6fb3f6b
+-- Found ZLIB: /usr/lib/aarch64-linux-gnu/libz.so (found version "1.2.13") 
+CMake Error at tools/grpc-server/CMakeLists.txt:22 (find_package):
+  Could not find a package configuration file provided by "gRPC" with any of
+  the following names:
+
+    gRPCConfig.cmake
+    grpc-config.cmake
+
+  Add the installation prefix of "gRPC" to CMAKE_PREFIX_PATH or set
+  "gRPC_DIR" to a directory containing one of the above files.  If "gRPC"
+  provides a separate development package or SDK, be sure it has been
+  installed.
 
 
+-- Configuring incomplete, errors occurred!
+See also "/home/nickspi5/LocalAI/backend/cpp/llama-avx/llama.cpp/build/CMakeFiles/CMakeOutput.log".
+See also "/home/nickspi5/LocalAI/backend/cpp/llama-avx/llama.cpp/build/CMakeFiles/CMakeError.log".
+make[2]: *** [Makefile:81: grpc-server] Error 1
+make[2]: Leaving directory '/home/nickspi5/LocalAI/backend/cpp/llama-avx'
+make[1]: *** [Makefile:713: build-llama-cpp-grpc-server] Error 2
+make[1]: Leaving directory '/home/nickspi5/LocalAI'
+make: *** [Makefile:742: backend-assets/grpc/llama-cpp-avx] Error 2
+nickspi5@raspberrypi1:~/LocalAI $ 
 
+This is taking too long. I have now spent 4 hours trying all this and still no result!
 
-
+What do you need to do to fix this once and for all?
 
