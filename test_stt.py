@@ -1,7 +1,7 @@
 from faster_whisper import WhisperModel
 
 # Load the Whisper model
-model_size = "tiny"  # or "base", "small", "medium", "large-v2"
+model_size = "base"  # or "small", "tiny", "medium", "large-v2"
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
 # Path to test audio file (WAV/MP3)
