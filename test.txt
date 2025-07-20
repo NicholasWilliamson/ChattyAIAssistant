@@ -1,24 +1,78 @@
 
 
-Step-by-Step Fix: Use a Delayed Startup Script
-🔧 Step 1: Create a new startup script
-In your terminal:
+PART 1: Fix Chromium Not Autostarting on Boot
+Even though we set @/home/nickspi5/start_kiosk.sh in ~/.config/lxsession/LXDE-pi/autostart, Raspberry Pi 5 with newer OS versions can ignore this file in some conditions (especially with Wayland or delayed desktop login).
+
+✅ Recommended Fix: Use a systemd service instead of autostart
+Step 1: Create a systemd service
+bash
+Copy
+Edit
+sudo nano /etc/systemd/system/kiosk.service
+Paste this:
+
+ini
+Copy
+Edit
+[Unit]
+Description=Chromium Kiosk
+After=graphical.target
+
+[Service]
+User=pi
+Environment=XAUTHORITY=/home/pi/.Xauthority
+Environment=DISPLAY=:0
+ExecStart=/home/nickspi5/start_kiosk.sh
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=graphical.target
+❗ Replace User=pi with your actual username if not pi.
+
+Step 2: Enable and start the service
+bash
+Copy
+Edit
+sudo systemctl daemon-reexec
+sudo systemctl enable kiosk.service
+sudo reboot
+🔊 PART 2: Fix Audio Not Playing Automatically in Chromium
+Chromium blocks autoplay audio unless certain flags are set and sound system (PulseAudio or PipeWire) is ready.
+
+✅ Step-by-step audio fixes:
+1. Test audio outside Chromium
+Play a test sound:
+
+bash
+Copy
+Edit
+aplay /usr/share/sounds/alsa/Front_Center.wav
+If this fails: audio driver/setup issue
+
+If this works: Chromium needs permission to use audio
+
+2. Add Chromium audio flags to your script
+Edit ~/start_kiosk.sh again:
 
 bash
 Copy
 Edit
 nano ~/start_kiosk.sh
-Paste this exact code:
+Replace the Chromium launch with:
 
 bash
 Copy
 Edit
 #!/bin/bash
 
-# Wait for system to fully load
 sleep 20
 
-# Launch Chromium in kiosk mode with autoplay and audio enabled
+# Fix audio permissions for Chromium
+export PULSE_SERVER=unix:/run/user/1000/pulse/native
+export DISPLAY=:0
+export XDG_RUNTIME_DIR=/run/user/1000
+
 chromium-browser \
   --kiosk \
   --autoplay-policy=no-user-gesture-required \
@@ -34,65 +88,54 @@ chromium-browser \
   --no-default-browser-check \
   --disable-infobars \
   file:///home/nickspi5/Chatty_AI_UI/index.html
-Save it:
+Save and exit. Then run:
 
-Ctrl + O, Enter, then Ctrl + X
-
-✅ Step 2: Make it executable
 bash
 Copy
 Edit
 chmod +x ~/start_kiosk.sh
-✏️ Step 3: Update autostart to use the script instead
-Edit autostart:
+3. Check HTML and Video Tag
+Make sure your HTML <video> tag looks like:
+
+html
+Copy
+Edit
+<video autoplay playsinline controls>
+  <source src="yourfile.mp4" type="video/mp4">
+</video>
+Avoid using muted, or the browser may assume silent playback is desired.
+
+4. Optional: Allow audio in Chromium site settings
+You can launch Chromium with UI once:
 
 bash
 Copy
 Edit
-nano ~/.config/lxsession/LXDE-pi/autostart
-Replace any existing Chromium line with:
+chromium-browser file:///home/nickspi5/Chatty_AI_UI/index.html
+Click the 🔒 lock icon in the address bar
 
-bash
-Copy
-Edit
-@/home/nickspi5/start_kiosk.sh
-Save and exit: Ctrl + O, Enter, Ctrl + X
+Set Sound: Allow
 
-🔁 Step 4: Reboot and test
-bash
-Copy
-Edit
-sudo reboot
-After about 20–25 seconds, your kiosk UI should launch, and your video should play with audio.
+Then close Chromium
 
-✅ Bonus Tip: Use sleep 30 if needed
-If it still fails on reboot, increase the delay:
+That permission is saved for file:/// access.
 
-bash
-Copy
-Edit
-sleep 30
-This ensures all services (X11, PulseAudio, Bluetooth, etc.) are fully ready before Chromium launches.
+✅ Summary – Final Fixes
+Problem	Solution
+Chromium not launching on reboot	Use systemd service instead of ~/.config/lxsession/LXDE-pi/autostart
+Audio doesn’t play	Add PULSE_SERVER and XDG_RUNTIME_DIR env vars in the script
+Chromium audio blocked	Ensure autoplay policy flags are used, video is not muted, and Chromium allows audio
+Chromium starts too early	Use sleep 20 in script or use After=graphical.target in systemd
 
-💡 Why This Fix Works
-Raspberry Pi OS sometimes starts Chromium before:
+✅ After Reboot Checklist
+Run systemctl status kiosk.service – should show "active (running)"
 
-Display is ready
+If video plays but no sound:
 
-Audio devices are initialized
+Run aplay test.wav – does that work?
 
-File systems are mounted
+Try plugging in external USB speaker or HDMI audio?
 
-By using a custom script with sleep, we guarantee proper environment before starting Chromium.
-
-If this still fails, let me know:
-
-Whether you see any Chromium window at all
-
-If you hear a startup sound
-
-If ~/start_kiosk.sh works when run manually after boot
-
-We can then fine-tune xset display settings or switch to a systemd service instead of autostart.
+If needed: run pavucontrol to see if Chromium is muted
 
 
