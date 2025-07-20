@@ -1,69 +1,80 @@
-3. Play Fullscreen Video in Web UI on Boot
-Yes, you can autostart a fullscreen Chromium browser and load a webpage (local or online) with a video.
 
-🔧 Example:
-A. Create an HTML file:
+chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl file:///home/nickspi5/Chatty_AI_UI/index.html
+
+Step 1: Create a new script to launch Chromium with your flags
 bash
 Copy
 Edit
-mkdir -p /home/nickspi5/chatty_ui
-nano /home/nickspi5/chatty_ui/index.html
+nano /home/nickspi5/Chatty_AI_UI/start_kiosk.sh
 Paste:
+
+bash
+Copy
+Edit
+#!/bin/bash
+chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl file:///home/nickspi5/Chatty_AI_UI/index.html
+Save and exit (Ctrl+X, then Y, then Enter)
+
+Make it executable:
+
+bash
+Copy
+Edit
+chmod +x /home/nickspi5/Chatty_AI_UI/start_kiosk.sh
+Step 2: Create a systemd user service
+bash
+Copy
+Edit
+mkdir -p ~/.config/systemd/user
+nano ~/.config/systemd/user/chatty-kiosk.service
+Paste this:
+
+ini
+Copy
+Edit
+[Unit]
+Description=Start Chatty AI Kiosk UI
+After=graphical-session.target
+
+[Service]
+ExecStart=/home/nickspi5/Chatty_AI_UI/start_kiosk.sh
+Restart=always
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target
+Save and exit.
+
+Step 3: Enable the service to run on login
+bash
+Copy
+Edit
+systemctl --user daemon-reexec
+systemctl --user daemon-reload
+systemctl --user enable chatty-kiosk.service
+You can also start it now without rebooting:
+
+bash
+Copy
+Edit
+systemctl --user start chatty-kiosk.service
+✅ To verify on next reboot:
+Reboot your Pi:
+
+bash
+Copy
+Edit
+reboot
+Chromium should launch in kiosk mode and the video should play.
+
+🔄 Optional: If video still doesn't play automatically
+You can add muted and playsinline attributes to your <video> tag in index.html:
 
 html
 Copy
 Edit
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Chatty AI Boot Video</title>
-  <style>
-    body, html {
-      margin: 0; padding: 0;
-      overflow: hidden;
-      background: black;
-    }
-    video {
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-    }
-  </style>
-</head>
-<body>
-  <video autoplay muted loop>
-    <source src="boot_intro.mp4" type="video/mp4">
-  </video>
-</body>
-</html>
-Place boot_intro.mp4 in that folder.
-
-B. Install Chromium if needed:
-bash
-Copy
-Edit
-sudo apt install chromium-browser -y
-C. Autostart in full screen:
-Create an autostart config:
-
-bash
-Copy
-Edit
-mkdir -p ~/.config/lxsession/LXDE-pi
-nano ~/.config/lxsession/LXDE-pi/autostart
-Add:
-
-bash
-Copy
-Edit
-@chromium-browser --kiosk --autoplay-policy=no-user-gesture-required file:///home/nickspi5/chatty_ui/index.html
-On reboot, this will play the video fullscreen.
-
-✅ Summary of What You’ll Get
-Chatty AI runs as a background service.
-
-LLM and TTS server (LocalAI and Piper) are preloaded at boot.
-
-A fullscreen video UI plays on boot using Chromium kiosk mode.
-
+<video autoplay muted playsinline>
+  <source src="Chatty_AI_starting.mp4" type="video/mp4">
+</video>
+This often bypasses autoplay restrictions.
