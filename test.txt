@@ -1,54 +1,98 @@
-To update your autostart kiosk launch command so that Chromium starts with all the necessary flags (including full-screen playback with audio), follow these steps:
 
-✅ Step-by-step: Update Autostart Command
-1. Edit the autostart file
-Run in terminal:
+
+Step-by-Step Fix: Use a Delayed Startup Script
+🔧 Step 1: Create a new startup script
+In your terminal:
+
+bash
+Copy
+Edit
+nano ~/start_kiosk.sh
+Paste this exact code:
+
+bash
+Copy
+Edit
+#!/bin/bash
+
+# Wait for system to fully load
+sleep 20
+
+# Launch Chromium in kiosk mode with autoplay and audio enabled
+chromium-browser \
+  --kiosk \
+  --autoplay-policy=no-user-gesture-required \
+  --no-sandbox \
+  --disable-gpu \
+  --disable-software-rasterizer \
+  --enable-features=AutoplayIgnoreWebAudio \
+  --use-gl=egl \
+  --start-fullscreen \
+  --start-maximized \
+  --disable-translate \
+  --no-first-run \
+  --no-default-browser-check \
+  --disable-infobars \
+  file:///home/nickspi5/Chatty_AI_UI/index.html
+Save it:
+
+Ctrl + O, Enter, then Ctrl + X
+
+✅ Step 2: Make it executable
+bash
+Copy
+Edit
+chmod +x ~/start_kiosk.sh
+✏️ Step 3: Update autostart to use the script instead
+Edit autostart:
 
 bash
 Copy
 Edit
 nano ~/.config/lxsession/LXDE-pi/autostart
-2. Update or replace the Chromium command
-Replace the existing Chromium line (if any) with the following single-line command (wrapped here for clarity):
+Replace any existing Chromium line with:
 
 bash
 Copy
 Edit
-@chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl --start-fullscreen --start-maximized --disable-translate --no-first-run --no-default-browser-check --disable-infobars file:///home/nickspi5/Chatty_AI_UI/index.html
-3. Save and exit
-Press Ctrl + O to save
+@/home/nickspi5/start_kiosk.sh
+Save and exit: Ctrl + O, Enter, Ctrl + X
 
-Press Enter to confirm
-
-Press Ctrl + X to exit
-
-📢 Optional: Enable Audio Autoplay in Chromium
-Chromium still may block audio autoplay unless the video is muted or user interaction occurs.
-
-To allow audio:
-
-Make sure the <video> tag does not include muted.
-
-Chromium’s autoplay policies still might prevent unmuted autoplay. Try launching Chromium manually like this first to test:
-
-bash
-Copy
-Edit
-chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream file:///home/nickspi5/Chatty_AI_UI/index.html
-If audio still doesn’t play, try manually toggling sound settings in Chromium’s site permissions (you can run Chromium normally once and allow autoplay).
-
-🔁 Test with Manual Launch
-Before rebooting, test your new full command manually:
-
-bash
-Copy
-Edit
-chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl --start-fullscreen --start-maximized --disable-translate --no-first-run --no-default-browser-check --disable-infobars file:///home/nickspi5/Chatty_AI_UI/index.html
-✅ After Confirming It Works
-Then reboot:
-
+🔁 Step 4: Reboot and test
 bash
 Copy
 Edit
 sudo reboot
-Let me know if the video still won’t play with audio, and I can help troubleshoot or provide an alternative video player like mpv that supports kiosk-style fullscreen playback at boot.
+After about 20–25 seconds, your kiosk UI should launch, and your video should play with audio.
+
+✅ Bonus Tip: Use sleep 30 if needed
+If it still fails on reboot, increase the delay:
+
+bash
+Copy
+Edit
+sleep 30
+This ensures all services (X11, PulseAudio, Bluetooth, etc.) are fully ready before Chromium launches.
+
+💡 Why This Fix Works
+Raspberry Pi OS sometimes starts Chromium before:
+
+Display is ready
+
+Audio devices are initialized
+
+File systems are mounted
+
+By using a custom script with sleep, we guarantee proper environment before starting Chromium.
+
+If this still fails, let me know:
+
+Whether you see any Chromium window at all
+
+If you hear a startup sound
+
+If ~/start_kiosk.sh works when run manually after boot
+
+We can then fine-tune xset display settings or switch to a systemd service instead of autostart.
+
+
