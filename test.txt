@@ -1,80 +1,72 @@
 
-chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl file:///home/nickspi5/Chatty_AI_UI/index.html
+Great update, Nick. The fact that Chromium didn't freeze this time is progress! Since the video shows but doesn’t play, this is likely due to autoplay restrictions or missing muted attribute, which Chromium requires to allow autoplay without user interaction.
 
-Step 1: Create a new script to launch Chromium with your flags
-bash
-Copy
-Edit
-nano /home/nickspi5/Chatty_AI_UI/start_kiosk.sh
-Paste:
+Let’s fix this step by step:
+
+✅ Step 1: Update Your HTML <video> Tag
+Chromium requires the muted and autoplay attributes (sometimes also playsinline) for videos to autoplay without user input. Please edit your index.html file:
 
 bash
 Copy
 Edit
-#!/bin/bash
-chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl file:///home/nickspi5/Chatty_AI_UI/index.html
-Save and exit (Ctrl+X, then Y, then Enter)
+nano /home/nickspi5/Chatty_AI_UI/index.html
+Update your video tag to look like this:
 
-Make it executable:
-
-bash
+html
 Copy
 Edit
-chmod +x /home/nickspi5/Chatty_AI_UI/start_kiosk.sh
-Step 2: Create a systemd user service
-bash
+<video id="intro" autoplay muted playsinline>
+  <source src="Chatty_AI_starting.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+Save and close (Ctrl+X, then Y, then Enter).
+
+✅ Step 2: Add JavaScript Fallback to Force Play (if needed)
+Sometimes the browser still needs an extra push after DOM is loaded. Add this at the bottom of your <body> in the same index.html:
+
+html
 Copy
 Edit
-mkdir -p ~/.config/systemd/user
-nano ~/.config/systemd/user/chatty-kiosk.service
-Paste this:
-
-ini
-Copy
-Edit
-[Unit]
-Description=Start Chatty AI Kiosk UI
-After=graphical-session.target
-
-[Service]
-ExecStart=/home/nickspi5/Chatty_AI_UI/start_kiosk.sh
-Restart=always
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=DISPLAY=:0
-
-[Install]
-WantedBy=default.target
-Save and exit.
-
-Step 3: Enable the service to run on login
-bash
-Copy
-Edit
-systemctl --user daemon-reexec
-systemctl --user daemon-reload
-systemctl --user enable chatty-kiosk.service
-You can also start it now without rebooting:
-
-bash
-Copy
-Edit
-systemctl --user start chatty-kiosk.service
-✅ To verify on next reboot:
+<script>
+  window.addEventListener('load', () => {
+    const video = document.getElementById('intro');
+    if (video) {
+      video.muted = true;
+      video.play().catch((e) => {
+        console.error("Autoplay failed:", e);
+      });
+    }
+  });
+</script>
+✅ Step 3: Reboot and Test Again
 Reboot your Pi:
 
 bash
 Copy
 Edit
 reboot
-Chromium should launch in kiosk mode and the video should play.
+Your Chromium kiosk should now load, and the video should autoplay without needing input.
 
-🔄 Optional: If video still doesn't play automatically
-You can add muted and playsinline attributes to your <video> tag in index.html:
+✅ Step 4: (Optional) Add Controls or Autorestart Logic
+If you want the video to loop or disappear after playing (e.g. showing the assistant UI), you can add one of these to the <video> tag:
+
+To loop forever:
 
 html
 Copy
 Edit
-<video autoplay muted playsinline>
-  <source src="Chatty_AI_starting.mp4" type="video/mp4">
-</video>
-This often bypasses autoplay restrictions.
+<video autoplay muted playsinline loop>
+To trigger an event when finished:
+
+html
+Copy
+Edit
+<script>
+  document.getElementById('intro').addEventListener('ended', function () {
+    // Replace video with UI, or redirect
+    window.location.href = 'assistant.html'; // or toggle display
+  });
+</script>
+Let me know how the playback goes after these changes — we’ll take it from there.
+
+
