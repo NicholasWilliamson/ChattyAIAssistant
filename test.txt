@@ -1,72 +1,54 @@
+To update your autostart kiosk launch command so that Chromium starts with all the necessary flags (including full-screen playback with audio), follow these steps:
 
-Great update, Nick. The fact that Chromium didn't freeze this time is progress! Since the video shows but doesn’t play, this is likely due to autoplay restrictions or missing muted attribute, which Chromium requires to allow autoplay without user interaction.
-
-Let’s fix this step by step:
-
-✅ Step 1: Update Your HTML <video> Tag
-Chromium requires the muted and autoplay attributes (sometimes also playsinline) for videos to autoplay without user input. Please edit your index.html file:
+✅ Step-by-step: Update Autostart Command
+1. Edit the autostart file
+Run in terminal:
 
 bash
 Copy
 Edit
-nano /home/nickspi5/Chatty_AI_UI/index.html
-Update your video tag to look like this:
-
-html
-Copy
-Edit
-<video id="intro" autoplay muted playsinline>
-  <source src="Chatty_AI_starting.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-Save and close (Ctrl+X, then Y, then Enter).
-
-✅ Step 2: Add JavaScript Fallback to Force Play (if needed)
-Sometimes the browser still needs an extra push after DOM is loaded. Add this at the bottom of your <body> in the same index.html:
-
-html
-Copy
-Edit
-<script>
-  window.addEventListener('load', () => {
-    const video = document.getElementById('intro');
-    if (video) {
-      video.muted = true;
-      video.play().catch((e) => {
-        console.error("Autoplay failed:", e);
-      });
-    }
-  });
-</script>
-✅ Step 3: Reboot and Test Again
-Reboot your Pi:
+nano ~/.config/lxsession/LXDE-pi/autostart
+2. Update or replace the Chromium command
+Replace the existing Chromium line (if any) with the following single-line command (wrapped here for clarity):
 
 bash
 Copy
 Edit
-reboot
-Your Chromium kiosk should now load, and the video should autoplay without needing input.
+@chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl --start-fullscreen --start-maximized --disable-translate --no-first-run --no-default-browser-check --disable-infobars file:///home/nickspi5/Chatty_AI_UI/index.html
+3. Save and exit
+Press Ctrl + O to save
 
-✅ Step 4: (Optional) Add Controls or Autorestart Logic
-If you want the video to loop or disappear after playing (e.g. showing the assistant UI), you can add one of these to the <video> tag:
+Press Enter to confirm
 
-To loop forever:
+Press Ctrl + X to exit
 
-html
+📢 Optional: Enable Audio Autoplay in Chromium
+Chromium still may block audio autoplay unless the video is muted or user interaction occurs.
+
+To allow audio:
+
+Make sure the <video> tag does not include muted.
+
+Chromium’s autoplay policies still might prevent unmuted autoplay. Try launching Chromium manually like this first to test:
+
+bash
 Copy
 Edit
-<video autoplay muted playsinline loop>
-To trigger an event when finished:
+chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream file:///home/nickspi5/Chatty_AI_UI/index.html
+If audio still doesn’t play, try manually toggling sound settings in Chromium’s site permissions (you can run Chromium normally once and allow autoplay).
 
-html
+🔁 Test with Manual Launch
+Before rebooting, test your new full command manually:
+
+bash
 Copy
 Edit
-<script>
-  document.getElementById('intro').addEventListener('ended', function () {
-    // Replace video with UI, or redirect
-    window.location.href = 'assistant.html'; // or toggle display
-  });
-</script>
-Let me know how the playback goes after these changes — we’ll take it from there.
+chromium-browser --kiosk --autoplay-policy=no-user-gesture-required --no-sandbox --disable-gpu --disable-software-rasterizer --enable-features=AutoplayIgnoreWebAudio --use-gl=egl --start-fullscreen --start-maximized --disable-translate --no-first-run --no-default-browser-check --disable-infobars file:///home/nickspi5/Chatty_AI_UI/index.html
+✅ After Confirming It Works
+Then reboot:
 
-
+bash
+Copy
+Edit
+sudo reboot
+Let me know if the video still won’t play with audio, and I can help troubleshoot or provide an alternative video player like mpv that supports kiosk-style fullscreen playback at boot.
