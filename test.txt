@@ -1,141 +1,66 @@
+Thank you Claude!
 
+I had an error occur when I was manually bashing the content of the installation.sh file.
 
-PART 1: Fix Chromium Not Autostarting on Boot
-Even though we set @/home/nickspi5/start_kiosk.sh in ~/.config/lxsession/LXDE-pi/autostart, Raspberry Pi 5 with newer OS versions can ignore this file in some conditions (especially with Wayland or delayed desktop login).
+The error was as follows:
 
-✅ Recommended Fix: Use a systemd service instead of autostart
-Step 1: Create a systemd service
-bash
-Copy
-Edit
-sudo nano /etc/systemd/system/kiosk.service
-Paste this:
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install pyaudio webrtcvad
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting pyaudio
+  Downloading PyAudio-0.2.14.tar.gz (47 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Collecting webrtcvad
+  Downloading webrtcvad-2.0.10.tar.gz (66 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Building wheels for collected packages: pyaudio, webrtcvad
+  Building wheel for pyaudio (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+  
+  × Building wheel for pyaudio (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [27 lines of output]
+      /tmp/pip-build-env-xqefz6xf/overlay/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: MIT License
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      running bdist_wheel
+      running build
+      running build_py
+      creating build/lib.linux-aarch64-cpython-311/pyaudio
+      copying src/pyaudio/__init__.py -> build/lib.linux-aarch64-cpython-311/pyaudio
+      running build_ext
+      building 'pyaudio._portaudio' extension
+      creating build/temp.linux-aarch64-cpython-311/src/pyaudio
+      aarch64-linux-gnu-gcc -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/usr/local/include -I/usr/include -I/home/nickspi5/Chatty_AI/chatty-venv/include -I/usr/include/python3.11 -c src/pyaudio/device_api.c -o build/temp.linux-aarch64-cpython-311/src/pyaudio/device_api.o
+      src/pyaudio/device_api.c:9:10: fatal error: portaudio.h: No such file or directory
+          9 | #include "portaudio.h"
+            |          ^~~~~~~~~~~~~
+      compilation terminated.
+      error: command '/usr/bin/aarch64-linux-gnu-gcc' failed with exit code 1
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for pyaudio
+  Building wheel for webrtcvad (pyproject.toml) ... done
+  Created wheel for webrtcvad: filename=webrtcvad-2.0.10-cp311-cp311-linux_aarch64.whl size=72954 sha256=9f2aebe74da3929d513dde8f47438809a58631a4dc0c8414198bbbf14edb3f3f
+  Stored in directory: /home/nickspi5/.cache/pip/wheels/94/65/3f/292d0b656be33d1c801831201c74b5f68f41a2ae465ff2ee2f
+Successfully built webrtcvad
+Failed to build pyaudio
+ERROR: Failed to build installable wheels for some pyproject.toml based projects (pyaudio)
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-ini
-Copy
-Edit
-[Unit]
-Description=Chromium Kiosk
-After=graphical.target
-
-[Service]
-User=pi
-Environment=XAUTHORITY=/home/pi/.Xauthority
-Environment=DISPLAY=:0
-ExecStart=/home/nickspi5/start_kiosk.sh
-Restart=on-failure
-RestartSec=10s
-
-[Install]
-WantedBy=graphical.target
-❗ Replace User=pi with your actual username if not pi.
-
-Step 2: Enable and start the service
-bash
-Copy
-Edit
-sudo systemctl daemon-reexec
-sudo systemctl enable kiosk.service
-sudo reboot
-🔊 PART 2: Fix Audio Not Playing Automatically in Chromium
-Chromium blocks autoplay audio unless certain flags are set and sound system (PulseAudio or PipeWire) is ready.
-
-✅ Step-by-step audio fixes:
-1. Test audio outside Chromium
-Play a test sound:
-
-bash
-Copy
-Edit
-aplay /usr/share/sounds/alsa/Front_Center.wav
-If this fails: audio driver/setup issue
-
-If this works: Chromium needs permission to use audio
-
-2. Add Chromium audio flags to your script
-Edit ~/start_kiosk.sh again:
-
-bash
-Copy
-Edit
-nano ~/start_kiosk.sh
-Replace the Chromium launch with:
-
-bash
-Copy
-Edit
-#!/bin/bash
-
-sleep 20
-
-# Fix audio permissions for Chromium
-export PULSE_SERVER=unix:/run/user/1000/pulse/native
-export DISPLAY=:0
-export XDG_RUNTIME_DIR=/run/user/1000
-
-chromium-browser \
-  --kiosk \
-  --autoplay-policy=no-user-gesture-required \
-  --no-sandbox \
-  --disable-gpu \
-  --disable-software-rasterizer \
-  --enable-features=AutoplayIgnoreWebAudio \
-  --use-gl=egl \
-  --start-fullscreen \
-  --start-maximized \
-  --disable-translate \
-  --no-first-run \
-  --no-default-browser-check \
-  --disable-infobars \
-  file:///home/nickspi5/Chatty_AI_UI/index.html
-Save and exit. Then run:
-
-bash
-Copy
-Edit
-chmod +x ~/start_kiosk.sh
-3. Check HTML and Video Tag
-Make sure your HTML <video> tag looks like:
-
-html
-Copy
-Edit
-<video autoplay playsinline controls>
-  <source src="yourfile.mp4" type="video/mp4">
-</video>
-Avoid using muted, or the browser may assume silent playback is desired.
-
-4. Optional: Allow audio in Chromium site settings
-You can launch Chromium with UI once:
-
-bash
-Copy
-Edit
-chromium-browser file:///home/nickspi5/Chatty_AI_UI/index.html
-Click the 🔒 lock icon in the address bar
-
-Set Sound: Allow
-
-Then close Chromium
-
-That permission is saved for file:/// access.
-
-✅ Summary – Final Fixes
-Problem	Solution
-Chromium not launching on reboot	Use systemd service instead of ~/.config/lxsession/LXDE-pi/autostart
-Audio doesn’t play	Add PULSE_SERVER and XDG_RUNTIME_DIR env vars in the script
-Chromium audio blocked	Ensure autoplay policy flags are used, video is not muted, and Chromium allows audio
-Chromium starts too early	Use sleep 20 in script or use After=graphical.target in systemd
-
-✅ After Reboot Checklist
-Run systemctl status kiosk.service – should show "active (running)"
-
-If video plays but no sound:
-
-Run aplay test.wav – does that work?
-
-Try plugging in external USB speaker or HDMI audio?
-
-If needed: run pavucontrol to see if Chromium is muted
-
+How can I fix this?
 
