@@ -1,28 +1,61 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install wyoming==1.5.2 wyoming-piper==1.4.0 faster-whisper==1.0.1
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip uninstall wyoming-faster-whisper wyoming-piper wyoming
+Found existing installation: wyoming_faster_whisper 2.0.0
+Uninstalling wyoming_faster_whisper-2.0.0:
+  Would remove:
+    /home/nickspi5/Chatty_AI/chatty-venv/bin/wyoming-faster-whisper
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_faster_whisper-2.0.0.dist-info/*
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_faster_whisper/*
+Proceed (Y/n)? y
+  Successfully uninstalled wyoming_faster_whisper-2.0.0
+Found existing installation: wyoming-piper 1.5.3
+Uninstalling wyoming-piper-1.5.3:
+  Would remove:
+    /home/nickspi5/Chatty_AI/chatty-venv/bin/wyoming-piper
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_piper-1.5.3.dist-info/*
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming_piper/*
+Proceed (Y/n)? y
+  Successfully uninstalled wyoming-piper-1.5.3
+Found existing installation: wyoming 1.5.2
+Uninstalling wyoming-1.5.2:
+  Would remove:
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming-1.5.2.dist-info/*
+    /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/wyoming/*
+Proceed (Y/n)? y
+  Successfully uninstalled wyoming-1.5.2
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install faster-whisper
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: wyoming==1.5.2 in ./chatty-venv/lib/python3.11/site-packages (1.5.2)
-Collecting wyoming-piper==1.4.0
-  Downloading wyoming_piper-1.4.0-py3-none-any.whl.metadata (745 bytes)
-Requirement already satisfied: faster-whisper==1.0.1 in ./chatty-venv/lib/python3.11/site-packages (1.0.1)
-INFO: pip is looking at multiple versions of wyoming-piper to determine which version is compatible with other requirements. This could take a while.
-Collecting wyoming==1.5.2
-  Using cached wyoming-1.5.2-py3-none-any.whl.metadata (791 bytes)
-ERROR: Cannot install wyoming-piper==1.4.0 and wyoming==1.5.2 because these package versions have conflicting dependencies.
-
-The conflict is caused by:
-    The user requested wyoming==1.5.2
-    wyoming-piper 1.4.0 depends on wyoming==1.1.0
-
-To fix this you could try to:
-1. loosen the range of package versions you've specified
-2. remove package versions to allow pip to attempt to solve the dependency conflict
-
-ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+Requirement already satisfied: faster-whisper in ./chatty-venv/lib/python3.11/site-packages (1.0.1)
+Requirement already satisfied: av==11.* in ./chatty-venv/lib/python3.11/site-packages (from faster-whisper) (11.0.0)
+Requirement already satisfied: ctranslate2<5,>=4.0 in ./chatty-venv/lib/python3.11/site-packages (from faster-whisper) (4.6.0)
+Requirement already satisfied: huggingface-hub>=0.13 in ./chatty-venv/lib/python3.11/site-packages (from faster-whisper) (0.33.4)
+Requirement already satisfied: tokenizers<0.16,>=0.13 in ./chatty-venv/lib/python3.11/site-packages (from faster-whisper) (0.15.2)
+Requirement already satisfied: onnxruntime<2,>=1.14 in ./chatty-venv/lib/python3.11/site-packages (from faster-whisper) (1.22.1)
+Requirement already satisfied: setuptools in ./chatty-venv/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper) (66.1.1)
+Requirement already satisfied: numpy in ./chatty-venv/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper) (2.2.6)
+Requirement already satisfied: pyyaml<7,>=5.3 in ./chatty-venv/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper) (6.0.2)
+Requirement already satisfied: coloredlogs in ./chatty-venv/lib/python3.11/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (15.0.1)
+Requirement already satisfied: flatbuffers in ./chatty-venv/lib/python3.11/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (20181003210633)
+Requirement already satisfied: packaging in ./chatty-venv/lib/python3.11/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (25.0)
+Requirement already satisfied: protobuf in ./chatty-venv/lib/python3.11/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (6.31.1)
+Requirement already satisfied: sympy in ./chatty-venv/lib/python3.11/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (1.14.0)
+Requirement already satisfied: filelock in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (3.18.0)
+Requirement already satisfied: fsspec>=2023.5.0 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (2025.7.0)
+Requirement already satisfied: requests in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (2.32.4)
+Requirement already satisfied: tqdm>=4.42.1 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (4.67.1)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (4.14.1)
+Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub>=0.13->faster-whisper) (1.1.5)
+Requirement already satisfied: humanfriendly>=9.1 in ./chatty-venv/lib/python3.11/site-packages (from coloredlogs->onnxruntime<2,>=1.14->faster-whisper) (10.0)
+Requirement already satisfied: charset_normalizer<4,>=2 in ./chatty-venv/lib/python3.11/site-packages (from requests->huggingface-hub>=0.13->faster-whisper) (3.4.2)
+Requirement already satisfied: idna<4,>=2.5 in ./chatty-venv/lib/python3.11/site-packages (from requests->huggingface-hub>=0.13->faster-whisper) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in ./chatty-venv/lib/python3.11/site-packages (from requests->huggingface-hub>=0.13->faster-whisper) (2.5.0)
+Requirement already satisfied: certifi>=2017.4.17 in ./chatty-venv/lib/python3.11/site-packages (from requests->huggingface-hub>=0.13->faster-whisper) (2025.7.14)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./chatty-venv/lib/python3.11/site-packages (from sympy->onnxruntime<2,>=1.14->faster-whisper) (1.3.0)
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip check
-wyoming-piper 1.5.3 has requirement wyoming>=1.5.3, but you have wyoming 1.5.2.
+No broken requirements found.
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
 
 
 
