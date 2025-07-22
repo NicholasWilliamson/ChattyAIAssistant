@@ -1,44 +1,78 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --upgrade picamera2
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install libcap-dev
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  libcap-dev
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 450 kB of archives.
+After this operation, 2,897 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian bookworm/main arm64 libcap-dev arm64 1:2.66-4+deb12u1 [450 kB]
+Fetched 450 kB in 1s (638 kB/s)
+Selecting previously unselected package libcap-dev:arm64.
+(Reading database ... 174548 files and directories currently installed.)
+Preparing to unpack .../libcap-dev_1%3a2.66-4+deb12u1_arm64.deb ...
+Unpacking libcap-dev:arm64 (1:2.66-4+deb12u1) ...
+Setting up libcap-dev:arm64 (1:2.66-4+deb12u1) ...
+Processing triggers for man-db (2.11.2-2) ...
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install --upgrade picamera2
 Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
 Collecting picamera2
-  Downloading picamera2-0.3.27-py3-none-any.whl.metadata (6.4 kB)
+  Using cached picamera2-0.3.27-py3-none-any.whl.metadata (6.4 kB)
 Collecting PiDNG (from picamera2)
-  Downloading pidng-4.0.9.tar.gz (21 kB)
+  Using cached pidng-4.0.9.tar.gz (21 kB)
   Installing build dependencies ... done
   Getting requirements to build wheel ... done
   Preparing metadata (pyproject.toml) ... done
 Requirement already satisfied: av in ./chatty-venv/lib/python3.11/site-packages (from picamera2) (11.0.0)
 Collecting jsonschema (from picamera2)
-  Downloading jsonschema-4.25.0-py3-none-any.whl.metadata (7.7 kB)
+  Using cached jsonschema-4.25.0-py3-none-any.whl.metadata (7.7 kB)
 Collecting libarchive-c (from picamera2)
-  Downloading libarchive_c-5.3-py3-none-any.whl.metadata (5.8 kB)
+  Using cached libarchive_c-5.3-py3-none-any.whl.metadata (5.8 kB)
 Requirement already satisfied: numpy in ./chatty-venv/lib/python3.11/site-packages (from picamera2) (2.2.6)
 Collecting piexif (from picamera2)
-  Downloading https://www.piwheels.org/simple/piexif/piexif-1.1.3-py2.py3-none-any.whl (20 kB)
+  Using cached https://www.piwheels.org/simple/piexif/piexif-1.1.3-py2.py3-none-any.whl (20 kB)
 Requirement already satisfied: pillow in ./chatty-venv/lib/python3.11/site-packages (from picamera2) (11.3.0)
 Collecting python-prctl (from picamera2)
-  Downloading python-prctl-1.8.1.tar.gz (28 kB)
+  Using cached python-prctl-1.8.1.tar.gz (28 kB)
   Installing build dependencies ... done
-  Getting requirements to build wheel ... error
-  error: subprocess-exited-with-error
-  
-  × Getting requirements to build wheel did not run successfully.
-  │ exit code: 1
-  ╰─> [1 lines of output]
-      You need to install libcap development headers to build this module
-      [end of output]
-  
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-error: subprocess-exited-with-error
-
-× Getting requirements to build wheel did not run successfully.
-│ exit code: 1
-╰─> See above for output.
-
-note: This error originates from a subprocess, and is likely not a problem with pip.
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Collecting simplejpeg (from picamera2)
+  Downloading simplejpeg-1.8.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (32 kB)
+Requirement already satisfied: tqdm in ./chatty-venv/lib/python3.11/site-packages (from picamera2) (4.67.1)
+Collecting v4l2-python3 (from picamera2)
+  Downloading https://www.piwheels.org/simple/v4l2-python3/v4l2_python3-0.3.5-py3-none-any.whl (22 kB)
+Collecting attrs>=22.2.0 (from jsonschema->picamera2)
+  Downloading https://www.piwheels.org/simple/attrs/attrs-25.3.0-py3-none-any.whl (63 kB)
+Collecting jsonschema-specifications>=2023.03.6 (from jsonschema->picamera2)
+  Downloading jsonschema_specifications-2025.4.1-py3-none-any.whl.metadata (2.9 kB)
+Collecting referencing>=0.28.4 (from jsonschema->picamera2)
+  Downloading https://www.piwheels.org/simple/referencing/referencing-0.36.2-py3-none-any.whl (26 kB)
+Collecting rpds-py>=0.7.1 (from jsonschema->picamera2)
+  Downloading rpds_py-0.26.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (4.2 kB)
+Requirement already satisfied: typing-extensions>=4.4.0 in ./chatty-venv/lib/python3.11/site-packages (from referencing>=0.28.4->jsonschema->picamera2) (4.14.1)
+Downloading picamera2-0.3.27-py3-none-any.whl (121 kB)
+Downloading jsonschema-4.25.0-py3-none-any.whl (89 kB)
+Downloading jsonschema_specifications-2025.4.1-py3-none-any.whl (18 kB)
+Downloading rpds_py-0.26.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (381 kB)
+Downloading libarchive_c-5.3-py3-none-any.whl (17 kB)
+Downloading simplejpeg-1.8.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (446 kB)
+Building wheels for collected packages: PiDNG, python-prctl
+  Building wheel for PiDNG (pyproject.toml) ... done
+  Created wheel for PiDNG: filename=pidng-4.0.9-cp311-cp311-linux_aarch64.whl size=54262 sha256=4f77c334ff0813f0cbf7abb977ec5b14c229610fd7ea6e8e247f2336abce4eac
+  Stored in directory: /home/nickspi5/.cache/pip/wheels/9e/b0/1b/95c32fd1faba57abb0f69b2eba2bb9821095dfdfb2b8feace5
+  Building wheel for python-prctl (pyproject.toml) ... done
+  Created wheel for python-prctl: filename=python_prctl-1.8.1-cp311-cp311-linux_aarch64.whl size=26221 sha256=e9cf3d5159b67034f9db727ca5c7ca5780283c932be723ebb74badf188774645
+  Stored in directory: /home/nickspi5/.cache/pip/wheels/5d/66/87/0ece41453258a935c273d5b727a0a2982a82e9d205287446d7
+Successfully built PiDNG python-prctl
+Installing collected packages: v4l2-python3, python-prctl, libarchive-c, simplejpeg, rpds-py, piexif, PiDNG, attrs, referencing, jsonschema-specifications, jsonschema, picamera2
+Successfully installed PiDNG-4.0.9 attrs-25.3.0 jsonschema-4.25.0 jsonschema-specifications-2025.4.1 libarchive-c-5.3 picamera2-0.3.27 piexif-1.1.3 python-prctl-1.8.1 referencing-0.36.2 rpds-py-0.26.0 simplejpeg-1.8.2 v4l2-python3-0.3.5
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+
 
 
 
