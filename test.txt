@@ -1,75 +1,67 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-camera
-Available cameras
------------------
-0 : imx219 [3280x2464 10-bit RGGB] (/base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10)
-    Modes: 'SRGGB10_CSI2P' : 640x480 [103.33 fps - (1000, 752)/1280x960 crop]
-                             1640x1232 [41.85 fps - (0, 0)/3280x2464 crop]
-                             1920x1080 [47.57 fps - (680, 692)/1920x1080 crop]
-                             3280x2464 [21.19 fps - (0, 0)/3280x2464 crop]
-           'SRGGB8' : 640x480 [103.33 fps - (1000, 752)/1280x960 crop]
-                      1640x1232 [41.85 fps - (0, 0)/3280x2464 crop]
-                      1920x1080 [47.57 fps - (680, 692)/1920x1080 crop]
-                      3280x2464 [21.19 fps - (0, 0)/3280x2464 crop]
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-still --output test.jpg --timeout 2000
-[11:54:26.668915616] [21803]  INFO Camera camera_manager.cpp:326 libcamera v0.5.0+59-d83ff0a4
-[11:54:26.678918915] [21809]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[11:54:26.698309109] [21809]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-Made X/EGL preview window
-Mode selection for 1640:1232:12:P
-    SRGGB10_CSI2P,640x480/0 - Score: 4504.81
-    SRGGB10_CSI2P,1640x1232/0 - Score: 1000
-    SRGGB10_CSI2P,1920x1080/0 - Score: 1541.48
-    SRGGB10_CSI2P,3280x2464/0 - Score: 1718
-    SRGGB8,640x480/0 - Score: 5504.81
-    SRGGB8,1640x1232/0 - Score: 2000
-    SRGGB8,1920x1080/0 - Score: 2541.48
-    SRGGB8,3280x2464/0 - Score: 2718
-Stream configuration adjusted
-[11:54:26.861565164] [21803]  INFO Camera camera.cpp:1205 configuring streams: (0) 1640x1232-YUV420 (1) 1640x1232-BGGR_PISP_COMP1
-[11:54:26.861670515] [21809]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1640x1232-SBGGR10_1X10 - Selected CFE format: 1640x1232-PC1B
-Mode selection for 3280:2464:12:P
-    SRGGB10_CSI2P,640x480/0 - Score: 10248.8
-    SRGGB10_CSI2P,1640x1232/0 - Score: 6744
-    SRGGB10_CSI2P,1920x1080/0 - Score: 6655.48
-    SRGGB10_CSI2P,3280x2464/0 - Score: 1000
-    SRGGB8,640x480/0 - Score: 11248.8
-    SRGGB8,1640x1232/0 - Score: 7744
-    SRGGB8,1920x1080/0 - Score: 7655.48
-    SRGGB8,3280x2464/0 - Score: 2000
-Stream configuration adjusted
-[11:54:28.943134076] [21803]  INFO Camera camera.cpp:1205 configuring streams: (0) 3280x2464-YUV420 (1) 3280x2464-BGGR_PISP_COMP1
-[11:54:28.946878322] [21809]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 3280x2464-SBGGR10_1X10 - Selected CFE format: 3280x2464-PC1B
-Still capture image received
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ deactivate
-nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y python3-picamera2
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-python3-picamera2 is already the newest version (0.3.28-1~bookworm).
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ rm -rf chatty-venv
+nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m venv chatty-venv --system-site-packages
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "import libcamera; print('libcamera imported successfully!')"
+bash: !': event not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "import libcamera; print('libcamera imported successfully')"
+libcamera imported successfully
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install openai python-dotenv flask
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting openai
+  Downloading openai-1.97.1-py3-none-any.whl (764 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 764.4/764.4 kB 210.7 kB/s eta 0:00:00
+Requirement already satisfied: python-dotenv in /usr/lib/python3/dist-packages (0.21.0)
+Requirement already satisfied: flask in /usr/lib/python3/dist-packages (2.2.2)
+Collecting anyio<5,>=3.5.0
+  Downloading https://www.piwheels.org/simple/anyio/anyio-4.9.0-py3-none-any.whl (100 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.9/100.9 kB 152.1 kB/s eta 0:00:00
+Requirement already satisfied: distro<2,>=1.7.0 in /usr/lib/python3/dist-packages (from openai) (1.8.0)
+Collecting httpx<1,>=0.23.0
+  Downloading https://www.piwheels.org/simple/httpx/httpx-0.28.1-py3-none-any.whl (73 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 797.8 kB/s eta 0:00:00
+Collecting jiter<1,>=0.4.0
+  Downloading jiter-0.10.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (345 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 345.6/345.6 kB 497.4 kB/s eta 0:00:00
+Collecting pydantic<3,>=1.9.0
+  Downloading pydantic-2.11.7-py3-none-any.whl (444 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 444.8/444.8 kB 311.1 kB/s eta 0:00:00
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))': /simple/sniffio/
+Collecting sniffio
+  Downloading https://www.piwheels.org/simple/sniffio/sniffio-1.3.1-py3-none-any.whl (10 kB)
+Requirement already satisfied: tqdm>4 in /usr/lib/python3/dist-packages (from openai) (4.64.1)
+Requirement already satisfied: typing-extensions<5,>=4.11 in /home/nickspi5/.local/lib/python3.11/site-packages (from openai) (4.14.1)
+Requirement already satisfied: idna>=2.8 in /usr/lib/python3/dist-packages (from anyio<5,>=3.5.0->openai) (3.3)
+Requirement already satisfied: certifi in /usr/lib/python3/dist-packages (from httpx<1,>=0.23.0->openai) (2022.9.24)
+Collecting httpcore==1.*
+  Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 513.2 kB/s eta 0:00:00
+Collecting h11>=0.16
+  Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting annotated-types>=0.6.0
+  Downloading https://www.piwheels.org/simple/annotated-types/annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Collecting pydantic-core==2.33.2
+  Downloading pydantic_core-2.33.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (1.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.9/1.9 MB 597.6 kB/s eta 0:00:00
+Collecting typing-inspection>=0.4.0
+  Downloading typing_inspection-0.4.1-py3-none-any.whl (14 kB)
+Installing collected packages: typing-inspection, sniffio, pydantic-core, jiter, h11, annotated-types, pydantic, httpcore, anyio, httpx, openai
+Successfully installed annotated-types-0.7.0 anyio-4.9.0 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 jiter-0.10.0 openai-1.97.1 pydantic-2.11.7 pydantic-core-2.33.2 sniffio-1.3.1 typing-inspection-0.4.1
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
 Initializing camera...
-[12:00:02.485164554] [21863]  INFO Camera camera_manager.cpp:326 libcamera v0.5.0+59-d83ff0a4
-[12:00:02.492137716] [21869]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[12:00:02.501274797] [21869]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[0:09:46.955789144] [1958]  INFO Camera camera_manager.cpp:326 libcamera v0.5.0+59-d83ff0a4
+[0:09:46.962721108] [1964]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[0:09:46.972187416] [1964]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
 Camera hardware info:
 Camera controls: {'AeExposureMode': (0, 3, 0), 'Contrast': (0.0, 32.0, 1.0), 'AeConstraintMode': (0, 3, 0), 'ExposureTimeMode': (0, 1, 0), 'HdrMode': (0, 4, 0), 'AeMeteringMode': (0, 3, 0), 'AeFlickerPeriod': (100, 1000000, None), 'AnalogueGainMode': (0, 1, 0), 'AnalogueGain': (1.0, 16.0, 1.0), 'StatsOutputEnable': (False, True, False), 'Brightness': (-1.0, 1.0, 0.0), 'SyncFrames': (1, 1000000, 100), 'ExposureTime': (1, 66666, 20000), 'AeFlickerMode': (0, 1, 0), 'SyncMode': (0, 2, 0), 'AwbEnable': (False, True, None), 'ColourGains': (0.0, 32.0, None), 'AwbMode': (0, 7, 0), 'ScalerCrops': ((0, 0, 0, 0), (65535, 65535, 65535, 65535), (0, 0, 0, 0)), 'ColourTemperature': (100, 100000, None), 'Saturation': (0.0, 32.0, 1.0), 'CnnEnableInputTensor': (False, True, False), 'FrameDurationLimits': (33333, 120000, 33333), 'ScalerCrop': ((0, 0, 0, 0), (65535, 65535, 65535, 65535), (0, 0, 0, 0)), 'NoiseReductionMode': (0, 4, 0), 'Sharpness': (0.0, 16.0, 1.0), 'AeEnable': (False, True, True), 'ExposureValue': (-8.0, 8.0, 0.0)}
-[12:00:02.504728193] [21863]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888 (1) 640x480-BGGR_PISP_COMP1
-[12:00:02.504826915] [21869]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+[0:09:46.975211490] [1958]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888 (1) 640x480-BGGR_PISP_COMP1
+[0:09:46.975318447] [1964]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
 Camera started successfully!
 Test completed - camera is working!
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/camera_test.py", line 1, in <module>
-    from picamera2 import Picamera2
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/picamera2/__init__.py", line 4, in <module>
-    import libcamera
-ModuleNotFoundError: No module named 'libcamera'
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
 
 
 
