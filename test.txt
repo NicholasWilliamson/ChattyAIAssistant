@@ -1,110 +1,13 @@
 Thank you Claude!
 
-I now have the following Python scripts for face image capture, model training and face recognition testing:
+I now have the following Python scripts for human detection testing:
 
-image_capture.py
-import cv2
-import os
-from datetime import datetime
-from picamera2 import Picamera2
-import time
-
-# Change this to the name of the person you're photographing
-PERSON_NAME = "Spiderman"  
-
-def create_folder(name):
-    dataset_folder = "dataset"
-    if not os.path.exists(dataset_folder):
-        os.makedirs(dataset_folder)
-    
-    person_folder = os.path.join(dataset_folder, name)
-    if not os.path.exists(person_folder):
-        os.makedirs(person_folder)
-    return person_folder
-
-def capture_photos(name):
-    folder = create_folder(name)
-    
-    # Initialize the camera
-    picam2 = Picamera2()
-    picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
-    picam2.start()
-
-    # Allow camera to warm up
-    time.sleep(2)
-
-    photo_count = 0
-    
-    print(f"Taking photos for {name}. Press SPACE to capture, 'q' to quit.")
-    
-    while True:
-        # Capture frame from Pi Camera
-        frame = picam2.capture_array()
-        
-        # Display the frame
-        cv2.imshow('Capture', frame)
-        
-        key = cv2.waitKey(1) & 0xFF
-        
-        if key == ord(' '):  # Space key
-            photo_count += 1
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{name}_{timestamp}.jpg"
-            filepath = os.path.join(folder, filename)
-            cv2.imwrite(filepath, frame)
-            print(f"Photo {photo_count} saved: {filepath}")
-        
-        elif key == ord('q'):  # Q key
-            break
-    
-    # Clean up
-    cv2.destroyAllWindows()
-    picam2.stop()
-    print(f"Photo capture completed. {photo_count} photos saved for {name}.")
-
-if __name__ == "__main__":
-    capture_photos(PERSON_NAME)
-
-
-model_training.py
-import os
-from imutils import paths
-import face_recognition
-import pickle
-import cv2
-
-print("[INFO] start processing faces...")
-imagePaths = list(paths.list_images("dataset"))
-knownEncodings = []
-knownNames = []
-
-for (i, imagePath) in enumerate(imagePaths):
-    print(f"[INFO] processing image {i + 1}/{len(imagePaths)}")
-    name = imagePath.split(os.path.sep)[-2]
-    
-    image = cv2.imread(imagePath)
-    rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    
-    boxes = face_recognition.face_locations(rgb, model="hog")
-    encodings = face_recognition.face_encodings(rgb, boxes)
-    
-    for encoding in encodings:
-        knownEncodings.append(encoding)
-        knownNames.append(name)
-
-print("[INFO] serializing encodings...")
-data = {"encodings": knownEncodings, "names": knownNames}
-with open("encodings.pickle", "wb") as f:
-    f.write(pickle.dumps(data))
-
-print("[INFO] Training complete. Encodings saved to 'encodings.pickle'")
-
-
-test_facial_recognition.py
+human_detection.py
 #!/usr/bin/env python3
 """
-test_facial_recognition.py
-Test facial recognition with personalized TTS responses using Piper
+security_detection.py
+Security system with person detection that works regardless of face coverings
+Combines facial recognition with general person detection for comprehensive security
 """
 
 import cv2
@@ -113,6 +16,7 @@ import pickle
 import os
 import subprocess
 import time
+import numpy as np
 from picamera2 import Picamera2
 from datetime import datetime
 
@@ -123,42 +27,72 @@ ENCODINGS_FILE = "encodings.pickle"
 VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
 PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-RESPONSE_AUDIO = "recognition_response.wav"
+RESPONSE_AUDIO = "security_response.wav"
+ALERTS_FOLDER = "security_alerts"
 
-# Personalized responses for different people
-PERSON_RESPONSES = {
+# Security responses
+SECURITY_RESPONSES = {
     "Nick": [
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?"
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?"
     ],
-    "Spiderman": [
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!"
+    "Known_Person": [
+        "Hello! Welcome back. Security system recognizes you.",
+        "Hi there! Access granted. Have a good day."
     ],
-    "Unknown": [
-        "Hello there! I don't recognize you yet.",
-        "Hi! You are new to me. It is nice to meet you!",
-        "Hello stranger! Would you like to be registered?",
-        "Hi there! I haven't seen you before."
+    "Unknown_Person_Day": [
+        "Hello! I see someone is here. Please identify yourself.",
+        "Hello stranger! Unknown person detected. May I help you?",
+        "Hello stranger! I don't recognize you. Are you expected by the home owner?"
+    ],
+    "Unknown_Person_Night": [
+        "Security Alert! Unknown person detected during night hours!",
+        "Warning! Unauthorized person detected. Authorities may be contacted.",
+        "Alert! Unknown individual detected outside day light hours!"
+    ],
+    "Masked_Person": [
+        "Alert! Person detected with face covering. Please identify yourself immediately!",
+        "Security Warning! Individual with concealed face detected!",
+        "Attention! Person with mask detected. State your identity and purpose immediately!"
     ]
 }
 
-class FacialRecognitionTester:
+class SecurityPersonDetector:
     def __init__(self):
         self.known_encodings = []
         self.known_names = []
         self.load_encodings()
-        self.last_recognition_time = {}
-        self.recognition_cooldown = 5  # seconds between recognitions for same person
+        self.last_alert_time = {}
+        self.alert_cooldown = 10  # seconds between alerts for same type
+        self.setup_person_detection()
+        self.create_alerts_folder()
         
-    def load_encodings(self):
-        """Load the facial recognition encodings"""
+    def create_alerts_folder(self):
+        """Create folder for storing security alert images"""
+        if not os.path.exists(ALERTS_FOLDER):
+            os.makedirs(ALERTS_FOLDER)
+    
+    def setup_person_detection(self):
+        """Initialize YOLO person detection"""
         try:
-            print("[INFO] Loading facial encodings...")
+            # Load YOLO
+            self.net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+            self.classes = []
+            with open("coco.names", "r") as f:
+                self.classes = [line.strip() for line in f.readlines()]
+            self.layer_names = self.net.getLayerNames()
+            self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+            print("[INFO] YOLO person detection initialized")
+            return True
+        except Exception as e:
+            print(f"[WARNING] YOLO not available ({e}). Using backup person detection.")
+            self.use_yolo = False
+            return False
+    
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
             with open(ENCODINGS_FILE, "rb") as f:
                 data = pickle.loads(f.read())
             self.known_encodings = data["encodings"]
@@ -166,78 +100,85 @@ class FacialRecognitionTester:
             print(f"[INFO] Loaded {len(self.known_encodings)} face encodings")
             return True
         except FileNotFoundError:
-            print(f"[ERROR] Encodings file '{ENCODINGS_FILE}' not found!")
-            print("Please run model_training.py first to create the encodings.")
-            return False
-        except Exception as e:
-            print(f"[ERROR] Failed to load encodings: {e}")
+            print("[WARNING] No face encodings found. Running in person detection only mode.")
             return False
     
-    def speak_text(self, text):
-        """Convert text to speech using Piper"""
-        print(f"🔊 Speaking: {text}")
+    def detect_persons_yolo(self, frame):
+        """Detect persons using YOLO"""
+        height, width, channels = frame.shape
+        
+        # Detecting objects
+        blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+        self.net.setInput(blob)
+        outs = self.net.forward(self.output_layers)
+        
+        # Information to show on screen
+        class_ids = []
+        confidences = []
+        boxes = []
+        
+        # For each detection
+        for out in outs:
+            for detection in out:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                confidence = scores[class_id]
+                
+                # Only detect persons (class_id = 0 in COCO dataset)
+                if confidence > 0.3 and class_id == 0:
+                    # Object detected
+                    center_x = int(detection[0] * width)
+                    center_y = int(detection[1] * height)
+                    w = int(detection[2] * width)
+                    h = int(detection[3] * height)
+                    
+                    # Rectangle coordinates
+                    x = int(center_x - w / 2)
+                    y = int(center_y - h / 2)
+                    
+                    boxes.append([x, y, w, h])
+                    confidences.append(float(confidence))
+                    class_ids.append(class_id)
+        
+        # Non-maximum suppression
+        indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.4)
+        
+        detected_persons = []
+        if len(indexes) > 0:
+            for i in indexes.flatten():
+                detected_persons.append(boxes[i])
+        
+        return detected_persons
+    
+    def detect_persons_backup(self, frame):
+        """Backup person detection using Haar cascades"""
+        # This is a simpler fallback method
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        # Load cascade classifier for full body detection
         try:
-            # Generate audio with Piper
-            command = [
-                PIPER_EXECUTABLE,
-                "--model", VOICE_PATH,
-                "--config", CONFIG_PATH,
-                "--output_file", RESPONSE_AUDIO
-            ]
-            subprocess.run(command, input=text.encode("utf-8"), check=True)
-            
-            # Play the audio
-            subprocess.run(["aplay", RESPONSE_AUDIO], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"❌ TTS failed: {e}")
-        except Exception as e:
-            print(f"❌ TTS error: {e}")
+            body_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fullbody.xml')
+            bodies = body_cascade.detectMultiScale(gray, 1.1, 4)
+            return [[x, y, w, h] for (x, y, w, h) in bodies]
+        except:
+            return []
     
-    def get_personalized_response(self, name):
-        """Get a personalized response for the recognized person"""
-        import random
-        
-        if name in PERSON_RESPONSES:
-            responses = PERSON_RESPONSES[name]
-        else:
-            # Use generic responses for unknown people
-            responses = PERSON_RESPONSES["Unknown"]
-        
-        return random.choice(responses)
-    
-    def should_recognize_person(self, name):
-        """Check if enough time has passed since last recognition of this person"""
-        current_time = time.time()
-        if name not in self.last_recognition_time:
-            self.last_recognition_time[name] = current_time
-            return True
-        
-        time_since_last = current_time - self.last_recognition_time[name]
-        if time_since_last >= self.recognition_cooldown:
-            self.last_recognition_time[name] = current_time
-            return True
-        
-        return False
-    
-    def process_frame(self, frame):
-        """Process a frame for facial recognition"""
-        # Convert BGR to RGB
+    def detect_faces_and_analyze(self, frame):
+        """Detect and analyze faces for recognition"""
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Find face locations and encodings
         face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
         
+        if len(face_locations) == 0:
+            return [], "no_face"
+        
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
         recognized_names = []
         
-        # Process each face found
         for face_encoding in face_encodings:
-            # Compare with known faces
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.5)
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
             name = "Unknown"
             
             if True in matches:
-                # Find the best match
                 face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
                 best_match_index = face_distances.argmin()
                 if matches[best_match_index]:
@@ -245,32 +186,121 @@ class FacialRecognitionTester:
             
             recognized_names.append(name)
         
-        # Draw rectangles and labels on faces
-        for (top, right, bottom, left), name in zip(face_locations, recognized_names):
-            # Draw rectangle around face
-            color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-            
-            # Draw label
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
-            
-            # Speak greeting if enough time has passed
-            if self.should_recognize_person(name):
-                response = self.get_personalized_response(name)
-                print(f"[RECOGNIZED] {name} - {response}")
-                self.speak_text(response)
-        
-        return frame, recognized_names
+        return face_locations, recognized_names
     
-    def run_test(self):
-        """Run the facial recognition test"""
-        if not self.known_encodings:
-            print("❌ No encodings loaded. Cannot run test.")
-            return
+    def is_night_time(self):
+        """Check if it's night time (6 PM to 6 AM)"""
+        current_hour = datetime.now().hour
+        return current_hour >= 18 or current_hour <= 6
+    
+    def should_alert(self, alert_type):
+        """Check if enough time has passed since last alert of this type"""
+        current_time = time.time()
+        if alert_type not in self.last_alert_time:
+            self.last_alert_time[alert_type] = current_time
+            return True
         
-        print("[INFO] Starting facial recognition test...")
+        time_since_last = current_time - self.last_alert_time[alert_type]
+        if time_since_last >= self.alert_cooldown:
+            self.last_alert_time[alert_type] = current_time
+            return True
+        
+        return False
+    
+    def speak_text(self, text):
+        """Convert text to speech using Piper"""
+        print(f"🔊 Security Alert: {text}")
+        try:
+            command = [
+                PIPER_EXECUTABLE,
+                "--model", VOICE_PATH,
+                "--config", CONFIG_PATH,
+                "--output_file", RESPONSE_AUDIO
+            ]
+            subprocess.run(command, input=text.encode("utf-8"), check=True)
+            subprocess.run(["aplay", RESPONSE_AUDIO], check=True)
+        except Exception as e:
+            print(f"❌ TTS error: {e}")
+    
+    def save_security_alert(self, frame, alert_type, person_count):
+        """Save frame when security alert is triggered"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"ALERT_{alert_type}_{person_count}persons_{timestamp}.jpg"
+        filepath = os.path.join(ALERTS_FOLDER, filename)
+        cv2.imwrite(filepath, frame)
+        print(f"📸 Security alert saved: {filepath}")
+        return filepath
+    
+    def get_security_response(self, face_names, person_count, has_faces):
+        """Determine appropriate security response"""
+        import random
+        
+        # Known person recognized
+        if "Nick" in face_names:
+            return random.choice(SECURITY_RESPONSES["Nick"]), "known_user"
+        elif any(name != "Unknown" for name in face_names):
+            return random.choice(SECURITY_RESPONSES["Known_Person"]), "known_person"
+        
+        # Person detected but no face or unknown face
+        if person_count > 0:
+            if not has_faces:
+                # Person detected but no face visible (likely masked)
+                return random.choice(SECURITY_RESPONSES["Masked_Person"]), "masked_person"
+            elif "Unknown" in face_names:
+                # Unknown person with visible face
+                if self.is_night_time():
+                    return random.choice(SECURITY_RESPONSES["Unknown_Person_Night"]), "unknown_night"
+                else:
+                    return random.choice(SECURITY_RESPONSES["Unknown_Person_Day"]), "unknown_day"
+        
+        return None, None
+    
+    def process_security_frame(self, frame):
+        """Process frame for comprehensive security analysis"""
+        # Detect persons (works with or without face coverings)
+        if hasattr(self, 'net'):
+            person_boxes = self.detect_persons_yolo(frame)
+        else:
+            person_boxes = self.detect_persons_backup(frame)
+        
+        # Detect and recognize faces
+        face_locations, face_names = self.detect_faces_and_analyze(frame)
+        
+        person_count = len(person_boxes)
+        has_faces = len(face_locations) > 0
+        
+        # Draw person detection boxes (red for persons)
+        for (x, y, w, h) in person_boxes:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.putText(frame, "PERSON DETECTED", (x, y - 10), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+        
+        # Draw face detection boxes (green for recognized, yellow for unknown)
+        for (top, right, bottom, left), name in zip(face_locations, face_names):
+            color = (0, 255, 0) if name != "Unknown" else (0, 255, 255)
+            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+            cv2.putText(frame, name, (left, top - 10), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+        
+        # Security status overlay
+        status_text = f"Persons: {person_count} | Faces: {len(face_locations)}"
+        cv2.putText(frame, status_text, (10, 30), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        
+        # Determine security response
+        response_text, alert_type = self.get_security_response(face_names, person_count, has_faces)
+        
+        if response_text and alert_type and self.should_alert(alert_type):
+            print(f"[SECURITY ALERT] {alert_type}: {response_text}")
+            self.save_security_alert(frame, alert_type, person_count)
+            self.speak_text(response_text)
+        
+        return frame
+    
+    def run_security_monitoring(self):
+        """Run the security monitoring system"""
+        print("[INFO] Starting Security Person Detection System...")
+        print("This system detects people regardless of face coverings!")
         print("Press 'q' to quit, 's' to save current frame")
         
         # Initialize camera
@@ -278,84 +308,201 @@ class FacialRecognitionTester:
         picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
         picam2.start()
         
-        # Allow camera to warm up
         time.sleep(2)
-        print("🎥 Camera ready! Look at the camera for recognition.")
+        print("🎥 Security camera active! Monitoring for persons...")
         
         frame_count = 0
         
         try:
             while True:
-                # Capture frame
                 frame = picam2.capture_array()
                 frame_count += 1
                 
-                # Process every 3rd frame for performance
-                if frame_count % 3 == 0:
-                    processed_frame, names = self.process_frame(frame.copy())
-                    cv2.imshow('Facial Recognition Test', processed_frame)
+                # Process every 2nd frame for better performance
+                if frame_count % 2 == 0:
+                    processed_frame = self.process_security_frame(frame.copy())
+                    cv2.imshow('Security Person Detection', processed_frame)
                 else:
-                    cv2.imshow('Facial Recognition Test', frame)
+                    cv2.imshow('Security Person Detection', frame)
                 
-                # Handle key presses
                 key = cv2.waitKey(1) & 0xFF
                 
                 if key == ord('q'):
                     break
                 elif key == ord('s'):
-                    # Save current frame
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"recognition_test_{timestamp}.jpg"
+                    filename = f"security_snapshot_{timestamp}.jpg"
                     cv2.imwrite(filename, frame)
-                    print(f"📸 Frame saved as {filename}")
+                    print(f"📸 Snapshot saved as {filename}")
         
         except KeyboardInterrupt:
-            print("\n[INFO] Test interrupted by user")
+            print("\n[INFO] Security monitoring stopped by user")
         
         finally:
-            # Cleanup
             cv2.destroyAllWindows()
             picam2.stop()
-            print("[INFO] Facial recognition test completed")
+            print("[INFO] Security monitoring completed")
+
+def download_yolo_files():
+    """Download YOLO files if not present"""
+    files_needed = [
+        ("yolov3.weights", "https://pjreddie.com/media/files/yolov3.weights"),
+        ("yolov3.cfg", "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg"),
+        ("coco.names", "https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names")
+    ]
+    
+    missing_files = []
+    for filename, url in files_needed:
+        if not os.path.exists(filename):
+            missing_files.append((filename, url))
+    
+    if missing_files:
+        print("[INFO] YOLO files missing. Please download them manually:")
+        for filename, url in missing_files:
+            print(f"  wget {url}")
+        print("\nOr the system will use backup person detection.")
+        return False
+    return True
 
 def main():
-    """Main function"""
-    print("🤖 Facial Recognition Test with Piper TTS")
+    print("🛡️ Security Human Detection Application")
     print("=" * 50)
+    print("This system detects people even when wearing masks!")
     
-    # Check if required files exist
-    if not os.path.exists(ENCODINGS_FILE):
-        print(f"❌ Error: {ENCODINGS_FILE} not found!")
-        print("Please run model_training.py first to create the face encodings.")
-        return
+    # Check for YOLO files
+    download_yolo_files()
     
-    if not os.path.exists(VOICE_PATH):
-        print(f"❌ Error: Voice file not found at {VOICE_PATH}")
-        return
-    
-    if not os.path.exists(PIPER_EXECUTABLE):
-        print(f"❌ Error: Piper executable not found at {PIPER_EXECUTABLE}")
-        return
-    
-    # Initialize and run the test
-    tester = FacialRecognitionTester()
-    tester.run_test()
+    # Initialize and run
+    detector = SecurityPersonDetector()
+    detector.run_security_monitoring()
 
 if __name__ == "__main__":
     main()
 
-I first used the Python scripts to capture images of my face as "Nick", train the model and test it and it functioned perfectly and greeted me with the prompt saved to user "Nick".
 
-It did not draw the bounding box around my face, however.
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install opencv-python numpy
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Requirement already satisfied: opencv-python in /usr/local/lib/python3.11/dist-packages (4.11.0.86)
+Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (1.24.2)
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ wget https://pjreddie.com/media/files/yolov3.weights
+--2025-07-27 08:54:01--  https://pjreddie.com/media/files/yolov3.weights
+Resolving pjreddie.com (pjreddie.com)... 172.67.185.199, 104.21.88.156, 2606:4700:3037::6815:589c, ...
+Connecting to pjreddie.com (pjreddie.com)|172.67.185.199|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: ‘yolov3.weights’
 
-I then used the Python scripts to capture images of myself as "Spiderman" waering a Spider Man novelty mask. I then trained the model and test it again.
+yolov3.weights                      [ <=>                                                  ]   8.88K  --.-KB/s    in 0.04s   
 
-It first recognized me as "Nick" when I was not wearing the Spider Man novelty mask, and greeted me with the correct TTS prompt associated to user "Nick".
+2025-07-27 08:54:02 (234 KB/s) - ‘yolov3.weights’ saved [9093]
 
-However, when I put on the Spider Man novely mask and aimed the PI Camera Module 2 camera at my face, it did not recognised me as "Spiderman" at all.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ wget https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg
+--2025-07-27 08:56:26--  https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.111.133, 185.199.109.133, 185.199.108.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.111.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 8342 (8.1K) [text/plain]
+Saving to: ‘yolov3.cfg’
 
-I then put on another novelty maks and tested again but it did not detect me face with the new novelty mask as "Unknown".
+yolov3.cfg                      100%[=====================================================>]   8.15K  --.-KB/s    in 0s      
 
+2025-07-27 08:56:26 (28.5 MB/s) - ‘yolov3.cfg’ saved [8342/8342]
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ wget https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names
+--2025-07-27 08:58:21--  https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.110.133, 185.199.111.133, 185.199.109.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.110.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 625 [text/plain]
+Saving to: ‘coco.names’
+
+coco.names                      100%[=====================================================>]     625  --.-KB/s    in 0s      
+
+2025-07-27 08:58:22 (45.6 MB/s) - ‘coco.names’ saved [625/625]
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 human_detection.py
+🛡️ Security Human Detection Application
+==================================================
+This system detects people even when wearing masks!
+[INFO] Loaded 22 face encodings
+[WARNING] YOLO not available (OpenCV(4.11.0) /io/opencv/modules/dnn/src/darknet/darknet_io.cpp:991: error: (-213:The function/feature is not implemented) Transpose the weights (except for convolutional) is not implemented in function 'ReadDarknetFromWeightsStream'
+). Using backup person detection.
+[INFO] Starting Security Person Detection System...
+This system detects people regardless of face coverings!
+Press 'q' to quit, 's' to save current frame
+[20:07:48.316191306] [7672]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[20:07:48.323239271] [7678]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[20:07:48.332557318] [7678]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[20:07:48.335489505] [7672]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[20:07:48.335587584] [7678]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+🎥 Security camera active! Monitoring for persons...
+[SECURITY ALERT] known_person: Hi there! Access granted. Have a good day.
+📸 Security alert saved: security_alerts/ALERT_known_person_0persons_20250727_090412.jpg
+🔊 Security Alert: Hi there! Access granted. Have a good day.
+[2025-07-27 09:04:12.835] [piper] [info] Loaded voice in 0.344620211 second(s)
+[2025-07-27 09:04:12.836] [piper] [info] Initialized piper
+security_response.wav
+[2025-07-27 09:04:13.215] [piper] [info] Real-time factor: 0.10373395722222224 (infer=0.37344224600000003 sec, audio=3.5999999999999996 sec)
+[2025-07-27 09:04:13.215] [piper] [info] Terminated piper
+Playing WAVE 'security_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+[SECURITY ALERT] known_person: Hello! Welcome back. Security system recognizes you.
+📸 Security alert saved: security_alerts/ALERT_known_person_0persons_20250727_090422.jpg
+🔊 Security Alert: Hello! Welcome back. Security system recognizes you.
+[2025-07-27 09:04:23.057] [piper] [info] Loaded voice in 0.345603185 second(s)
+[2025-07-27 09:04:23.057] [piper] [info] Initialized piper
+security_response.wav
+[2025-07-27 09:04:23.496] [piper] [info] Real-time factor: 0.1036151877394636 (infer=0.432697024 sec, audio=4.176 sec)
+[2025-07-27 09:04:23.497] [piper] [info] Terminated piper
+Playing WAVE 'security_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+[SECURITY ALERT] known_person: Hi there! Access granted. Have a good day.
+📸 Security alert saved: security_alerts/ALERT_known_person_0persons_20250727_090432.jpg
+🔊 Security Alert: Hi there! Access granted. Have a good day.
+[2025-07-27 09:04:33.338] [piper] [info] Loaded voice in 0.360973212 second(s)
+[2025-07-27 09:04:33.338] [piper] [info] Initialized piper
+security_response.wav
+[2025-07-27 09:04:33.719] [piper] [info] Real-time factor: 0.10418362583333333 (infer=0.37506105300000003 sec, audio=3.6 sec)
+[2025-07-27 09:04:33.720] [piper] [info] Terminated piper
+Playing WAVE 'security_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+[SECURITY ALERT] known_user: Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
+📸 Security alert saved: security_alerts/ALERT_known_user_0persons_20250727_090439.jpg
+🔊 Security Alert: Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
+[2025-07-27 09:04:39.916] [piper] [info] Loaded voice in 0.359121499 second(s)
+[2025-07-27 09:04:39.917] [piper] [info] Initialized piper
+security_response.wav
+[2025-07-27 09:04:40.744] [piper] [info] Real-time factor: 0.10243674336172345 (infer=0.817854959 sec, audio=7.984 sec)
+[2025-07-27 09:04:40.744] [piper] [info] Terminated piper
+Playing WAVE 'security_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+[SECURITY ALERT] known_person: Hello! Welcome back. Security system recognizes you.
+📸 Security alert saved: security_alerts/ALERT_known_person_0persons_20250727_090450.jpg
+🔊 Security Alert: Hello! Welcome back. Security system recognizes you.
+[2025-07-27 09:04:50.484] [piper] [info] Loaded voice in 0.356807019 second(s)
+[2025-07-27 09:04:50.485] [piper] [info] Initialized piper
+security_response.wav
+[2025-07-27 09:04:50.923] [piper] [info] Real-time factor: 0.10448484471899225 (infer=0.431313439 sec, audio=4.128 sec)
+[2025-07-27 09:04:50.923] [piper] [info] Terminated piper
+Playing WAVE 'security_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+[INFO] Security monitoring completed
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I noticed the following warning message: [WARNING] YOLO not available (OpenCV(4.11.0) /io/opencv/modules/dnn/src/darknet/darknet_io.cpp:991: error: (-213:The function/feature is not implemented) Transpose the weights (except for convolutional) is not implemented in function 'ReadDarknetFromWeightsStream'
+). Using backup person detection.
+
+The application works perfectly to detect me as "Nick" and speak the appropriate response through the Bluetooth speaker.
+
+However, when no one is in the camera's field of view, it constantly detects a "known_person" and speaks the appropriate greeting.
+
+It should not be detecting anything if there is no one in the camera's field of view.
+
+I also have the following config.json file in my /home/nickspi5/Chatty_AI/server folder:
+
+config.json
+{
+    "discord_webhook_url": <MY DISCORD WEBHOOK URL>,
+    "telegram_bot_token": <MY TELEGRAM BOT TOKEN>,
+    "telegram_chat_id": <MY TELEGRAM CHAT ID>
+}
+
+I would also like to add a function that if an unknown person or a masked person is detected, the system also sends an unknown person detected alert to my Telegram account with date and time, along with a photograph snapped by the PI Camera Module 2 camera and logs an alert to a detection log file.
 
 How can I fix this?
 
