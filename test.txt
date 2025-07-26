@@ -1,42 +1,126 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install pvporcupine sounddevice numpy
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting pvporcupine
-  Downloading pvporcupine-3.0.5-py3-none-any.whl (2.5 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.5/2.5 MB 354.6 kB/s eta 0:00:00
-Requirement already satisfied: sounddevice in /home/nickspi5/.local/lib/python3.11/site-packages (0.5.2)
-Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (1.24.2)
-Requirement already satisfied: CFFI>=1.0 in /home/nickspi5/.local/lib/python3.11/site-packages (from sounddevice) (1.17.1)
-Requirement already satisfied: pycparser in /home/nickspi5/.local/lib/python3.11/site-packages (from CFFI>=1.0->sounddevice) (2.22)
-Installing collected packages: pvporcupine
-Successfully installed pvporcupine-3.0.5
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Get:2 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
-Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
-Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease              
-Fetched 103 kB in 1s (75.2 kB/s)                                 
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install portaudio19-dev python3-pyaudio
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-portaudio19-dev is already the newest version (19.6.0-1.2).
-python3-pyaudio is already the newest version (0.2.13-1+b1).
-The following package was automatically installed and is no longer required:
-  python3-v4l2
-Use 'sudo apt autoremove' to remove it.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_wake_word.py
-Wake word detection initialization failed: create() missing 1 required positional argument: 'access_key'
-Cannot run test - wake word detection failed to initialize
+Before I start working on the wake word detection for my local AI Assistant, I went to first test my local AI_Assistant again.
+
+My Python script for my local AI Assistant - run_chatty_ai_6.py, which is located in my /home/nickspi5/Chatty_AI folder - is as follows:
+
+run_chatty_ai_6.py
+!/usr/bin/env python3
+"""
+run_chatty_ai_6.py
+Record voice, transcribe using Whisper, reply with TinyLLaMA, and speak with Piper.
+"""
+
+import os
+import subprocess
+import sounddevice as sd
+import soundfile as sf
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+
+# -------------------------------
+# Config
+# -------------------------------
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+WAV_FILENAME = "user_input.wav"
+RESPONSE_AUDIO = "output.wav"
+
+# -------------------------------
+# Record 5 seconds of audio
+# -------------------------------
+def record_audio(filename=WAV_FILENAME, duration=5, samplerate=16000, channels=1):
+    print("🎤 Recording 5s of audio...")
+    audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels, dtype='int16')
+    sd.wait()
+    sf.write(filename, audio, samplerate)
+    print(f"✅ Saved audio to: {filename}")
+
+# -------------------------------
+# Transcribe using Whisper
+# -------------------------------
+def transcribe_audio(filename):
+    print("🧠 Transcribing with Faster Whisper...")
+    model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+    segments, _ = model.transcribe(filename)
+    transcript = " ".join(segment.text for segment in segments).strip()
+    print(f"📝 Transcript: {transcript}")
+    return transcript
+
+# -------------------------------
+# Generate LLM response
+# -------------------------------
+def query_llama(prompt):
+    print("🤖 Generating response...")
+    try:
+        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0, verbose=False)
+    except Exception as e:
+        print(f"❌ Failed to load TinyLLaMA: {e}")
+        return "Sorry, I couldn't load the AI model."
+
+    formatted_prompt = f"You are a friendly, helpful assistant.\nUser: {prompt}\nAssistant: "
+
+    try:
+        result = llm(formatted_prompt, max_tokens=50)
+        if "choices" in result and result["choices"]:
+            import re
+            reply_text = result["choices"][0]["text"].strip()
+            reply_text = re.sub(r"\(.*?\)", "", reply_text) # Remove roleplay like (laughs)
+            reply_text = re.sub(r"(User:|Assistant:)", "", reply_text) # Remove speaker labels
+            reply_text = reply_text.strip()
+            print(f"💬 Chatty AI says: {reply_text}")
+            speak_text(reply_text)
+            return reply_text
+        else:
+            print("⚠️ No response from model.")
+            return "I did not understand that."
+    except Exception as e:
+        print(f"❌ Inference failed: {e}")
+        return "An error occurred while generating a reply."
+
+# -------------------------------
+# Speak with Piper
+# -------------------------------
+def speak_text(text):
+    print("🔊 Speaking with Piper ...")
+    try:
+        command = [
+            PIPER_EXECUTABLE,
+            "--model", VOICE_PATH,
+            "--config", CONFIG_PATH,
+            "--output_file", RESPONSE_AUDIO
+        ]
+        subprocess.run(command, input=text.encode("utf-8"), check=True)
+        subprocess.run(["aplay", RESPONSE_AUDIO])
+    except subprocess.CalledProcessError as e:
+        print("❌ Piper playback failed:", e)
+
+# -------------------------------
+# Main Orchestration
+# -------------------------------
+def main():
+    record_audio()
+    user_text = transcribe_audio(WAV_FILENAME)
+    if not user_text:
+        print("❌ No voice input detected.")
+        return
+    query_llama(user_text)
+
+if __name__ == "__main__":
+    main()
+
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 run_chatty_ai_6.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/run_chatty_ai_6.py", line 11, in <module>
+    from faster_whisper import WhisperModel
+ModuleNotFoundError: No module named 'faster_whisper'
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-
-
+How can I fix this?
 
 
