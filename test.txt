@@ -1,126 +1,121 @@
 Thank you Claude!
 
-Before I start working on the wake word detection for my local AI Assistant, I went to first test my local AI_Assistant again.
+I have the following Python script to capture photographs of a person to register them for facial recognition.
 
-My Python script for my local AI Assistant - run_chatty_ai_6.py, which is located in my /home/nickspi5/Chatty_AI folder - is as follows:
+This file is named - image_capture.py - and it is located in my /home/nickspi5/Chatty_AI folder.
 
-run_chatty_ai_6.py
-!/usr/bin/env python3
-"""
-run_chatty_ai_6.py
-Record voice, transcribe using Whisper, reply with TinyLLaMA, and speak with Piper.
-"""
-
+image_capture.py
+import cv2
 import os
-import subprocess
-import sounddevice as sd
-import soundfile as sf
-from faster_whisper import WhisperModel
-from llama_cpp import Llama
+from datetime import datetime
+from picamera2 import Picamera2
+import time
 
-# -------------------------------
-# Config
-# -------------------------------
-WHISPER_MODEL_SIZE = "base"
-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-WAV_FILENAME = "user_input.wav"
-RESPONSE_AUDIO = "output.wav"
+# Change this to the name of the person you're photographing
+PERSON_NAME = "Nick"  
 
-# -------------------------------
-# Record 5 seconds of audio
-# -------------------------------
-def record_audio(filename=WAV_FILENAME, duration=5, samplerate=16000, channels=1):
-    print("🎤 Recording 5s of audio...")
-    audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels, dtype='int16')
-    sd.wait()
-    sf.write(filename, audio, samplerate)
-    print(f"✅ Saved audio to: {filename}")
+def create_folder(name):
+    dataset_folder = "dataset"
+    if not os.path.exists(dataset_folder):
+        os.makedirs(dataset_folder)
+    
+    person_folder = os.path.join(dataset_folder, name)
+    if not os.path.exists(person_folder):
+        os.makedirs(person_folder)
+    return person_folder
 
-# -------------------------------
-# Transcribe using Whisper
-# -------------------------------
-def transcribe_audio(filename):
-    print("🧠 Transcribing with Faster Whisper...")
-    model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-    segments, _ = model.transcribe(filename)
-    transcript = " ".join(segment.text for segment in segments).strip()
-    print(f"📝 Transcript: {transcript}")
-    return transcript
+def capture_photos(name):
+    folder = create_folder(name)
+    
+    # Initialize the camera
+    picam2 = Picamera2()
+    picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
+    picam2.start()
 
-# -------------------------------
-# Generate LLM response
-# -------------------------------
-def query_llama(prompt):
-    print("🤖 Generating response...")
-    try:
-        llm = Llama(model_path=LLAMA_MODEL_PATH, n_ctx=2048, temperature=0.7, repeat_penalty=1.1, n_gpu_layers=0, verbose=False)
-    except Exception as e:
-        print(f"❌ Failed to load TinyLLaMA: {e}")
-        return "Sorry, I couldn't load the AI model."
+    # Allow camera to warm up
+    time.sleep(2)
 
-    formatted_prompt = f"You are a friendly, helpful assistant.\nUser: {prompt}\nAssistant: "
-
-    try:
-        result = llm(formatted_prompt, max_tokens=50)
-        if "choices" in result and result["choices"]:
-            import re
-            reply_text = result["choices"][0]["text"].strip()
-            reply_text = re.sub(r"\(.*?\)", "", reply_text) # Remove roleplay like (laughs)
-            reply_text = re.sub(r"(User:|Assistant:)", "", reply_text) # Remove speaker labels
-            reply_text = reply_text.strip()
-            print(f"💬 Chatty AI says: {reply_text}")
-            speak_text(reply_text)
-            return reply_text
-        else:
-            print("⚠️ No response from model.")
-            return "I did not understand that."
-    except Exception as e:
-        print(f"❌ Inference failed: {e}")
-        return "An error occurred while generating a reply."
-
-# -------------------------------
-# Speak with Piper
-# -------------------------------
-def speak_text(text):
-    print("🔊 Speaking with Piper ...")
-    try:
-        command = [
-            PIPER_EXECUTABLE,
-            "--model", VOICE_PATH,
-            "--config", CONFIG_PATH,
-            "--output_file", RESPONSE_AUDIO
-        ]
-        subprocess.run(command, input=text.encode("utf-8"), check=True)
-        subprocess.run(["aplay", RESPONSE_AUDIO])
-    except subprocess.CalledProcessError as e:
-        print("❌ Piper playback failed:", e)
-
-# -------------------------------
-# Main Orchestration
-# -------------------------------
-def main():
-    record_audio()
-    user_text = transcribe_audio(WAV_FILENAME)
-    if not user_text:
-        print("❌ No voice input detected.")
-        return
-    query_llama(user_text)
+    photo_count = 0
+    
+    print(f"Taking photos for {name}. Press SPACE to capture, 'q' to quit.")
+    
+    while True:
+        # Capture frame from Pi Camera
+        frame = picam2.capture_array()
+        
+        # Display the frame
+        cv2.imshow('Capture', frame)
+        
+        key = cv2.waitKey(1) & 0xFF
+        
+        if key == ord(' '):  # Space key
+            photo_count += 1
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{name}_{timestamp}.jpg"
+            filepath = os.path.join(folder, filename)
+            cv2.imwrite(filepath, frame)
+            print(f"Photo {photo_count} saved: {filepath}")
+        
+        elif key == ord('q'):  # Q key
+            break
+    
+    # Clean up
+    cv2.destroyAllWindows()
+    picam2.stop()
+    print(f"Photo capture completed. {photo_count} photos saved for {name}.")
 
 if __name__ == "__main__":
-    main()
+    capture_photos(PERSON_NAME)
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 run_chatty_ai_6.py
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/run_chatty_ai_6.py", line 11, in <module>
-    from faster_whisper import WhisperModel
-ModuleNotFoundError: No module named 'faster_whisper'
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-How can I fix this?
+After a person has been registered for facial recognition, I then have the following Python script to train the facial recognition model.
+
+
+This file is named - model_training.py - and it is located in my /home/nickspi5/Chatty_AI folder.
+
+model_training.py
+import os
+from imutils import paths
+import face_recognition
+import pickle
+import cv2
+
+print("[INFO] start processing faces...")
+imagePaths = list(paths.list_images("dataset"))
+knownEncodings = []
+knownNames = []
+
+for (i, imagePath) in enumerate(imagePaths):
+    print(f"[INFO] processing image {i + 1}/{len(imagePaths)}")
+    name = imagePath.split(os.path.sep)[-2]
+    
+    image = cv2.imread(imagePath)
+    rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    boxes = face_recognition.face_locations(rgb, model="hog")
+    encodings = face_recognition.face_encodings(rgb, boxes)
+    
+    for encoding in encodings:
+        knownEncodings.append(encoding)
+        knownNames.append(name)
+
+print("[INFO] serializing encodings...")
+data = {"encodings": knownEncodings, "names": knownNames}
+with open("encodings.pickle", "wb") as f:
+    f.write(pickle.dumps(data))
+
+print("[INFO] Training complete. Encodings saved to 'encodings.pickle'")
+
+I now want a Python script that I can use to test facial recognition for my Raspberry PI 5 using the PI Camera Module 2 camera.
+
+I want to use Piper for TTS, which is in the /home/nickspi5/Chatty_AI/piper folder.
+
+I want to use en_US-amy-low.onnx as the voice used for the TTS, which is located in the /home/nickspi5/Chatty_AI/voices/en_US-amy-low folder.
+
+I want the Python script to speak a different response, depending on the person detected using facial recognition.
+
+Please create a Python script for me to allow me to test facial recognition on my Raspberry PI 5.
+
+
 
 
