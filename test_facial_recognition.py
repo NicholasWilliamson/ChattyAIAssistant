@@ -25,20 +25,20 @@ RESPONSE_AUDIO = "recognition_response.wav"
 # Personalized responses for different people
 PERSON_RESPONSES = {
     "Nick": [
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?",
-        "Hello Nick! Welcome back! It is great to see you again my master. Thank you so much for creating me. How can I help you?"
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
+        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?"
     ],
     "Spiderman": [
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!",
-        "Hello Spider man! O M G! I am so excited to meet see. You are my favorite super hero. It would be my honor to help you!"
+        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
+        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
+        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
+        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!"
     ],
     "Unknown": [
         "Hello there! I don't recognize you yet.",
-        "Hi! You are new to me. It is nice to meet you!",
+        "Hi! You're new to me. Nice to meet you!",
         "Hello stranger! Would you like to be registered?",
         "Hi there! I haven't seen you before."
     ]
@@ -121,24 +121,33 @@ class FacialRecognitionTester:
         # Convert BGR to RGB
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Find face locations and encodings
+        # Try both detection methods for better mask recognition
         face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+        if len(face_locations) == 0:
+            # Try CNN model if HOG fails (slower but sometimes better for masks)
+            face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
+        
         face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
         
         recognized_names = []
         
         # Process each face found
         for face_encoding in face_encodings:
-            # Compare with known faces
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.5)
+            # Compare with known faces - increased tolerance for masks
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
             name = "Unknown"
+            confidence = 0.0
             
             if True in matches:
                 # Find the best match
                 face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
                 best_match_index = face_distances.argmin()
-                if matches[best_match_index]:
+                confidence = 1.0 - face_distances[best_match_index]
+                
+                # Lower confidence threshold for masks
+                if matches[best_match_index] and confidence > 0.4:
                     name = self.known_names[best_match_index]
+                    print(f"[DEBUG] Recognized {name} with confidence: {confidence:.2f}")
             
             recognized_names.append(name)
         
