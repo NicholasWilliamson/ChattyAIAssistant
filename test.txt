@@ -1,90 +1,73 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install face_recognition
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: face_recognition in ./chatty-venv/lib/python3.11/site-packages (1.3.0)
-Requirement already satisfied: face-recognition-models>=0.3.0 in ./chatty-venv/lib/python3.11/site-packages (from face_recognition) (0.3.0)
-Requirement already satisfied: Click>=6.0 in /usr/lib/python3/dist-packages (from face_recognition) (8.1.3)
-Requirement already satisfied: dlib>=19.7 in ./chatty-venv/lib/python3.11/site-packages (from face_recognition) (20.0.0)
-Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (from face_recognition) (1.24.2)
-Requirement already satisfied: Pillow in /usr/lib/python3/dist-packages (from face_recognition) (9.4.0)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Get:2 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
-Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
-Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease         
-Fetched 103 kB in 2s (61.7 kB/s)
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt full-upgrade
-
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Calculating upgrade... Done
-The following package was automatically installed and is no longer required:
-  python3-v4l2
-Use 'sudo apt autoremove' to remove it.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 face_encodings.py
+✅ Created empty face_encodings.pkl file
+This eliminates the 'No face encodings file found' warning
+You can add known faces later if needed
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_camera_display.py
+🔧 Testing Camera Display...
+========================================
+✅ DISPLAY environment: :0
+✅ OpenCV display test passed
+[21:53:11.085136589] [8944]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[21:53:11.102880504] [8951]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[21:53:11.119172147] [8951]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[21:53:11.123455131] [8944]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-RGB888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[21:53:11.123587057] [8951]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+✅ Camera initialization successful
+📹 Testing live camera display (5 seconds)...
+✅ Camera display test completed
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 human_detection.py
-2025-07-27 10:09:36,111 - WARNING - No face encodings file found. Face recognition disabled.
-[21:13:14.422994696] [8626]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[21:13:14.430098108] [8632]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[21:13:14.439678190] [8632]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-2025-07-27 10:09:36,129 - INFO - Initialization successful.
-2025-07-27 10:09:36,130 - INFO - Camera now open.
-2025-07-27 10:09:36,131 - INFO - Camera configuration has been adjusted!
-[21:13:14.443382753] [8626]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[21:13:14.443477991] [8632]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-2025-07-27 10:09:36,132 - INFO - Configuration successful!
-2025-07-27 10:09:36,215 - INFO - YOLO loaded successfully
-2025-07-27 10:09:36,271 - INFO - Haar cascades loaded successfully
-2025-07-27 10:09:36,271 - WARNING - Telegram config not found. Notifications disabled.
+2025-07-27 10:57:50,009 - INFO - Loaded 0 face encodings
+[22:01:28.321571621] [8973]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[22:01:28.328742247] [8979]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[22:01:28.338012575] [8979]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+2025-07-27 10:57:50,027 - INFO - Initialization successful.
+2025-07-27 10:57:50,028 - INFO - Camera now open.
+2025-07-27 10:57:50,030 - INFO - Camera configuration has been adjusted!
+[22:01:28.341441665] [8973]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-RGB888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[22:01:28.341541980] [8979]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+2025-07-27 10:57:50,030 - INFO - Configuration successful!
+2025-07-27 10:57:50,032 - INFO - Camera configuration has been adjusted!
+2025-07-27 10:57:52,689 - INFO - YOLO loaded successfully
+2025-07-27 10:57:52,781 - INFO - Haar cascades loaded successfully
+2025-07-27 10:57:52,781 - WARNING - Telegram config not found. Notifications disabled.
 🛡️ Security Human Detection Application (DEBUG MODE)
 ==================================================
 This system detects people using multiple methods!
 DEBUG MODE: Detailed detection information will be shown
 Press 'q' to quit, 's' to save current frame, 'd' to toggle debug
-2025-07-27 10:09:36,278 - INFO - Camera started
-2025-07-27 10:09:36,278 - INFO - Starting Enhanced Security Person Detection System...
-2025-07-27 10:09:57,621 - INFO - Upper body detected at (569, 161, 63, 52)
-2025-07-27 10:10:01,847 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:01 using upper_body (confidence: 0.70)
-2025-07-27 10:10:05,025 - INFO - Upper body detected at (568, 161, 64, 52)
-2025-07-27 10:10:09,295 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:09 using upper_body (confidence: 0.70)
-2025-07-27 10:10:17,607 - INFO - YOLO detected person: confidence=1.00
-2025-07-27 10:10:19,567 - INFO - Face detected at (233, 75, 395, 395)
-2025-07-27 10:10:23,790 - INFO - Face recognition (CNN) detected face at (169, 89, 423, 391)
-2025-07-27 10:10:23,793 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:23 using YOLO (confidence: 1.00)
-2025-07-27 10:10:24,835 - INFO - YOLO detected person: confidence=0.99
-2025-07-27 10:10:31,121 - INFO - Face recognition (CNN) detected face at (76, 285, 294, 195)
-2025-07-27 10:10:31,124 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:31 using YOLO (confidence: 0.99)
-2025-07-27 10:10:32,184 - INFO - YOLO detected person: confidence=0.96
-2025-07-27 10:10:32,800 - INFO - HOG detected person: confidence=0.19, scale=1.03
-2025-07-27 10:10:33,146 - INFO - HOG detected person: confidence=0.19, scale=1.03
-2025-07-27 10:10:33,531 - INFO - HOG detected person: confidence=0.29, scale=1.05
-2025-07-27 10:10:33,751 - INFO - HOG detected person: confidence=0.29, scale=1.05
-2025-07-27 10:10:33,962 - INFO - HOG detected person: confidence=0.44, scale=1.1
-2025-07-27 10:10:34,080 - INFO - HOG detected person: confidence=0.44, scale=1.1
-2025-07-27 10:10:38,378 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:38 using YOLO (confidence: 0.96)
-2025-07-27 10:10:39,395 - INFO - YOLO detected person: confidence=0.96
-2025-07-27 10:10:45,525 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:45 using YOLO (confidence: 0.96)
-2025-07-27 10:10:46,627 - INFO - YOLO detected person: confidence=0.78
-2025-07-27 10:10:47,651 - INFO - HOG detected person: confidence=0.20, scale=1.03
-qq2025-07-27 10:10:52,840 - INFO - Face recognition (CNN) detected face at (295, 308, 245, 172)
-2025-07-27 10:10:52,844 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:10:52 using face_recognition_cnn (confidence: 0.95)
-^C2025-07-27 10:10:55,436 - INFO - Detection stopped by user
-2025-07-27 10:10:55,440 - INFO - Camera stopped
-2025-07-27 10:10:55,443 - INFO - Security monitoring completed. Total detections: 9
-2025-07-27 10:10:55,842 - INFO - Camera closed successfully.
+2025-07-27 10:57:52,787 - INFO - Camera started
+2025-07-27 10:57:52,787 - INFO - Camera started
+2025-07-27 10:57:52,787 - INFO - Starting Enhanced Security Person Detection System...
+2025-07-27 10:57:59,358 - INFO - Upper body detected at (560, 163, 61, 50)
+2025-07-27 10:58:03,834 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:58:03 using upper_body (confidence: 0.70)
+2025-07-27 10:58:06,947 - INFO - Upper body detected at (558, 159, 67, 54)
+2025-07-27 10:58:11,296 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:58:11 using upper_body (confidence: 0.70)
+2025-07-27 10:58:26,757 - INFO - YOLO detected person: confidence=0.97
+2025-07-27 10:58:27,864 - INFO - HOG detected person: confidence=0.03, scale=1.05
+2025-07-27 10:58:28,053 - INFO - HOG detected person: confidence=0.03, scale=1.05
+2025-07-27 10:58:28,264 - INFO - HOG detected person: confidence=0.03, scale=1.05
+2025-07-27 10:58:33,126 - INFO - Face recognition (CNN) detected face at (105, 212, 352, 268)
+2025-07-27 10:58:33,129 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 10:58:33 using YOLO (confidence: 0.97)
+^X^C^C^C^C2025-07-27 10:59:23,875 - INFO - Detection stopped by user
+2025-07-27 10:59:23,878 - INFO - Camera stopped
+2025-07-27 10:59:23,879 - INFO - Camera stopped
+2025-07-27 10:59:23,880 - INFO - Security monitoring completed. Total detections: 4
+2025-07-27 10:59:24,083 - INFO - Camera closed successfully.
+2025-07-27 10:59:24,083 - INFO - Camera closed successfully.
+
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-The application starts up but there are a number of warnings, including WARNING - No face encodings file found. Face recognition disabled.
+The test_camera_display.py test works perfectly and the camera detection window opens properly.
 
-The PI Camera Module 2 camera's detection window is not opening correctly, however, there were a number of photographs snapped by the camera but this were saved to my /home/nickspi5/Chatty_AI folder..
+The human_detection.py applications starts but the camera detection window does not open properly.
 
-It did not detect me when my face was fully in the field of view of the camera but most of the photographs snapped clearly showed my face
+It also says it has detected a person from Upper body detected at (560, 163, 61, 50) but no person was in the camera's field of view.
+
+It did detect me properly from DETECTION: 🚨 Person detected at 2025-07-27 10:58:11 using upper_body (confidence: 0.70)
+
+The detected photographs were still saved to my /home/nickspi5/Chatty_AI folder.
 
 How can I fix this?
 
