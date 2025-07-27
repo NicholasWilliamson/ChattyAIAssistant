@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Enhanced Human Detection System with Debug Mode
@@ -141,40 +140,42 @@ class SecurityHumanDetector:
             return []
     
     def detect_with_hog(self, frame):
-        """Detect people using HOG descriptor - more sensitive"""
+        """Detect people using HOG descriptor with improved filtering"""
         try:
             # Convert to grayscale
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             
-            # Detect people with multiple scales and lower threshold
+            # Detect people with more restrictive parameters
             detections = []
             
-            # Try multiple detection parameters for better sensitivity
-            for scale in [1.03, 1.05, 1.1]:  # Different scales
-                for padding in [(4, 4), (8, 8), (16, 16)]:  # Different padding
-                    try:
-                        rects, weights = self.hog.detectMultiScale(
-                            gray, 
-                            winStride=(4, 4), 
-                            padding=padding, 
-                            scale=scale,
-                            hitThreshold=0.0,  # Lower threshold for better detection
-                            groupThreshold=1
-                        )
-                        
-                        for i, (x, y, w, h) in enumerate(rects):
-                            confidence = weights[i] if i < len(weights) else 0.5
-                            detections.append((x, y, w, h, confidence))
-                            if self.debug_mode:
-                                logger.info(f"HOG detected person: confidence={confidence:.2f}, scale={scale}")
-                    except Exception as e:
-                        if self.debug_mode:
-                            logger.debug(f"HOG detection failed with scale {scale}: {e}")
-                        continue
+            # Use more restrictive parameters to reduce false positives
+            rects, weights = self.hog.detectMultiScale(
+                gray, 
+                winStride=(8, 8),     # Larger stride for better performance
+                padding=(16, 16),     # More padding
+                scale=1.05,           # Single scale
+                hitThreshold=0.5,     # Higher threshold to reduce false positives
+                groupThreshold=2      # Higher grouping threshold
+            )
             
-            # Remove duplicates
-            if detections:
-                detections = self.remove_duplicate_detections(detections)
+            for i, (x, y, w, h) in enumerate(rects):
+                confidence = weights[i] if i < len(weights) else 0.5
+                
+                # Additional filtering for HOG detections
+                aspect_ratio = w / h
+                # Person should have reasonable aspect ratio
+                if 0.3 <= aspect_ratio <= 0.8 and confidence > 0.3:
+                    # Check size constraints
+                    if w >= 40 and h >= 80:  # Minimum reasonable size
+                        detections.append((x, y, w, h, confidence))
+                        if self.debug_mode:
+                            logger.info(f"HOG detected person: confidence={confidence:.2f}, aspect_ratio={aspect_ratio:.2f}")
+                    else:
+                        if self.debug_mode:
+                            logger.debug(f"HOG detection rejected (size): w={w}, h={h}")
+                else:
+                    if self.debug_mode:
+                        logger.debug(f"HOG detection rejected: confidence={confidence:.2f}, aspect_ratio={aspect_ratio:.2f}")
                 
             return detections
         except Exception as e:
@@ -183,17 +184,19 @@ class SecurityHumanDetector:
             return []
     
     def detect_with_cascades(self, frame):
-        """Detect using Haar cascades"""
+        """Detect using Haar cascades with improved filtering"""
         detections = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
         try:
-            # Face detection - lower scale factor for better detection
+            # Face detection - more restrictive to reduce false positives
             faces = self.face_cascade.detectMultiScale(
                 gray, 
-                scaleFactor=1.05,  # Lower for better detection
-                minNeighbors=3,    # Lower for more sensitivity
-                minSize=(20, 20)   # Smaller minimum size
+                scaleFactor=1.1,   # More restrictive
+                minNeighbors=5,    # Higher for fewer false positives
+                minSize=(30, 30),   # Larger minimum size
+                maxSize=(300, 300), # Maximum size limit
+                flags=cv2.CASCADE_SCALE_IMAGE
             )
             
             for (x, y, w, h) in faces:
@@ -201,31 +204,54 @@ class SecurityHumanDetector:
                 if self.debug_mode:
                     logger.info(f"Face detected at ({x}, {y}, {w}, {h})")
             
-            # Upper body detection
+            # Upper body detection - much more restrictive
             bodies = self.upper_body_cascade.detectMultiScale(
                 gray, 
-                scaleFactor=1.1, 
-                minNeighbors=3,
-                minSize=(30, 30)
+                scaleFactor=1.2,    # More restrictive
+                minNeighbors=6,     # Higher threshold
+                minSize=(50, 60),   # Larger minimum size
+                maxSize=(200, 240), # Maximum size limit
+                flags=cv2.CASCADE_SCALE_IMAGE
             )
             
+            # Filter upper body detections by aspect ratio and position
             for (x, y, w, h) in bodies:
-                detections.append((x, y, w, h, 0.7, "upper_body"))
-                if self.debug_mode:
-                    logger.info(f"Upper body detected at ({x}, {y}, {w}, {h})")
+                aspect_ratio = w / h
+                # Upper body should have reasonable aspect ratio (not too wide or tall)
+                if 0.4 <= aspect_ratio <= 1.5:
+                    # Check if detection is not at edge of frame (common false positive area)
+                    frame_h, frame_w = frame.shape[:2]
+                    if not (x < 20 or y < 20 or x + w > frame_w - 20 or y + h > frame_h - 20):
+                        detections.append((x, y, w, h, 0.7, "upper_body"))
+                        if self.debug_mode:
+                            logger.info(f"Upper body detected at ({x}, {y}, {w}, {h}) - aspect ratio: {aspect_ratio:.2f}")
+                    else:
+                        if self.debug_mode:
+                            logger.debug(f"Upper body detection rejected (edge position): ({x}, {y}, {w}, {h})")
+                else:
+                    if self.debug_mode:
+                        logger.debug(f"Upper body detection rejected (bad aspect ratio {aspect_ratio:.2f}): ({x}, {y}, {w}, {h})")
             
-            # Full body detection
+            # Full body detection - more restrictive
             full_bodies = self.body_cascade.detectMultiScale(
                 gray, 
-                scaleFactor=1.1, 
-                minNeighbors=3,
-                minSize=(50, 50)
+                scaleFactor=1.2, 
+                minNeighbors=5,
+                minSize=(60, 120),  # Larger minimum size
+                maxSize=(180, 360), # Maximum size limit
+                flags=cv2.CASCADE_SCALE_IMAGE
             )
             
             for (x, y, w, h) in full_bodies:
-                detections.append((x, y, w, h, 0.6, "full_body"))
-                if self.debug_mode:
-                    logger.info(f"Full body detected at ({x}, {y}, {w}, {h})")
+                aspect_ratio = w / h
+                # Full body should be taller than wide
+                if 0.2 <= aspect_ratio <= 0.8:
+                    detections.append((x, y, w, h, 0.6, "full_body"))
+                    if self.debug_mode:
+                        logger.info(f"Full body detected at ({x}, {y}, {w}, {h}) - aspect ratio: {aspect_ratio:.2f}")
+                else:
+                    if self.debug_mode:
+                        logger.debug(f"Full body detection rejected (bad aspect ratio {aspect_ratio:.2f}): ({x}, {y}, {w}, {h})")
                     
         except Exception as e:
             if self.debug_mode:
@@ -369,25 +395,29 @@ class SecurityHumanDetector:
                 
                 if self.debug_mode and frame_count % 30 == 0:  # Debug info every 30 frames
                     logger.info(f"Processed {frame_count} frames, {detection_count} detections")
+                    if not display_success:
+                        logger.warning("Display window not showing - check X11 forwarding or run locally")
                 
                 # Combine all detection methods
                 all_detections = []
                 
-                # YOLO detection
+                # YOLO detection (most reliable)
                 yolo_detections = self.detect_with_yolo(frame)
                 all_detections.extend([(x, y, w, h, conf, "YOLO") for x, y, w, h, conf in yolo_detections])
                 
-                # HOG detection
-                hog_detections = self.detect_with_hog(frame)
-                all_detections.extend([(x, y, w, h, conf, "HOG") for x, y, w, h, conf in hog_detections])
-                
-                # Cascade detection
-                cascade_detections = self.detect_with_cascades(frame)
-                all_detections.extend(cascade_detections)
-                
-                # Face recognition detection
+                # Face recognition detection (very reliable for faces)
                 face_detections = self.detect_with_face_recognition(frame)
                 all_detections.extend(face_detections)
+                
+                # Only use cascade and HOG if no high-confidence detections from YOLO/face recognition
+                if not any(det[4] > 0.8 for det in all_detections):
+                    # HOG detection (filtered)
+                    hog_detections = self.detect_with_hog(frame)
+                    all_detections.extend([(x, y, w, h, conf, "HOG") for x, y, w, h, conf in hog_detections])
+                    
+                    # Cascade detection (most filtered)
+                    cascade_detections = self.detect_with_cascades(frame)
+                    all_detections.extend(cascade_detections)
                 
                 # Remove duplicates
                 unique_detections = self.remove_duplicate_detections(all_detections)
@@ -428,12 +458,13 @@ class SecurityHumanDetector:
                 status_text = f"Detections: {len(unique_detections)} | Frame: {frame_count} | Debug: {'ON' if self.debug_mode else 'OFF'}"
                 cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
                 
-                # Show frame with error handling
+                # Show frame with better error handling
+                display_success = False
                 try:
                     cv2.imshow('🎥 Enhanced Security Camera - Multiple Detection Methods', frame)
-                    cv2.waitKey(1)  # Process window events
+                    display_success = True
                 except Exception as e:
-                    if self.debug_mode:
+                    if self.debug_mode and frame_count % 30 == 0:  # Only log every 30 frames
                         logger.warning(f"Display error (detection still working): {e}")
                 
                 # Handle key presses
