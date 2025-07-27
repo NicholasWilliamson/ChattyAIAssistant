@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Enhanced Human Detection System with Debug Mode
@@ -26,10 +27,13 @@ class SecurityHumanDetector:
         self.known_face_names = []
         self.load_face_encodings()
         
-        # Initialize camera
+        # Initialize camera with proper display configuration
         self.picam2 = Picamera2()
-        config = self.picam2.create_preview_configuration(main={"size": (640, 480)})
+        config = self.picam2.create_preview_configuration(
+            main={"size": (640, 480), "format": "RGB888"}
+        )
         self.picam2.configure(config)
+        logger.info("Camera configuration has been adjusted!")
         
         # Initialize detection methods
         self.init_detection_methods()
@@ -343,7 +347,11 @@ class SecurityHumanDetector:
         print("Press 'q' to quit, 's' to save current frame, 'd' to toggle debug")
         
         self.picam2.start()
+        logger.info("Camera started")
         logger.info("Starting Enhanced Security Person Detection System...")
+        
+        # Wait for camera to warm up
+        time.sleep(2)
         
         frame_count = 0
         detection_count = 0
@@ -353,7 +361,10 @@ class SecurityHumanDetector:
             while True:
                 # Capture frame
                 frame = self.picam2.capture_array()
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                # Note: Camera is already configured for RGB888, so no conversion needed
+                if len(frame.shape) == 3 and frame.shape[2] == 3:
+                    # Convert RGB to BGR for OpenCV
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 frame_count += 1
                 
                 if self.debug_mode and frame_count % 30 == 0:  # Debug info every 30 frames
@@ -417,8 +428,13 @@ class SecurityHumanDetector:
                 status_text = f"Detections: {len(unique_detections)} | Frame: {frame_count} | Debug: {'ON' if self.debug_mode else 'OFF'}"
                 cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
                 
-                # Show frame
-                cv2.imshow('🎥 Enhanced Security Camera - Multiple Detection Methods', frame)
+                # Show frame with error handling
+                try:
+                    cv2.imshow('🎥 Enhanced Security Camera - Multiple Detection Methods', frame)
+                    cv2.waitKey(1)  # Process window events
+                except Exception as e:
+                    if self.debug_mode:
+                        logger.warning(f"Display error (detection still working): {e}")
                 
                 # Handle key presses
                 key = cv2.waitKey(1) & 0xFF
@@ -438,8 +454,16 @@ class SecurityHumanDetector:
             logger.error(f"Detection error: {e}")
         finally:
             self.picam2.stop()
+            logger.info("Camera stopped")
             cv2.destroyAllWindows()
             logger.info(f"Security monitoring completed. Total detections: {detection_count}")
+            
+            # Clean up camera resources
+            try:
+                self.picam2.close()
+                logger.info("Camera closed successfully.")
+            except Exception as e:
+                logger.warning(f"Camera cleanup warning: {e}")
 
 def main():
     detector = SecurityHumanDetector()
