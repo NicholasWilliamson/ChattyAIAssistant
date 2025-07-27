@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-test_facial_recognition.py
-Test facial recognition with personalized TTS responses using Piper
+test_facial_recognition.py with Telegram Integration
+Test facial recognition with personalized TTS responses using Piper and Telegram alerts
 """
 
 import cv2
@@ -10,6 +10,8 @@ import pickle
 import os
 import subprocess
 import time
+import json
+import requests
 from picamera2 import Picamera2
 from datetime import datetime
 
@@ -21,6 +23,7 @@ VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
 PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
 RESPONSE_AUDIO = "recognition_response.wav"
+TELEGRAM_CONFIG_FILE = "telegram_config.json"
 
 # Personalized responses for different people
 PERSON_RESPONSES = {
@@ -30,18 +33,21 @@ PERSON_RESPONSES = {
         "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
         "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?"
     ],
-    "Spiderman": [
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!"
-    ],
     "Unknown": [
         "Hello there! I don't recognize you yet.",
         "Hi! You're new to me. Nice to meet you!",
         "Hello stranger! Would you like to be registered?",
         "Hi there! I haven't seen you before."
     ]
+}
+
+# Telegram messages for different people
+TELEGRAM_MESSAGES = {
+    "known": {
+        "Nick": "🏠 **AUTHORIZED ACCESS** 🏠\n\n👤 **Person:** Nick (Master)\n⏰ **Time:** {timestamp}\n✅ **Status:** Authorized User\n🎯 **Confidence:** {confidence:.1%}\n\n💬 **Response:** Greeted with personalized welcome message",
+        "Spiderman": "🕷️ **SUPER HERO DETECTED** 🕷️\n\n👤 **Person:** Spider-Man\n⏰ **Time:** {timestamp}\n✅ **Status:** Favorite Super Hero!\n🎯 **Confidence:** {confidence:.1%}\n\n💬 **Response:** Special hero greeting delivered"
+    },
+    "unknown": "🚨 **UNKNOWN PERSON DETECTED** 🚨\n\n👤 **Person:** Unknown Individual\n⏰ **Time:** {timestamp}\n⚠️ **Status:** Unregistered Person\n🔍 **Action:** Photo captured for review\n\n💡 **Note:** Consider registering this person if they should have access"
 }
 
 class FacialRecognitionTester:
@@ -51,6 +57,11 @@ class FacialRecognitionTester:
         self.load_encodings()
         self.last_recognition_time = {}
         self.recognition_cooldown = 5  # seconds between recognitions for same person
+        
+        # Telegram configuration
+        self.telegram_token = None
+        self.telegram_chat_id = None
+        self.load_telegram_config()
         
     def load_encodings(self):
         """Load the facial recognition encodings"""
@@ -68,6 +79,114 @@ class FacialRecognitionTester:
             return False
         except Exception as e:
             print(f"[ERROR] Failed to load encodings: {e}")
+            return False
+    
+    def load_telegram_config(self):
+        """Load Telegram configuration"""
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            
+            if self.telegram_token and self.telegram_chat_id:
+                print("[INFO] Telegram configuration loaded successfully")
+                self.test_telegram_connection()
+            else:
+                print("[WARNING] Incomplete Telegram configuration")
+        except FileNotFoundError:
+            print("[WARNING] Telegram config file not found. Creating template...")
+            self.create_telegram_config_template()
+        except Exception as e:
+            print(f"[ERROR] Failed to load Telegram config: {e}")
+    
+    def create_telegram_config_template(self):
+        """Create a template telegram config file"""
+        template_config = {
+            "bot_token": "YOUR_BOT_TOKEN_HERE",
+            "chat_id": "YOUR_CHAT_ID_HERE",
+            "instructions": {
+                "step1": "Create a bot by messaging @BotFather on Telegram",
+                "step2": "Get your bot token from BotFather",
+                "step3": "Start a chat with your bot and send any message",
+                "step4": "Visit https://api.telegram.org/botYOUR_BOT_TOKEN/getUpdates to get your chat_id",
+                "step5": "Replace YOUR_BOT_TOKEN_HERE and YOUR_CHAT_ID_HERE with actual values"
+            }
+        }
+        
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'w') as f:
+                json.dump(template_config, f, indent=4)
+            print(f"[INFO] Created {TELEGRAM_CONFIG_FILE} template")
+            print("[INFO] Please edit this file with your Telegram bot credentials")
+        except Exception as e:
+            print(f"[ERROR] Failed to create config template: {e}")
+    
+    def test_telegram_connection(self):
+        """Test the Telegram bot connection"""
+        try:
+            url = f"https://api.telegram.org/bot{self.telegram_token}/getMe"
+            response = requests.get(url, timeout=5)
+            
+            if response.status_code == 200:
+                bot_info = response.json()
+                bot_name = bot_info['result']['first_name']
+                print(f"[INFO] Telegram bot '{bot_name}' connected successfully")
+                return True
+            else:
+                print(f"[ERROR] Telegram bot connection failed: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"[ERROR] Telegram connection test failed: {e}")
+            return False
+    
+    def send_telegram_alert(self, person_name, confidence, photo_path):
+        """Send Telegram alert with photo and message"""
+        if not self.telegram_token or not self.telegram_chat_id:
+            print("[WARNING] Telegram not configured - skipping alert")
+            return False
+        
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Choose appropriate message
+            if person_name == "Unknown":
+                message = TELEGRAM_MESSAGES["unknown"].format(timestamp=timestamp)
+                emoji_status = "🚨 UNKNOWN"
+            else:
+                if person_name in TELEGRAM_MESSAGES["known"]:
+                    message = TELEGRAM_MESSAGES["known"][person_name].format(
+                        timestamp=timestamp, 
+                        confidence=confidence
+                    )
+                else:
+                    # Generic known person message
+                    message = f"✅ **KNOWN PERSON DETECTED** ✅\n\n👤 **Person:** {person_name}\n⏰ **Time:** {timestamp}\n✅ **Status:** Registered User\n🎯 **Confidence:** {confidence:.1%}"
+                emoji_status = "✅ KNOWN"
+            
+            # Send photo with caption
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
+            
+            with open(photo_path, 'rb') as photo:
+                files = {'photo': photo}
+                data = {
+                    'chat_id': self.telegram_chat_id,
+                    'caption': message,
+                    'parse_mode': 'Markdown'
+                }
+                
+                response = requests.post(url, data=data, files=files, timeout=30)
+            
+            if response.status_code == 200:
+                print(f"[TELEGRAM] ✅ Alert sent: {emoji_status} - {person_name}")
+                return True
+            else:
+                print(f"[TELEGRAM] ❌ Failed to send alert: {response.status_code}")
+                print(f"[TELEGRAM] Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"[ERROR] Telegram alert failed: {e}")
             return False
     
     def speak_text(self, text):
@@ -116,6 +235,33 @@ class FacialRecognitionTester:
         
         return False
     
+    def save_detection_photo(self, frame, person_name, confidence):
+        """Save a photo of the detected person"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        if person_name == "Unknown":
+            filename = f"unknown_person_{timestamp}.jpg"
+        else:
+            filename = f"{person_name.lower()}_{timestamp}.jpg"
+        
+        # Add timestamp and info overlay to the image
+        overlay_frame = frame.copy()
+        
+        # Add background rectangle for text
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
+        
+        # Add text overlay
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
+        if person_name != "Unknown":
+            cv2.putText(overlay_frame, f"Confidence: {confidence:.1%}", (20, 85), font, 0.6, (255, 255, 255), 2)
+        
+        cv2.imwrite(filename, overlay_frame)
+        print(f"📸 Detection photo saved: {filename}")
+        return filename
+    
     def process_frame(self, frame):
         """Process a frame for facial recognition"""
         # Convert BGR to RGB
@@ -149,26 +295,35 @@ class FacialRecognitionTester:
                     name = self.known_names[best_match_index]
                     print(f"[DEBUG] Recognized {name} with confidence: {confidence:.2f}")
             
-            recognized_names.append(name)
+            recognized_names.append((name, confidence))
         
         # Draw rectangles and labels on faces
-        for (top, right, bottom, left), name in zip(face_locations, recognized_names):
+        for (top, right, bottom, left), (name, confidence) in zip(face_locations, recognized_names):
             # Draw rectangle around face
             color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
             cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
             
-            # Draw label
+            # Draw label with confidence
+            label = f"{name}"
+            if name != "Unknown":
+                label += f" ({confidence:.1%})"
+            
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
+            cv2.putText(frame, label, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
             
-            # Speak greeting if enough time has passed
+            # Handle recognition events
             if self.should_recognize_person(name):
+                # Speak greeting
                 response = self.get_personalized_response(name)
                 print(f"[RECOGNIZED] {name} - {response}")
                 self.speak_text(response)
+                
+                # Save photo and send Telegram alert
+                photo_path = self.save_detection_photo(frame, name, confidence)
+                self.send_telegram_alert(name, confidence, photo_path)
         
-        return frame, recognized_names
+        return frame, [name for name, _ in recognized_names]
     
     def run_test(self):
         """Run the facial recognition test"""
@@ -176,8 +331,8 @@ class FacialRecognitionTester:
             print("❌ No encodings loaded. Cannot run test.")
             return
         
-        print("[INFO] Starting facial recognition test...")
-        print("Press 'q' to quit, 's' to save current frame")
+        print("[INFO] Starting facial recognition test with Telegram alerts...")
+        print("Press 'q' to quit, 's' to save current frame, 't' to test Telegram")
         
         # Initialize camera
         picam2 = Picamera2()
@@ -199,9 +354,9 @@ class FacialRecognitionTester:
                 # Process every 3rd frame for performance
                 if frame_count % 3 == 0:
                     processed_frame, names = self.process_frame(frame.copy())
-                    cv2.imshow('Facial Recognition Test', processed_frame)
+                    cv2.imshow('Facial Recognition with Telegram Alerts', processed_frame)
                 else:
-                    cv2.imshow('Facial Recognition Test', frame)
+                    cv2.imshow('Facial Recognition with Telegram Alerts', frame)
                 
                 # Handle key presses
                 key = cv2.waitKey(1) & 0xFF
@@ -211,9 +366,16 @@ class FacialRecognitionTester:
                 elif key == ord('s'):
                     # Save current frame
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"recognition_test_{timestamp}.jpg"
+                    filename = f"manual_save_{timestamp}.jpg"
                     cv2.imwrite(filename, frame)
                     print(f"📸 Frame saved as {filename}")
+                elif key == ord('t'):
+                    # Test Telegram connection
+                    print("[INFO] Testing Telegram connection...")
+                    if self.test_telegram_connection():
+                        # Send test message
+                        test_photo = self.save_detection_photo(frame, "Test", 1.0)
+                        self.send_telegram_alert("Test", 1.0, test_photo)
         
         except KeyboardInterrupt:
             print("\n[INFO] Test interrupted by user")
@@ -226,8 +388,8 @@ class FacialRecognitionTester:
 
 def main():
     """Main function"""
-    print("🤖 Facial Recognition Test with Piper TTS")
-    print("=" * 50)
+    print("🤖 Facial Recognition Test with Piper TTS & Telegram Alerts")
+    print("=" * 60)
     
     # Check if required files exist
     if not os.path.exists(ENCODINGS_FILE):
