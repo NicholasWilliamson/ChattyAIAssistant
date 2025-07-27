@@ -1,366 +1,67 @@
 Thank you Claude!
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_camera_display.py
-🔧 OpenCV Display Diagnostic Test
-========================================
-Testing OpenCV display functionality...
-Test 1: Creating and displaying a simple image...
-✅ Image window created successfully
-✅ Image window closed successfully
+That ran perfectly after I edited the telegram config file with my telegram tokens.
 
-Test 2: Live camera feed...
-[22:41:44.887686873] [9178]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[22:41:44.900829232] [9188]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[22:41:44.912728916] [9188]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-[22:41:44.915623782] [9178]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-RGB888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[22:41:44.915721725] [9188]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-✅ Camera started successfully
-Displaying live feed for 5 seconds...
-✅ Live camera display successful - 71 frames
-
-Test 3: Testing window creation and destruction...
-✅ Multiple window test successful
-
-✅ All display tests passed!
-The display system should work in your detection application.
-
-If tests pass but main app doesn't show window:
-1. Check for threading issues
-2. Verify cv2.waitKey(1) is being called
-3. Ensure no exception is breaking the display loop
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 human_detection.py
-2025-07-27 11:41:21,995 - INFO - Loaded 0 face encodings
-[22:45:00.307538289] [9201]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[22:45:00.314550794] [9207]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[22:45:00.323942723] [9207]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-2025-07-27 11:41:22,014 - INFO - Initialization successful.
-2025-07-27 11:41:22,014 - INFO - Camera now open.
-2025-07-27 11:41:22,016 - INFO - Camera configuration has been adjusted!
-[22:45:00.327709406] [9201]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-RGB888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[22:45:00.327812004] [9207]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-2025-07-27 11:41:22,016 - INFO - Configuration successful!
-2025-07-27 11:41:22,018 - INFO - Camera configuration has been adjusted!
-2025-07-27 11:41:23,710 - INFO - YOLO loaded successfully
-2025-07-27 11:41:23,775 - INFO - Haar cascades loaded successfully
-2025-07-27 11:41:23,776 - WARNING - Telegram config not found. Notifications disabled.
-🛡️ Security Human Detection Application (DEBUG MODE)
-==================================================
-This system detects people using multiple methods!
-DEBUG MODE: Detailed detection information will be shown
-Press 'q' to quit, 's' to save current frame, 'd' to toggle debug
-2025-07-27 11:41:23,780 - INFO - Camera started
-2025-07-27 11:41:23,780 - INFO - Camera started
-2025-07-27 11:41:23,780 - INFO - Starting Enhanced Security Person Detection System...
-2025-07-27 11:41:44,798 - INFO - YOLO detected person: confidence=1.00
-2025-07-27 11:41:49,119 - INFO - Face recognition (CNN) detected face at (0, 69, 428, 411)
-2025-07-27 11:41:49,123 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 11:41:49 using YOLO (confidence: 1.00)
-2025-07-27 11:41:50,069 - INFO - YOLO detected person: confidence=1.00
-2025-07-27 11:41:54,383 - INFO - Face recognition (CNN) detected face at (24, 18, 507, 462)
-2025-07-27 11:41:54,388 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 11:41:54 using YOLO (confidence: 1.00)
-2025-07-27 11:41:55,355 - INFO - YOLO detected person: confidence=1.00
-2025-07-27 11:41:55,355 - INFO - YOLO detected person: confidence=0.44
-2025-07-27 11:41:59,643 - INFO - Face recognition (CNN) detected face at (24, 120, 507, 360)
-2025-07-27 11:41:59,646 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 11:41:59 using YOLO (confidence: 1.00)
-2025-07-27 11:42:00,609 - INFO - YOLO detected person: confidence=0.94
-2025-07-27 11:42:04,913 - INFO - Face recognition (CNN) detected face at (69, 248, 353, 232)
-2025-07-27 11:42:04,916 - INFO - DETECTION: 🚨 Person detected at 2025-07-27 11:42:04 using face_recognition_cnn (confidence: 0.95)
-2025-07-27 11:42:20,945 - INFO - Camera stopped
-2025-07-27 11:42:20,945 - INFO - Camera stopped
-2025-07-27 11:42:20,947 - INFO - Security monitoring completed. Total detections: 5
-2025-07-27 11:42:21,347 - INFO - Camera closed successfully.
-2025-07-27 11:42:21,347 - INFO - Camera closed successfully.
-
-The test_camera_display.py test worked perfectly and the camera detection window opened perfectly.
-
-The human_detection.py started okay but the camera detection window did not fully open.
-
-I also noted a warning: WARNING - Telegram config not found. Notifications disabled.
-
-I think I want to go back to this application and ignore the fact it won't recognize anyone wearing a mask for nw.
-
-test_facial_recognition.py
-#!/usr/bin/env python3
-"""
-test_facial_recognition.py
-Test facial recognition with personalized TTS responses using Piper
-"""
-
-import cv2
-import face_recognition
-import pickle
-import os
-import subprocess
-import time
-from picamera2 import Picamera2
-from datetime import datetime
-
-# -------------------------------
-# Configuration
-# -------------------------------
-ENCODINGS_FILE = "encodings.pickle"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-RESPONSE_AUDIO = "recognition_response.wav"
-
-# Personalized responses for different people
-PERSON_RESPONSES = {
-    "Nick": [
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?"
-    ],
-    "Spiderman": [
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!",
-        "Hello Spider Man. O M G. You are my favourite super hero. It will be my honor to help you!"
-    ],
-    "Unknown": [
-        "Hello there! I don't recognize you yet.",
-        "Hi! You're new to me. Nice to meet you!",
-        "Hello stranger! Would you like to be registered?",
-        "Hi there! I haven't seen you before."
-    ]
-}
-
-class FacialRecognitionTester:
-    def __init__(self):
-        self.known_encodings = []
-        self.known_names = []
-        self.load_encodings()
-        self.last_recognition_time = {}
-        self.recognition_cooldown = 5  # seconds between recognitions for same person
-        
-    def load_encodings(self):
-        """Load the facial recognition encodings"""
-        try:
-            print("[INFO] Loading facial encodings...")
-            with open(ENCODINGS_FILE, "rb") as f:
-                data = pickle.loads(f.read())
-            self.known_encodings = data["encodings"]
-            self.known_names = data["names"]
-            print(f"[INFO] Loaded {len(self.known_encodings)} face encodings")
-            return True
-        except FileNotFoundError:
-            print(f"[ERROR] Encodings file '{ENCODINGS_FILE}' not found!")
-            print("Please run model_training.py first to create the encodings.")
-            return False
-        except Exception as e:
-            print(f"[ERROR] Failed to load encodings: {e}")
-            return False
-    
-    def speak_text(self, text):
-        """Convert text to speech using Piper"""
-        print(f"🔊 Speaking: {text}")
-        try:
-            # Generate audio with Piper
-            command = [
-                PIPER_EXECUTABLE,
-                "--model", VOICE_PATH,
-                "--config", CONFIG_PATH,
-                "--output_file", RESPONSE_AUDIO
-            ]
-            subprocess.run(command, input=text.encode("utf-8"), check=True)
-            
-            # Play the audio
-            subprocess.run(["aplay", RESPONSE_AUDIO], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"❌ TTS failed: {e}")
-        except Exception as e:
-            print(f"❌ TTS error: {e}")
-    
-    def get_personalized_response(self, name):
-        """Get a personalized response for the recognized person"""
-        import random
-        
-        if name in PERSON_RESPONSES:
-            responses = PERSON_RESPONSES[name]
-        else:
-            # Use generic responses for unknown people
-            responses = PERSON_RESPONSES["Unknown"]
-        
-        return random.choice(responses)
-    
-    def should_recognize_person(self, name):
-        """Check if enough time has passed since last recognition of this person"""
-        current_time = time.time()
-        if name not in self.last_recognition_time:
-            self.last_recognition_time[name] = current_time
-            return True
-        
-        time_since_last = current_time - self.last_recognition_time[name]
-        if time_since_last >= self.recognition_cooldown:
-            self.last_recognition_time[name] = current_time
-            return True
-        
-        return False
-    
-    def process_frame(self, frame):
-        """Process a frame for facial recognition"""
-        # Convert BGR to RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Try both detection methods for better mask recognition
-        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-        if len(face_locations) == 0:
-            # Try CNN model if HOG fails (slower but sometimes better for masks)
-            face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
-        
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        
-        recognized_names = []
-        
-        # Process each face found
-        for face_encoding in face_encodings:
-            # Compare with known faces - increased tolerance for masks
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
-            name = "Unknown"
-            confidence = 0.0
-            
-            if True in matches:
-                # Find the best match
-                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
-                best_match_index = face_distances.argmin()
-                confidence = 1.0 - face_distances[best_match_index]
-                
-                # Lower confidence threshold for masks
-                if matches[best_match_index] and confidence > 0.4:
-                    name = self.known_names[best_match_index]
-                    print(f"[DEBUG] Recognized {name} with confidence: {confidence:.2f}")
-            
-            recognized_names.append(name)
-        
-        # Draw rectangles and labels on faces
-        for (top, right, bottom, left), name in zip(face_locations, recognized_names):
-            # Draw rectangle around face
-            color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-            
-            # Draw label
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
-            
-            # Speak greeting if enough time has passed
-            if self.should_recognize_person(name):
-                response = self.get_personalized_response(name)
-                print(f"[RECOGNIZED] {name} - {response}")
-                self.speak_text(response)
-        
-        return frame, recognized_names
-    
-    def run_test(self):
-        """Run the facial recognition test"""
-        if not self.known_encodings:
-            print("❌ No encodings loaded. Cannot run test.")
-            return
-        
-        print("[INFO] Starting facial recognition test...")
-        print("Press 'q' to quit, 's' to save current frame")
-        
-        # Initialize camera
-        picam2 = Picamera2()
-        picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
-        picam2.start()
-        
-        # Allow camera to warm up
-        time.sleep(2)
-        print("🎥 Camera ready! Look at the camera for recognition.")
-        
-        frame_count = 0
-        
-        try:
-            while True:
-                # Capture frame
-                frame = picam2.capture_array()
-                frame_count += 1
-                
-                # Process every 3rd frame for performance
-                if frame_count % 3 == 0:
-                    processed_frame, names = self.process_frame(frame.copy())
-                    cv2.imshow('Facial Recognition Test', processed_frame)
-                else:
-                    cv2.imshow('Facial Recognition Test', frame)
-                
-                # Handle key presses
-                key = cv2.waitKey(1) & 0xFF
-                
-                if key == ord('q'):
-                    break
-                elif key == ord('s'):
-                    # Save current frame
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"recognition_test_{timestamp}.jpg"
-                    cv2.imwrite(filename, frame)
-                    print(f"📸 Frame saved as {filename}")
-        
-        except KeyboardInterrupt:
-            print("\n[INFO] Test interrupted by user")
-        
-        finally:
-            # Cleanup
-            cv2.destroyAllWindows()
-            picam2.stop()
-            print("[INFO] Facial recognition test completed")
-
-def main():
-    """Main function"""
-    print("🤖 Facial Recognition Test with Piper TTS")
-    print("=" * 50)
-    
-    # Check if required files exist
-    if not os.path.exists(ENCODINGS_FILE):
-        print(f"❌ Error: {ENCODINGS_FILE} not found!")
-        print("Please run model_training.py first to create the face encodings.")
-        return
-    
-    if not os.path.exists(VOICE_PATH):
-        print(f"❌ Error: Voice file not found at {VOICE_PATH}")
-        return
-    
-    if not os.path.exists(PIPER_EXECUTABLE):
-        print(f"❌ Error: Piper executable not found at {PIPER_EXECUTABLE}")
-        return
-    
-    # Initialize and run the test
-    tester = FacialRecognitionTester()
-    tester.run_test()
-
-if __name__ == "__main__":
-    main()
-
-I ran (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_facial_recognition.py
-🤖 Facial Recognition Test with Piper TTS
-==================================================
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_facial_recognition.py
+🤖 Facial Recognition Test with Piper TTS & Telegram Alerts
+============================================================
 [INFO] Loading facial encodings...
 [INFO] Loaded 22 face encodings
-[INFO] Starting facial recognition test...
-Press 'q' to quit, 's' to save current frame
-[22:51:43.958139151] [9297]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[22:51:43.967643793] [9303]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[22:51:43.977004653] [9303]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-[22:51:43.980113772] [9297]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[22:51:43.980215349] [9303]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+[WARNING] Telegram config file not found. Creating template...
+[INFO] Created telegram_config.json template
+[INFO] Please edit this file with your Telegram bot credentials
+[INFO] Starting facial recognition test with Telegram alerts...
+Press 'q' to quit, 's' to save current frame, 't' to test Telegram
+[23:28:26.972635983] [9759]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[23:28:26.979657051] [9766]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[23:28:26.988987408] [9766]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[23:28:26.991857643] [9759]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[23:28:26.991963921] [9766]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
 🎥 Camera ready! Look at the camera for recognition.
-[DEBUG] Recognized Nick with confidence: 0.56
+[DEBUG] Recognized Nick with confidence: 0.50
 [RECOGNIZED] Nick - Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
 🔊 Speaking: Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
-[2025-07-27 11:48:22.430] [piper] [info] Loaded voice in 0.975424818 second(s)
-[2025-07-27 11:48:22.440] [piper] [info] Initialized piper
+[2025-07-27 12:25:08.879] [piper] [info] Loaded voice in 0.353921046 second(s)
+[2025-07-27 12:25:08.880] [piper] [info] Initialized piper
 recognition_response.wav
-[2025-07-27 11:48:23.314] [piper] [info] Real-time factor: 0.09974803541252486 (infer=0.802772189 sec, audio=8.048 sec)
-[2025-07-27 11:48:23.314] [piper] [info] Terminated piper
+[2025-07-27 12:25:09.689] [piper] [info] Real-time factor: 0.09871734627712032 (infer=0.8007951130000001 sec, audio=8.112 sec)
+[2025-07-27 12:25:09.689] [piper] [info] Terminated piper
 Playing WAVE 'recognition_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+📸 Detection photo saved: nick_20250727_122518.jpg
+[WARNING] Telegram not configured - skipping alert
+[INFO] Facial recognition test completed
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_facial_recognition.py
+🤖 Facial Recognition Test with Piper TTS & Telegram Alerts
+============================================================
+[INFO] Loading facial encodings...
+[INFO] Loaded 22 face encodings
+[INFO] Telegram configuration loaded successfully
+[INFO] Telegram bot 'Nicks PI 5 Bot' connected successfully
+[INFO] Starting facial recognition test with Telegram alerts...
+Press 'q' to quit, 's' to save current frame, 't' to test Telegram
+[23:33:16.855659410] [9859]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[23:33:16.862653514] [9865]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[23:33:16.872072684] [9865]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[23:33:16.875595107] [9859]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[23:33:16.875738144] [9865]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+🎥 Camera ready! Look at the camera for recognition.
+[DEBUG] Recognized Nick with confidence: 0.70
+[RECOGNIZED] Nick - Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
+🔊 Speaking: Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
+[2025-07-27 12:29:54.704] [piper] [info] Loaded voice in 0.349267723 second(s)
+[2025-07-27 12:29:54.705] [piper] [info] Initialized piper
+recognition_response.wav
+[2025-07-27 12:29:55.523] [piper] [info] Real-time factor: 0.09905801051859099 (infer=0.8098982939999999 sec, audio=8.176 sec)
+[2025-07-27 12:29:55.523] [piper] [info] Terminated piper
+Playing WAVE 'recognition_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+📸 Detection photo saved: nick_20250727_123004.jpg
+[TELEGRAM] ✅ Alert sent: ✅ KNOWN - Nick
 [INFO] Facial recognition test completed
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-This correctly detected my face using my original encodings.pickle face detection model, and spoke to correct response.
+Now I would just like the detection photograph saved to my /home/nickspi5/Chatty_AI/security_photos folder and also a log record saved to a human_detections.log file in my /home/nickspi5/Chatty_AI/security_logs folder.
 
-However, I want to add a Telegram alerts to send a captured photo of the person detected to Telegram along with a message as to if it is a known person or an unkown person.
-
-Please modify my test_facial_recognition.py script to include Telegram alerts.
+Please modify my Python script to suit.
 
 
 
