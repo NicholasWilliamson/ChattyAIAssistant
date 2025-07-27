@@ -1,483 +1,449 @@
 #!/usr/bin/env python3
 """
-human_detection.py
-Fixed security system with proper person detection and Telegram alerts
+Enhanced Human Detection System with Debug Mode
+Detects people using multiple methods with debugging information
 """
 
 import cv2
+import numpy as np
 import face_recognition
 import pickle
-import os
-import subprocess
-import time
-import numpy as np
 import json
+import datetime
+import logging
 import requests
 from picamera2 import Picamera2
-from datetime import datetime
-import logging
+import time
 
-# -------------------------------
-# Configuration
-# -------------------------------
-ENCODINGS_FILE = "encodings.pickle"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-RESPONSE_AUDIO = "security_response.wav"
-ALERTS_FOLDER = "security_alerts"
-CONFIG_FILE = "/home/nickspi5/Chatty_AI/server/config.json"
-LOG_FILE = "security_detection.log"
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Security responses
-SECURITY_RESPONSES = {
-    "Nick": [
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-    ],
-    "Known_Person": [
-        "Hello! Welcome back. Security system recognizes you.",
-        "Hi there! Access granted. Have a good day."
-    ],
-    "Unknown_Person_Day": [
-        "Hello! I see someone is here. Please identify yourself.",
-        "Hello stranger! Unknown person detected. May I help you?",
-        "Hello stranger! I don't recognize you. Are you expected by the home owner?"
-    ],
-    "Unknown_Person_Night": [
-        "Security Alert! Unknown person detected during night hours!",
-        "Warning! Unauthorized person detected. Authorities may be contacted.",
-        "Alert! Unknown individual detected outside day light hours!"
-    ],
-    "Masked_Person": [
-        "Alert! Person detected with face covering. Please identify yourself immediately!",
-        "Security Warning! Individual with concealed face detected!",
-        "Attention! Person with mask detected. State your identity and purpose immediately!"
-    ]
-}
-
-class SecurityPersonDetector:
+class SecurityHumanDetector:
     def __init__(self):
-        self.known_encodings = []
-        self.known_names = []
-        self.load_encodings()
-        self.last_alert_time = {}
-        self.alert_cooldown = 15  # seconds between alerts for same type
-        self.setup_person_detection()
-        self.create_alerts_folder()
-        self.setup_logging()
-        self.load_config()
-        self.background_subtractor = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
-        self.frame_count = 0
-        self.motion_threshold = 1000  # Minimum contour area for motion detection
+        self.debug_mode = True  # Enable debug output
+        self.known_face_encodings = []
+        self.known_face_names = []
+        self.load_face_encodings()
         
-    def setup_logging(self):
-        """Setup logging for security events"""
-        logging.basicConfig(
-            filename=LOG_FILE,
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        self.logger = logging.getLogger(__name__)
+        # Initialize camera
+        self.picam2 = Picamera2()
+        config = self.picam2.create_preview_configuration(main={"size": (640, 480)})
+        self.picam2.configure(config)
         
-    def load_config(self):
+        # Initialize detection methods
+        self.init_detection_methods()
+        
+        # Load Telegram config
+        self.load_telegram_config()
+        
+    def load_face_encodings(self):
+        """Load known face encodings"""
+        try:
+            with open('face_encodings.pkl', 'rb') as f:
+                data = pickle.load(f)
+                self.known_face_encodings = data['encodings']
+                self.known_face_names = data['names']
+            logger.info(f"Loaded {len(self.known_face_encodings)} face encodings")
+        except FileNotFoundError:
+            logger.warning("No face encodings file found. Face recognition disabled.")
+    
+    def init_detection_methods(self):
+        """Initialize all detection methods"""
+        # Try to load YOLO
+        self.yolo_net = None
+        self.yolo_output_layers = None
+        
+        try:
+            self.yolo_net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
+            layer_names = self.yolo_net.getLayerNames()
+            self.yolo_output_layers = [layer_names[i - 1] for i in self.yolo_net.getUnconnectedOutLayers()]
+            logger.info("YOLO loaded successfully")
+        except Exception as e:
+            logger.warning(f"YOLO not available: {e}. Using backup detection methods.")
+        
+        # Initialize HOG detector (more sensitive)
+        self.hog = cv2.HOGDescriptor()
+        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        
+        # Initialize Haar cascades
+        try:
+            self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+            self.body_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fullbody.xml')
+            self.upper_body_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
+            logger.info("Haar cascades loaded successfully")
+        except Exception as e:
+            logger.error(f"Error loading Haar cascades: {e}")
+    
+    def load_telegram_config(self):
         """Load Telegram configuration"""
         try:
-            with open(CONFIG_FILE, 'r') as f:
+            with open('telegram_config.json', 'r') as f:
                 config = json.load(f)
-            self.telegram_bot_token = config.get('telegram_bot_token')
-            self.telegram_chat_id = config.get('telegram_chat_id')
-            print("[INFO] Telegram configuration loaded")
-        except Exception as e:
-            print(f"[WARNING] Could not load Telegram config: {e}")
-            self.telegram_bot_token = None
-            self.telegram_chat_id = None
-            
-    def create_alerts_folder(self):
-        """Create folder for storing security alert images"""
-        if not os.path.exists(ALERTS_FOLDER):
-            os.makedirs(ALERTS_FOLDER)
-    
-    def setup_person_detection(self):
-        """Initialize YOLO person detection"""
-        try:
-            # Check if weights file is actually valid (should be large)
-            if os.path.exists("yolov3.weights"):
-                file_size = os.path.getsize("yolov3.weights")
-                if file_size < 1000000:  # Less than 1MB means it's probably HTML
-                    print(f"[WARNING] YOLO weights file too small ({file_size} bytes). Probably HTML page.")
-                    raise Exception("Invalid weights file")
-                    
-            # Load YOLO
-            self.net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
-            self.classes = []
-            with open("coco.names", "r") as f:
-                self.classes = [line.strip() for line in f.readlines()]
-            self.layer_names = self.net.getLayerNames()
-            self.output_layers = [self.layer_names[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
-            self.use_yolo = True
-            print("[INFO] YOLO person detection initialized successfully")
-            return True
-        except Exception as e:
-            print(f"[WARNING] YOLO not available ({e}). Using improved backup detection.")
-            self.use_yolo = False
-            return False
-    
-    def load_encodings(self):
-        """Load facial recognition encodings"""
-        try:
-            with open(ENCODINGS_FILE, "rb") as f:
-                data = pickle.loads(f.read())
-            self.known_encodings = data["encodings"]
-            self.known_names = data["names"]
-            print(f"[INFO] Loaded {len(self.known_encodings)} face encodings")
-            return True
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            logger.info("Telegram configuration loaded")
         except FileNotFoundError:
-            print("[WARNING] No face encodings found. Running in person detection only mode.")
-            return False
+            logger.warning("Telegram config not found. Notifications disabled.")
+            self.telegram_token = None
+            self.telegram_chat_id = None
     
-    def detect_motion(self, frame):
-        """Detect motion using background subtraction"""
-        fg_mask = self.background_subtractor.apply(frame)
+    def detect_with_yolo(self, frame):
+        """Detect people using YOLO"""
+        if self.yolo_net is None:
+            return []
         
-        # Noise reduction
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_CLOSE, kernel)
-        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
-        
-        # Find contours
-        contours, _ = cv2.findContours(fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Filter significant motion
-        significant_contours = []
-        for contour in contours:
-            if cv2.contourArea(contour) > self.motion_threshold:
-                significant_contours.append(contour)
-        
-        return significant_contours, fg_mask
+        try:
+            height, width = frame.shape[:2]
+            blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+            self.yolo_net.setInput(blob)
+            outputs = self.yolo_net.forward(self.yolo_output_layers)
+            
+            boxes = []
+            confidences = []
+            
+            for output in outputs:
+                for detection in output:
+                    scores = detection[5:]
+                    class_id = np.argmax(scores)
+                    confidence = scores[class_id]
+                    
+                    if class_id == 0 and confidence > 0.3:  # Lower threshold for better detection
+                        center_x = int(detection[0] * width)
+                        center_y = int(detection[1] * height)
+                        w = int(detection[2] * width)
+                        h = int(detection[3] * height)
+                        x = int(center_x - w / 2)
+                        y = int(center_y - h / 2)
+                        
+                        boxes.append([x, y, w, h])
+                        confidences.append(float(confidence))
+            
+            # Apply non-maximum suppression
+            indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.4)
+            detections = []
+            
+            if len(indices) > 0:
+                for i in indices.flatten():
+                    x, y, w, h = boxes[i]
+                    detections.append((x, y, w, h, confidences[i]))
+                    if self.debug_mode:
+                        logger.info(f"YOLO detected person: confidence={confidences[i]:.2f}")
+            
+            return detections
+        except Exception as e:
+            if self.debug_mode:
+                logger.error(f"YOLO detection error: {e}")
+            return []
     
-    def detect_persons_yolo(self, frame):
-        """Detect persons using YOLO"""
-        height, width, channels = frame.shape
-        
-        # Detecting objects
-        blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
-        self.net.setInput(blob)
-        outs = self.net.forward(self.output_layers)
-        
-        # Information to show on screen
-        class_ids = []
-        confidences = []
-        boxes = []
-        
-        # For each detection
-        for out in outs:
-            for detection in out:
-                scores = detection[5:]
-                class_id = np.argmax(scores)
-                confidence = scores[class_id]
+    def detect_with_hog(self, frame):
+        """Detect people using HOG descriptor - more sensitive"""
+        try:
+            # Convert to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            
+            # Detect people with multiple scales and lower threshold
+            detections = []
+            
+            # Try multiple detection parameters for better sensitivity
+            for scale in [1.03, 1.05, 1.1]:  # Different scales
+                for padding in [(4, 4), (8, 8), (16, 16)]:  # Different padding
+                    try:
+                        rects, weights = self.hog.detectMultiScale(
+                            gray, 
+                            winStride=(4, 4), 
+                            padding=padding, 
+                            scale=scale,
+                            hitThreshold=0.0,  # Lower threshold for better detection
+                            groupThreshold=1
+                        )
+                        
+                        for i, (x, y, w, h) in enumerate(rects):
+                            confidence = weights[i] if i < len(weights) else 0.5
+                            detections.append((x, y, w, h, confidence))
+                            if self.debug_mode:
+                                logger.info(f"HOG detected person: confidence={confidence:.2f}, scale={scale}")
+                    except Exception as e:
+                        if self.debug_mode:
+                            logger.debug(f"HOG detection failed with scale {scale}: {e}")
+                        continue
+            
+            # Remove duplicates
+            if detections:
+                detections = self.remove_duplicate_detections(detections)
                 
-                # Only detect persons (class_id = 0 in COCO dataset)
-                if confidence > 0.5 and class_id == 0:  # Increased confidence threshold
-                    # Object detected
-                    center_x = int(detection[0] * width)
-                    center_y = int(detection[1] * height)
-                    w = int(detection[2] * width)
-                    h = int(detection[3] * height)
-                    
-                    # Rectangle coordinates
-                    x = int(center_x - w / 2)
-                    y = int(center_y - h / 2)
-                    
-                    boxes.append([x, y, w, h])
-                    confidences.append(float(confidence))
-                    class_ids.append(class_id)
-        
-        # Non-maximum suppression
-        indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-        
-        detected_persons = []
-        if len(indexes) > 0:
-            for i in indexes.flatten():
-                detected_persons.append(boxes[i])
-        
-        return detected_persons
+            return detections
+        except Exception as e:
+            if self.debug_mode:
+                logger.error(f"HOG detection error: {e}")
+            return []
     
-    def detect_persons_backup(self, frame):
-        """Improved backup person detection using motion + face detection"""
-        detected_persons = []
-        
-        # Only detect if there's significant motion
-        motion_contours, fg_mask = self.detect_motion(frame)
-        
-        if len(motion_contours) == 0:
-            return []  # No motion, no person
-        
-        # If there's motion, check for faces or use body detection
+    def detect_with_cascades(self, frame):
+        """Detect using Haar cascades"""
+        detections = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
-        # First try face detection (most reliable)
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        faces = face_cascade.detectMultiScale(gray, 1.1, 5, minSize=(30, 30))
-        
-        if len(faces) > 0:
-            # Convert face detections to person boxes (expand the area)
+        try:
+            # Face detection - lower scale factor for better detection
+            faces = self.face_cascade.detectMultiScale(
+                gray, 
+                scaleFactor=1.05,  # Lower for better detection
+                minNeighbors=3,    # Lower for more sensitivity
+                minSize=(20, 20)   # Smaller minimum size
+            )
+            
             for (x, y, w, h) in faces:
-                # Expand face area to approximate person area
-                person_x = max(0, x - w//2)
-                person_y = max(0, y - h//4)
-                person_w = min(frame.shape[1] - person_x, w * 2)
-                person_h = min(frame.shape[0] - person_y, h * 3)
-                detected_persons.append([person_x, person_y, person_w, person_h])
-        else:
-            # If no faces but significant motion, try body detection
-            try:
-                body_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fullbody.xml')
-                bodies = body_cascade.detectMultiScale(gray, 1.1, 3, minSize=(50, 50))
-                detected_persons = [[x, y, w, h] for (x, y, w, h) in bodies if w*h > 2500]  # Filter small detections
-            except:
-                pass
-        
-        return detected_persons
-    
-    def detect_faces_and_analyze(self, frame):
-        """Detect and analyze faces for recognition"""
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-        
-        if len(face_locations) == 0:
-            return [], []
-        
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        recognized_names = []
-        
-        for face_encoding in face_encodings:
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
-            name = "Unknown"
+                detections.append((x, y, w, h, 0.8, "face"))
+                if self.debug_mode:
+                    logger.info(f"Face detected at ({x}, {y}, {w}, {h})")
             
-            if True in matches:
-                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
-                best_match_index = face_distances.argmin()
-                if matches[best_match_index]:
-                    name = self.known_names[best_match_index]
+            # Upper body detection
+            bodies = self.upper_body_cascade.detectMultiScale(
+                gray, 
+                scaleFactor=1.1, 
+                minNeighbors=3,
+                minSize=(30, 30)
+            )
             
-            recognized_names.append(name)
-        
-        return face_locations, recognized_names
-    
-    def is_night_time(self):
-        """Check if it's night time (6 PM to 6 AM)"""
-        current_hour = datetime.now().hour
-        return current_hour >= 18 or current_hour <= 6
-    
-    def should_alert(self, alert_type):
-        """Check if enough time has passed since last alert of this type"""
-        current_time = time.time()
-        if alert_type not in self.last_alert_time:
-            self.last_alert_time[alert_type] = current_time
-            return True
-        
-        time_since_last = current_time - self.last_alert_time[alert_type]
-        if time_since_last >= self.alert_cooldown:
-            self.last_alert_time[alert_type] = current_time
-            return True
-        
-        return False
-    
-    def speak_text(self, text):
-        """Convert text to speech using Piper"""
-        print(f"🔊 Security Alert: {text}")
-        try:
-            command = [
-                PIPER_EXECUTABLE,
-                "--model", VOICE_PATH,
-                "--config", CONFIG_PATH,
-                "--output_file", RESPONSE_AUDIO
-            ]
-            subprocess.run(command, input=text.encode("utf-8"), check=True)
-            subprocess.run(["aplay", RESPONSE_AUDIO], check=True)
+            for (x, y, w, h) in bodies:
+                detections.append((x, y, w, h, 0.7, "upper_body"))
+                if self.debug_mode:
+                    logger.info(f"Upper body detected at ({x}, {y}, {w}, {h})")
+            
+            # Full body detection
+            full_bodies = self.body_cascade.detectMultiScale(
+                gray, 
+                scaleFactor=1.1, 
+                minNeighbors=3,
+                minSize=(50, 50)
+            )
+            
+            for (x, y, w, h) in full_bodies:
+                detections.append((x, y, w, h, 0.6, "full_body"))
+                if self.debug_mode:
+                    logger.info(f"Full body detected at ({x}, {y}, {w}, {h})")
+                    
         except Exception as e:
-            print(f"❌ TTS error: {e}")
+            if self.debug_mode:
+                logger.error(f"Cascade detection error: {e}")
+        
+        return detections
     
-    def send_telegram_alert(self, message, photo_path=None):
-        """Send alert to Telegram"""
-        if not self.telegram_bot_token or not self.telegram_chat_id:
-            print("[WARNING] Telegram not configured")
-            return
+    def detect_with_face_recognition(self, frame):
+        """Detect faces using face_recognition library"""
+        try:
+            # Convert BGR to RGB
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Find face locations with different models
+            detections = []
+            
+            # Try HOG model (faster)
+            try:
+                face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+                for (top, right, bottom, left) in face_locations:
+                    w = right - left
+                    h = bottom - top
+                    detections.append((left, top, w, h, 0.9, "face_recognition_hog"))
+                    if self.debug_mode:
+                        logger.info(f"Face recognition (HOG) detected face at ({left}, {top}, {w}, {h})")
+            except Exception as e:
+                if self.debug_mode:
+                    logger.debug(f"Face recognition HOG failed: {e}")
+            
+            # Try CNN model (more accurate but slower)
+            try:
+                face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
+                for (top, right, bottom, left) in face_locations:
+                    w = right - left
+                    h = bottom - top
+                    detections.append((left, top, w, h, 0.95, "face_recognition_cnn"))
+                    if self.debug_mode:
+                        logger.info(f"Face recognition (CNN) detected face at ({left}, {top}, {w}, {h})")
+            except Exception as e:
+                if self.debug_mode:
+                    logger.debug(f"Face recognition CNN failed: {e}")
+            
+            return detections
+        except Exception as e:
+            if self.debug_mode:
+                logger.error(f"Face recognition error: {e}")
+            return []
+    
+    def remove_duplicate_detections(self, detections, overlap_threshold=0.3):
+        """Remove overlapping detections"""
+        if not detections:
+            return []
+        
+        # Sort by confidence
+        detections = sorted(detections, key=lambda x: x[4] if len(x) > 4 else 0.5, reverse=True)
+        
+        filtered = []
+        for detection in detections:
+            x1, y1, w1, h1 = detection[:4]
+            
+            # Check overlap with already accepted detections
+            overlap = False
+            for accepted in filtered:
+                x2, y2, w2, h2 = accepted[:4]
+                
+                # Calculate intersection over union
+                xi1 = max(x1, x2)
+                yi1 = max(y1, y2)
+                xi2 = min(x1 + w1, x2 + w2)
+                yi2 = min(y1 + h1, y2 + h2)
+                
+                if xi2 > xi1 and yi2 > yi1:
+                    intersection = (xi2 - xi1) * (yi2 - yi1)
+                    union = w1 * h1 + w2 * h2 - intersection
+                    iou = intersection / union if union > 0 else 0
+                    
+                    if iou > overlap_threshold:
+                        overlap = True
+                        break
+            
+            if not overlap:
+                filtered.append(detection)
+        
+        return filtered
+    
+    def send_telegram_alert(self, message, image_path=None):
+        """Send Telegram notification"""
+        if not self.telegram_token or not self.telegram_chat_id:
+            return False
         
         try:
-            # Send text message
-            url = f"https://api.telegram.org/bot{self.telegram_bot_token}/sendMessage"
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendMessage"
             data = {
                 'chat_id': self.telegram_chat_id,
                 'text': message,
                 'parse_mode': 'HTML'
             }
-            response = requests.post(url, data=data)
             
-            # Send photo if provided
-            if photo_path and os.path.exists(photo_path):
-                url = f"https://api.telegram.org/bot{self.telegram_bot_token}/sendPhoto"
-                with open(photo_path, 'rb') as photo:
+            response = requests.post(url, data=data, timeout=10)
+            
+            if image_path:
+                url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
+                with open(image_path, 'rb') as photo:
                     files = {'photo': photo}
-                    data = {
-                        'chat_id': self.telegram_chat_id,
-                        'caption': f"Security Alert Photo - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                    }
-                    requests.post(url, data=data, files=files)
+                    data = {'chat_id': self.telegram_chat_id}
+                    requests.post(url, data=data, files=files, timeout=10)
             
-            print("📱 Telegram alert sent successfully")
+            return response.status_code == 200
         except Exception as e:
-            print(f"❌ Telegram alert failed: {e}")
+            logger.error(f"Telegram notification failed: {e}")
+            return False
     
-    def save_security_alert(self, frame, alert_type, person_count):
-        """Save frame when security alert is triggered"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"ALERT_{alert_type}_{person_count}persons_{timestamp}.jpg"
-        filepath = os.path.join(ALERTS_FOLDER, filename)
-        cv2.imwrite(filepath, frame)
-        print(f"📸 Security alert saved: {filepath}")
+    def run_detection(self):
+        """Main detection loop with debug information"""
+        print("🛡️ Security Human Detection Application (DEBUG MODE)")
+        print("==================================================")
+        print("This system detects people using multiple methods!")
+        print("DEBUG MODE: Detailed detection information will be shown")
+        print("Press 'q' to quit, 's' to save current frame, 'd' to toggle debug")
         
-        # Log the event
-        self.logger.info(f"Security Alert: {alert_type} - {person_count} persons detected - Photo: {filename}")
+        self.picam2.start()
+        logger.info("Starting Enhanced Security Person Detection System...")
         
-        return filepath
-    
-    def get_security_response(self, face_names, person_count, has_faces):
-        """Determine appropriate security response"""
-        import random
-        
-        # No persons detected
-        if person_count == 0:
-            return None, None
-        
-        # Known person recognized
-        if "Nick" in face_names:
-            return random.choice(SECURITY_RESPONSES["Nick"]), "known_user"
-        elif any(name != "Unknown" for name in face_names):
-            return random.choice(SECURITY_RESPONSES["Known_Person"]), "known_person"
-        
-        # Person detected but no face or unknown face
-        if not has_faces:
-            # Person detected but no face visible (likely masked)
-            return random.choice(SECURITY_RESPONSES["Masked_Person"]), "masked_person"
-        elif "Unknown" in face_names:
-            # Unknown person with visible face
-            if self.is_night_time():
-                return random.choice(SECURITY_RESPONSES["Unknown_Person_Night"]), "unknown_night"
-            else:
-                return random.choice(SECURITY_RESPONSES["Unknown_Person_Day"]), "unknown_day"
-        
-        return None, None
-    
-    def process_security_frame(self, frame):
-        """Process frame for comprehensive security analysis"""
-        self.frame_count += 1
-        
-        # Detect persons (works with or without face coverings)
-        if self.use_yolo:
-            person_boxes = self.detect_persons_yolo(frame)
-        else:
-            person_boxes = self.detect_persons_backup(frame)
-        
-        # Detect and recognize faces
-        face_locations, face_names = self.detect_faces_and_analyze(frame)
-        
-        person_count = len(person_boxes)
-        has_faces = len(face_locations) > 0
-        
-        # Draw person detection boxes (red for persons)
-        for (x, y, w, h) in person_boxes:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-            cv2.putText(frame, "PERSON DETECTED", (x, y - 10), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-        
-        # Draw face detection boxes (green for recognized, yellow for unknown)
-        for (top, right, bottom, left), name in zip(face_locations, face_names):
-            color = (0, 255, 0) if name != "Unknown" else (0, 255, 255)
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-            cv2.putText(frame, name, (left, top - 10), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-        
-        # Security status overlay
-        status_text = f"Persons: {person_count} | Faces: {len(face_locations)} | Frame: {self.frame_count}"
-        cv2.putText(frame, status_text, (10, 30), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        
-        # Determine security response
-        response_text, alert_type = self.get_security_response(face_names, person_count, has_faces)
-        
-        if response_text and alert_type and self.should_alert(alert_type):
-            print(f"[SECURITY ALERT] {alert_type}: {response_text}")
-            photo_path = self.save_security_alert(frame, alert_type, person_count)
-            
-            # Send Telegram alert for unknown/masked persons
-            if alert_type in ["unknown_day", "unknown_night", "masked_person"]:
-                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                telegram_message = f"🚨 <b>SECURITY ALERT</b> 🚨\n\n"
-                telegram_message += f"<b>Type:</b> {alert_type.replace('_', ' ').title()}\n"
-                telegram_message += f"<b>Time:</b> {timestamp}\n"
-                telegram_message += f"<b>Persons Detected:</b> {person_count}\n"
-                telegram_message += f"<b>Faces Visible:</b> {len(face_locations)}\n"
-                telegram_message += f"<b>Message:</b> {response_text}"
-                
-                self.send_telegram_alert(telegram_message, photo_path)
-            
-            self.speak_text(response_text)
-        
-        return frame
-    
-    def run_security_monitoring(self):
-        """Run the security monitoring system"""
-        print("[INFO] Starting Security Person Detection System...")
-        print("This system detects people regardless of face coverings!")
-        print("Press 'q' to quit, 's' to save current frame")
-        
-        # Initialize camera
-        picam2 = Picamera2()
-        picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
-        picam2.start()
-        
-        time.sleep(3)  # Allow more time for background subtractor to initialize
-        print("🎥 Security camera active! Monitoring for Humans ...")
+        frame_count = 0
+        detection_count = 0
+        last_detection_time = 0
         
         try:
             while True:
-                frame = picam2.capture_array()
+                # Capture frame
+                frame = self.picam2.capture_array()
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                frame_count += 1
                 
-                # Process every 3rd frame for better performance
-                if self.frame_count % 3 == 0:
-                    processed_frame = self.process_security_frame(frame.copy())
-                    cv2.imshow('Security Person Detection', processed_frame)
-                else:
-                    cv2.imshow('Security Person Detection', frame)
+                if self.debug_mode and frame_count % 30 == 0:  # Debug info every 30 frames
+                    logger.info(f"Processed {frame_count} frames, {detection_count} detections")
                 
+                # Combine all detection methods
+                all_detections = []
+                
+                # YOLO detection
+                yolo_detections = self.detect_with_yolo(frame)
+                all_detections.extend([(x, y, w, h, conf, "YOLO") for x, y, w, h, conf in yolo_detections])
+                
+                # HOG detection
+                hog_detections = self.detect_with_hog(frame)
+                all_detections.extend([(x, y, w, h, conf, "HOG") for x, y, w, h, conf in hog_detections])
+                
+                # Cascade detection
+                cascade_detections = self.detect_with_cascades(frame)
+                all_detections.extend(cascade_detections)
+                
+                # Face recognition detection
+                face_detections = self.detect_with_face_recognition(frame)
+                all_detections.extend(face_detections)
+                
+                # Remove duplicates
+                unique_detections = self.remove_duplicate_detections(all_detections)
+                
+                # Draw detections
+                current_time = time.time()
+                for detection in unique_detections:
+                    x, y, w, h = detection[:4]
+                    confidence = detection[4] if len(detection) > 4 else 0.5
+                    method = detection[5] if len(detection) > 5 else "Unknown"
+                    
+                    detection_count += 1
+                    
+                    # Draw bounding box
+                    color = (0, 255, 0) if confidence > 0.7 else (0, 255, 255)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                    
+                    # Draw label
+                    label = f"{method}: {confidence:.2f}"
+                    cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    
+                    # Send alert (limit to once per 5 seconds)
+                    if current_time - last_detection_time > 5:
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        message = f"🚨 Person detected at {timestamp} using {method} (confidence: {confidence:.2f})"
+                        
+                        # Save detection image
+                        detection_filename = f"detection_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+                        cv2.imwrite(detection_filename, frame)
+                        
+                        # Send Telegram alert
+                        self.send_telegram_alert(message, detection_filename)
+                        
+                        logger.info(f"DETECTION: {message}")
+                        last_detection_time = current_time
+                
+                # Add status overlay
+                status_text = f"Detections: {len(unique_detections)} | Frame: {frame_count} | Debug: {'ON' if self.debug_mode else 'OFF'}"
+                cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # Show frame
+                cv2.imshow('🎥 Enhanced Security Camera - Multiple Detection Methods', frame)
+                
+                # Handle key presses
                 key = cv2.waitKey(1) & 0xFF
-                
                 if key == ord('q'):
                     break
                 elif key == ord('s'):
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"security_snapshot_{timestamp}.jpg"
+                    filename = f"manual_save_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
                     cv2.imwrite(filename, frame)
-                    print(f"📸 Snapshot saved as {filename}")
-        
+                    logger.info(f"Frame saved as {filename}")
+                elif key == ord('d'):
+                    self.debug_mode = not self.debug_mode
+                    logger.info(f"Debug mode {'enabled' if self.debug_mode else 'disabled'}")
+                
         except KeyboardInterrupt:
-            print("\n[INFO] Security monitoring stopped by user")
-        
+            logger.info("Detection stopped by user")
+        except Exception as e:
+            logger.error(f"Detection error: {e}")
         finally:
+            self.picam2.stop()
             cv2.destroyAllWindows()
-            picam2.stop()
-            print("[INFO] Security monitoring completed")
+            logger.info(f"Security monitoring completed. Total detections: {detection_count}")
 
 def main():
-    print("🛡️ Security Human Detection Application")
-    print("=" * 50)
-    print("This system detects people even when wearing masks!")
-    
-    # Initialize and run
-    detector = SecurityPersonDetector()
-    detector.run_security_monitoring()
+    detector = SecurityHumanDetector()
+    detector.run_detection()
 
 if __name__ == "__main__":
     main()
