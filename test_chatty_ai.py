@@ -1,6 +1,7 @@
+
 #!/usr/bin/env python3
 """
-run_chatty_ai.py - Enhanced with Wake Word Detection
+test_chatty_ai.py - Enhanced with Wake Word Detection
 Record voice, transcribe using Whisper, reply with TinyLLaMA, and speak with Piper.
 Includes wake word detection, silence detection, and command vs question processing.
 """
@@ -37,7 +38,11 @@ WAKE_WORDS = [
     "sup chatty",
     "howzit chatty",
     "hi chatty",
-    "yo chatty"
+    "yo chatty",
+    "Hello, Chuddy",
+    "sub-cherry",
+    "How's it cherry",
+    "Hey Cherry"
 ]
 
 # Wake word acknowledgment responses
@@ -285,15 +290,22 @@ class ChattyAI:
             try:
                 # Record a short clip to check for wake word
                 print("🔍 Checking for wake word...")
-                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
-                sd.wait()
-                sf.write(WAKE_WORD_AUDIO, audio, SAMPLE_RATE)
+                
+                # Record using sounddevice and save to file
+                audio_data = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()  # Wait for recording to complete
+                
+                # Save the audio to file
+                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                print(f"💾 Saved wake word check audio: {WAKE_WORD_AUDIO}")
                 
                 # Transcribe and check for wake word
                 transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                print(f"🎧 DEBUG - I heard: '{transcript}'")  # Debug output
                 
                 if transcript and self.detect_wake_word(transcript):
                     # Wake word detected!
+                    print("🎉 WAKE WORD ACTIVATED!")
                     self.play_beep()
                     
                     # Speak acknowledgment
@@ -313,6 +325,11 @@ class ChattyAI:
                             self.speak_text("I didn't catch that. Could you try again?")
                     
                     print("👂 Back to listening for wake words...")
+                else:
+                    if transcript:
+                        print(f"❌ No wake word in: '{transcript}'")
+                    else:
+                        print("❌ No speech detected")
                 
                 time.sleep(0.5)  # Brief pause between checks
                 
@@ -321,6 +338,8 @@ class ChattyAI:
                 break
             except Exception as e:
                 print(f"❌ Error in wake word detection: {e}")
+                import traceback
+                traceback.print_exc()
                 time.sleep(1)
     
     def test_transcription(self):
@@ -335,7 +354,7 @@ class ChattyAI:
                 
                 # Record 3 seconds
                 print("🎤 Recording test phrase...")
-                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
                 sd.wait()
                 sf.write("test_audio.wav", audio, SAMPLE_RATE)
                 
@@ -382,7 +401,7 @@ class ChattyAI:
         print("🎤 Single interaction mode - Recording 5 seconds...")
         
         # Record audio
-        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
         sd.wait()
         sf.write(WAV_FILENAME, audio, SAMPLE_RATE)
         
