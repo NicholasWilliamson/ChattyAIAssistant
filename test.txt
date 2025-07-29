@@ -1,428 +1,549 @@
-Thank you Claude!
+Thank you Claude.
 
-I just want to use my test_facial_recognition.py Python script:
+I have my Python script function test_chatty_ai.py to 3. Test Transcription (for fine-tuning wake words) and for 1. Wake Word Detection (continuous listening):
 
-test_facial_recognition.py
+test_chatty_ai.py
 #!/usr/bin/env python3
 """
-test_facial_recognition.py with Telegram Integration
-Test facial recognition with personalized TTS responses using Piper and Telegram alerts
+test_chatty_ai.py - Enhanced with Wake Word Detection
+Record voice, transcribe using Whisper, reply with TinyLLaMA, and speak with Piper.
+Includes wake word detection, silence detection, and command vs question processing.
 """
 
-import cv2
-import face_recognition
-import pickle
 import os
 import subprocess
+import sounddevice as sd
+import soundfile as sf
+import numpy as np
+import threading
 import time
-import json
-import requests
-from picamera2 import Picamera2
-from datetime import datetime
+import random
+import re
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
 
 # -------------------------------
-# Configuration
+# Config
 # -------------------------------
-ENCODINGS_FILE = "encodings.pickle"
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
 PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-RESPONSE_AUDIO = "recognition_response.wav"
-TELEGRAM_CONFIG_FILE = "telegram_config.json"
+BEEP_SOUND = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+WAV_FILENAME = "user_input.wav"
+RESPONSE_AUDIO = "output.wav"
+WAKE_WORD_AUDIO = "wake_word_check.wav"
 
-# Personalized responses for different people
-PERSON_RESPONSES = {
-    "Nick": [
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?",
-        "Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?"
-    ],
-    "Unknown": [
-        "Hello there! I don't recognize you yet.",
-        "Hi! You're new to me. Nice to meet you!",
-        "Hello stranger! Would you like to be registered?",
-        "Hi there! I haven't seen you before."
-    ]
+# Wake word phrases (case insensitive)
+WAKE_WORDS = [
+    "hey chatty",
+    "hello chatty", 
+    "sup chatty",
+    "howzit chatty",
+    "hi chatty",
+    "yo chatty",
+    "Hello, Chuddy",
+    "sub-cherry",
+    "How's it cherry",
+    "Hey Cherry"
+]
+
+# Wake word acknowledgment responses
+WAKE_RESPONSES = [
+    "Hi, I am listening for your request",
+    "Hello! What can I help you with?",
+    "Yes, I'm here. What do you need?",
+    "Hi there! I'm ready to assist you",
+    "Hello! How can I help you today?",
+    "I'm listening. What's your question?",
+    "Yes? What would you like to know?",
+    "Hi! What can I do for you?"
+]
+
+# Command keywords and their functions
+COMMANDS = {
+    "flush the toilet": "toilet_flush",
+    "turn on the lights": "lights_on", 
+    "turn off the lights": "lights_off",
+    "play music": "play_music",
+    "stop music": "stop_music",
+    "what time is it": "get_time",
+    "shutdown system": "shutdown_system",
+    "reboot system": "reboot_system"
 }
 
-# Telegram messages for different people
-TELEGRAM_MESSAGES = {
-    "known": {
-        "Nick": "🏠 **AUTHORIZED ACCESS** 🏠\n\n👤 **Person:** Nick (Master)\n⏰ **Time:** {timestamp}\n✅ **Status:** Authorized User\n🎯 **Confidence:** {confidence:.1%}\n\n💬 **Response:** Greeted with personalized welcome message",
-        "Spiderman": "🕷️ **SUPER HERO DETECTED** 🕷️\n\n👤 **Person:** Spider-Man\n⏰ **Time:** {timestamp}\n✅ **Status:** Favorite Super Hero!\n🎯 **Confidence:** {confidence:.1%}\n\n💬 **Response:** Special hero greeting delivered"
-    },
-    "unknown": "🚨 **UNKNOWN PERSON DETECTED** 🚨\n\n👤 **Person:** Unknown Individual\n⏰ **Time:** {timestamp}\n⚠️ **Status:** Unregistered Person\n🔍 **Action:** Photo captured for review\n\n💡 **Note:** Consider registering this person if they should have access"
-}
+# Audio recording parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+CHUNK_DURATION = 0.1  # 100ms chunks
+SILENCE_THRESHOLD = 0.01  # Adjust based on your environment
+MIN_SILENCE_DURATION = 1.5  # 1.5 seconds of silence to stop recording
+MAX_RECORDING_DURATION = 30  # Maximum 30 seconds per recording
 
-class FacialRecognitionTester:
+class ChattyAI:
     def __init__(self):
-        self.known_encodings = []
-        self.known_names = []
-        self.load_encodings()
-        self.last_recognition_time = {}
-        self.recognition_cooldown = 5  # seconds between recognitions for same person
-        
-        # Telegram configuration
-        self.telegram_token = None
-        self.telegram_chat_id = None
-        self.load_telegram_config()
-        
-    def load_encodings(self):
-        """Load the facial recognition encodings"""
+        self.whisper_model = None
+        self.llama_model = None
+        self.is_listening = False
+        self.is_recording = False
+        self.audio_buffer = []
+        self.load_models()
+    
+    def load_models(self):
+        """Load Whisper and LLaMA models"""
+        print("🔄 Loading AI models...")
         try:
-            print("[INFO] Loading facial encodings...")
-            with open(ENCODINGS_FILE, "rb") as f:
-                data = pickle.loads(f.read())
-            self.known_encodings = data["encodings"]
-            self.known_names = data["names"]
-            print(f"[INFO] Loaded {len(self.known_encodings)} face encodings")
-            return True
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            print("✅ Whisper model loaded")
+        except Exception as e:
+            print(f"❌ Failed to load Whisper: {e}")
+            return False
+        
+        try:
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH, 
+                n_ctx=2048, 
+                temperature=0.7, 
+                repeat_penalty=1.1, 
+                n_gpu_layers=0, 
+                verbose=False
+            )
+            print("✅ LLaMA model loaded")
+        except Exception as e:
+            print(f"❌ Failed to load LLaMA: {e}")
+            return False
+        
+        return True
+    
+    def play_beep(self):
+        """Play beep sound to acknowledge wake word"""
+        try:
+            subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            print("❌ Could not play beep sound")
         except FileNotFoundError:
-            print(f"[ERROR] Encodings file '{ENCODINGS_FILE}' not found!")
-            print("Please run model_training.py first to create the encodings.")
-            return False
-        except Exception as e:
-            print(f"[ERROR] Failed to load encodings: {e}")
-            return False
-    
-    def load_telegram_config(self):
-        """Load Telegram configuration"""
-        try:
-            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
-                config = json.load(f)
-                self.telegram_token = config.get('bot_token')
-                self.telegram_chat_id = config.get('chat_id')
-            
-            if self.telegram_token and self.telegram_chat_id:
-                print("[INFO] Telegram configuration loaded successfully")
-                self.test_telegram_connection()
-            else:
-                print("[WARNING] Incomplete Telegram configuration")
-        except FileNotFoundError:
-            print("[WARNING] Telegram config file not found. Creating template...")
-            self.create_telegram_config_template()
-        except Exception as e:
-            print(f"[ERROR] Failed to load Telegram config: {e}")
-    
-    def create_telegram_config_template(self):
-        """Create a template telegram config file"""
-        template_config = {
-            "bot_token": "YOUR_BOT_TOKEN_HERE",
-            "chat_id": "YOUR_CHAT_ID_HERE",
-            "instructions": {
-                "step1": "Create a bot by messaging @BotFather on Telegram",
-                "step2": "Get your bot token from BotFather",
-                "step3": "Start a chat with your bot and send any message",
-                "step4": "Visit https://api.telegram.org/botYOUR_BOT_TOKEN/getUpdates to get your chat_id",
-                "step5": "Replace YOUR_BOT_TOKEN_HERE and YOUR_CHAT_ID_HERE with actual values"
-            }
-        }
-        
-        try:
-            with open(TELEGRAM_CONFIG_FILE, 'w') as f:
-                json.dump(template_config, f, indent=4)
-            print(f"[INFO] Created {TELEGRAM_CONFIG_FILE} template")
-            print("[INFO] Please edit this file with your Telegram bot credentials")
-        except Exception as e:
-            print(f"[ERROR] Failed to create config template: {e}")
-    
-    def test_telegram_connection(self):
-        """Test the Telegram bot connection"""
-        try:
-            url = f"https://api.telegram.org/bot{self.telegram_token}/getMe"
-            response = requests.get(url, timeout=5)
-            
-            if response.status_code == 200:
-                bot_info = response.json()
-                bot_name = bot_info['result']['first_name']
-                print(f"[INFO] Telegram bot '{bot_name}' connected successfully")
-                return True
-            else:
-                print(f"[ERROR] Telegram bot connection failed: {response.status_code}")
-                return False
-        except Exception as e:
-            print(f"[ERROR] Telegram connection test failed: {e}")
-            return False
-    
-    def send_telegram_alert(self, person_name, confidence, photo_path):
-        """Send Telegram alert with photo and message"""
-        if not self.telegram_token or not self.telegram_chat_id:
-            print("[WARNING] Telegram not configured - skipping alert")
-            return False
-        
-        try:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
-            # Choose appropriate message
-            if person_name == "Unknown":
-                message = TELEGRAM_MESSAGES["unknown"].format(timestamp=timestamp)
-                emoji_status = "🚨 UNKNOWN"
-            else:
-                if person_name in TELEGRAM_MESSAGES["known"]:
-                    message = TELEGRAM_MESSAGES["known"][person_name].format(
-                        timestamp=timestamp, 
-                        confidence=confidence
-                    )
-                else:
-                    # Generic known person message
-                    message = f"✅ **KNOWN PERSON DETECTED** ✅\n\n👤 **Person:** {person_name}\n⏰ **Time:** {timestamp}\n✅ **Status:** Registered User\n🎯 **Confidence:** {confidence:.1%}"
-                emoji_status = "✅ KNOWN"
-            
-            # Send photo with caption
-            url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
-            
-            with open(photo_path, 'rb') as photo:
-                files = {'photo': photo}
-                data = {
-                    'chat_id': self.telegram_chat_id,
-                    'caption': message,
-                    'parse_mode': 'Markdown'
-                }
-                
-                response = requests.post(url, data=data, files=files, timeout=30)
-            
-            if response.status_code == 200:
-                print(f"[TELEGRAM] ✅ Alert sent: {emoji_status} - {person_name}")
-                return True
-            else:
-                print(f"[TELEGRAM] ❌ Failed to send alert: {response.status_code}")
-                print(f"[TELEGRAM] Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"[ERROR] Telegram alert failed: {e}")
-            return False
+            print(f"❌ Beep file not found: {BEEP_SOUND}")
     
     def speak_text(self, text):
         """Convert text to speech using Piper"""
         print(f"🔊 Speaking: {text}")
         try:
-            # Generate audio with Piper
             command = [
                 PIPER_EXECUTABLE,
                 "--model", VOICE_PATH,
                 "--config", CONFIG_PATH,
                 "--output_file", RESPONSE_AUDIO
             ]
-            subprocess.run(command, input=text.encode("utf-8"), check=True)
-            
-            # Play the audio
-            subprocess.run(["aplay", RESPONSE_AUDIO], check=True)
+            subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+            subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
             print(f"❌ TTS failed: {e}")
+    
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper"""
+        try:
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            return transcript
         except Exception as e:
-            print(f"❌ TTS error: {e}")
+            print(f"❌ Transcription failed: {e}")
+            return ""
     
-    def get_personalized_response(self, name):
-        """Get a personalized response for the recognized person"""
-        import random
-        
-        if name in PERSON_RESPONSES:
-            responses = PERSON_RESPONSES[name]
-        else:
-            # Use generic responses for unknown people
-            responses = PERSON_RESPONSES["Unknown"]
-        
-        return random.choice(responses)
+    def detect_wake_word(self, text):
+        """Check if text contains any wake word"""
+        text_lower = text.lower().strip()
+        for wake_word in WAKE_WORDS:
+            if wake_word in text_lower:
+                print(f"🎯 Wake word detected: '{wake_word}' in '{text}'")
+                return True
+        return False
     
-    def should_recognize_person(self, name):
-        """Check if enough time has passed since last recognition of this person"""
-        current_time = time.time()
-        if name not in self.last_recognition_time:
-            self.last_recognition_time[name] = current_time
-            return True
+    def is_silence(self, audio_chunk):
+        """Detect if audio chunk is silence"""
+        rms = np.sqrt(np.mean(audio_chunk**2))
+        return rms < SILENCE_THRESHOLD
+    
+    def record_with_silence_detection(self):
+        """Record audio until silence is detected"""
+        print("🎤 Recording... (speak now, I'll stop when you're quiet)")
         
-        time_since_last = current_time - self.last_recognition_time[name]
-        if time_since_last >= self.recognition_cooldown:
-            self.last_recognition_time[name] = current_time
+        audio_data = []
+        silence_duration = 0
+        recording_duration = 0
+        
+        def audio_callback(indata, frames, time, status):
+            if status:
+                print(f"Audio status: {status}")
+            audio_data.extend(indata[:, 0])  # Take first channel
+        
+        # Start recording
+        with sd.InputStream(callback=audio_callback, 
+                          samplerate=SAMPLE_RATE, 
+                          channels=CHANNELS,
+                          dtype='float32'):
+            
+            while recording_duration < MAX_RECORDING_DURATION:
+                time.sleep(CHUNK_DURATION)
+                recording_duration += CHUNK_DURATION
+                
+                # Check for silence in recent audio
+                if len(audio_data) > int(SAMPLE_RATE * CHUNK_DURATION):
+                    recent_audio = np.array(audio_data[-int(SAMPLE_RATE * CHUNK_DURATION):])
+                    
+                    if self.is_silence(recent_audio):
+                        silence_duration += CHUNK_DURATION
+                        if silence_duration >= MIN_SILENCE_DURATION:
+                            print("🔇 Silence detected, stopping recording")
+                            break
+                    else:
+                        silence_duration = 0  # Reset silence counter
+        
+        # Save recorded audio
+        if audio_data:
+            audio_array = np.array(audio_data, dtype=np.float32)
+            sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+            print(f"✅ Recorded {len(audio_array)/SAMPLE_RATE:.1f} seconds of audio")
             return True
         
         return False
     
-    def save_detection_photo(self, frame, person_name, confidence):
-        """Save a photo of the detected person"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+    
+    def execute_command(self, command):
+        """Execute a system command"""
+        command_func = COMMANDS.get(command)
         
-        if person_name == "Unknown":
-            filename = f"unknown_person_{timestamp}.jpg"
+        if command == "flush the toilet":
+            response = "I'm a digital assistant - I can't actually flush toilets! But I'd be happy to help with other tasks."
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I were connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I were connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any was playing."
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I'll skip that for safety during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I'll skip that for safety during testing."
         else:
-            filename = f"{person_name.lower()}_{timestamp}.jpg"
+            response = f"I understand you want me to {command}, but I don't have that capability yet."
         
-        # Add timestamp and info overlay to the image
-        overlay_frame = frame.copy()
-        
-        # Add background rectangle for text
-        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
-        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
-        
-        # Add text overlay
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
-        cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
-        if person_name != "Unknown":
-            cv2.putText(overlay_frame, f"Confidence: {confidence:.1%}", (20, 85), font, 0.6, (255, 255, 255), 2)
-        
-        cv2.imwrite(filename, overlay_frame)
-        print(f"📸 Detection photo saved: {filename}")
-        return filename
+        return response
     
-    def process_frame(self, frame):
-        """Process a frame for facial recognition"""
-        # Convert BGR to RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    def query_llama(self, prompt):
+        """Generate LLM response for questions"""
+        print("🤖 Generating LLM response...")
         
-        # Try both detection methods for better mask recognition
-        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-        if len(face_locations) == 0:
-            # Try CNN model if HOG fails (slower but sometimes better for masks)
-            face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
-        
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        
-        recognized_names = []
-        
-        # Process each face found
-        for face_encoding in face_encodings:
-            # Compare with known faces - increased tolerance for masks
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
-            name = "Unknown"
-            confidence = 0.0
-            
-            if True in matches:
-                # Find the best match
-                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
-                best_match_index = face_distances.argmin()
-                confidence = 1.0 - face_distances[best_match_index]
-                
-                # Lower confidence threshold for masks
-                if matches[best_match_index] and confidence > 0.4:
-                    name = self.known_names[best_match_index]
-                    print(f"[DEBUG] Recognized {name} with confidence: {confidence:.2f}")
-            
-            recognized_names.append((name, confidence))
-        
-        # Draw rectangles and labels on faces
-        for (top, right, bottom, left), (name, confidence) in zip(face_locations, recognized_names):
-            # Draw rectangle around face
-            color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-            
-            # Draw label with confidence
-            label = f"{name}"
-            if name != "Unknown":
-                label += f" ({confidence:.1%})"
-            
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, label, (left + 6, bottom - 6), font, 0.6, (255, 255, 255), 1)
-            
-            # Handle recognition events
-            if self.should_recognize_person(name):
-                # Speak greeting
-                response = self.get_personalized_response(name)
-                print(f"[RECOGNIZED] {name} - {response}")
-                self.speak_text(response)
-                
-                # Save photo and send Telegram alert
-                photo_path = self.save_detection_photo(frame, name, confidence)
-                self.send_telegram_alert(name, confidence, photo_path)
-        
-        return frame, [name for name, _ in recognized_names]
-    
-    def run_test(self):
-        """Run the facial recognition test"""
-        if not self.known_encodings:
-            print("❌ No encodings loaded. Cannot run test.")
-            return
-        
-        print("[INFO] Starting facial recognition test with Telegram alerts...")
-        print("Press 'q' to quit, 's' to save current frame, 't' to test Telegram")
-        
-        # Initialize camera
-        picam2 = Picamera2()
-        picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
-        picam2.start()
-        
-        # Allow camera to warm up
-        time.sleep(2)
-        print("🎥 Camera ready! Look at the camera for recognition.")
-        
-        frame_count = 0
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
         
         try:
-            while True:
-                # Capture frame
-                frame = picam2.capture_array()
-                frame_count += 1
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                # Clean up the response
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)  # Remove roleplay
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)  # Remove labels
+                reply_text = reply_text.strip()
                 
-                # Process every 3rd frame for performance
-                if frame_count % 3 == 0:
-                    processed_frame, names = self.process_frame(frame.copy())
-                    cv2.imshow('Facial Recognition with Telegram Alerts', processed_frame)
+                # Ensure response isn't too long
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"❌ LLM inference failed: {e}")
+            return "Sorry, I had trouble processing that question."
+    
+    def process_user_input(self, text):
+        """Process user input - determine if command or question"""
+        print(f"📝 Processing: {text}")
+        
+        # Check if it's a command
+        command = self.is_command(text)
+        if command:
+            print(f"⚙️ Executing command: {command}")
+            response = self.execute_command(command)
+        else:
+            print("❓ Processing as question for LLM")
+            response = self.query_llama(text)
+        
+        return response
+    
+    def listen_for_wake_word(self):
+        """Continuously listen for wake words"""
+        print("👂 Listening for wake words...")
+        print(f"Wake words: {', '.join(WAKE_WORDS)}")
+        
+        while self.is_listening:
+            try:
+                # Record a short clip to check for wake word
+                print("🔍 Checking for wake word...")
+                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+                sd.wait()
+                sf.write(WAKE_WORD_AUDIO, audio, SAMPLE_RATE)
+                
+                # Transcribe and check for wake word
+                transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                
+                if transcript and self.detect_wake_word(transcript):
+                    # Wake word detected!
+                    self.play_beep()
+                    
+                    # Speak acknowledgment
+                    response = random.choice(WAKE_RESPONSES)
+                    self.speak_text(response)
+                    
+                    # Record user's full request
+                    if self.record_with_silence_detection():
+                        user_text = self.transcribe_audio(WAV_FILENAME)
+                        if user_text:
+                            print(f"👤 User said: {user_text}")
+                            
+                            # Process the input
+                            ai_response = self.process_user_input(user_text)
+                            self.speak_text(ai_response)
+                        else:
+                            self.speak_text("I didn't catch that. Could you try again?")
+                    
+                    print("👂 Back to listening for wake words...")
+                
+                time.sleep(0.5)  # Brief pause between checks
+                
+            except KeyboardInterrupt:
+                print("\n🛑 Stopping wake word detection...")
+                break
+            except Exception as e:
+                print(f"❌ Error in wake word detection: {e}")
+                time.sleep(1)
+    
+    def test_transcription(self):
+        """Test function to check transcription accuracy"""
+        print("🧪 TRANSCRIPTION TEST MODE")
+        print("Speak phrases to test wake word detection accuracy")
+        print("Press Ctrl+C to exit test mode")
+        
+        while True:
+            try:
+                input("Press Enter to record a test phrase...")
+                
+                # Record 3 seconds
+                print("🎤 Recording test phrase...")
+                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+                sd.wait()
+                sf.write("test_audio.wav", audio, SAMPLE_RATE)
+                
+                # Transcribe
+                transcript = self.transcribe_audio("test_audio.wav")
+                print(f"📝 I heard: '{transcript}'")
+                
+                # Check wake word detection
+                if self.detect_wake_word(transcript):
+                    print("✅ WAKE WORD DETECTED!")
                 else:
-                    cv2.imshow('Facial Recognition with Telegram Alerts', frame)
+                    print("❌ No wake word detected")
                 
-                # Handle key presses
-                key = cv2.waitKey(1) & 0xFF
+                print("-" * 50)
                 
-                if key == ord('q'):
-                    break
-                elif key == ord('s'):
-                    # Save current frame
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"manual_save_{timestamp}.jpg"
-                    cv2.imwrite(filename, frame)
-                    print(f"📸 Frame saved as {filename}")
-                elif key == ord('t'):
-                    # Test Telegram connection
-                    print("[INFO] Testing Telegram connection...")
-                    if self.test_telegram_connection():
-                        # Send test message
-                        test_photo = self.save_detection_photo(frame, "Test", 1.0)
-                        self.send_telegram_alert("Test", 1.0, test_photo)
+            except KeyboardInterrupt:
+                print("\n🛑 Exiting test mode")
+                break
+    
+    def start_listening(self):
+        """Start the wake word detection system"""
+        if not self.whisper_model or not self.llama_model:
+            print("❌ Models not loaded properly")
+            return
         
+        self.is_listening = True
+        
+        print("🚀 Chatty AI Wake Word Detection Started!")
+        print("=" * 50)
+        print("Say one of these wake words to activate:")
+        for wake_word in WAKE_WORDS:
+            print(f"  • {wake_word}")
+        print("=" * 50)
+        
+        try:
+            self.listen_for_wake_word()
         except KeyboardInterrupt:
-            print("\n[INFO] Test interrupted by user")
-        
+            print("\n🛑 Shutting down Chatty AI...")
         finally:
-            # Cleanup
-            cv2.destroyAllWindows()
-            picam2.stop()
-            print("[INFO] Facial recognition test completed")
+            self.is_listening = False
+    
+    def run_single_interaction(self):
+        """Run the original single-interaction mode"""
+        print("🎤 Single interaction mode - Recording 5 seconds...")
+        
+        # Record audio
+        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+        sd.wait()
+        sf.write(WAV_FILENAME, audio, SAMPLE_RATE)
+        
+        # Transcribe
+        user_text = self.transcribe_audio(WAV_FILENAME)
+        if not user_text:
+            print("❌ No voice input detected.")
+            return
+        
+        print(f"👤 You said: {user_text}")
+        
+        # Process and respond
+        response = self.process_user_input(user_text)
+        self.speak_text(response)
 
 def main():
-    """Main function"""
-    print("🤖 Facial Recognition Test with Piper TTS & Telegram Alerts")
+    """Main function with mode selection"""
+    chatty = ChattyAI()
+    
+    print("🤖 Chatty AI - Enhanced with Wake Word Detection")
+    print("=" * 60)
+    print("Choose mode:")
+    print("1. Wake Word Detection (continuous listening)")
+    print("2. Single Interaction (original 5-second recording)")
+    print("3. Test Transcription (for fine-tuning wake words)")
     print("=" * 60)
     
-    # Check if required files exist
-    if not os.path.exists(ENCODINGS_FILE):
-        print(f"❌ Error: {ENCODINGS_FILE} not found!")
-        print("Please run model_training.py first to create the face encodings.")
-        return
+    try:
+        choice = input("Enter your choice (1/2/3): ").strip()
+        
+        if choice == "1":
+            chatty.start_listening()
+        elif choice == "2":
+            chatty.run_single_interaction()
+        elif choice == "3":
+            chatty.test_transcription()
+        else:
+            print("❌ Invalid choice. Exiting.")
     
-    if not os.path.exists(VOICE_PATH):
-        print(f"❌ Error: Voice file not found at {VOICE_PATH}")
-        return
-    
-    if not os.path.exists(PIPER_EXECUTABLE):
-        print(f"❌ Error: Piper executable not found at {PIPER_EXECUTABLE}")
-        return
-    
-    # Initialize and run the test
-    tester = FacialRecognitionTester()
-    tester.run_test()
+    except KeyboardInterrupt:
+        print("\n👋 Goodbye!")
 
 if __name__ == "__main__":
     main()
 
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_chatty_ai.py
+🔄 Loading AI models...
+✅ Whisper model loaded
+llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+✅ LLaMA model loaded
+🤖 Chatty AI - Enhanced with Wake Word Detection
+============================================================
+Choose mode:
+1. Wake Word Detection (continuous listening)
+2. Single Interaction (original 5-second recording)
+3. Test Transcription (for fine-tuning wake words)
+============================================================
+Enter your choice (1/2/3): 3
+🧪 TRANSCRIPTION TEST MODE
+Speak phrases to test wake word detection accuracy
+Press Ctrl+C to exit test mode
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hello, Cheri.'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hello, Chetty.'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hi, Cherry.'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Soft cherry'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'How's it Chetty?'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hello, Cherry.'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hello chatty'
+🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
+✅ WAKE WORD DETECTED!
+--------------------------------------------------
+Press Enter to record a test phrase...
+🎤 Recording test phrase...
+📝 I heard: 'Hey Chetty!'
+❌ No wake word detected
+--------------------------------------------------
+Press Enter to record a test phrase...^C
+🛑 Exiting test mode
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_chatty_ai.py
+🔄 Loading AI models...
+✅ Whisper model loaded
+llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+✅ LLaMA model loaded
+🤖 Chatty AI - Enhanced with Wake Word Detection
+============================================================
+Choose mode:
+1. Wake Word Detection (continuous listening)
+2. Single Interaction (original 5-second recording)
+3. Test Transcription (for fine-tuning wake words)
+============================================================
+Enter your choice (1/2/3): 1
+🚀 Chatty AI Wake Word Detection Started!
+==================================================
+Say one of these wake words to activate:
+  • hey chatty
+  • hello chatty
+  • sup chatty
+  • howzit chatty
+  • hi chatty
+  • yo chatty
+  • Hello, Chuddy
+  • sub-cherry
+  • How's it cherry
+  • Hey Cherry
+==================================================
+👂 Listening for wake words...
+Wake words: hey chatty, hello chatty, sup chatty, howzit chatty, hi chatty, yo chatty, Hello, Chuddy, sub-cherry, How's it cherry, Hey Cherry
+🔍 Checking for wake word...
+🔍 Checking for wake word...
+🔍 Checking for wake word...
+🔍 Checking for wake word...
+^C
+🛑 Stopping wake word detection...
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-and I would like the facial recognition photograph saved to my /home/nickspi5/Chatty_AI/security_photos folder and also a log record saved to a human_detections.log file in my /home/nickspi5/Chatty_AI/security_logs folder.
+The function to 3. Test Transcription works perfectly.
 
-I do not want anything else in my test_facial_recognition.py Python script altered as it is working perfectly.
+The function for 1. Wake Word Detection does not seem to be working at all.
 
-Please modify my Python script to suit.
+I would like this to be fixed immediately so that I can finish off this function.
+
+I would also like the 1. Wake Word Detection to print out what it has recorded for debugging purposes as well.
+
+Please fix my Python script.
 
 
 
