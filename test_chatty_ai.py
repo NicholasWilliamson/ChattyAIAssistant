@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 test_chatty_ai.py - Enhanced with Wake Word Detection
@@ -73,7 +72,7 @@ COMMANDS = {
 SAMPLE_RATE = 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.1  # 100ms chunks
-SILENCE_THRESHOLD = 0.01  # Adjust based on your environment
+SILENCE_THRESHOLD = 0.005  # Lowered threshold for better detection
 MIN_SILENCE_DURATION = 1.5  # 1.5 seconds of silence to stop recording
 MAX_RECORDING_DURATION = 30  # Maximum 30 seconds per recording
 
@@ -167,6 +166,8 @@ class ChattyAI:
         audio_data = []
         silence_duration = 0
         recording_duration = 0
+        check_interval = 0.2  # Check every 200ms for better responsiveness
+        samples_per_check = int(SAMPLE_RATE * check_interval)
         
         def audio_callback(indata, frames, time, status):
             if status:
@@ -180,19 +181,26 @@ class ChattyAI:
                           dtype='float32'):
             
             while recording_duration < MAX_RECORDING_DURATION:
-                time.sleep(CHUNK_DURATION)
-                recording_duration += CHUNK_DURATION
+                time.sleep(check_interval)
+                recording_duration += check_interval
                 
-                # Check for silence in recent audio
-                if len(audio_data) > int(SAMPLE_RATE * CHUNK_DURATION):
-                    recent_audio = np.array(audio_data[-int(SAMPLE_RATE * CHUNK_DURATION):])
+                # Check for silence in recent audio (last 200ms)
+                if len(audio_data) >= samples_per_check:
+                    recent_audio = np.array(audio_data[-samples_per_check:])
+                    rms = np.sqrt(np.mean(recent_audio**2))
                     
-                    if self.is_silence(recent_audio):
-                        silence_duration += CHUNK_DURATION
+                    # Debug output for silence detection
+                    print(f"🔊 Audio level: {rms:.4f} (threshold: {SILENCE_THRESHOLD})")
+                    
+                    if rms < SILENCE_THRESHOLD:
+                        silence_duration += check_interval
+                        print(f"🔇 Silence: {silence_duration:.1f}s / {MIN_SILENCE_DURATION}s")
                         if silence_duration >= MIN_SILENCE_DURATION:
                             print("🔇 Silence detected, stopping recording")
                             break
                     else:
+                        if silence_duration > 0:
+                            print("🔊 Speech detected, resetting silence counter")
                         silence_duration = 0  # Reset silence counter
         
         # Save recorded audio
