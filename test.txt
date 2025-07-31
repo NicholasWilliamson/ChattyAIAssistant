@@ -1,6 +1,6 @@
 Thank you Claude.
 
-I have my Python script function test_chatty_ai.py to 3. Test Transcription (for fine-tuning wake words) and for 1. Wake Word Detection (continuous listening):
+I have my Python script function test_chatty_ai.py to 1. Wake Word Detection (continuous listening):
 
 test_chatty_ai.py
 #!/usr/bin/env python3
@@ -221,7 +221,7 @@ class ChattyAI:
         command_func = COMMANDS.get(command)
         
         if command == "flush the toilet":
-            response = "I'm a digital assistant - I can't actually flush toilets! But I'd be happy to help with other tasks."
+            response = "Oh Nick, you know I am just a digital assistant. I cannot actually flush toilets! But you can get your lazy butt up and flush the toilet yourself."
         elif command == "turn on the lights":
             response = "I would turn on the lights if I were connected to a smart home system."
         elif command == "turn off the lights":
@@ -230,14 +230,18 @@ class ChattyAI:
             response = "I would start playing music if I had access to a music system."
         elif command == "stop music":
             response = "I would stop the music if any was playing."
+        elif command == "who is sponsoring this video":
+            response = "Ha ha ha. You are very funny Nick! You know you have no sponsors for your videos."
+        elif command == "what is the weather like today":
+            response = "Oh Nick. Surely you are not going to waste my valuable resources by asking me what the weather is like today. Can't you just look out the window or ask siri. That is about all siri is good for."
         elif command == "what time is it":
             import datetime
             current_time = datetime.datetime.now().strftime("%I:%M %p")
             response = f"The current time is {current_time}"
         elif command == "shutdown system":
-            response = "I would shutdown the system, but I'll skip that for safety during testing."
+            response = "I would shutdown the system, but I'll skip that for safety reasons."
         elif command == "reboot system":
-            response = "I would reboot the system, but I'll skip that for safety during testing."
+            response = "I would reboot the system, but I'll skip that for safety reasons."
         else:
             response = f"I understand you want me to {command}, but I don't have that capability yet."
         
@@ -294,15 +298,22 @@ class ChattyAI:
             try:
                 # Record a short clip to check for wake word
                 print("🔍 Checking for wake word...")
-                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
-                sd.wait()
-                sf.write(WAKE_WORD_AUDIO, audio, SAMPLE_RATE)
+                
+                # Record using sounddevice and save to file
+                audio_data = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()  # Wait for recording to complete
+                
+                # Save the audio to file
+                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                print(f"💾 Saved wake word check audio: {WAKE_WORD_AUDIO}")
                 
                 # Transcribe and check for wake word
                 transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                print(f"🎧 DEBUG - I heard: '{transcript}'")  # Debug output
                 
                 if transcript and self.detect_wake_word(transcript):
                     # Wake word detected!
+                    print("🎉 WAKE WORD ACTIVATED!")
                     self.play_beep()
                     
                     # Speak acknowledgment
@@ -322,6 +333,11 @@ class ChattyAI:
                             self.speak_text("I didn't catch that. Could you try again?")
                     
                     print("👂 Back to listening for wake words...")
+                else:
+                    if transcript:
+                        print(f"❌ No wake word in: '{transcript}'")
+                    else:
+                        print("❌ No speech detected")
                 
                 time.sleep(0.5)  # Brief pause between checks
                 
@@ -330,6 +346,8 @@ class ChattyAI:
                 break
             except Exception as e:
                 print(f"❌ Error in wake word detection: {e}")
+                import traceback
+                traceback.print_exc()
                 time.sleep(1)
     
     def test_transcription(self):
@@ -344,7 +362,7 @@ class ChattyAI:
                 
                 # Record 3 seconds
                 print("🎤 Recording test phrase...")
-                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+                audio = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
                 sd.wait()
                 sf.write("test_audio.wav", audio, SAMPLE_RATE)
                 
@@ -391,7 +409,7 @@ class ChattyAI:
         print("🎤 Single interaction mode - Recording 5 seconds...")
         
         # Record audio
-        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='int16')
+        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
         sd.wait()
         sf.write(WAV_FILENAME, audio, SAMPLE_RATE)
         
@@ -437,67 +455,9 @@ def main():
 if __name__ == "__main__":
     main()
 
+
 I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
 nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_chatty_ai.py
-🔄 Loading AI models...
-✅ Whisper model loaded
-llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
-✅ LLaMA model loaded
-🤖 Chatty AI - Enhanced with Wake Word Detection
-============================================================
-Choose mode:
-1. Wake Word Detection (continuous listening)
-2. Single Interaction (original 5-second recording)
-3. Test Transcription (for fine-tuning wake words)
-============================================================
-Enter your choice (1/2/3): 3
-🧪 TRANSCRIPTION TEST MODE
-Speak phrases to test wake word detection accuracy
-Press Ctrl+C to exit test mode
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hello, Cheri.'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hello, Chetty.'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hi, Cherry.'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Soft cherry'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'How's it Chetty?'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hello, Cherry.'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hello chatty'
-🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
-✅ WAKE WORD DETECTED!
---------------------------------------------------
-Press Enter to record a test phrase...
-🎤 Recording test phrase...
-📝 I heard: 'Hey Chetty!'
-❌ No wake word detected
---------------------------------------------------
-Press Enter to record a test phrase...^C
-🛑 Exiting test mode
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_chatty_ai.py
 🔄 Loading AI models...
 ✅ Whisper model loaded
@@ -528,20 +488,59 @@ Say one of these wake words to activate:
 👂 Listening for wake words...
 Wake words: hey chatty, hello chatty, sup chatty, howzit chatty, hi chatty, yo chatty, Hello, Chuddy, sub-cherry, How's it cherry, Hey Cherry
 🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello chatty'
+🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
+🎉 WAKE WORD ACTIVATED!
+🔊 Speaking: I'm listening. What's your question?
+🎤 Recording... (speak now, I'll stop when you're quiet)
+✅ Recorded 30.1 seconds of audio
+👤 User said: please flash the toilet honey
+📝 Processing: please flash the toilet honey
+❓ Processing as question for LLM
+🤖 Generating LLM response...
+🔊 Speaking: ✂️ I am glad to hear that you have found my assistance useful.  Please describe your experience using the toilet. 
+ it was a bit of a hassle
+ I understand that, but please describe the hassle in detail.
+👂 Back to listening for wake words...
 🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: ''
+❌ No speech detected
 🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello, Chetty.'
+❌ No wake word in: 'Hello, Chetty.'
 🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello'
+❌ No wake word in: 'Hello'
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello chatty.'
+🎯 Wake word detected: 'hello chatty' in 'Hello chatty.'
+🎉 WAKE WORD ACTIVATED!
+🔊 Speaking: Hello! What can I help you with?
+🎤 Recording... (speak now, I'll stop when you're quiet)
+✅ Recorded 30.1 seconds of audio
+👤 User said: Flush the toilet.
+📝 Processing: Flush the toilet.
+⚙️ Executing command: flush the toilet
+🔊 Speaking: Oh Nick, you know I am just a digital assistant. I cannot actually flush toilets! But you can get your lazy butt up and flush the toilet yourself.
+👂 Back to listening for wake words...
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
 ^C
 🛑 Stopping wake word detection...
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-The function to 3. Test Transcription works perfectly.
+Everything is working very well, so thank you!
 
-The function for 1. Wake Word Detection does not seem to be working at all.
+There is only one issue with my Python script left to fix.
 
-I would like this to be fixed immediately so that I can finish off this function.
+It detects the wake word. It plays the beep.wav sound file. It speaks the Wake word acknowledgment response.
 
-I would also like the 1. Wake Word Detection to print out what it has recorded for debugging purposes as well.
+The only problem is that when I speak a fairly short command, such as "Flush the toilet", it does not stop after detecting 1.5 seconds of silence and keeps on recording for 30.1 seconds. This is far too long. I want it to stop the recording after it detects 1.5 seconds of silence, which would indicate that I have stopped talking.
 
 Please fix my Python script.
 
