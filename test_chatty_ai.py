@@ -72,9 +72,9 @@ COMMANDS = {
 SAMPLE_RATE = 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.1  # 100ms chunks
-SILENCE_THRESHOLD = 0.005  # Lowered threshold for better detection
+SILENCE_THRESHOLD = 0.035  # Raised threshold to account for background noise
 MIN_SILENCE_DURATION = 1.5  # 1.5 seconds of silence to stop recording
-MAX_RECORDING_DURATION = 30  # Maximum 30 seconds per recording
+MAX_RECORDING_DURATION = 20  # Maximum 20 seconds per recording
 
 class ChattyAI:
     def __init__(self):
