@@ -1,71 +1,14 @@
 Thank you Claude.
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
-Chatty AI - Your smart AI Assistant System
-============================================================
-Response files loaded successfully
-Loading AI models...
-Whisper model loaded
-llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
-LLaMA model loaded
-Loaded 37 face encodings
-Telegram configuration loaded
-[4:16:41.805458386] [6098]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[4:16:41.812609768] [6129]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[4:16:41.824308406] [6129]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-[4:16:41.827177247] [6098]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[4:16:41.827280059] [6129]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-Camera initialized
-🚀 Chatty AI Complete System Started!
-============================================================
-Features active:
-• Facial Recognition with Greetings
-• Wake Word Detection
-• AI Assistant (TinyLLaMA)
-• Security Monitoring
-• Telegram Alerts
-• Proactive Entertainment
-============================================================
-Press ESC key to exit
-
-However, the facial recognition detection camera window does not open at all and nothing happens.
-
-Also, when I press the Esc key, it does not exit the script. It only exits the script when I press the Ctrl and C keys.
-
-I also ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_facial_recognition.py
-🤖 Facial Recognition Test with Piper TTS & Telegram Alerts
-============================================================
-[INFO] Loading facial encodings...
-[INFO] Loaded 37 face encodings
-[INFO] Telegram configuration loaded successfully
-[INFO] Telegram bot 'Nicks PI 5 Bot' connected successfully
-[INFO] Starting facial recognition test with Telegram alerts...
-Press 'q' to quit, 's' to save current frame, 't' to test Telegram
-[4:24:14.945059073] [6223]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[4:24:14.952086704] [6229]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[4:24:14.961271345] [6229]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-[4:24:14.964187197] [6223]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[4:24:14.964288806] [6229]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-🎥 Camera ready! Look at the camera for recognition.
-[DEBUG] Recognized Nick with confidence: 0.61
-[RECOGNIZED] Nick - Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
-🔊 Speaking: Hello Nick my master. It is wonderful to see you again. Thank you so much for creating me. How can I help you my friend?
-[2025-08-02 14:24:51.125] [piper] [info] Loaded voice in 0.354683446 second(s)
-[2025-08-02 14:24:51.126] [piper] [info] Initialized piper
-recognition_response.wav
-[2025-08-02 14:24:51.933] [piper] [info] Real-time factor: 0.09894834536210319 (infer=0.7979194570000001 sec, audio=8.064 sec)
-[2025-08-02 14:24:51.933] [piper] [info] Terminated piper
-Playing WAVE 'recognition_response.wav' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
-📸 Detection photo saved: /home/nickspi5/Chatty_AI/security_photos/nick_20250802_142500.jpg
-[TELEGRAM] ✅ Alert sent: ✅ KNOWN - Nick
-^X^X^C
-[INFO] Test interrupted by user
-[INFO] Facial recognition test completed
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 399, in <module>
+    main()
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 317, in main
+    signal.signal(signal.SIGINT, signal_handler)
+    ^^^^^^
+NameError: name 'signal' is not defined
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-My test_facial_recognition.py script ran perfectly by opening the camera window for facial detection, detected my face correctly in the camera's response and spoke the greeting to me correctly.
 
 Please fix the script.
 
