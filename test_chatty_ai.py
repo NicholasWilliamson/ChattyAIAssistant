@@ -35,13 +35,43 @@ WAKE_WORDS = [
     "hey chatty",
     "hello chatty", 
     "sup chatty",
+    "sub-chatty",
+    "how's it chatty",
     "howzit chatty",
     "hi chatty",
     "yo chatty",
-    "Hello, Chuddy",
+    "hey chuddy",
+    "hello chuddy",
+    "sup chuddy",
+    "sub-chuddy",
+    "how's it chuddy",
+    "howzit chuddy",
+    "hi chuddy",
+    "yo chuddy",
+    "hey cheddy",
+    "hello cheddy",
+    "sup cheddy",
+    "sub-cheddy",
+    "how's it cheddy",
+    "howzit cheddy",
+    "hi cheddy",
+    "yo cheddy",
+    "hey chetty",
+    "hello chetty",
+    "sup chetty",
+    "sub-chetty",
+    "how's it chetty",
+    "howzit chetty",
+    "hi chetty",
+    "yo chetty",
+    "hey cherry",
+    "hello cherry",
+    "sup cherry",
     "sub-cherry",
-    "How's it cherry",
-    "Hey Cherry"
+    "how's it cherry",
+    "howzit cherry",
+    "hi cherry",
+    "yo cherry"
 ]
 
 # Wake word acknowledgment responses
@@ -227,7 +257,7 @@ class ChattyAI:
         command_func = COMMANDS.get(command)
         
         if command == "flush the toilet":
-            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why don't you haul your lazy arse up off the couch and flush the toilet yourself!"
+            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy arse up off the couch and flush the toilet yourself!"
         elif command == "turn on the lights":
             response = "I would turn on the lights if I were connected to a smart home system."
         elif command == "turn off the lights":
@@ -237,17 +267,17 @@ class ChattyAI:
         elif command == "stop music":
             response = "I would stop the music if any was playing."
         elif command == "who is sponsoring this video":
-            response = "Ha ha ha! You are very funny Nick. You know you don't have any sponsors for your videos!"
+            response = "Ha ha ha! You are very funny Nick. You know you dont have any sponsors for your videos!"
         elif command == "how is the weather today":
-            response = "O M G Nick! Surely you don't wan't to waste my valuable resources by asking me what the weather is today. Can't you just look out the window or ask Siri. That is about all Siri is good for!"
+            response = "O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
         elif command == "what time is it":
             import datetime
             current_time = datetime.datetime.now().strftime("%I:%M %p")
             response = f"The current time is {current_time}"
         elif command == "shutdown system":
-            response = "I would shutdown the system, but I'll skip that for safety during testing."
+            response = "I would shutdown the system, but I will skip that for safety during testing."
         elif command == "reboot system":
-            response = "I would reboot the system, but I'll skip that for safety during testing."
+            response = "I would reboot the system, but I will skip that for safety during testing."
         else:
             response = f"I understand you want me to {command}, but I don't have that capability yet."
         
