@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
 chatty_ai.py - Complete AI Assistant with Facial Recognition and Wake Word Detection
-Combines facial recognition, wake word detection, AI assistant, STT and TTS capabilities.
-Updated with camera window display and proper ESC key handling.
-FIXED VERSION - Improved wake word detection and audio handling
+Enhanced with personalized greetings and responses for different users
 """
 
 import os
@@ -53,51 +51,20 @@ JOKES_FILE = "jokes.txt"
 LISTENING_RESPONSES_FILE = "listening_responses.txt"
 WAITING_RESPONSES_FILE = "waiting_responses.txt"
 WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
+PERSONALIZED_RESPONSES_FILE = "personalized_responses.json"  # NEW FILE
 
 # Wake word phrases
 WAKE_WORDS = [
-    "are you awake",
-    "are you alive",
-    "hey chatty",
-    "hello chatty",
-    "sup chatty",
-    "sub-chatty",
-    "how's it chatty",
-    "howzit chatty",
-    "hi chatty",
-    "yo chatty",
-    "hey chuddy",
-    "hello chuddy",
-    "sup chuddy",
-    "sub-chuddy",
-    "how's it chuddy",
-    "howzit chuddy",
-    "hi chuddy",
-    "yo chuddy",
-    "hey cheddy",
-    "hello cheddy",
-    "sup cheddy",
-    "sub-cheddy",
-    "how's it cheddy",
-    "howzit cheddy",
-    "hi cheddy",
-    "yo cheddy",
-    "hey chetty",
-    "hello chetty",
-    "sup chetty",
-    "sub-chetty",
-    "how's it chetty",
-    "howzit chetty",
-    "hi chetty",
-    "yo chetty",
-    "hey cherry",
-    "hello cherry",
-    "sup cherry",
-    "sub-cherry",
-    "how's it cherry",
-    "howzit cherry",
-    "hi cherry",
-    "yo cherry"
+    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+    "hi cherry", "yo cherry"
 ]
 
 # Command keywords
@@ -149,17 +116,19 @@ class ChattyAI:
         self.waiting_cycle = 0  # 0: joke, 1: fun fact
         self.audio_recording_lock = threading.Lock()
         self.wake_word_active = False
-        
+
         # Response lists
         self.jokes = []
         self.listening_responses = []
         self.waiting_responses = []
         self.warning_responses = []
-        
+        self.greeting_responses = []
+        self.personalized_responses = {}  # NEW: Dictionary for personalized responses
+
         # Telegram
         self.telegram_token = None
         self.telegram_chat_id = None
-        
+
         # Threading
         self.camera_thread = None
         self.audio_thread = None
@@ -167,6 +136,7 @@ class ChattyAI:
         # Initialize everything
         self.setup_directories()
         self.load_response_files()
+        self.load_personalized_responses()  # NEW
         self.load_models()
         self.load_encodings()
         self.load_telegram_config()
@@ -202,7 +172,10 @@ class ChattyAI:
             
             with open(LISTENING_RESPONSES_FILE, 'r') as f:
                 self.listening_responses = [line.strip() for line in f if line.strip()]
-            
+
+            with open(GREETING_RESPONSES_FILE, 'r') as f:
+                self.greeting_responses = [line.strip() for line in f if line.strip()]
+
             with open(WAITING_RESPONSES_FILE, 'r') as f:
                 self.waiting_responses = [line.strip() for line in f if line.strip()]
             
@@ -215,9 +188,118 @@ class ChattyAI:
             # Create default responses if files don't exist
             self.create_default_responses()
     
+    def load_personalized_responses(self):
+        """Load personalized responses from JSON file"""
+        try:
+            with open(PERSONALIZED_RESPONSES_FILE, 'r') as f:
+                self.personalized_responses = json.load(f)
+            print(f"Personalized responses loaded for {len(self.personalized_responses)} people")
+        except FileNotFoundError:
+            print(f"Personalized responses file not found. Creating default...")
+            self.create_default_personalized_responses()
+        except json.JSONDecodeError as e:
+            print(f"Error reading personalized responses JSON: {e}")
+            self.create_default_personalized_responses()
+    
+    def create_default_personalized_responses(self):
+        """Create default personalized responses file"""
+        default_responses = {
+            "Nick": {
+                "greetings": [
+                    "Hello Nick, my master! It is so lovely to see you again. Thank you for creating me. How may I assist you?",
+                    "Welcome back Nick! Your brilliant creation is ready to serve. What can I help you with today?",
+                    "Nick! My creator has returned! I've been waiting patiently for your commands."
+                ],
+                "listening": [
+                    "Yes Nick, I'm listening. What would you like to know?",
+                    "I'm all ears, Nick. What's on your mind?",
+                    "Ready for your instructions, Nick!"
+                ],
+                "waiting": [
+                    "Nick, I'm still here if you need anything",
+                    "Your faithful AI assistant is standing by, Nick",
+                    "Still waiting to help you, Nick"
+                ]
+            },
+            "Anne": {
+                "greetings": [
+                    "Hello Anne! How wonderful to see you. I hope you're having a lovely day!",
+                    "Anne! Welcome! It's always a pleasure to see you.",
+                    "Hi Anne! You look fantastic today. How can I help you?"
+                ],
+                "listening": [
+                    "Yes Anne, what can I do for you?",
+                    "I'm here to help, Anne. What do you need?",
+                    "How may I assist you today, Anne?"
+                ],
+                "waiting": [
+                    "Anne, I'm here if you need anything",
+                    "Still available to help you, Anne",
+                    "Let me know if you need assistance, Anne"
+                ]
+            },
+            "Jack": {
+                "greetings": [
+                    "Hey Jack! Good to see you, buddy! What's up?",
+                    "Jack! How's it going, mate? Ready for some fun?",
+                    "What's up Jack! Hope you're having an awesome day!"
+                ],
+                "listening": [
+                    "Yeah Jack, what do you need?",
+                    "I'm listening, Jack. Fire away!",
+                    "What can I help you with, Jack?"
+                ],
+                "waiting": [
+                    "Jack, I'm here if you want to chat",
+                    "Still around if you need me, Jack",
+                    "Ready when you are, Jack"
+                ]
+            }
+        }
+        
+        # Save the default responses
+        try:
+            with open(PERSONALIZED_RESPONSES_FILE, 'w') as f:
+                json.dump(default_responses, f, indent=4)
+            self.personalized_responses = default_responses
+            print(f"Created default personalized responses file: {PERSONALIZED_RESPONSES_FILE}")
+        except Exception as e:
+            print(f"Failed to create personalized responses file: {e}")
+            self.personalized_responses = default_responses
+    
+    def get_personalized_response(self, person_name, response_type, fallback_list=None):
+        """Get a personalized response for a specific person and response type"""
+        person_name_lower = person_name.lower()
+        
+        # Check if we have personalized responses for this person
+        person_data = None
+        for name, data in self.personalized_responses.items():
+            if name.lower() == person_name_lower:
+                person_data = data
+                break
+        
+        if person_data and response_type in person_data:
+            responses = person_data[response_type]
+            if responses:
+                return random.choice(responses)
+        
+        # Fallback to generic responses with name insertion
+        if fallback_list:
+            response = random.choice(fallback_list)
+            # Replace {name} placeholder if it exists, otherwise prepend name
+            if "{name}" in response:
+                return response.replace("{name}", person_name)
+            else:
+                # Simple name insertion at the beginning
+                return f"Hello {person_name}! {response}"
+        
+        # Ultimate fallback
+        return f"Hello {person_name}! How can I help you today?"
+    
     def create_default_responses(self):
         """Create default responses if files are missing"""
         self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.greeting_responses = ["Hello {name}! How can I help you today?"]
         self.listening_responses = ["I'm listening, what would you like to know?"]
         self.waiting_responses = ["I'm still here if you need anything"]
         self.warning_responses = ["Warning: Unknown person detected. Please identify yourself."]
@@ -403,7 +485,7 @@ class ChattyAI:
             return False
     
     def greet_person(self, name):
-        """Greet a detected person"""
+        """Greet a detected person with personalized greeting"""
         current_time = time.time()
         
         # Check if we should greet this person (cooldown check)
@@ -412,19 +494,20 @@ class ChattyAI:
             if time_since_last < GREETING_COOLDOWN:
                 return False
         
-        # Greet the person
-        if self.listening_responses:
-            greeting = f"Hello {name}! {random.choice(self.listening_responses)}"
-        else:
-            greeting = f"Hello {name}! How can I help you today?"
+        # Get personalized greeting
+        greeting = self.get_personalized_response(name, "greetings", self.greeting_responses)
         
-        self.speak_text(greeting)
+        # Add a listening prompt
+        listening_response = self.get_personalized_response(name, "listening", self.listening_responses)
+        full_greeting = f"{greeting} {listening_response}"
+        
+        self.speak_text(full_greeting)
         self.last_greeting_time[name] = current_time
         self.last_interaction_time = current_time
         
         # Enable wake word detection after greeting
         self.wake_word_active = True
-        print(f"Greeted {name} - Wake word detection now active")
+        print(f"Greeted {name} with personalized message - Wake word detection now active")
         return True
     
     def handle_unknown_person(self, frame, confidence):
@@ -444,22 +527,21 @@ class ChattyAI:
         if not self.last_interaction_time or (current_time - self.last_interaction_time) >= WAITING_INTERVAL:
             if self.waiting_cycle == 0:
                 # Offer joke
-                if self.waiting_responses and self.jokes:
-                    waiting_msg = random.choice(self.waiting_responses)
+                if self.jokes:
+                    waiting_msg = self.get_personalized_response(name, "waiting", self.waiting_responses)
                     joke = random.choice(self.jokes)
-                    message = f"Hello {name}! {waiting_msg} Here's a joke for you: {joke}"
+                    message = f"{waiting_msg} Here's a joke for you: {joke}"
                     self.speak_text(message)
                     self.waiting_cycle = 1
                     print(f"Told {name} a joke")
             else:
-                # Offer fun fact (placeholder - you can add fun facts file)
-                if self.waiting_responses:
-                    waiting_msg = random.choice(self.waiting_responses)
-                    fun_fact = "Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
-                    message = f"Hello {name}! {waiting_msg} Here's a fun fact: {fun_fact}"
-                    self.speak_text(message)
-                    self.waiting_cycle = 0
-                    print(f"Told {name} a fun fact")
+                # Offer fun fact
+                waiting_msg = self.get_personalized_response(name, "waiting", self.waiting_responses)
+                fun_fact = "Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
+                message = f"{waiting_msg} Here's a fun fact: {fun_fact}"
+                self.speak_text(message)
+                self.waiting_cycle = 0
+                print(f"Told {name} a fun fact")
             
             self.last_interaction_time = current_time
     
@@ -582,7 +664,7 @@ class ChattyAI:
     def execute_command(self, command):
         """Execute system command"""
         if command == "flush the toilet":
-            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
         elif command == "turn on the lights":
             response = "I would turn on the lights if I was connected to a smart home system."
         elif command == "turn off the lights":
@@ -593,9 +675,9 @@ class ChattyAI:
             response = "I would stop the music if any music was playing."
         elif command == "who is sponsoring this video":
             self.play_laughing()
-            response = "You are very funny Nick. You know you dont have any sponsors for your videos!"
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
         elif command == "how is the weather today":
-            response = "O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
         elif command == "what time is it":
             import datetime
             current_time = datetime.datetime.now().strftime("%I:%M %p")
@@ -817,7 +899,7 @@ class ChattyAI:
         print("🚀 Chatty AI Complete System Started!")
         print("=" * 60)
         print("Features active:")
-        print("• Facial Recognition with Greetings")
+        print("• Facial Recognition with Personalized Greetings")
         print("• Wake Word Detection")
         print("• AI Assistant (TinyLLaMA)")
         print("• Security Monitoring")
@@ -827,6 +909,7 @@ class ChattyAI:
         print("Press ESC key to exit")
         print("\nDEBUG INFO:")
         print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+        print(f"• Personalized responses: {len(self.personalized_responses)} people configured")
         print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
         print(f"• Silence threshold: {SILENCE_THRESHOLD}")
         print("=" * 60)
