@@ -1,6 +1,6 @@
 Thank you, Claude.
 
-I have my AI Assistant Python script named chatty_ai.py to detect people using facial recognition, then start the AI Assitant listening for wake word phrases and acting correspondingly.
+I slightly modified the chatty_ai.py Python script to change the greeting it gives after detecting a registered person using facial recognition.
 
 chatty_ai.py
 #!/usr/bin/env python3
@@ -8,6 +8,7 @@ chatty_ai.py
 chatty_ai.py - Complete AI Assistant with Facial Recognition and Wake Word Detection
 Combines facial recognition, wake word detection, AI assistant, STT and TTS capabilities.
 Updated with camera window display and proper ESC key handling.
+FIXED VERSION - Improved wake word detection and audio handling
 """
 
 import os
@@ -57,6 +58,7 @@ JOKES_FILE = "jokes.txt"
 LISTENING_RESPONSES_FILE = "listening_responses.txt"
 WAITING_RESPONSES_FILE = "waiting_responses.txt"
 WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
 
 # Wake word phrases
 WAKE_WORDS = [
@@ -129,6 +131,7 @@ MAX_RECORDING_DURATION = 30
 GREETING_COOLDOWN = 300  # 5 minutes in seconds
 WAITING_INTERVAL = 30    # 30 seconds before offering help
 PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
+WAKE_WORD_CHECK_INTERVAL = 1.0  # Check for wake words every 1 second
 
 class ChattyAI:
     def __init__(self):
@@ -150,17 +153,20 @@ class ChattyAI:
         self.last_interaction_time = None
         self.person_absent_since = None
         self.waiting_cycle = 0  # 0: joke, 1: fun fact
-        
+        self.audio_recording_lock = threading.Lock()
+        self.wake_word_active = False
+
         # Response lists
         self.jokes = []
         self.listening_responses = []
         self.waiting_responses = []
         self.warning_responses = []
-        
+        self.greeting_responses = []
+
         # Telegram
         self.telegram_token = None
         self.telegram_chat_id = None
-        
+
         # Threading
         self.camera_thread = None
         self.audio_thread = None
@@ -203,7 +209,10 @@ class ChattyAI:
             
             with open(LISTENING_RESPONSES_FILE, 'r') as f:
                 self.listening_responses = [line.strip() for line in f if line.strip()]
-            
+
+            with open(GREETING_RESPONSES_FILE, 'r') as f:
+                self.greeting_responses = [line.strip() for line in f if line.strip()]
+
             with open(WAITING_RESPONSES_FILE, 'r') as f:
                 self.waiting_responses = [line.strip() for line in f if line.strip()]
             
@@ -219,6 +228,7 @@ class ChattyAI:
     def create_default_responses(self):
         """Create default responses if files are missing"""
         self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.greeting_responses = ["Hello Nick, my master. It is so lovely to see you again. Thank you for creating me. How may I assist you?"]
         self.listening_responses = ["I'm listening, what would you like to know?"]
         self.waiting_responses = ["I'm still here if you need anything"]
         self.warning_responses = ["Warning: Unknown person detected. Please identify yourself."]
@@ -297,28 +307,32 @@ class ChattyAI:
     def speak_text(self, text):
         """Convert text to speech using Piper"""
         try:
-            command = [
-                PIPER_EXECUTABLE,
-                "--model", VOICE_PATH,
-                "--config", CONFIG_PATH,
-                "--output_file", RESPONSE_AUDIO
-            ]
-            subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
-            subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+            # Use lock to prevent audio conflicts
+            with self.audio_recording_lock:
+                command = [
+                    PIPER_EXECUTABLE,
+                    "--model", VOICE_PATH,
+                    "--config", CONFIG_PATH,
+                    "--output_file", RESPONSE_AUDIO
+                ]
+                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
             print(f"TTS failed: {e}")
     
     def play_beep(self):
         """Play beep sound"""
         try:
-            subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             pass
     
     def play_laughing(self):
         """Play laughing sound"""
         try:
-            subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             pass
     
@@ -419,7 +433,9 @@ class ChattyAI:
         self.last_greeting_time[name] = current_time
         self.last_interaction_time = current_time
         
-        print(f"Greeted {name}")
+        # Enable wake word detection after greeting
+        self.wake_word_active = True
+        print(f"Greeted {name} - Wake word detection now active")
         return True
     
     def handle_unknown_person(self, frame, confidence):
@@ -461,59 +477,110 @@ class ChattyAI:
     def transcribe_audio(self, filename):
         """Transcribe audio using Whisper"""
         try:
+            if not os.path.exists(filename):
+                return ""
+            
             segments, _ = self.whisper_model.transcribe(filename)
             transcript = " ".join(segment.text for segment in segments).strip()
+            print(f"Transcription: '{transcript}'")  # Debug output
             return transcript
         except Exception as e:
+            print(f"Transcription error: {e}")
             return ""
     
     def detect_wake_word(self, text):
         """Check if text contains wake word"""
-        text_cleaned = text.lower().replace(',', '').strip()
+        if not text:
+            return False
+            
+        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
         
         for wake_word in WAKE_WORDS:
             wake_word_cleaned = wake_word.lower().strip()
             if wake_word_cleaned in text_cleaned:
+                print(f"Wake word detected: '{wake_word}' in '{text}'")
                 return True
         return False
     
     def record_with_silence_detection(self):
         """Record audio until silence detected"""
-        audio_data = []
-        silence_duration = 0
-        recording_duration = 0
-        check_interval = 0.2
-        samples_per_check = int(SAMPLE_RATE * check_interval)
-        
-        def audio_callback(indata, frames, time, status):
-            audio_data.extend(indata[:, 0])
-        
-        with sd.InputStream(callback=audio_callback, 
-                          samplerate=SAMPLE_RATE, 
-                          channels=CHANNELS,
-                          dtype='float32'):
-            
-            while recording_duration < MAX_RECORDING_DURATION:
-                time.sleep(check_interval)
-                recording_duration += check_interval
+        try:
+            with self.audio_recording_lock:
+                print("Recording audio...")
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.2
+                samples_per_check = int(SAMPLE_RATE * check_interval)
                 
-                if len(audio_data) >= samples_per_check:
-                    recent_audio = np.array(audio_data[-samples_per_check:])
-                    rms = np.sqrt(np.mean(recent_audio**2))
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        print(f"Audio callback status: {status}")
+                    audio_data.extend(indata[:, 0])
+                
+                with sd.InputStream(callback=audio_callback, 
+                                  samplerate=SAMPLE_RATE, 
+                                  channels=CHANNELS,
+                                  dtype='float32'):
                     
-                    if rms < SILENCE_THRESHOLD:
-                        silence_duration += check_interval
-                        if silence_duration >= MIN_SILENCE_DURATION:
-                            break
-                    else:
-                        silence_duration = 0
-        
-        if audio_data:
-            audio_array = np.array(audio_data, dtype=np.float32)
-            sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
-            return True
-        
-        return False
+                    while recording_duration < MAX_RECORDING_DURATION:
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                        
+                        if len(audio_data) >= samples_per_check:
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+                            rms = np.sqrt(np.mean(recent_audio**2))
+                            
+                            if rms < SILENCE_THRESHOLD:
+                                silence_duration += check_interval
+                                if silence_duration >= MIN_SILENCE_DURATION:
+                                    print(f"Silence detected after {recording_duration:.1f}s")
+                                    break
+                            else:
+                                silence_duration = 0
+                
+                if audio_data:
+                    audio_array = np.array(audio_data, dtype=np.float32)
+                    sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                    print(f"Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration")
+                    return True
+                
+                return False
+                
+        except Exception as e:
+            print(f"Recording error: {e}")
+            return False
+    
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection"""
+        try:
+            if not self.audio_recording_lock.acquire(blocking=False):
+                return False  # Audio system is busy
+            
+            try:
+                # Record 5 seconds of audio for wake word detection
+                print("Listening for wake word...")
+                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()
+                
+                # Check if audio contains sound above threshold
+                rms = np.sqrt(np.mean(audio_data**2))
+                if rms > SILENCE_THRESHOLD * 2:  # Higher threshold for wake word
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    print(f"Wake word audio saved, RMS: {rms:.4f}")
+                    return True
+                else:
+                    print(f"Audio too quiet for wake word, RMS: {rms:.4f}")
+                    return False
+                    
+            finally:
+                self.audio_recording_lock.release()
+                
+        except Exception as e:
+            print(f"Wake word recording error: {e}")
+            if self.audio_recording_lock.locked():
+                self.audio_recording_lock.release()
+            return False
     
     def is_command(self, text):
         """Check if text is a command"""
@@ -573,47 +640,68 @@ class ChattyAI:
             else:
                 return "I'm not sure how to answer that."
         except Exception as e:
+            print(f"LLM error: {e}")
             return "Sorry, I had trouble processing that question."
     
     def process_user_input(self, text):
         """Process user input"""
+        print(f"Processing user input: '{text}'")
         command = self.is_command(text)
         if command:
+            print(f"Executing command: {command}")
             response = self.execute_command(command)
         else:
+            print("Generating LLM response")
             response = self.query_llama(text)
         
         return response
     
     def listen_for_wake_word(self):
         """Listen for wake words in background"""
+        print("Wake word detection thread started")
+        
         while self.is_running:
             try:
-                # Only listen if someone is present
-                if self.current_person and self.current_person != "Unknown":
-                    # Record short audio clip
-                    audio_data = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
-                    sd.wait()
-                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                # Only listen if someone is present and wake word detection is active
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    print("Checking for wake word...")
                     
-                    # Transcribe and check for wake word
-                    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                    
-                    if transcript and self.detect_wake_word(transcript):
-                        self.play_beep()
+                    # Record audio for wake word detection
+                    if self.record_wake_word_check():
+                        # Transcribe and check for wake word
+                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
                         
-                        # Record full request
-                        if self.record_with_silence_detection():
-                            user_text = self.transcribe_audio(WAV_FILENAME)
-                            if user_text:
-                                response = self.process_user_input(user_text)
-                                self.speak_text(response)
-                                self.last_interaction_time = time.time()
-                
-                time.sleep(0.5)
+                        if transcript and self.detect_wake_word(transcript):
+                            print("WAKE WORD DETECTED! Starting conversation...")
+                            self.play_beep()
+                            
+                            # Record full request
+                            print("Please speak your request...")
+                            if self.record_with_silence_detection():
+                                user_text = self.transcribe_audio(WAV_FILENAME)
+                                if user_text and len(user_text.strip()) > 2:
+                                    print(f"User said: '{user_text}'")
+                                    response = self.process_user_input(user_text)
+                                    print(f"Response: '{response}'")
+                                    self.speak_text(response)
+                                    self.last_interaction_time = time.time()
+                                else:
+                                    print("No clear speech detected")
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                            else:
+                                print("Failed to record user request")
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                    
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    # No one present or wake word not active, sleep longer
+                    time.sleep(2.0)
                 
             except Exception as e:
-                time.sleep(1)
+                print(f"Wake word detection error: {e}")
+                time.sleep(2.0)
+        
+        print("Wake word detection thread stopped")
     
     def camera_monitoring_loop(self):
         """Main camera monitoring loop with OpenCV display"""
@@ -663,6 +751,14 @@ class ChattyAI:
                     person_text = f"Current Person: {self.current_person}"
                     cv2.putText(frame, person_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
                 
+                # Show wake word status
+                if self.wake_word_active:
+                    wake_word_text = "Wake Word Detection: ACTIVE"
+                    cv2.putText(frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                else:
+                    wake_word_text = "Wake Word Detection: INACTIVE"
+                    cv2.putText(frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                
                 # Display the frame
                 cv2.imshow('Chatty AI - Facial Recognition', frame)
                 
@@ -684,6 +780,7 @@ class ChattyAI:
                         # New person or person changed
                         self.current_person = name
                         self.person_absent_since = None
+                        self.wake_word_active = False  # Reset wake word state
                         
                         if name == "Unknown":
                             self.handle_unknown_person(frame, confidence)
@@ -692,7 +789,7 @@ class ChattyAI:
                             photo_path = self.save_security_photo(frame, name, confidence)
                             self.send_telegram_alert(name, confidence, photo_path)
                             
-                            # Greet known person
+                            # Greet known person (this will activate wake word detection)
                             self.greet_person(name)
                     
                     elif name != "Unknown":
@@ -710,6 +807,7 @@ class ChattyAI:
                             self.person_absent_since = None
                             self.last_interaction_time = None
                             self.waiting_cycle = 0
+                            self.wake_word_active = False
                             print("Person left - resetting state")
                 
                 time.sleep(PERSON_DETECTION_INTERVAL)
@@ -738,6 +836,11 @@ class ChattyAI:
         print("• Proactive Entertainment")
         print("=" * 60)
         print("Press ESC key to exit")
+        print("\nDEBUG INFO:")
+        print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+        print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+        print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+        print("=" * 60)
         
         self.is_running = True
         
@@ -756,12 +859,31 @@ class ChattyAI:
     
     def cleanup(self):
         """Clean up resources"""
+        print("Cleaning up resources...")
         self.is_running = False
         
+        # Wait for audio thread to finish
+        if self.audio_thread and self.audio_thread.is_alive():
+            print("Waiting for audio thread to stop...")
+            self.audio_thread.join(timeout=3)
+        
         if self.picam2:
-            self.picam2.stop()
+            try:
+                self.picam2.stop()
+                print("Camera stopped")
+            except:
+                pass
         
         cv2.destroyAllWindows()
+        
+        # Clean up audio files
+        for audio_file in [WAV_FILENAME, RESPONSE_AUDIO, WAKE_WORD_AUDIO]:
+            try:
+                if os.path.exists(audio_file):
+                    os.remove(audio_file)
+            except:
+                pass
+        
         print("Chatty AI shutdown complete")
 
 def main():
@@ -769,15 +891,27 @@ def main():
     print("Chatty AI - Your smart AI Assistant System")
     print("=" * 60)
     
+    # Check audio devices
+    try:
+        print("Available audio devices:")
+        print(sd.query_devices())
+        print("=" * 60)
+    except Exception as e:
+        print(f"Could not query audio devices: {e}")
+    
     chatty = ChattyAI()
     chatty.run()
 
 if __name__ == "__main__":
     main()
 
-
 I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
 Chatty AI - Your smart AI Assistant System
+============================================================
+Available audio devices:
+  0 USB PnP Sound Device: Audio (hw:2,0), ALSA (1 in, 0 out)
+  1 pulse, ALSA (32 in, 32 out)
+* 2 default, ALSA (32 in, 32 out)
 ============================================================
 Response files loaded successfully
 Loading AI models...
@@ -786,11 +920,11 @@ llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwa
 LLaMA model loaded
 Loaded 37 face encodings
 Telegram configuration loaded
-[5:13:36.360044100] [6478]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[5:13:36.367066214] [6501]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[5:13:36.377233644] [6501]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
-[5:13:36.380117849] [6478]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[5:13:36.380238182] [6501]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+[6:06:36.298391472] [6977]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[6:06:36.305371561] [7000]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[6:06:36.315141740] [7000]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[6:06:36.318957590] [6977]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[6:06:36.319076923] [7000]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
 Camera initialized
 🚀 Chatty AI Complete System Started!
 ============================================================
@@ -803,19 +937,69 @@ Features active:
 • Proactive Entertainment
 ============================================================
 Press ESC key to exit
-Greeted Nick
-^[q^[^[q^X^C
-Shutting down Chatty AI...
+
+DEBUG INFO:
+• Wake words: 42 phrases loaded
+• Audio sample rate: 16000 Hz
+• Silence threshold: 0.035
+============================================================
+Wake word detection thread started
+Greeted Nick - Wake word detection now active
+Checking for wake word...
+Listening for wake word...
+Audio too quiet for wake word, RMS: 0.0212
+Checking for wake word...
+Listening for wake word...
+Wake word audio saved, RMS: 0.0941
+Transcription: 'Hello Chetty, how are you?'
+Wake word detected: 'hello chetty' in 'Hello Chetty, how are you?'
+WAKE WORD DETECTED! Starting conversation...
+Please speak your request...
+Recording audio...
+Silence detected after 1.8s
+Audio saved: 1.8s duration
+Transcription: ''
+No clear speech detected
+Checking for wake word...
+Listening for wake word...
+Audio too quiet for wake word, RMS: 0.0633
+Checking for wake word...
+Listening for wake word...
+Wake word audio saved, RMS: 0.0770
+Transcription: 'Hello, Chetty.'
+Wake word detected: 'hello chetty' in 'Hello, Chetty.'
+WAKE WORD DETECTED! Starting conversation...
+Please speak your request...
+Recording audio...
+Silence detected after 3.8s
+Audio saved: 3.8s duration
+Transcription: 'Flush the toilet.'
+User said: 'Flush the toilet.'
+Processing user input: 'Flush the toilet.'
+Executing command: flush the toilet
+Response: 'Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!'
+Checking for wake word...
+Listening for wake word...
+
+[INFO] ESC key pressed. Shutting down...
+Cleaning up resources...
+Waiting for audio thread to stop...
+^[Audio too quiet for wake word, RMS: 0.0255
+Camera stopped
 Chatty AI shutdown complete
+Wake word detection thread stopped
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-The script started correctly and then facial recognition detection window opened correctly.
+My greetings_repsonses.txt file is as follows:
 
-The script recognized me and spoke the greeting message correctly and send an alert message correctly to my Telegram account.
+greetings_repsonses.txt
+Hello Nick, my master. It is so lovely to see you again. Thank you for creating me. How may I assist you?
 
-However, the wake word detection and AI Assistant functionality did not start up properly after successful facial recognition.
+Everything worked perfectly.
 
-Please fix the script.
+However, I would like to be able to customise the greetings for different registered people, i.e, Nick, Anne, Jack, etc.
+
+How can I achieve this, including added the detected persons name to a greeting string or any of the other response type strings?
 
 
 
