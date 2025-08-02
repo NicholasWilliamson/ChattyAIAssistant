@@ -65,6 +65,8 @@ COMMANDS = {
     "stop music": "stop_music",
     "what time is it": "get_time",
     "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
     "reboot system": "reboot_system"
 }
 
@@ -225,7 +227,7 @@ class ChattyAI:
         command_func = COMMANDS.get(command)
         
         if command == "flush the toilet":
-            response = "I'm a digital assistant - I can't actually flush toilets! But I'd be happy to help with other tasks."
+            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why don't you haul your lazy arse up off the couch and flush the toilet yourself!"
         elif command == "turn on the lights":
             response = "I would turn on the lights if I were connected to a smart home system."
         elif command == "turn off the lights":
@@ -234,6 +236,10 @@ class ChattyAI:
             response = "I would start playing music if I had access to a music system."
         elif command == "stop music":
             response = "I would stop the music if any was playing."
+        elif command == "who is sponsoring this video":
+            response = "Ha ha ha! You are very funny Nick. You know you don't have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = "O M G Nick! Surely you don't wan't to waste my valuable resources by asking me what the weather is today. Can't you just look out the window or ask Siri. That is about all Siri is good for!"
         elif command == "what time is it":
             import datetime
             current_time = datetime.datetime.now().strftime("%I:%M %p")
