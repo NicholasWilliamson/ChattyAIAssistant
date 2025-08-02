@@ -6,7 +6,7 @@ import time
 import face_recognition
 
 # Change this to the name of the person you're photographing
-PERSON_NAME = "Spiderman"  
+PERSON_NAME = "Nick"  
 
 def create_folder(name):
     dataset_folder = "dataset"
