@@ -1,54 +1,718 @@
-import subprocess
-import requests
-import time
-from faster_whisper import WhisperModel
 
+#!/usr/bin/env python3
+"""
+chatty_ai.py - Complete AI Assistant with Facial Recognition and Wake Word Detection
+Combines facial recognition, wake word detection, AI assistant, STT and TTS capabilities.
+"""
+
+import os
+import subprocess
+import sounddevice as sd
+import soundfile as sf
+import numpy as np
+import threading
+import time
+import random
+import re
+import cv2
+import face_recognition
+import pickle
+import json
+import requests
+import logging
+from datetime import datetime, timedelta
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+from picamera2 import Picamera2
+
+# -------------------------------
 # Configuration
-PIPER_PATH = "./piper/piper"
+# -------------------------------
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-OUTPUT_WAV = "output.wav"
-RECORD_WAV = "record.wav"
-LOCALAI_URL = "http://localhost:8080/v1/chat/completions"
+PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+BEEP_SOUND = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+LAUGHING_SOUND = "/home/nickspi5/Chatty_AI/audio_files/laughing.wav"
+ENCODINGS_FILE = "encodings.pickle"
+TELEGRAM_CONFIG_FILE = "telegram_config.json"
 
-# Step 1: Record audio (5 seconds)
-print("🎤 Recording 5 seconds of audio...")
-subprocess.run([
-    "arecord", "-f", "cd", "-t", "wav", "-d", "5", "-r", "16000", "-c", "1", RECORD_WAV
-])
-print("✅ Recording complete.")
+# Audio files
+WAV_FILENAME = "user_input.wav"
+RESPONSE_AUDIO = "output.wav"
+WAKE_WORD_AUDIO = "wake_word_check.wav"
 
-# Step 2: Transcribe with Faster-Whisper
-print("🧠 Transcribing with Faster-Whisper...")
-model = WhisperModel("base.en", compute_type="int8")  # Use "tiny", "base", etc.
-segments, _ = model.transcribe(RECORD_WAV)
-transcription = "".join([seg.text for seg in segments])
-print(f"📝 You said: {transcription}")
+# Security directories
+SECURITY_PHOTOS_DIR = "/home/nickspi5/Chatty_AI/security_photos"
+SECURITY_LOGS_DIR = "/home/nickspi5/Chatty_AI/security_logs"
 
-# Step 3: Send to LocalAI
-print("🤖 Sending to TinyLLaMA via LocalAI...")
-payload = {
-    "model": "tinyllama",  # or the name you've set in your LocalAI config
-    "messages": [
-        {"role": "system", "content": "You are Chatty AI, a friendly AI assistant."},
-        {"role": "user", "content": transcription}
-    ],
-    "temperature": 0.7
+# Response files
+JOKES_FILE = "jokes.txt"
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
+WAITING_RESPONSES_FILE = "waiting_responses.txt"
+WARNING_RESPONSES_FILE = "warning_responses.txt"
+
+# Wake word phrases
+WAKE_WORDS = [
+    "are you awake",
+    "are you alive",
+    "hey chatty",
+    "hello chatty",
+    "sup chatty",
+    "sub-chatty",
+    "how's it chatty",
+    "howzit chatty",
+    "hi chatty",
+    "yo chatty",
+    "hey chuddy",
+    "hello chuddy",
+    "sup chuddy",
+    "sub-chuddy",
+    "how's it chuddy",
+    "howzit chuddy",
+    "hi chuddy",
+    "yo chuddy",
+    "hey cheddy",
+    "hello cheddy",
+    "sup cheddy",
+    "sub-cheddy",
+    "how's it cheddy",
+    "howzit cheddy",
+    "hi cheddy",
+    "yo cheddy",
+    "hey chetty",
+    "hello chetty",
+    "sup chetty",
+    "sub-chetty",
+    "how's it chetty",
+    "howzit chetty",
+    "hi chetty",
+    "yo chetty",
+    "hey cherry",
+    "hello cherry",
+    "sup cherry",
+    "sub-cherry",
+    "how's it cherry",
+    "howzit cherry",
+    "hi cherry",
+    "yo cherry"
+]
+
+# Command keywords
+COMMANDS = {
+    "flush the toilet": "toilet_flush",
+    "turn on the lights": "lights_on",
+    "turn off the lights": "lights_off",
+    "play music": "play_music",
+    "stop music": "stop_music",
+    "what time is it": "get_time",
+    "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
+    "reboot system": "reboot_system"
 }
 
-response = requests.post(LOCALAI_URL, json=payload)
-llm_reply = response.json()["choices"][0]["message"]["content"]
-print(f"💬 Chatty AI says: {llm_reply}")
+# Audio parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+SILENCE_THRESHOLD = 0.035
+MIN_SILENCE_DURATION = 1.5
+MAX_RECORDING_DURATION = 30
 
-# Step 4: Convert response to speech using Piper
-print("🗣️ Converting reply to speech...")
-subprocess.run([
-    PIPER_PATH,
-    "--model", VOICE_PATH,
-    "--config", CONFIG_PATH,
-    "--output_file", OUTPUT_WAV
-], input=llm_reply.encode("utf-8"))
+# Timing parameters
+GREETING_COOLDOWN = 300  # 5 minutes in seconds
+WAITING_INTERVAL = 30    # 30 seconds before offering help
+PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
 
-# Step 5: Play audio
-print("🔊 Playing Chatty's reply...")
-subprocess.run(["aplay", OUTPUT_WAV])
+class ChattyAI:
+    def __init__(self):
+        # AI Models
+        self.whisper_model = None
+        self.llama_model = None
+        
+        # Facial Recognition
+        self.known_encodings = []
+        self.known_names = []
+        
+        # Camera
+        self.picam2 = None
+        
+        # State variables
+        self.is_running = False
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.waiting_cycle = 0  # 0: joke, 1: fun fact
+        
+        # Response lists
+        self.jokes = []
+        self.listening_responses = []
+        self.waiting_responses = []
+        self.warning_responses = []
+        
+        # Telegram
+        self.telegram_token = None
+        self.telegram_chat_id = None
+        
+        # Threading
+        self.camera_thread = None
+        self.audio_thread = None
+        
+        # Initialize everything
+        self.setup_directories()
+        self.load_response_files()
+        self.load_models()
+        self.load_encodings()
+        self.load_telegram_config()
+        self.setup_camera()
+        self.setup_logging()
+    
+    def setup_directories(self):
+        """Create necessary directories"""
+        os.makedirs(SECURITY_PHOTOS_DIR, exist_ok=True)
+        os.makedirs(SECURITY_LOGS_DIR, exist_ok=True)
+    
+    def setup_logging(self):
+        """Setup logging for detections"""
+        log_file = os.path.join(SECURITY_LOGS_DIR, "chatty_ai.log")
+        self.logger = logging.getLogger('chatty_ai')
+        self.logger.setLevel(logging.INFO)
+        
+        # Remove existing handlers
+        for handler in self.logger.handlers[:]:
+            self.logger.removeHandler(handler)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+    
+    def load_response_files(self):
+        """Load response text files"""
+        try:
+            with open(JOKES_FILE, 'r') as f:
+                self.jokes = [line.strip() for line in f if line.strip()]
+            
+            with open(LISTENING_RESPONSES_FILE, 'r') as f:
+                self.listening_responses = [line.strip() for line in f if line.strip()]
+            
+            with open(WAITING_RESPONSES_FILE, 'r') as f:
+                self.waiting_responses = [line.strip() for line in f if line.strip()]
+            
+            with open(WARNING_RESPONSES_FILE, 'r') as f:
+                self.warning_responses = [line.strip() for line in f if line.strip()]
+            
+            print("Response files loaded successfully")
+        except FileNotFoundError as e:
+            print(f"Response file not found: {e}")
+            # Create default responses if files don't exist
+            self.create_default_responses()
+    
+    def create_default_responses(self):
+        """Create default responses if files are missing"""
+        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.listening_responses = ["I'm listening, what would you like to know?"]
+        self.waiting_responses = ["I'm still here if you need anything"]
+        self.warning_responses = ["Warning: Unknown person detected. Please identify yourself."]
+    
+    def load_models(self):
+        """Load AI models"""
+        print("Loading AI models...")
+        
+        try:
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            print("Whisper model loaded")
+        except Exception as e:
+            print(f"Failed to load Whisper: {e}")
+            return False
+        
+        try:
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            print("LLaMA model loaded")
+        except Exception as e:
+            print(f"Failed to load LLaMA: {e}")
+            return False
+        
+        return True
+    
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
+            with open(ENCODINGS_FILE, "rb") as f:
+                data = pickle.loads(f.read())
+                self.known_encodings = data["encodings"]
+                self.known_names = data["names"]
+            print(f"Loaded {len(self.known_encodings)} face encodings")
+            return True
+        except FileNotFoundError:
+            print(f"Encodings file '{ENCODINGS_FILE}' not found!")
+            return False
+        except Exception as e:
+            print(f"Failed to load encodings: {e}")
+            return False
+    
+    def load_telegram_config(self):
+        """Load Telegram configuration"""
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            print("Telegram configuration loaded")
+        except FileNotFoundError:
+            print("Telegram config not found - alerts disabled")
+        except Exception as e:
+            print(f"Failed to load Telegram config: {e}")
+    
+    def setup_camera(self):
+        """Initialize camera"""
+        try:
+            self.picam2 = Picamera2()
+            self.picam2.configure(self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            ))
+            self.picam2.start()
+            time.sleep(2)  # Camera warm-up
+            print("Camera initialized")
+            return True
+        except Exception as e:
+            print(f"Failed to initialize camera: {e}")
+            return False
+    
+    def speak_text(self, text):
+        """Convert text to speech using Piper"""
+        try:
+            command = [
+                PIPER_EXECUTABLE,
+                "--model", VOICE_PATH,
+                "--config", CONFIG_PATH,
+                "--output_file", RESPONSE_AUDIO
+            ]
+            subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+            subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"TTS failed: {e}")
+    
+    def play_beep(self):
+        """Play beep sound"""
+        try:
+            subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+    
+    def play_laughing(self):
+        """Play laughing sound"""
+        try:
+            subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+    
+    def detect_faces(self, frame):
+        """Detect and recognize faces in frame"""
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+        
+        if len(face_locations) == 0:
+            return None, None, 0.0
+        
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        
+        best_name = "Unknown"
+        best_confidence = 0.0
+        
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
+            
+            if True in matches:
+                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
+                best_match_index = face_distances.argmin()
+                confidence = 1.0 - face_distances[best_match_index]
+                
+                if matches[best_match_index] and confidence > 0.4:
+                    if confidence > best_confidence:
+                        best_name = self.known_names[best_match_index]
+                        best_confidence = confidence
+        
+        return best_name, face_locations[0], best_confidence
+    
+    def save_security_photo(self, frame, person_name, confidence):
+        """Save security photo with timestamp"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{person_name.lower()}_{timestamp}.jpg"
+        filepath = os.path.join(SECURITY_PHOTOS_DIR, filename)
+        
+        # Add overlay information
+        overlay_frame = frame.copy()
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
+        
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
+        if person_name != "Unknown":
+            cv2.putText(overlay_frame, f"Confidence: {confidence:.1%}", (20, 85), font, 0.6, (255, 255, 255), 2)
+        
+        cv2.imwrite(filepath, overlay_frame)
+        self.logger.info(f"Security photo saved: {filename} | Person: {person_name} | Confidence: {confidence:.2f}")
+        
+        return filepath
+    
+    def send_telegram_alert(self, person_name, confidence, photo_path):
+        """Send Telegram alert"""
+        if not self.telegram_token or not self.telegram_chat_id:
+            return False
+        
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            if person_name == "Unknown":
+                message = f"**UNKNOWN PERSON DETECTED**\n\n**Time:** {timestamp}\n**Status:** Unregistered Person\n**Action:** Photo captured for review"
+            else:
+                message = f"**AUTHORIZED ACCESS**\n\n**Person:** {person_name}\n**Time:** {timestamp}\n**Confidence:** {confidence:.1%}\n**Status:** Registered User"
+            
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
+            with open(photo_path, 'rb') as photo:
+                files = {'photo': photo}
+                data = {
+                    'chat_id': self.telegram_chat_id,
+                    'caption': message,
+                    'parse_mode': 'Markdown'
+                }
+                response = requests.post(url, data=data, files=files, timeout=30)
+                return response.status_code == 200
+        except Exception as e:
+            print(f"Telegram alert failed: {e}")
+            return False
+    
+    def greet_person(self, name):
+        """Greet a detected person"""
+        current_time = time.time()
+        
+        # Check if we should greet this person (cooldown check)
+        if name in self.last_greeting_time:
+            time_since_last = current_time - self.last_greeting_time[name]
+            if time_since_last < GREETING_COOLDOWN:
+                return False
+        
+        # Greet the person
+        if self.listening_responses:
+            greeting = f"Hello {name}! {random.choice(self.listening_responses)}"
+        else:
+            greeting = f"Hello {name}! How can I help you today?"
+        
+        self.speak_text(greeting)
+        self.last_greeting_time[name] = current_time
+        self.last_interaction_time = current_time
+        
+        print(f"Greeted {name}")
+        return True
+    
+    def handle_unknown_person(self, frame, confidence):
+        """Handle unknown person detection"""
+        warning = random.choice(self.warning_responses) if self.warning_responses else "Warning: Unknown person detected."
+        self.speak_text(warning)
+        
+        photo_path = self.save_security_photo(frame, "Unknown", confidence)
+        self.send_telegram_alert("Unknown", confidence, photo_path)
+        
+        print("Unknown person detected and warned")
+    
+    def offer_help_or_entertainment(self, name):
+        """Offer help or entertainment to waiting person"""
+        current_time = time.time()
+        
+        if not self.last_interaction_time or (current_time - self.last_interaction_time) >= WAITING_INTERVAL:
+            if self.waiting_cycle == 0:
+                # Offer joke
+                if self.waiting_responses and self.jokes:
+                    waiting_msg = random.choice(self.waiting_responses)
+                    joke = random.choice(self.jokes)
+                    message = f"Hello {name}! {waiting_msg} Here's a joke for you: {joke}"
+                    self.speak_text(message)
+                    self.waiting_cycle = 1
+                    print(f"Told {name} a joke")
+            else:
+                # Offer fun fact (placeholder - you can add fun facts file)
+                if self.waiting_responses:
+                    waiting_msg = random.choice(self.waiting_responses)
+                    fun_fact = "Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
+                    message = f"Hello {name}! {waiting_msg} Here's a fun fact: {fun_fact}"
+                    self.speak_text(message)
+                    self.waiting_cycle = 0
+                    print(f"Told {name} a fun fact")
+            
+            self.last_interaction_time = current_time
+    
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper"""
+        try:
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            return transcript
+        except Exception as e:
+            return ""
+    
+    def detect_wake_word(self, text):
+        """Check if text contains wake word"""
+        text_cleaned = text.lower().replace(',', '').strip()
+        
+        for wake_word in WAKE_WORDS:
+            wake_word_cleaned = wake_word.lower().strip()
+            if wake_word_cleaned in text_cleaned:
+                return True
+        return False
+    
+    def record_with_silence_detection(self):
+        """Record audio until silence detected"""
+        audio_data = []
+        silence_duration = 0
+        recording_duration = 0
+        check_interval = 0.2
+        samples_per_check = int(SAMPLE_RATE * check_interval)
+        
+        def audio_callback(indata, frames, time, status):
+            audio_data.extend(indata[:, 0])
+        
+        with sd.InputStream(callback=audio_callback, 
+                          samplerate=SAMPLE_RATE, 
+                          channels=CHANNELS,
+                          dtype='float32'):
+            
+            while recording_duration < MAX_RECORDING_DURATION:
+                time.sleep(check_interval)
+                recording_duration += check_interval
+                
+                if len(audio_data) >= samples_per_check:
+                    recent_audio = np.array(audio_data[-samples_per_check:])
+                    rms = np.sqrt(np.mean(recent_audio**2))
+                    
+                    if rms < SILENCE_THRESHOLD:
+                        silence_duration += check_interval
+                        if silence_duration >= MIN_SILENCE_DURATION:
+                            break
+                    else:
+                        silence_duration = 0
+        
+        if audio_data:
+            audio_array = np.array(audio_data, dtype=np.float32)
+            sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+            return True
+        
+        return False
+    
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+    
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = "You are very funny Nick. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = "O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+    
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            return "Sorry, I had trouble processing that question."
+    
+    def process_user_input(self, text):
+        """Process user input"""
+        command = self.is_command(text)
+        if command:
+            response = self.execute_command(command)
+        else:
+            response = self.query_llama(text)
+        
+        return response
+    
+    def listen_for_wake_word(self):
+        """Listen for wake words in background"""
+        while self.is_running:
+            try:
+                # Only listen if someone is present
+                if self.current_person and self.current_person != "Unknown":
+                    # Record short audio clip
+                    audio_data = sd.rec(int(3 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                    sd.wait()
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    
+                    # Transcribe and check for wake word
+                    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                    
+                    if transcript and self.detect_wake_word(transcript):
+                        self.play_beep()
+                        
+                        # Record full request
+                        if self.record_with_silence_detection():
+                            user_text = self.transcribe_audio(WAV_FILENAME)
+                            if user_text:
+                                response = self.process_user_input(user_text)
+                                self.speak_text(response)
+                                self.last_interaction_time = time.time()
+                
+                time.sleep(0.5)
+                
+            except Exception as e:
+                time.sleep(1)
+    
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop"""
+        while self.is_running:
+            try:
+                frame = self.picam2.capture_array()
+                name, face_location, confidence = self.detect_faces(frame)
+                
+                current_time = time.time()
+                
+                if name and face_location:
+                    # Person detected
+                    if name != self.current_person:
+                        # New person or person changed
+                        self.current_person = name
+                        self.person_absent_since = None
+                        
+                        if name == "Unknown":
+                            self.handle_unknown_person(frame, confidence)
+                        else:
+                            # Save photo and send telegram alert for known person
+                            photo_path = self.save_security_photo(frame, name, confidence)
+                            self.send_telegram_alert(name, confidence, photo_path)
+                            
+                            # Greet known person
+                            self.greet_person(name)
+                    
+                    elif name != "Unknown":
+                        # Same known person still present
+                        self.offer_help_or_entertainment(name)
+                
+                else:
+                    # No person detected
+                    if self.current_person:
+                        if not self.person_absent_since:
+                            self.person_absent_since = current_time
+                        elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
+                            # Person has been absent for 5+ minutes, reset
+                            self.current_person = None
+                            self.person_absent_since = None
+                            self.last_interaction_time = None
+                            self.waiting_cycle = 0
+                            print("Person left - resetting state")
+                
+                time.sleep(PERSON_DETECTION_INTERVAL)
+                
+            except Exception as e:
+                print(f"Camera loop error: {e}")
+                time.sleep(1)
+    
+    def run(self):
+        """Main run loop"""
+        if not self.whisper_model or not self.llama_model or not self.picam2:
+            print("Required components not initialized")
+            return
+        
+        print("🚀 Chatty AI Complete System Started!")
+        print("=" * 60)
+        print("Features active:")
+        print("• Facial Recognition with Greetings")
+        print("• Wake Word Detection")
+        print("• AI Assistant (TinyLLaMA)")
+        print("• Security Monitoring")
+        print("• Telegram Alerts")
+        print("• Proactive Entertainment")
+        print("=" * 60)
+        print("Press ESC key to exit")
+        
+        self.is_running = True
+        
+        # Start background threads
+        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+        
+        self.camera_thread.start()
+        self.audio_thread.start()
+        
+        try:
+            # Main loop - wait for ESC key
+            while self.is_running:
+                # Check for ESC key press (this is simplified - in practice you'd use a proper key detection method)
+                time.sleep(0.1)
+                
+        except KeyboardInterrupt:
+            print("\nShutting down Chatty AI...")
+        finally:
+            self.cleanup()
+    
+    def cleanup(self):
+        """Clean up resources"""
+        self.is_running = False
+        
+        if self.picam2:
+            self.picam2.stop()
+        
+        print("Chatty AI shutdown complete")
+
+def main():
+    """Main function"""
+    print("Chatty AI - Your smart AI Assistant System")
+    print("=" * 60)
+    
+    chatty = ChattyAI()
+    chatty.run()
+
+if __name__ == "__main__":
+    main()
