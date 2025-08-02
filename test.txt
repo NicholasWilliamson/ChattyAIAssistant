@@ -40,13 +40,43 @@ WAKE_WORDS = [
     "hey chatty",
     "hello chatty", 
     "sup chatty",
+    "sub-chatty",
+    "how's it chatty",
     "howzit chatty",
     "hi chatty",
     "yo chatty",
-    "Hello, Chuddy",
+    "hey chuddy",
+    "hello chuddy",
+    "sup chuddy",
+    "sub-chuddy",
+    "how's it chuddy",
+    "howzit chuddy",
+    "hi chuddy",
+    "yo chuddy",
+    "hey cheddy",
+    "hello cheddy",
+    "sup cheddy",
+    "sub-cheddy",
+    "how's it cheddy",
+    "howzit cheddy",
+    "hi cheddy",
+    "yo cheddy",
+    "hey chetty",
+    "Hello, Chetty",
+    "sup chetty",
+    "sub-chetty",
+    "how's it chetty",
+    "howzit chetty",
+    "hi chetty",
+    "yo chetty",
+    "hey cherry",
+    "hello cherry",
+    "sup cherry",
     "sub-cherry",
-    "How's it cherry",
-    "Hey Cherry"
+    "how's it cherry",
+    "howzit cherry",
+    "hi cherry",
+    "yo cherry"
 ]
 
 # Wake word acknowledgment responses
@@ -70,6 +100,8 @@ COMMANDS = {
     "stop music": "stop_music",
     "what time is it": "get_time",
     "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
     "reboot system": "reboot_system"
 }
 
@@ -77,7 +109,7 @@ COMMANDS = {
 SAMPLE_RATE = 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.1  # 100ms chunks
-SILENCE_THRESHOLD = 0.01  # Adjust based on your environment
+SILENCE_THRESHOLD = 0.035  # Raised threshold to account for background noise
 MIN_SILENCE_DURATION = 1.5  # 1.5 seconds of silence to stop recording
 MAX_RECORDING_DURATION = 20  # Maximum 20 seconds per recording
 
@@ -171,6 +203,8 @@ class ChattyAI:
         audio_data = []
         silence_duration = 0
         recording_duration = 0
+        check_interval = 0.2  # Check every 200ms for better responsiveness
+        samples_per_check = int(SAMPLE_RATE * check_interval)
         
         def audio_callback(indata, frames, time, status):
             if status:
@@ -184,19 +218,26 @@ class ChattyAI:
                           dtype='float32'):
             
             while recording_duration < MAX_RECORDING_DURATION:
-                time.sleep(CHUNK_DURATION)
-                recording_duration += CHUNK_DURATION
+                time.sleep(check_interval)
+                recording_duration += check_interval
                 
-                # Check for silence in recent audio
-                if len(audio_data) > int(SAMPLE_RATE * CHUNK_DURATION):
-                    recent_audio = np.array(audio_data[-int(SAMPLE_RATE * CHUNK_DURATION):])
+                # Check for silence in recent audio (last 200ms)
+                if len(audio_data) >= samples_per_check:
+                    recent_audio = np.array(audio_data[-samples_per_check:])
+                    rms = np.sqrt(np.mean(recent_audio**2))
                     
-                    if self.is_silence(recent_audio):
-                        silence_duration += CHUNK_DURATION
+                    # Debug output for silence detection
+                    print(f"🔊 Audio level: {rms:.4f} (threshold: {SILENCE_THRESHOLD})")
+                    
+                    if rms < SILENCE_THRESHOLD:
+                        silence_duration += check_interval
+                        print(f"🔇 Silence: {silence_duration:.1f}s / {MIN_SILENCE_DURATION}s")
                         if silence_duration >= MIN_SILENCE_DURATION:
                             print("🔇 Silence detected, stopping recording")
                             break
                     else:
+                        if silence_duration > 0:
+                            print("🔊 Speech detected, resetting silence counter")
                         silence_duration = 0  # Reset silence counter
         
         # Save recorded audio
@@ -221,7 +262,7 @@ class ChattyAI:
         command_func = COMMANDS.get(command)
         
         if command == "flush the toilet":
-            response = "Oh Nick, you know I am just a digital assistant. I cannot actually flush toilets! But you can get your lazy butt up and flush the toilet yourself."
+            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy arse up off the couch and flush the toilet yourself!"
         elif command == "turn on the lights":
             response = "I would turn on the lights if I were connected to a smart home system."
         elif command == "turn off the lights":
@@ -231,17 +272,17 @@ class ChattyAI:
         elif command == "stop music":
             response = "I would stop the music if any was playing."
         elif command == "who is sponsoring this video":
-            response = "Ha ha ha. You are very funny Nick! You know you have no sponsors for your videos."
-        elif command == "what is the weather like today":
-            response = "Oh Nick. Surely you are not going to waste my valuable resources by asking me what the weather is like today. Can't you just look out the window or ask siri. That is about all siri is good for."
+            response = "Ha ha ha! You are very funny Nick. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = "O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
         elif command == "what time is it":
             import datetime
             current_time = datetime.datetime.now().strftime("%I:%M %p")
             response = f"The current time is {current_time}"
         elif command == "shutdown system":
-            response = "I would shutdown the system, but I'll skip that for safety reasons."
+            response = "I would shutdown the system, but I will skip that for safety during testing."
         elif command == "reboot system":
-            response = "I would reboot the system, but I'll skip that for safety reasons."
+            response = "I would reboot the system, but I will skip that for safety during testing."
         else:
             response = f"I understand you want me to {command}, but I don't have that capability yet."
         
@@ -475,140 +516,104 @@ Say one of these wake words to activate:
   • hey chatty
   • hello chatty
   • sup chatty
+  • sub-chatty
+  • how's it chatty
   • howzit chatty
   • hi chatty
   • yo chatty
-  • Hello, Cheddy
+  • hey chuddy
+  • hello chuddy
+  • sup chuddy
+  • sub-chuddy
+  • how's it chuddy
+  • howzit chuddy
+  • hi chuddy
+  • yo chuddy
+  • hey cheddy
+  • hello cheddy
+  • sup cheddy
+  • sub-cheddy
+  • how's it cheddy
+  • howzit cheddy
+  • hi cheddy
+  • yo cheddy
+  • hey chetty
   • Hello, Chetty
-  • Hello, Chuddy
+  • sup chetty
+  • sub-chetty
+  • how's it chetty
+  • howzit chetty
+  • hi chetty
+  • yo chetty
+  • hey cherry
+  • hello cherry
+  • sup cherry
   • sub-cherry
-  • How's it cherry
-  • Hey Cherry
+  • how's it cherry
+  • howzit cherry
+  • hi cherry
+  • yo cherry
 ==================================================
 👂 Listening for wake words...
-Wake words: hey chatty, hello chatty, sup chatty, howzit chatty, hi chatty, yo chatty, Hello, Cheddy, Hello, Chetty, Hello, Chuddy, sub-cherry, How's it cherry, Hey Cherry
+Wake words: hey chatty, hello chatty, sup chatty, sub-chatty, how's it chatty, howzit chatty, hi chatty, yo chatty, hey chuddy, hello chuddy, sup chuddy, sub-chuddy, how's it chuddy, howzit chuddy, hi chuddy, yo chuddy, hey cheddy, hello cheddy, sup cheddy, sub-cheddy, how's it cheddy, howzit cheddy, hi cheddy, yo cheddy, hey chetty, Hello, Chetty, sup chetty, sub-chetty, how's it chetty, howzit chetty, hi chetty, yo chetty, hey cherry, hello cherry, sup cherry, sub-cherry, how's it cherry, howzit cherry, hi cherry, yo cherry
 🔍 Checking for wake word...
 💾 Saved wake word check audio: wake_word_check.wav
 🎧 DEBUG - I heard: 'Hello chatty'
 🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
 🎉 WAKE WORD ACTIVATED!
-🔊 Speaking: Hi there! I'm ready to assist you
+🔊 Speaking: Hello! How can I help you today?
 🎤 Recording... (speak now, I'll stop when you're quiet)
-🔊 Audio level: 0.0181 (threshold: 0.005)
-🔊 Audio level: 0.0200 (threshold: 0.005)
-🔊 Audio level: 0.2141 (threshold: 0.005)
-🔊 Audio level: 0.0337 (threshold: 0.005)
-🔊 Audio level: 0.0999 (threshold: 0.005)
-🔊 Audio level: 0.2246 (threshold: 0.005)
-🔊 Audio level: 0.1618 (threshold: 0.005)
-🔊 Audio level: 0.0331 (threshold: 0.005)
-🔊 Audio level: 0.0166 (threshold: 0.005)
-🔊 Audio level: 0.0217 (threshold: 0.005)
-🔊 Audio level: 0.0231 (threshold: 0.005)
-🔊 Audio level: 0.0189 (threshold: 0.005)
-🔊 Audio level: 0.0208 (threshold: 0.005)
-🔊 Audio level: 0.0243 (threshold: 0.005)
-🔊 Audio level: 0.0364 (threshold: 0.005)
-🔊 Audio level: 0.0251 (threshold: 0.005)
-🔊 Audio level: 0.0255 (threshold: 0.005)
-🔊 Audio level: 0.0240 (threshold: 0.005)
-🔊 Audio level: 0.0214 (threshold: 0.005)
-🔊 Audio level: 0.0230 (threshold: 0.005)
-🔊 Audio level: 0.0292 (threshold: 0.005)
-🔊 Audio level: 0.0324 (threshold: 0.005)
-🔊 Audio level: 0.0260 (threshold: 0.005)
-🔊 Audio level: 0.0338 (threshold: 0.005)
-🔊 Audio level: 0.0380 (threshold: 0.005)
-🔊 Audio level: 0.0272 (threshold: 0.005)
-🔊 Audio level: 0.0278 (threshold: 0.005)
-🔊 Audio level: 0.0448 (threshold: 0.005)
-🔊 Audio level: 0.0314 (threshold: 0.005)
-🔊 Audio level: 0.0288 (threshold: 0.005)
-🔊 Audio level: 0.0270 (threshold: 0.005)
-🔊 Audio level: 0.0268 (threshold: 0.005)
-🔊 Audio level: 0.0220 (threshold: 0.005)
-🔊 Audio level: 0.0229 (threshold: 0.005)
-🔊 Audio level: 0.0240 (threshold: 0.005)
-🔊 Audio level: 0.0274 (threshold: 0.005)
-🔊 Audio level: 0.0219 (threshold: 0.005)
-🔊 Audio level: 0.0235 (threshold: 0.005)
-🔊 Audio level: 0.0220 (threshold: 0.005)
-🔊 Audio level: 0.0256 (threshold: 0.005)
-🔊 Audio level: 0.0240 (threshold: 0.005)
-🔊 Audio level: 0.0232 (threshold: 0.005)
-🔊 Audio level: 0.0166 (threshold: 0.005)
-🔊 Audio level: 0.0182 (threshold: 0.005)
-🔊 Audio level: 0.0156 (threshold: 0.005)
-🔊 Audio level: 0.0175 (threshold: 0.005)
-🔊 Audio level: 0.0163 (threshold: 0.005)
-🔊 Audio level: 0.0147 (threshold: 0.005)
-🔊 Audio level: 0.0167 (threshold: 0.005)
-🔊 Audio level: 0.0166 (threshold: 0.005)
-🔊 Audio level: 0.0179 (threshold: 0.005)
-🔊 Audio level: 0.0206 (threshold: 0.005)
-🔊 Audio level: 0.0218 (threshold: 0.005)
-🔊 Audio level: 0.0193 (threshold: 0.005)
-🔊 Audio level: 0.0166 (threshold: 0.005)
-🔊 Audio level: 0.0152 (threshold: 0.005)
-🔊 Audio level: 0.0178 (threshold: 0.005)
-🔊 Audio level: 0.0140 (threshold: 0.005)
-🔊 Audio level: 0.0200 (threshold: 0.005)
-🔊 Audio level: 0.0201 (threshold: 0.005)
-🔊 Audio level: 0.0164 (threshold: 0.005)
-🔊 Audio level: 0.0159 (threshold: 0.005)
-🔊 Audio level: 0.0203 (threshold: 0.005)
-🔊 Audio level: 0.0198 (threshold: 0.005)
-🔊 Audio level: 0.0163 (threshold: 0.005)
-🔊 Audio level: 0.0194 (threshold: 0.005)
-🔊 Audio level: 0.0185 (threshold: 0.005)
-🔊 Audio level: 0.0217 (threshold: 0.005)
-🔊 Audio level: 0.0237 (threshold: 0.005)
-🔊 Audio level: 0.0204 (threshold: 0.005)
-🔊 Audio level: 0.0192 (threshold: 0.005)
-🔊 Audio level: 0.0229 (threshold: 0.005)
-🔊 Audio level: 0.0262 (threshold: 0.005)
-🔊 Audio level: 0.0208 (threshold: 0.005)
-🔊 Audio level: 0.0120 (threshold: 0.005)
-🔊 Audio level: 0.0202 (threshold: 0.005)
-🔊 Audio level: 0.0209 (threshold: 0.005)
-🔊 Audio level: 0.0182 (threshold: 0.005)
-🔊 Audio level: 0.0270 (threshold: 0.005)
-🔊 Audio level: 0.0283 (threshold: 0.005)
-🔊 Audio level: 0.0299 (threshold: 0.005)
-🔊 Audio level: 0.0397 (threshold: 0.005)
-🔊 Audio level: 0.0388 (threshold: 0.005)
-🔊 Audio level: 0.0318 (threshold: 0.005)
-🔊 Audio level: 0.0270 (threshold: 0.005)
-🔊 Audio level: 0.0339 (threshold: 0.005)
-🔊 Audio level: 0.0369 (threshold: 0.005)
-🔊 Audio level: 0.0375 (threshold: 0.005)
-🔊 Audio level: 0.0337 (threshold: 0.005)
-🔊 Audio level: 0.0289 (threshold: 0.005)
-🔊 Audio level: 0.0260 (threshold: 0.005)
-🔊 Audio level: 0.0298 (threshold: 0.005)
-🔊 Audio level: 0.0252 (threshold: 0.005)
-🔊 Audio level: 0.0240 (threshold: 0.005)
-🔊 Audio level: 0.0186 (threshold: 0.005)
-🔊 Audio level: 0.0260 (threshold: 0.005)
-🔊 Audio level: 0.0281 (threshold: 0.005)
-🔊 Audio level: 0.0185 (threshold: 0.005)
-🔊 Audio level: 0.0185 (threshold: 0.005)
-🔊 Audio level: 0.0199 (threshold: 0.005)
-✅ Recorded 20.3 seconds of audio
-👤 User said: Flash the toilet.
-📝 Processing: Flash the toilet.
-❓ Processing as question for LLM
-🤖 Generating LLM response...
-🔊 Speaking: ✂️
-
- Flash the toilet again. 
- ✂️
-
- Flash the toilet once more. 
- ✂️
-
- Flash the toilet again, please.
+🔊 Audio level: 0.0198 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0265 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0191 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0200 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0185 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0179 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.1659 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.0255 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.1435 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.2918 (threshold: 0.035)
+🔊 Audio level: 0.0906 (threshold: 0.035)
+🔊 Audio level: 0.0245 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0219 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0215 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0222 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0262 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0271 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.0152 (threshold: 0.035)
+🔇 Silence: 1.4s / 1.5s
+🔊 Audio level: 0.0208 (threshold: 0.035)
+🔇 Silence: 1.6s / 1.5s
+🔇 Silence detected, stopping recording
+✅ Recorded 4.0 seconds of audio
+👤 User said: Flush the toilet.
+📝 Processing: Flush the toilet.
+⚙️ Executing command: flush the toilet
+🔊 Speaking: Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy arse up off the couch and flush the toilet yourself!
 👂 Back to listening for wake words...
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello Chetty'
+❌ No wake word in: 'Hello Chetty'
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello, Chetty.'
+❌ No wake word in: 'Hello, Chetty.'
 🔍 Checking for wake word...
 💾 Saved wake word check audio: wake_word_check.wav
 🎧 DEBUG - I heard: ''
@@ -618,125 +623,195 @@ Wake words: hey chatty, hello chatty, sup chatty, howzit chatty, hi chatty, yo c
 🎧 DEBUG - I heard: 'Hello chatty'
 🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
 🎉 WAKE WORD ACTIVATED!
-🔊 Speaking: Yes? What would you like to know?
+🔊 Speaking: I'm listening. What's your question?
 🎤 Recording... (speak now, I'll stop when you're quiet)
-🔊 Audio level: 0.0189 (threshold: 0.005)
-🔊 Audio level: 0.2377 (threshold: 0.005)
-🔊 Audio level: 0.0663 (threshold: 0.005)
-🔊 Audio level: 0.0254 (threshold: 0.005)
-🔊 Audio level: 0.0786 (threshold: 0.005)
-🔊 Audio level: 0.1712 (threshold: 0.005)
-🔊 Audio level: 0.1667 (threshold: 0.005)
-🔊 Audio level: 0.0304 (threshold: 0.005)
-🔊 Audio level: 0.0204 (threshold: 0.005)
-🔊 Audio level: 0.0190 (threshold: 0.005)
-🔊 Audio level: 0.0254 (threshold: 0.005)
-🔊 Audio level: 0.0293 (threshold: 0.005)
-🔊 Audio level: 0.0251 (threshold: 0.005)
-🔊 Audio level: 0.0217 (threshold: 0.005)
-🔊 Audio level: 0.0269 (threshold: 0.005)
-🔊 Audio level: 0.0221 (threshold: 0.005)
-🔊 Audio level: 0.0279 (threshold: 0.005)
-🔊 Audio level: 0.0198 (threshold: 0.005)
-🔊 Audio level: 0.0220 (threshold: 0.005)
-🔊 Audio level: 0.0220 (threshold: 0.005)
-🔊 Audio level: 0.0215 (threshold: 0.005)
-🔊 Audio level: 0.0225 (threshold: 0.005)
-🔊 Audio level: 0.0245 (threshold: 0.005)
-🔊 Audio level: 0.0326 (threshold: 0.005)
-🔊 Audio level: 0.0255 (threshold: 0.005)
-🔊 Audio level: 0.0170 (threshold: 0.005)
-🔊 Audio level: 0.0343 (threshold: 0.005)
-🔊 Audio level: 0.0237 (threshold: 0.005)
-🔊 Audio level: 0.0153 (threshold: 0.005)
-🔊 Audio level: 0.0194 (threshold: 0.005)
-🔊 Audio level: 0.0199 (threshold: 0.005)
-🔊 Audio level: 0.0199 (threshold: 0.005)
-🔊 Audio level: 0.0301 (threshold: 0.005)
-🔊 Audio level: 0.0284 (threshold: 0.005)
-🔊 Audio level: 0.0269 (threshold: 0.005)
-🔊 Audio level: 0.0243 (threshold: 0.005)
-🔊 Audio level: 0.0163 (threshold: 0.005)
-🔊 Audio level: 0.0247 (threshold: 0.005)
-🔊 Audio level: 0.0193 (threshold: 0.005)
-🔊 Audio level: 0.0186 (threshold: 0.005)
-🔊 Audio level: 0.0204 (threshold: 0.005)
-🔊 Audio level: 0.0405 (threshold: 0.005)
-🔊 Audio level: 0.0206 (threshold: 0.005)
-🔊 Audio level: 0.0314 (threshold: 0.005)
-🔊 Audio level: 0.0249 (threshold: 0.005)
-🔊 Audio level: 0.0225 (threshold: 0.005)
-🔊 Audio level: 0.0263 (threshold: 0.005)
-🔊 Audio level: 0.0225 (threshold: 0.005)
-🔊 Audio level: 0.0254 (threshold: 0.005)
-🔊 Audio level: 0.0305 (threshold: 0.005)
-🔊 Audio level: 0.0256 (threshold: 0.005)
-🔊 Audio level: 0.0177 (threshold: 0.005)
-🔊 Audio level: 0.0233 (threshold: 0.005)
-🔊 Audio level: 0.0195 (threshold: 0.005)
-🔊 Audio level: 0.0242 (threshold: 0.005)
-🔊 Audio level: 0.0231 (threshold: 0.005)
-🔊 Audio level: 0.0211 (threshold: 0.005)
-🔊 Audio level: 0.0233 (threshold: 0.005)
-🔊 Audio level: 0.0248 (threshold: 0.005)
-🔊 Audio level: 0.0225 (threshold: 0.005)
-🔊 Audio level: 0.0201 (threshold: 0.005)
-🔊 Audio level: 0.0182 (threshold: 0.005)
-🔊 Audio level: 0.0198 (threshold: 0.005)
-🔊 Audio level: 0.0256 (threshold: 0.005)
-🔊 Audio level: 0.0197 (threshold: 0.005)
-🔊 Audio level: 0.0291 (threshold: 0.005)
-🔊 Audio level: 0.0339 (threshold: 0.005)
-🔊 Audio level: 0.0304 (threshold: 0.005)
-🔊 Audio level: 0.0237 (threshold: 0.005)
-🔊 Audio level: 0.0268 (threshold: 0.005)
-🔊 Audio level: 0.0227 (threshold: 0.005)
-🔊 Audio level: 0.0326 (threshold: 0.005)
-🔊 Audio level: 0.0303 (threshold: 0.005)
-🔊 Audio level: 0.0263 (threshold: 0.005)
-🔊 Audio level: 0.0243 (threshold: 0.005)
-🔊 Audio level: 0.0190 (threshold: 0.005)
-🔊 Audio level: 0.0274 (threshold: 0.005)
-🔊 Audio level: 0.0293 (threshold: 0.005)
-🔊 Audio level: 0.0364 (threshold: 0.005)
-🔊 Audio level: 0.0244 (threshold: 0.005)
-🔊 Audio level: 0.0353 (threshold: 0.005)
-🔊 Audio level: 0.0318 (threshold: 0.005)
-🔊 Audio level: 0.0346 (threshold: 0.005)
-🔊 Audio level: 0.0341 (threshold: 0.005)
-🔊 Audio level: 0.0325 (threshold: 0.005)
-🔊 Audio level: 0.0272 (threshold: 0.005)
-🔊 Audio level: 0.0281 (threshold: 0.005)
-🔊 Audio level: 0.0240 (threshold: 0.005)
-🔊 Audio level: 0.0290 (threshold: 0.005)
-🔊 Audio level: 0.0237 (threshold: 0.005)
-🔊 Audio level: 0.0266 (threshold: 0.005)
-🔊 Audio level: 0.0231 (threshold: 0.005)
-🔊 Audio level: 0.0227 (threshold: 0.005)
-🔊 Audio level: 0.0306 (threshold: 0.005)
-🔊 Audio level: 0.0226 (threshold: 0.005)
-🔊 Audio level: 0.0300 (threshold: 0.005)
-🔊 Audio level: 0.0253 (threshold: 0.005)
-🔊 Audio level: 0.0252 (threshold: 0.005)
-🔊 Audio level: 0.0281 (threshold: 0.005)
-🔊 Audio level: 0.0239 (threshold: 0.005)
-✅ Recorded 20.3 seconds of audio
-👤 User said: Flush the toilet.
-📝 Processing: Flush the toilet.
-⚙️ Executing command: flush the toilet
-🔊 Speaking: I'm a digital assistant - I can't actually flush toilets! But I'd be happy to help with other tasks.
+🔊 Audio level: 0.0166 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0154 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0157 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0173 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.2936 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.1967 (threshold: 0.035)
+🔊 Audio level: 0.1393 (threshold: 0.035)
+🔊 Audio level: 0.1149 (threshold: 0.035)
+🔊 Audio level: 0.2168 (threshold: 0.035)
+🔊 Audio level: 0.1339 (threshold: 0.035)
+🔊 Audio level: 0.1311 (threshold: 0.035)
+🔊 Audio level: 0.1903 (threshold: 0.035)
+🔊 Audio level: 0.1086 (threshold: 0.035)
+🔊 Audio level: 0.0313 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0183 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0196 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0187 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0233 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0169 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.0204 (threshold: 0.035)
+🔇 Silence: 1.4s / 1.5s
+🔊 Audio level: 0.0168 (threshold: 0.035)
+🔇 Silence: 1.6s / 1.5s
+🔇 Silence detected, stopping recording
+✅ Recorded 4.4 seconds of audio
+👤 User said: Who is sponsoring this video?
+📝 Processing: Who is sponsoring this video?
+⚙️ Executing command: who is sponsoring this video
+🔊 Speaking: Ha ha ha! You are very funny Nick. You know you dont have any sponsors for your videos!
 👂 Back to listening for wake words...
 🔍 Checking for wake word...
-^X💾 Saved wake word check audio: wake_word_check.wav
-^C
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello Chetty.'
+❌ No wake word in: 'Hello Chetty.'
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello chatty'
+🎯 Wake word detected: 'hello chatty' in 'Hello chatty'
+🎉 WAKE WORD ACTIVATED!
+🔊 Speaking: Hello! What can I help you with?
+🎤 Recording... (speak now, I'll stop when you're quiet)
+🔊 Audio level: 0.0279 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0210 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0215 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0208 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0239 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0283 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.2097 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.2972 (threshold: 0.035)
+🔊 Audio level: 0.2311 (threshold: 0.035)
+🔊 Audio level: 0.2411 (threshold: 0.035)
+🔊 Audio level: 0.1537 (threshold: 0.035)
+🔊 Audio level: 0.2146 (threshold: 0.035)
+🔊 Audio level: 0.0475 (threshold: 0.035)
+🔊 Audio level: 0.0313 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0287 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0291 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0253 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0191 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0248 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.0185 (threshold: 0.035)
+🔇 Silence: 1.4s / 1.5s
+🔊 Audio level: 0.0240 (threshold: 0.035)
+🔇 Silence: 1.6s / 1.5s
+🔇 Silence detected, stopping recording
+✅ Recorded 4.4 seconds of audio
+👤 User said: How is the weather today?
+📝 Processing: How is the weather today?
+⚙️ Executing command: how is the weather today
+🔊 Speaking: O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!
+👂 Back to listening for wake words...
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello, Chetty.'
+❌ No wake word in: 'Hello, Chetty.'
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello, Chetty.'
+❌ No wake word in: 'Hello, Chetty.'
+🔍 Checking for wake word...
+💾 Saved wake word check audio: wake_word_check.wav
+🎧 DEBUG - I heard: 'Hello chatty.'
+🎯 Wake word detected: 'hello chatty' in 'Hello chatty.'
+🎉 WAKE WORD ACTIVATED!
+🔊 Speaking: Yes? What would you like to know?
+🎤 Recording... (speak now, I'll stop when you're quiet)
+🔊 Audio level: 0.0146 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0134 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0170 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0132 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0621 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.3508 (threshold: 0.035)
+🔊 Audio level: 0.1522 (threshold: 0.035)
+🔊 Audio level: 0.1636 (threshold: 0.035)
+🔊 Audio level: 0.2125 (threshold: 0.035)
+🔊 Audio level: 0.2261 (threshold: 0.035)
+🔊 Audio level: 0.0666 (threshold: 0.035)
+🔊 Audio level: 0.0444 (threshold: 0.035)
+🔊 Audio level: 0.1519 (threshold: 0.035)
+🔊 Audio level: 0.0733 (threshold: 0.035)
+🔊 Audio level: 0.1427 (threshold: 0.035)
+🔊 Audio level: 0.1174 (threshold: 0.035)
+🔊 Audio level: 0.1241 (threshold: 0.035)
+🔊 Audio level: 0.1246 (threshold: 0.035)
+🔊 Audio level: 0.0488 (threshold: 0.035)
+🔊 Audio level: 0.0189 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0222 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0291 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0167 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0420 (threshold: 0.035)
+🔊 Speech detected, resetting silence counter
+🔊 Audio level: 0.0377 (threshold: 0.035)
+🔊 Audio level: 0.0314 (threshold: 0.035)
+🔇 Silence: 0.2s / 1.5s
+🔊 Audio level: 0.0301 (threshold: 0.035)
+🔇 Silence: 0.4s / 1.5s
+🔊 Audio level: 0.0258 (threshold: 0.035)
+🔇 Silence: 0.6s / 1.5s
+🔊 Audio level: 0.0227 (threshold: 0.035)
+🔇 Silence: 0.8s / 1.5s
+🔊 Audio level: 0.0213 (threshold: 0.035)
+🔇 Silence: 1.0s / 1.5s
+🔊 Audio level: 0.0270 (threshold: 0.035)
+🔇 Silence: 1.2s / 1.5s
+🔊 Audio level: 0.0225 (threshold: 0.035)
+🔇 Silence: 1.4s / 1.5s
+🔊 Audio level: 0.0247 (threshold: 0.035)
+🔇 Silence: 1.6s / 1.5s
+🔇 Silence detected, stopping recording
+✅ Recorded 6.8 seconds of audio
+👤 User said: Tell me some fun places to visit in Japan.
+📝 Processing: Tell me some fun places to visit in Japan.
+❓ Processing as question for LLM
+🤖 Generating LLM response...
+🔊 Speaking: 1.  Tokyo: This bustling metropolis is home to many famous attractions, including the Tokyo Tower, the Imperial Palace, and the Shibuya Crossing. 
+2.
+👂 Back to listening for wake words...
+🔍 Checking for wake word...
+^X^X💾 Saved wake word check audio: wake_word_check.wav
+^C^X
 🛑 Stopping wake word detection...
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-Everything is working very well, so thank you!
 
-The only problem is that when I speak a fairly short command, such as "Flush the toilet", it does not stop after detecting 1.5 seconds of silence and keeps on recording for 20.3 seconds. This is far too long. I want it to stop the recording after it detects 1.5 seconds of silence, which would indicate that I have stopped talking.
+Everything is working quite well, so thank you!
 
-Please fix my Python script.
+For this section of the code: elif command == "who is sponsoring this video":
+            response = "Ha ha ha! You are very funny Nick. You know you dont have any sponsors for your videos!"
+
+Instead of speaking the words "Ha ha ha!" I would like the sound effect laughing.wav to play, quickly followed by the speaking of the words in the remained of the phrase string.
+
+The laughing.wav file is located in my /home/Chatty_AI/audio_files folder.
+
+Please make the above requested changes to my Python script.
 
 
 
