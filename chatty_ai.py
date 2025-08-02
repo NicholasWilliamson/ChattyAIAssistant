@@ -114,6 +114,8 @@ class ChattyAI:
         self.last_interaction_time = None
         self.person_absent_since = None
         self.waiting_cycle = 0  # 0: joke, 1: fun fact
+        self.last_bored_response_time = None  # NEW: Track when last bored response was given
+        self.bored_cycle = 0  # NEW: 0: joke, 1: fun fact
         self.audio_recording_lock = threading.Lock()
         self.wake_word_active = False
 
@@ -219,6 +221,18 @@ class ChattyAI:
                     "Nick, I'm still here if you need anything",
                     "Your faithful AI assistant is standing by, Nick",
                     "Still waiting to help you, Nick"
+                ],
+                "bored_responses": [
+                    "Nick, I'm getting a bit bored waiting here.",
+                    "Master Nick, I'm still patiently waiting for your commands."
+                ],
+                "joke_responses": [
+                    "Why don't programmers like nature? It has too many bugs!",
+                    "Why do Python programmers prefer snake_case? Because they can't C the point of CamelCase!"
+                ],
+                "fun_fact_responses": [
+                    "Did you know that the first computer bug was an actual bug? Grace Hopper found a moth stuck in a computer relay in 1947!",
+                    "Fun fact: Raspberry Pi computers like the one I'm running on are more powerful than the computers that sent humans to the moon!"
                 ]
             },
             "Anne": {
@@ -236,6 +250,18 @@ class ChattyAI:
                     "Anne, I'm here if you need anything",
                     "Still available to help you, Anne",
                     "Let me know if you need assistance, Anne"
+                ],
+                "bored_responses": [
+                    "Anne, I'm here patiently waiting if you need anything.",
+                    "Still here for you, Anne, whenever you're ready."
+                ],
+                "joke_responses": [
+                    "Why don't scientists trust atoms? Because they make up everything!",
+                    "What do you call a bear with no teeth? A gummy bear!"
+                ],
+                "fun_fact_responses": [
+                    "Did you know that octopuses have three hearts and blue blood?",
+                    "Fun fact: Honey never spoils! Archaeologists have found 3000-year-old honey that's still perfectly edible."
                 ]
             },
             "Jack": {
@@ -253,6 +279,18 @@ class ChattyAI:
                     "Jack, I'm here if you want to chat",
                     "Still around if you need me, Jack",
                     "Ready when you are, Jack"
+                ],
+                "bored_responses": [
+                    "Yo Jack, still hanging around here waiting for you, dude!",
+                    "Jack, your AI buddy is getting restless over here!"
+                ],
+                "joke_responses": [
+                    "Why don't skeletons fight each other? They don't have the guts!",
+                    "What's the best thing about Switzerland? I don't know, but the flag is a big plus!"
+                ],
+                "fun_fact_responses": [
+                    "Dude, did you know that sharks have been around longer than trees? That's wild!",
+                    "Check this out: A shrimp's heart is in its head!"
                 ]
             }
         }
@@ -503,6 +541,8 @@ class ChattyAI:
         
         # Enable wake word detection after greeting
         self.wake_word_active = True
+        self.last_bored_response_time = current_time  # NEW: Reset bored response timer
+        self.bored_cycle = 0  # NEW: Reset bored cycle
         print(f"Greeted {name} with personalized message - Wake word detection now active")
         return True
     
@@ -516,7 +556,36 @@ class ChattyAI:
         
         print("Unknown person detected and warned")
     
-    def offer_help_or_entertainment(self, name):
+    def check_for_bored_response(self, name):
+        """Check if it's time to give a bored response with joke or fun fact"""
+        if not self.wake_word_active or not self.last_bored_response_time:
+            return False
+        
+        current_time = time.time()
+        time_since_bored = current_time - self.last_bored_response_time
+        
+        if time_since_bored >= 30:  # 30 seconds
+            if self.bored_cycle == 0:
+                # Give bored response + joke
+                bored_msg = self.get_personalized_response(name, "bored_responses", ["I'm still here waiting to help you"])
+                joke = self.get_personalized_response(name, "joke_responses", self.jokes)
+                full_message = f"{bored_msg} {joke}"
+                self.speak_text(full_message)
+                self.bored_cycle = 1
+                print(f"Gave {name} a bored response with joke")
+            else:
+                # Give bored response + fun fact
+                bored_msg = self.get_personalized_response(name, "bored_responses", ["I'm still here waiting to help you"])
+                fun_fact = self.get_personalized_response(name, "fun_fact_responses", ["Did you know that honey never spoils?"])
+                full_message = f"{bored_msg} {fun_fact}"
+                self.speak_text(full_message)
+                self.bored_cycle = 0
+                print(f"Gave {name} a bored response with fun fact")
+            
+            self.last_bored_response_time = current_time
+            return True
+        
+        return False
         """Offer help or entertainment to waiting person"""
         current_time = time.time()
         
@@ -731,6 +800,12 @@ class ChattyAI:
             try:
                 # Only listen if someone is present and wake word detection is active
                 if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        # Bored response was given, continue to next iteration
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+                    
                     print("Checking for wake word...")
                     
                     # Record audio for wake word detection
@@ -745,6 +820,9 @@ class ChattyAI:
                             # Speak personalized listening response
                             listening_response = self.get_personalized_response(self.current_person, "listening", self.listening_responses)
                             self.speak_text(listening_response)
+                            
+                            # Reset bored response timer since user is interacting
+                            self.last_bored_response_time = time.time()
                             
                             # Record full request
                             print("Please speak your request...")
@@ -879,6 +957,8 @@ class ChattyAI:
                             self.last_interaction_time = None
                             self.waiting_cycle = 0
                             self.wake_word_active = False
+                            self.last_bored_response_time = None  # NEW: Reset bored response timer
+                            self.bored_cycle = 0  # NEW: Reset bored cycle
                             print("Person left - resetting state")
                 
                 time.sleep(PERSON_DETECTION_INTERVAL)
