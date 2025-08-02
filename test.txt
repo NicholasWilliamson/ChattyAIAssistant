@@ -1,13 +1,15 @@
-Thank you Claude.
+Thank you, Claude.
 
 I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Chatty AI - Your smart AI Assistant System
+============================================================
 Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 399, in <module>
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 303, in <module>
     main()
-  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 317, in main
-    signal.signal(signal.SIGINT, signal_handler)
-    ^^^^^^
-NameError: name 'signal' is not defined
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 299, in main
+    chatty = ChattyAI()
+             ^^^^^^^^
+NameError: name 'ChattyAI' is not defined. Did you mean: 'chatty'?
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 Please fix the script.
