@@ -26,6 +26,7 @@ VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
 CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
 PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
 BEEP_SOUND = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+LAUGHING_SOUND = "/home/nickspi5/Chatty_AI/audio_files/laughing.wav"
 WAV_FILENAME = "user_input.wav"
 RESPONSE_AUDIO = "output.wav"
 WAKE_WORD_AUDIO = "wake_word_check.wav"
@@ -57,7 +58,7 @@ WAKE_WORDS = [
     "hi cheddy",
     "yo cheddy",
     "hey chetty",
-    "hello chetty",
+    "Hello, Chetty",
     "sup chetty",
     "sub-chetty",
     "how's it chetty",
@@ -151,6 +152,16 @@ class ChattyAI:
             print("❌ Could not play beep sound")
         except FileNotFoundError:
             print(f"❌ Beep file not found: {BEEP_SOUND}")
+    
+    def play_laughing(self):
+        """Play laughing sound effect"""
+        try:
+            subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+            print("😂 Played laughing sound")
+        except subprocess.CalledProcessError:
+            print("❌ Could not play laughing sound")
+        except FileNotFoundError:
+            print(f"❌ Laughing file not found: {LAUGHING_SOUND}")
     
     def speak_text(self, text):
         """Convert text to speech using Piper"""
@@ -267,7 +278,9 @@ class ChattyAI:
         elif command == "stop music":
             response = "I would stop the music if any was playing."
         elif command == "who is sponsoring this video":
-            response = "Ha ha ha! You are very funny Nick. You know you dont have any sponsors for your videos!"
+            # Play laughing sound first, then speak the rest
+            self.play_laughing()
+            response = "You are very funny Nick. You know you dont have any sponsors for your videos!"
         elif command == "how is the weather today":
             response = "O M G Nick! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
         elif command == "what time is it":
