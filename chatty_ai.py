@@ -494,14 +494,10 @@ class ChattyAI:
             if time_since_last < GREETING_COOLDOWN:
                 return False
         
-        # Get personalized greeting
+        # Get personalized greeting (just the greeting, not listening response)
         greeting = self.get_personalized_response(name, "greetings", self.greeting_responses)
         
-        # Add a listening prompt
-        listening_response = self.get_personalized_response(name, "listening", self.listening_responses)
-        full_greeting = f"{greeting} {listening_response}"
-        
-        self.speak_text(full_greeting)
+        self.speak_text(greeting)
         self.last_greeting_time[name] = current_time
         self.last_interaction_time = current_time
         
@@ -745,6 +741,10 @@ class ChattyAI:
                         if transcript and self.detect_wake_word(transcript):
                             print("WAKE WORD DETECTED! Starting conversation...")
                             self.play_beep()
+                            
+                            # Speak personalized listening response
+                            listening_response = self.get_personalized_response(self.current_person, "listening", self.listening_responses)
+                            self.speak_text(listening_response)
                             
                             # Record full request
                             print("Please speak your request...")
