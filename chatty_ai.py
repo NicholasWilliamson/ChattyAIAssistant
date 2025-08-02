@@ -821,9 +821,6 @@ class ChattyAI:
                             listening_response = self.get_personalized_response(self.current_person, "listening", self.listening_responses)
                             self.speak_text(listening_response)
                             
-                            # Reset bored response timer since user is interacting
-                            self.last_bored_response_time = time.time()
-                            
                             # Record full request
                             print("Please speak your request...")
                             if self.record_with_silence_detection():
@@ -834,6 +831,8 @@ class ChattyAI:
                                     print(f"Response: '{response}'")
                                     self.speak_text(response)
                                     self.last_interaction_time = time.time()
+                                    # Reset bored response timer only after successful interaction
+                                    self.last_bored_response_time = time.time()
                                 else:
                                     print("No clear speech detected")
                                     self.speak_text("I didn't catch that. Could you repeat your request?")
