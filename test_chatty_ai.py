@@ -33,6 +33,8 @@ WAKE_WORD_AUDIO = "wake_word_check.wav"
 
 # Wake word phrases (case insensitive)
 WAKE_WORDS = [
+    "are you awake",
+    "are you alive",
     "hey chatty",
     "hello chatty", 
     "sup chatty",
@@ -272,15 +274,15 @@ class ChattyAI:
         command_func = COMMANDS.get(command)
         
         if command == "flush the toilet":
-            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy arse up off the couch and flush the toilet yourself!"
+            response = "Oh Nick, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
         elif command == "turn on the lights":
-            response = "I would turn on the lights if I were connected to a smart home system."
+            response = "I would turn on the lights if I was connected to a smart home system."
         elif command == "turn off the lights":
-            response = "I would turn off the lights if I were connected to a smart home system."
+            response = "I would turn off the lights if I was connected to a smart home system."
         elif command == "play music":
             response = "I would start playing music if I had access to a music system."
         elif command == "stop music":
-            response = "I would stop the music if any was playing."
+            response = "I would stop the music if any music was playing."
         elif command == "who is sponsoring this video":
             # Play laughing sound first, then speak the rest
             self.play_laughing()
@@ -292,11 +294,11 @@ class ChattyAI:
             current_time = datetime.datetime.now().strftime("%I:%M %p")
             response = f"The current time is {current_time}"
         elif command == "shutdown system":
-            response = "I would shutdown the system, but I will skip that for safety during testing."
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
         elif command == "reboot system":
-            response = "I would reboot the system, but I will skip that for safety during testing."
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
         else:
-            response = f"I understand you want me to {command}, but I don't have that capability yet."
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
         
         return response
     
