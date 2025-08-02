@@ -291,109 +291,13 @@ def load_ai_models():
     print("Whisper model loaded")
     print("LLaMA model loaded")
 
-def signal_handler(signum, frame):
-    """Handle Ctrl+C gracefully"""
-    print("\n[INFO] Shutting down gracefully...")
-    exit_flag.set()
-    sys.exit(0)
-
-def keyboard_listener():
-    """Listen for ESC key press"""
-    try:
-        while not exit_flag.is_set():
-            if keyboard.is_pressed('esc'):
-                print("\n[INFO] ESC key pressed. Shutting down...")
-                exit_flag.set()
-                break
-            time.sleep(0.1)
-    except Exception as e:
-        print(f"Keyboard listener error: {e}")
-
 def main():
     """Main function"""
-    global picam2
-    
-    # Set up signal handler for Ctrl+C
-    signal.signal(signal.SIGINT, signal_handler)
-    
     print("Chatty AI - Your smart AI Assistant System")
     print("=" * 60)
     
-    # Load configurations
-    responses = load_responses()
-    if not load_face_encodings():
-        print("Failed to load face encodings!")
-        return
-    
-    load_telegram_config()
-    load_ai_models()
-    
-    # Initialize camera
-    if not initialize_camera():
-        print("Failed to initialize camera!")
-        return
-    
-    print("🚀 Chatty AI Complete System Started!")
-    print("=" * 60)
-    print("Features active:")
-    print("• Facial Recognition with Greetings")
-    print("• Wake Word Detection")
-    print("• AI Assistant (TinyLLaMA)")
-    print("• Security Monitoring")
-    print("• Telegram Alerts")
-    print("• Proactive Entertainment")
-    print("=" * 60)
-    print("Press ESC key to exit")
-    print()
-    
-    # Start keyboard listener in separate thread
-    keyboard_thread = threading.Thread(target=keyboard_listener, daemon=True)
-    keyboard_thread.start()
-    
-    # Main camera loop
-    try:
-        while not exit_flag.is_set():
-            # Capture frame
-            frame = picam2.capture_array()
-            
-            # Convert from RGB to BGR for OpenCV
-            if len(frame.shape) == 3 and frame.shape[2] == 3:
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            
-            # Process facial recognition
-            frame = process_face_recognition(frame, responses)
-            
-            # Add status text
-            status_text = "🤖 Chatty AI Active - Press ESC to exit"
-            cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            
-            # Show frame
-            cv2.imshow('Chatty AI - Facial Recognition', frame)
-            
-            # Check for key press (1ms timeout)
-            key = cv2.waitKey(1) & 0xFF
-            if key == 27:  # ESC key
-                print("\n[INFO] ESC key detected. Shutting down...")
-                break
-            elif key == ord('q'):  # Q key as alternative
-                print("\n[INFO] Q key pressed. Shutting down...")
-                break
-                
-    except KeyboardInterrupt:
-        print("\n[INFO] Interrupted by user")
-    except Exception as e:
-        print(f"Error in main loop: {e}")
-    finally:
-        # Cleanup
-        print("[INFO] Cleaning up...")
-        exit_flag.set()
-        
-        if picam2:
-            picam2.stop()
-            picam2.close()
-            
-        cv2.destroyAllWindows()
-        print("[INFO] Chatty AI system stopped")
+    chatty = ChattyAI()
+    chatty.run()
 
 if __name__ == "__main__":
     main()
