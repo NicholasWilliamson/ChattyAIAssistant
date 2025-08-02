@@ -58,7 +58,7 @@ WAKE_WORDS = [
     "hi cheddy",
     "yo cheddy",
     "hey chetty",
-    "Hello, Chetty",
+    "hello chetty",
     "sup chetty",
     "sub-chetty",
     "how's it chetty",
@@ -190,9 +190,13 @@ class ChattyAI:
     
     def detect_wake_word(self, text):
         """Check if text contains any wake word"""
-        text_lower = text.lower().strip()
+        # Convert to lowercase and remove commas, then strip whitespace
+        text_cleaned = text.lower().replace(',', '').strip()
+        print(f"🔍 Cleaned text for comparison: '{text_cleaned}'")
+        
         for wake_word in WAKE_WORDS:
-            if wake_word in text_lower:
+            wake_word_cleaned = wake_word.lower().strip()
+            if wake_word_cleaned in text_cleaned:
                 print(f"🎯 Wake word detected: '{wake_word}' in '{text}'")
                 return True
         return False
