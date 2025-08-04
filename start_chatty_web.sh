@@ -92,4 +92,4 @@ echo "   Press Ctrl+C to stop the server"
 echo "=========================================="
 
 # Start the Flask application
-python3 debug_app.py
+python3 app.py
