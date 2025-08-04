@@ -1,43 +1,794 @@
 Thank you, Claude.
 
-In terminal, I ran: pip install flask flask-socketio python-socketio eventlet
+I tested my PI Camera Module 2 camera using the following Python script:
 
-All the dependencies installed correctly with no errors displayed.
+test_camera.py
+#!/usr/bin/env python3
+"""
+test_camera.py - Simple camera test for Chatty AI
+This script tests basic camera functionality
+"""
 
-Then I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app.py
-llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
-[0:56:23.009706619] [3366]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[0:56:23.016687074] [3389]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[0:56:23.026111645] [3389]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
-[0:56:23.030004534] [3366]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[0:56:23.030150665] [3389]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-Initializing Chatty AI Web Interface...
-============================================================
-🚀 Starting Flask server on http://0.0.0.0:5000
-📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000
-============================================================
-Client connected
+import sys
+import time
+import cv2
+import numpy as np
+from datetime import datetime
 
-I then opened my Chromium web browser on my Raspberry PI 5 and typed in http://192.168.1.16:5000
+def test_camera():
+    """Test camera functionality"""
+    print("🎥 Testing Raspberry Pi Camera...")
+    print("=" * 50)
+    
+    try:
+        # Try to import Picamera2
+        print("📦 Importing Picamera2...")
+        from picamera2 import Picamera2
+        print("✅ Picamera2 imported successfully")
+        
+        # Create camera instance
+        print("🔧 Creating camera instance...")
+        picam2 = Picamera2()
+        print("✅ Camera instance created")
+        
+        # Configure camera
+        print("⚙️ Configuring camera...")
+        config = picam2.create_preview_configuration(
+            main={"format": 'XRGB8888', "size": (640, 480)}
+        )
+        picam2.configure(config)
+        print("✅ Camera configured")
+        
+        # Start camera
+        print("🚀 Starting camera...")
+        picam2.start()
+        print("✅ Camera started")
+        
+        # Wait for camera to warm up
+        print("⏱️ Waiting for camera to warm up...")
+        time.sleep(3)
+        
+        # Test capture
+        print("📸 Testing capture...")
+        for i in range(5):
+            try:
+                frame = picam2.capture_array()
+                print(f"✅ Capture {i+1}: Shape={frame.shape}, dtype={frame.dtype}")
+                
+                # Convert and save test image
+                if len(frame.shape) == 3:
+                    if frame.shape[2] == 4:  # RGBA
+                        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+                    elif frame.shape[2] == 3:  # RGB
+                        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                    else:
+                        frame_bgr = frame
+                    
+                    # Add timestamp overlay
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    cv2.putText(frame_bgr, f"Test {i+1} - {timestamp}", (10, 30), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    
+                    # Save test image
+                    filename = f"camera_test_{i+1}.jpg"
+                    cv2.imwrite(filename, frame_bgr)
+                    print(f"💾 Saved test image: {filename}")
+                
+                time.sleep(1)
+                
+            except Exception as e:
+                print(f"❌ Capture {i+1} failed: {e}")
+        
+        # Stop camera
+        print("🛑 Stopping camera...")
+        picam2.stop()
+        print("✅ Camera stopped successfully")
+        
+        print("\n🎉 Camera test completed successfully!")
+        print("✅ Your camera is working properly")
+        print("📁 Check the saved test images in the current directory")
+        
+        return True
+        
+    except ImportError as e:
+        print(f"❌ Failed to import Picamera2: {e}")
+        print("💡 Make sure you have picamera2 installed: pip install picamera2")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Camera test failed: {e}")
+        import traceback
+        print(f"📋 Full traceback:\n{traceback.format_exc()}")
+        return False
 
-The Chatty_AI.html web page displayed.
+def test_opencv():
+    """Test OpenCV functionality"""
+    print("\n👁️ Testing OpenCV...")
+    print("=" * 50)
+    
+    try:
+        print(f"📦 OpenCV version: {cv2.__version__}")
+        
+        # Test creating an image
+        test_img = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.putText(test_img, "OpenCV Test", (200, 240), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        
+        # Test encoding
+        ret, buffer = cv2.imencode('.jpg', test_img)
+        if ret:
+            print("✅ OpenCV image encoding test passed")
+            cv2.imwrite("opencv_test.jpg", test_img)
+            print("💾 Saved OpenCV test image: opencv_test.jpg")
+        else:
+            print("❌ OpenCV image encoding failed")
+            return False
+        
+        print("✅ OpenCV is working correctly")
+        return True
+        
+    except Exception as e:
+        print(f"❌ OpenCV test failed: {e}")
+        return False
 
-I have seen the following in the System Logs text box:
-18:51:22 Chatty AI Web Interface initialized
-18:51:22 Connected to Chatty AI server
-18:51:23 [18:51:23] Chatty AI System Started!
-18:51:23 [18:51:23] Wake word detection thread started
-18:51:23 Chatty AI system started successfully
+def test_audio_permissions():
+    """Test audio permissions"""
+    print("\n🔊 Testing audio setup...")
+    print("=" * 50)
+    
+    try:
+        import sounddevice as sd
+        print("✅ sounddevice imported successfully")
+        
+        # Query audio devices
+        devices = sd.query_devices()
+        print("🎤 Available audio devices:")
+        for i, device in enumerate(devices):
+            print(f"  {i}: {device['name']} - {device['max_input_channels']} in, {device['max_output_channels']} out")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Audio test failed: {e}")
+        return False
 
-However, there is no Live Camera Feed being displayed in the video preview window and nothing in the Detected Person image window.
+if __name__ == "__main__":
+    print("🧪 Chatty AI Component Tests")
+    print("=" * 50)
+    
+    all_passed = True
+    
+    # Run tests
+    if not test_opencv():
+        all_passed = False
+    
+    if not test_camera():
+        all_passed = False
+    
+    if not test_audio_permissions():
+        all_passed = False
+    
+    print("\n" + "=" * 50)
+    if all_passed:
+        print("🎉 ALL TESTS PASSED!")
+        print("✅ Your system should work with the web interface")
+    else:
+        print("❌ SOME TESTS FAILED")
+        print("🔧 Please fix the issues above before running the web interface")
+    
+    print("=" * 50)
 
-It appears the Facial Detection section is not working at all and there is no speech output from my Bluetooth speaker.
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_camera.py
+🧪 Chatty AI Component Tests
+==================================================
 
-Also, in the web page, I want the Chatty_AI_Logo.png file to be displayed on the left-hand side of the web page with the title text displayed on the right-hand side of the logo.
+👁️ Testing OpenCV...
+==================================================
+📦 OpenCV version: 4.11.0
+✅ OpenCV image encoding test passed
+💾 Saved OpenCV test image: opencv_test.jpg
+✅ OpenCV is working correctly
+🎥 Testing Raspberry Pi Camera...
+==================================================
+📦 Importing Picamera2...
+✅ Picamera2 imported successfully
+🔧 Creating camera instance...
+[1:57:43.776441511] [3852]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[1:57:43.783402296] [3862]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[1:57:43.792716713] [3862]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
+✅ Camera instance created
+⚙️ Configuring camera...
+[1:57:43.795700193] [3852]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[1:57:43.795798933] [3862]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+✅ Camera configured
+🚀 Starting camera...
+✅ Camera started
+⏱️ Waiting for camera to warm up...
+📸 Testing capture...
+✅ Capture 1: Shape=(480, 640, 4), dtype=uint8
+💾 Saved test image: camera_test_1.jpg
+✅ Capture 2: Shape=(480, 640, 4), dtype=uint8
+💾 Saved test image: camera_test_2.jpg
+✅ Capture 3: Shape=(480, 640, 4), dtype=uint8
+💾 Saved test image: camera_test_3.jpg
+✅ Capture 4: Shape=(480, 640, 4), dtype=uint8
+💾 Saved test image: camera_test_4.jpg
+✅ Capture 5: Shape=(480, 640, 4), dtype=uint8
+💾 Saved test image: camera_test_5.jpg
+🛑 Stopping camera...
+✅ Camera stopped successfully
 
-I want the diamond_coding_logo.png image file to be displayed on the right-hand side of the web page.
+🎉 Camera test completed successfully!
+✅ Your camera is working properly
+📁 Check the saved test images in the current directory
 
-Please fix the code and web page template file.
+🔊 Testing audio setup...
+==================================================
+✅ sounddevice imported successfully
+🎤 Available audio devices:
+  0: USB PnP Sound Device: Audio (hw:2,0) - 1 in, 0 out
+  1: pulse - 32 in, 32 out
+  2: default - 32 in, 32 out
+
+==================================================
+🎉 ALL TESTS PASSED!
+✅ Your system should work with the web interface
+==================================================
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I then tested the debug_app.py script you provided:
+
+debug_app.app
+#!/usr/bin/env python3
+"""
+debug_app.py - Debug version of Chatty AI Web Application
+This version includes extensive debugging to identify issues
+"""
+
+import os
+import sys
+import traceback
+from flask import Flask, render_template, Response
+from flask_socketio import SocketIO, emit
+import cv2
+import numpy as np
+import time
+from datetime import datetime
+import threading
+
+# Add current directory to path
+sys.path.append('/home/nickspi5/Chatty_AI')
+
+# Flask application setup
+app = Flask(__name__, 
+            template_folder='/home/nickspi5/Chatty_AI/templates',
+            static_folder='/home/nickspi5/Chatty_AI/templates')
+app.config['SECRET_KEY'] = 'chatty_ai_debug_key'
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+class DebugChattyAI:
+    def __init__(self):
+        print("🔧 Initializing DebugChattyAI...")
+        self.is_running = False
+        self.picam2 = None
+        self.current_frame = None
+        self.captured_image = None
+        self.setup_camera()
+
+    def emit_log(self, message, log_type="info"):
+        """Emit log message to web interface"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {log_type.upper()}: {message}")
+        try:
+            socketio.emit('log_update', {
+                'timestamp': timestamp,
+                'message': message,
+                'type': log_type
+            })
+        except Exception as e:
+            print(f"Failed to emit log: {e}")
+
+    def setup_camera(self):
+        """Initialize camera with detailed debugging"""
+        try:
+            print("🎥 Setting up camera...")
+            
+            # Check if we can import Picamera2
+            try:
+                from picamera2 import Picamera2
+                print("✅ Picamera2 imported successfully")
+            except ImportError as e:
+                print(f"❌ Failed to import Picamera2: {e}")
+                return False
+            
+            # Try to initialize camera
+            self.picam2 = Picamera2()
+            print("✅ Picamera2 instance created")
+            
+            # Configure camera
+            config = self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            )
+            self.picam2.configure(config)
+            print("✅ Camera configured")
+            
+            # Start camera
+            self.picam2.start()
+            print("✅ Camera started")
+            
+            # Test capture
+            time.sleep(2)
+            test_frame = self.picam2.capture_array()
+            print(f"✅ Test capture successful - Frame shape: {test_frame.shape}")
+            
+            self.emit_log("Camera initialized successfully")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Camera setup failed: {e}")
+            print(f"❌ Traceback: {traceback.format_exc()}")
+            self.emit_log(f"Camera setup failed: {e}", "error")
+            return False
+
+    def generate_video_feed(self):
+        """Generate video frames for streaming with debugging"""
+        print("🎬 Starting video feed generation...")
+        
+        frame_count = 0
+        while True:
+            try:
+                frame_count += 1
+                
+                if self.picam2:
+                    # Capture frame
+                    frame = self.picam2.capture_array()
+                    
+                    if frame_count % 30 == 0:  # Log every 30th frame
+                        print(f"📸 Frame {frame_count}: shape={frame.shape}, dtype={frame.dtype}")
+                    
+                    # Convert color space if needed
+                    if len(frame.shape) == 3 and frame.shape[2] == 3:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                    elif len(frame.shape) == 3 and frame.shape[2] == 4:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+                    
+                    # Add debug overlay
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    cv2.putText(frame, f"Debug Mode - {timestamp}", (10, 30), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    cv2.putText(frame, f"Frame: {frame_count}", (10, 60), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                    cv2.putText(frame, f"Shape: {frame.shape}", (10, 90), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                    
+                    # Store current frame
+                    self.current_frame = frame
+                    
+                else:
+                    # Create test pattern if no camera
+                    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                    cv2.putText(frame, "NO CAMERA AVAILABLE", (200, 240), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    cv2.putText(frame, f"Frame: {frame_count}", (10, 30), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                
+                # Encode frame as JPEG
+                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                if ret:
+                    frame_bytes = buffer.tobytes()
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                else:
+                    print(f"❌ Failed to encode frame {frame_count}")
+                
+                time.sleep(0.1)  # 10 FPS
+                
+            except Exception as e:
+                print(f"❌ Video feed error at frame {frame_count}: {e}")
+                print(f"❌ Traceback: {traceback.format_exc()}")
+                
+                # Create error frame
+                error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                cv2.putText(error_frame, f"ERROR: {str(e)[:30]}", (50, 240), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                ret, buffer = cv2.imencode('.jpg', error_frame)
+                if ret:
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+                time.sleep(1)
+
+    def start_system(self):
+        """Start the debug system"""
+        self.emit_log("Debug system started")
+        self.is_running = True
+        return True
+
+    def stop_system(self):
+        """Stop the debug system"""
+        self.emit_log("Debug system stopped")
+        self.is_running = False
+
+    def cleanup(self):
+        """Clean up resources"""
+        print("🧹 Cleaning up debug system...")
+        self.is_running = False
+        if self.picam2:
+            try:
+                self.picam2.stop()
+                print("✅ Camera stopped")
+            except Exception as e:
+                print(f"⚠️  Error stopping camera: {e}")
+
+# Create global instance
+debug_chatty = DebugChattyAI()
+
+# Flask routes
+@app.route('/')
+def index():
+    """Main page"""
+    try:
+        print("📄 Serving main page...")
+        return render_template('Chatty_AI.html')
+    except Exception as e:
+        print(f"❌ Error serving main page: {e}")
+        return f"Error loading page: {e}"
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Serve static files from templates directory"""
+    try:
+        print(f"📁 Serving static file: {filename}")
+        file_path = f"/home/nickspi5/Chatty_AI/templates/{filename}"
+        
+        if os.path.exists(file_path):
+            print(f"✅ File found: {file_path}")
+            return app.send_static_file(filename)
+        else:
+            print(f"❌ File not found: {file_path}")
+            return f"File not found: {filename}", 404
+    except Exception as e:
+        print(f"❌ Error serving static file {filename}: {e}")
+        return f"Error: {e}", 500
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route"""
+    try:
+        print("🎥 Starting video feed...")
+        return Response(debug_chatty.generate_video_feed(),
+                       mimetype='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        print(f"❌ Video feed error: {e}")
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        return f"Video feed error: {e}", 500
+
+@app.route('/captured_image')
+def captured_image():
+    """Route for captured person image"""
+    try:
+        if debug_chatty.captured_image is not None:
+            ret, buffer = cv2.imencode('.jpg', debug_chatty.captured_image)
+            if ret:
+                return Response(buffer.tobytes(), mimetype='image/jpeg')
+        
+        # Return placeholder image
+        placeholder = np.zeros((200, 200, 3), dtype=np.uint8)
+        cv2.putText(placeholder, "No Image", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (128, 128, 128), 2)
+        ret, buffer = cv2.imencode('.jpg', placeholder)
+        return Response(buffer.tobytes(), mimetype='image/jpeg')
+        
+    except Exception as e:
+        print(f"❌ Captured image error: {e}")
+        return "Error", 500
+
+# Socket.IO events
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    print('🔌 Client connected')
+    emit('status', {'message': 'Connected to Debug Chatty AI'})
+
+@socketio.on('start_system')
+def handle_start_system():
+    """Handle system start request"""
+    print("🚀 Start system requested")
+    success = debug_chatty.start_system()
+    emit('system_status', {'running': success})
+
+@socketio.on('stop_system')
+def handle_stop_system():
+    """Handle system stop request"""
+    print("🛑 Stop system requested")
+    debug_chatty.stop_system()
+    emit('system_status', {'running': False})
+
+if __name__ == '__main__':
+    print("🐛 Chatty AI Debug Mode")
+    print("=" * 50)
+    
+    # System checks
+    print("🔍 Running system checks...")
+    
+    # Check Python version
+    print(f"🐍 Python version: {sys.version}")
+    
+    # Check working directory
+    print(f"📁 Working directory: {os.getcwd()}")
+    
+    # Check if templates directory exists
+    templates_dir = "/home/nickspi5/Chatty_AI/templates"
+    if os.path.exists(templates_dir):
+        print(f"✅ Templates directory found: {templates_dir}")
+        files = os.listdir(templates_dir)
+        print(f"📄 Files in templates: {files}")
+    else:
+        print(f"❌ Templates directory not found: {templates_dir}")
+    
+    # Check camera permissions
+    try:
+        import picamera2
+        print("✅ Picamera2 module available")
+    except ImportError as e:
+        print(f"❌ Picamera2 import error: {e}")
+    
+    # Check OpenCV
+    print(f"👁️ OpenCV version: {cv2.__version__}")
+    
+    # Check if running as root/sudo
+    if os.geteuid() == 0:
+        print("⚠️  Running as root - this may cause issues")
+    else:
+        print(f"👤 Running as user: {os.getenv('USER')}")
+    
+    print("=" * 50)
+    
+    try:
+        print("🌐 Starting debug Flask server...")
+        print(f"🔗 Access at: http://localhost:5000")
+        
+        # Start server
+        socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+        
+    except KeyboardInterrupt:
+        print("\n🛑 Debug server stopped by user")
+        debug_chatty.cleanup()
+    except Exception as e:
+        print(f"❌ Debug server error: {e}")
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        debug_chatty.cleanup()
+
+using the start_chatty_web.sh script your provided:
+
+start_chatty_web.sh
+#!/bin/bash
+
+# Chatty AI Web Interface Startup Script
+# Place this script in /home/nickspi5/Chatty_AI/
+
+echo "=========================================="
+echo "  Starting Chatty AI Web Interface"
+echo "=========================================="
+
+# Activate virtual environment
+echo "🔧 Activating virtual environment..."
+source chatty-venv/bin/activate
+
+# Check if required files exist
+echo "🔍 Checking required files..."
+
+required_files=(
+    "app.py"
+    "templates/Chatty_AI.html"
+    "templates/Chatty_AI_logo.png"
+    "templates/diamond_coding_logo.png"
+    "encodings.pickle"
+    "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+)
+
+missing_files=0
+for file in "${required_files[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "❌ Missing file: $file"
+        missing_files=$((missing_files + 1))
+    else
+        echo "✅ Found: $file"
+    fi
+done
+
+if [ $missing_files -gt 0 ]; then
+    echo "❌ $missing_files required files are missing. Please ensure all files are in place."
+    exit 1
+fi
+
+# Check if response files exist, create if missing
+echo "📝 Checking response files..."
+response_files=(
+    "jokes.txt"
+    "listening_responses.txt"
+    "waiting_responses.txt"
+    "warning_responses.txt"
+    "greeting_responses.txt"
+)
+
+for file in "${response_files[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "⚠️  Creating missing response file: $file"
+        case $file in
+            "jokes.txt")
+                echo "Why don't scientists trust atoms? Because they make up everything!" > "$file"
+                echo "What do you call a bear with no teeth? A gummy bear!" >> "$file"
+                ;;
+            "listening_responses.txt")
+                echo "I'm listening, what would you like to know?" > "$file"
+                echo "Yes, how can I help you?" >> "$file"
+                ;;
+            "waiting_responses.txt")
+                echo "I'm still here if you need anything" > "$file"
+                echo "Let me know if you need help" >> "$file"
+                ;;
+            "warning_responses.txt")
+                echo "Warning: Unknown person detected. Please identify yourself." > "$file"
+                ;;
+            "greeting_responses.txt")
+                echo "Hello! How can I help you today?" > "$file"
+                echo "Welcome! What can I do for you?" >> "$file"
+                ;;
+        esac
+    fi
+done
+
+# Set permissions for audio devices
+echo "🔊 Setting up audio permissions..."
+sudo usermod -a -G audio $USER
+
+# Display network information
+echo "🌐 Network Information:"
+IP_ADDRESS=$(hostname -I | awk '{print $1}')
+echo "   Local IP: $IP_ADDRESS"
+echo "   Web Interface: http://$IP_ADDRESS:5000"
+echo "   Alternative: http://localhost:5000"
+
+echo ""
+echo "🚀 Starting Chatty AI Web Server..."
+echo "   Press Ctrl+C to stop the server"
+echo "=========================================="
+
+# Start the Flask application
+python3 debug_app.py
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x start_chatty_web.sh
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./start_chatty_web.sh
+bash: ./start_chatty_web.sh: cannot execute: required file not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 debug_app.py
+🔧 Initializing DebugChattyAI...
+🎥 Setting up camera...
+✅ Picamera2 imported successfully
+[2:11:18.755543643] [4079]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[2:11:18.762573881] [4086]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[2:11:18.771816285] [4086]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
+✅ Picamera2 instance created
+[2:11:18.774886932] [4079]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[2:11:18.775022765] [4086]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+✅ Camera configured
+✅ Camera started
+✅ Test capture successful - Frame shape: (480, 640, 4)
+[20:05:43] INFO: Camera initialized successfully
+🐛 Chatty AI Debug Mode
+==================================================
+🔍 Running system checks...
+🐍 Python version: 3.11.2 (main, Apr 28 2025, 14:11:48) [GCC 12.2.0]
+📁 Working directory: /home/nickspi5/Chatty_AI
+✅ Templates directory found: /home/nickspi5/Chatty_AI/templates
+📄 Files in templates: ['diamond_coding_logo.png', 'diamond_coding_Logo.png', 'chatty_ai_html_template.html', 'Chatty_AI.html', 'Chatty_AI_logo.png', 'Chatty_AI_Logo.png', 'image_analyse.html']
+✅ Picamera2 module available
+👁️ OpenCV version: 4.11.0
+👤 Running as user: nickspi5
+==================================================
+🌐 Starting debug Flask server...
+🔗 Access at: http://localhost:5000
+ * Restarting with stat
+🔧 Initializing DebugChattyAI...
+🎥 Setting up camera...
+✅ Picamera2 imported successfully
+[2:11:21.590779937] [4092]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[2:11:21.598030657] [4098]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[2:11:21.598595823] [4098] ERROR V4L2 v4l2_device.cpp:390 'imx219 10-0010': Unable to set controls: Device or resource busy
+[2:11:21.608050283] [4098]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
+[2:11:21.609150542] [4092]  INFO Camera camera.cpp:1011 Pipeline handler in use by another process
+Camera __init__ sequence did not complete.
+❌ Camera setup failed: Camera __init__ sequence did not complete.
+❌ Traceback: Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 353, in __init__
+    self._open_camera()
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 565, in _open_camera
+    self.camera.acquire()
+RuntimeError: Failed to acquire camera: Device or resource busy
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/debug_app.py", line 64, in setup_camera
+    self.picam2 = Picamera2()
+                  ^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 365, in __init__
+    raise RuntimeError("Camera __init__ sequence did not complete.")
+RuntimeError: Camera __init__ sequence did not complete.
+
+[20:05:44] ERROR: Camera setup failed: Camera __init__ sequence did not complete.
+🐛 Chatty AI Debug Mode
+==================================================
+🔍 Running system checks...
+🐍 Python version: 3.11.2 (main, Apr 28 2025, 14:11:48) [GCC 12.2.0]
+📁 Working directory: /home/nickspi5/Chatty_AI
+✅ Templates directory found: /home/nickspi5/Chatty_AI/templates
+📄 Files in templates: ['diamond_coding_logo.png', 'diamond_coding_Logo.png', 'chatty_ai_html_template.html', 'Chatty_AI.html', 'Chatty_AI_logo.png', 'Chatty_AI_Logo.png', 'image_analyse.html']
+✅ Picamera2 module available
+👁️ OpenCV version: 4.11.0
+👤 Running as user: nickspi5
+==================================================
+🌐 Starting debug Flask server...
+🔗 Access at: http://localhost:5000
+ * Debugger is active!
+ * Debugger PIN: 138-965-334
+(4092) wsgi starting up on http://0.0.0.0:5000
+(4092) accepted ('127.0.0.1', 33992)
+(4092) accepted ('127.0.0.1', 33996)
+📄 Serving main page...
+127.0.0.1 - - [04/Aug/2025 20:06:45] "GET / HTTP/1.1" 200 16198 0.010558
+📁 Serving static file: Chatty_AI_logo.png
+✅ File found: /home/nickspi5/Chatty_AI/templates/Chatty_AI_logo.png
+127.0.0.1 - - [04/Aug/2025 20:06:45] "GET /static/Chatty_AI_logo.png HTTP/1.1" 200 66380 0.005360
+🎥 Starting video feed...
+🎬 Starting video feed generation...
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/wsgi.py", line 641, in handle_one_response
+    write(b''.join(towrite))
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/wsgi.py", line 575, in write
+    wfile.flush()
+  File "/usr/lib/python3.11/socket.py", line 724, in write
+    return self._sock.send(b)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/greenio/base.py", line 383, in send
+    return self._send_loop(self.fd.send, data, flags)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/greenio/base.py", line 370, in _send_loop
+    return send_method(data, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [Errno 32] Broken pipe
+
+127.0.0.1 - - [04/Aug/2025 20:07:12] "GET /video_feed HTTP/1.1" 200 3309320 26.935814
+127.0.0.1 - - [04/Aug/2025 20:07:12] "GET /captured_image HTTP/1.1" 200 3122 0.001163
+(4092) accepted ('127.0.0.1', 34004)
+(4092) accepted ('127.0.0.1', 34016)
+(4092) accepted ('127.0.0.1', 54828)
+📁 Serving static file: diamond_coding_logo.png
+✅ File found: /home/nickspi5/Chatty_AI/templates/diamond_coding_logo.png
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/wsgi.py", line 641, in handle_one_response
+    write(b''.join(towrite))
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/wsgi.py", line 575, in write
+    wfile.flush()
+  File "/usr/lib/python3.11/socket.py", line 724, in write
+    return self._sock.send(b)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/greenio/base.py", line 383, in send
+    return self._send_loop(self.fd.send, data, flags)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/eventlet/greenio/base.py", line 370, in _send_loop
+    return send_method(data, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [Errno 32] Broken pipe
+
+127.0.0.1 - - [04/Aug/2025 20:07:12] "GET /static/diamond_coding_logo.png HTTP/1.1" 200 8501 0.001643
+127.0.0.1 - - [04/Aug/2025 20:07:12] "GET /socket.io/?EIO=4&transport=polling&t=PXqZ42I HTTP/1.1" 200 300 0.000367
+127.0.0.1 - - [04/Aug/2025 20:07:12] "GET /socket.io/?EIO=4&transport=polling&t=PXqZ9GC HTTP/1.1" 200 300 0.000264
+
+You have also just started re-creating version 16 of the main app.py file but exceeded the maximum length for a message:
+
+app.py - Version 16
+
+
+
 
 
 
