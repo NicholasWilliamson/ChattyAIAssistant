@@ -33,7 +33,7 @@ app = Flask(__name__,
             template_folder='/home/nickspi5/Chatty_AI/templates',
             static_folder='/home/nickspi5/Chatty_AI/templates')
 app.config['SECRET_KEY'] = 'chatty_ai_secret_key_2025'
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", logger=False, engineio_logger=False)
 
 # Configuration
 WHISPER_MODEL_SIZE = "base"
@@ -104,6 +104,8 @@ WAKE_WORD_CHECK_INTERVAL = 1.0
 
 class ChattyAIWeb:
     def __init__(self):
+        print("🔧 Initializing ChattyAI instance...")
+        
         # AI Models
         self.whisper_model = None
         self.llama_model = None
@@ -114,6 +116,7 @@ class ChattyAIWeb:
         
         # Camera
         self.picam2 = None
+        self.camera_initialized = False
         
         # State variables
         self.is_running = False
@@ -156,6 +159,9 @@ class ChattyAIWeb:
         self.load_personalized_responses()
         self.load_telegram_config()
         
+        # Try to initialize camera immediately for web display
+        self.try_initialize_camera()
+        
         print("ChattyAIWeb instance created - models will be loaded when system starts")
 
     def emit_log(self, message, log_type="info"):
@@ -168,8 +174,8 @@ class ChattyAIWeb:
                 'message': message,
                 'type': log_type
             })
-        except:
-            pass
+        except Exception as e:
+            print(f"Socket emit error: {e}")
 
     def emit_conversation(self, message, msg_type="info"):
         """Emit conversation message to web interface"""
@@ -181,8 +187,8 @@ class ChattyAIWeb:
                 'message': message,
                 'type': msg_type
             })
-        except:
-            pass
+        except Exception as e:
+            print(f"Socket emit error: {e}")
 
     def setup_directories(self):
         """Create necessary directories"""
@@ -328,12 +334,47 @@ class ChattyAIWeb:
         except Exception as e:
             self.emit_log(f"Failed to load Telegram config: {e}", "error")
 
+    def try_initialize_camera(self):
+        """Try to initialize camera for web display"""
+        try:
+            from picamera2 import Picamera2
+            self.emit_log("Attempting to initialize camera for web display...")
+            
+            self.picam2 = Picamera2()
+            config = self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            )
+            self.picam2.configure(config)
+            self.picam2.start()
+            time.sleep(2)
+            
+            # Test capture
+            test_frame = self.picam2.capture_array()
+            self.camera_initialized = True
+            self.emit_log(f"Camera initialized for web display - Frame shape: {test_frame.shape}")
+            return True
+            
+        except Exception as e:
+            self.emit_log(f"Camera initialization for web display failed: {e}", "warning")
+            self.camera_initialized = False
+            if self.picam2:
+                try:
+                    self.picam2.stop()
+                    self.picam2.close()
+                except:
+                    pass
+                self.picam2 = None
+            return False
+
     def setup_camera(self):
-        """Initialize camera with retry logic"""
+        """Initialize camera with retry logic for full system"""
+        if self.camera_initialized:
+            self.emit_log("Camera already initialized")
+            return True
+        
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                # Import here to avoid circular imports
                 from picamera2 import Picamera2
                 
                 self.emit_log(f"Camera initialization attempt {attempt + 1}/{max_retries}")
@@ -359,6 +400,7 @@ class ChattyAIWeb:
                 
                 # Test capture
                 test_frame = self.picam2.capture_array()
+                self.camera_initialized = True
                 self.emit_log(f"Camera initialized successfully - Frame shape: {test_frame.shape}")
                 return True
                 
@@ -376,6 +418,7 @@ class ChattyAIWeb:
                     time.sleep(3)
                 else:
                     self.emit_log("All camera initialization attempts failed", "error")
+                    self.camera_initialized = False
                     return False
         
         return False
@@ -415,11 +458,11 @@ class ChattyAIWeb:
         print("Video feed generation started")
         
         frame_count = 0
-        while True:  # Keep generating even if system not started
+        while True:  # Keep generating frames continuously
             try:
                 frame_count += 1
                 
-                if self.picam2 and self.is_running:
+                if self.picam2 and self.camera_initialized:
                     frame = self.picam2.capture_array()
                     
                     # Convert from RGB/RGBA to BGR for OpenCV
@@ -429,49 +472,50 @@ class ChattyAIWeb:
                         elif frame.shape[2] == 3:  # RGB
                             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                     
-                    # Process facial recognition only if system is running
-                    name, face_location, confidence = self.detect_faces(frame)
-                    
-                    # Draw face rectangles and labels
-                    if name and face_location:
-                        top, right, bottom, left = face_location
+                    # Only process facial recognition if system is running
+                    if self.is_running and self.known_encodings:
+                        name, face_location, confidence = self.detect_faces(frame)
                         
-                        # Choose color based on recognition
-                        if name == "Unknown":
-                            color = (0, 0, 255)  # Red
-                            label = f"Unknown ({confidence:.2f})"
-                        else:
-                            color = (0, 255, 0)  # Green
-                            label = f"{name} ({confidence:.2f})"
-                        
-                        # Draw rectangle and label
-                        cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-                        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-                        cv2.putText(frame, label, (left + 6, bottom - 6),
-                                  cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
-                        
-                        # Capture image for display
-                        face_img = frame[top:bottom, left:right].copy()
-                        if face_img.size > 0:
-                            self.captured_image = cv2.resize(face_img, (200, 200))
-                        
-                        # Emit person detection update
-                        try:
-                            socketio.emit('person_detected', {
-                                'name': name,
-                                'confidence': f"{confidence:.1%}",
-                                'timestamp': datetime.now().strftime("%H:%M:%S")
-                            })
-                        except:
-                            pass
+                        # Draw face rectangles and labels
+                        if name and face_location:
+                            top, right, bottom, left = face_location
+                            
+                            # Choose color based on recognition
+                            if name == "Unknown":
+                                color = (0, 0, 255)  # Red
+                                label = f"Unknown ({confidence:.2f})"
+                            else:
+                                color = (0, 255, 0)  # Green
+                                label = f"{name} ({confidence:.2f})"
+                            
+                            # Draw rectangle and label
+                            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+                            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+                            cv2.putText(frame, label, (left + 6, bottom - 6),
+                                      cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
+                            
+                            # Capture image for display
+                            face_img = frame[top:bottom, left:right].copy()
+                            if face_img.size > 0:
+                                self.captured_image = cv2.resize(face_img, (200, 200))
+                            
+                            # Emit person detection update
+                            try:
+                                socketio.emit('person_detected', {
+                                    'name': name,
+                                    'confidence': f"{confidence:.1%}",
+                                    'timestamp': datetime.now().strftime("%H:%M:%S")
+                                })
+                            except:
+                                pass
                     
                     # Add status overlay to frame
                     if self.is_running:
                         status_text = "Chatty AI Active"
                         cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                     else:
-                        status_text = "Chatty AI Inactive"
-                        cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                        status_text = "System Ready - Click Start"
+                        cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
                     
                     if self.current_person:
                         person_text = f"Current: {self.current_person}"
@@ -482,25 +526,15 @@ class ChattyAIWeb:
                         cv2.putText(frame, wake_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                     else:
                         wake_text = "Wake Word: INACTIVE"
-                        cv2.putText(frame, wake_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                
-                elif self.picam2:  # Camera available but system not started
-                    frame = self.picam2.capture_array()
-                    if len(frame.shape) == 3:
-                        if frame.shape[2] == 4:  # RGBA
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
-                        elif frame.shape[2] == 3:  # RGB
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                    
-                    # Add "System Inactive" overlay
-                    cv2.putText(frame, "System Inactive - Press Start", (10, 30), 
-                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                        cv2.putText(frame, wake_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
                 
                 else:  # No camera available
                     # Create a black frame with error message
                     frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                    cv2.putText(frame, "Camera Not Available", (200, 240), 
+                    cv2.putText(frame, "Camera Not Available", (200, 220), 
                               cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    cv2.putText(frame, "Check camera connection", (150, 260), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (128, 128, 128), 2)
                 
                 # Encode frame as JPEG
                 ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
@@ -509,14 +543,16 @@ class ChattyAIWeb:
                     yield (b'--frame\r\n'
                            b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
                 
-                time.sleep(0.1)  # Control frame rate (10 FPS)
+                time.sleep(0.05)  # 20 FPS
                 
             except Exception as e:
                 print(f"Video feed error: {e}")
                 # Create error frame
                 error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                cv2.putText(error_frame, f"Video Error: {str(e)[:50]}", (50, 240), 
-                          cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                cv2.putText(error_frame, f"Video Error", (200, 220), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                cv2.putText(error_frame, f"{str(e)[:40]}", (100, 260), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
                 ret, buffer = cv2.imencode('.jpg', error_frame)
                 if ret:
                     yield (b'--frame\r\n'
@@ -534,28 +570,30 @@ class ChattyAIWeb:
                 self.emit_log("Failed to load AI models", "error")
                 return False
         
-        if not self.picam2:
-            self.emit_log("Initializing camera...", "info")
+        if not self.camera_initialized:
+            self.emit_log("Initializing camera for full system...", "info")
             if not self.setup_camera():
-                self.emit_log("Failed to initialize camera", "error")
-                return False
+                self.emit_log("Warning: Camera initialization failed - continuing without full AI features", "warning")
         
         if not self.known_encodings:
             self.emit_log("Loading facial recognition encodings...", "info")
             if not self.load_encodings():
-                self.emit_log("Failed to load facial recognition encodings", "error")
-                return False
+                self.emit_log("Warning: No facial recognition data - continuing without person recognition", "warning")
         
         self.emit_log("Chatty AI System Started!")
         self.is_running = True
         
-        # Start audio thread
-        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
-        self.audio_thread.start()
+        # Start audio thread only if we have the required models
+        if self.whisper_model:
+            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+            self.audio_thread.start()
+            self.emit_log("Audio processing thread started")
         
-        # Start camera monitoring thread
-        self.camera_thread = threading.Thread(target=self.camera_monitoring_thread, daemon=True)
-        self.camera_thread.start()
+        # Start camera monitoring thread only if camera and encodings are available
+        if self.camera_initialized and self.known_encodings:
+            self.camera_thread = threading.Thread(target=self.camera_monitoring_thread, daemon=True)
+            self.camera_thread.start()
+            self.emit_log("Camera monitoring thread started")
         
         return True
 
@@ -563,6 +601,8 @@ class ChattyAIWeb:
         """Stop the AI system"""
         self.is_running = False
         self.emit_log("Chatty AI System Stopped")
+
+    # ... [Rest of the methods remain the same - continuing from where we left off]
 
     def get_personalized_response(self, person_name, response_type, fallback_list=None):
         """Get a personalized response for a specific person and response type"""
@@ -901,7 +941,7 @@ class ChattyAIWeb:
         
         while self.is_running:
             try:
-                if self.picam2:
+                if self.picam2 and self.camera_initialized:
                     frame = self.picam2.capture_array()
                     
                     # Convert from RGB/RGBA to BGR for OpenCV
@@ -1082,6 +1122,11 @@ def handle_connect():
     """Handle client connection"""
     print('Client connected')
     emit('status', {'message': 'Connected to Chatty AI'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    print('Client disconnected')
 
 @socketio.on('start_system')
 def handle_start_system():
