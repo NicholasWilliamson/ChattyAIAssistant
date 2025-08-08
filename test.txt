@@ -2,72 +2,64 @@ Thank you, Claude.
 
 I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
 nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pkill -f "python3 app.py"
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pkill -f python
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 2
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x fix_chatty_web.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./fix_chatty_web.sh
-bash: ./fix_chatty_web.sh: cannot execute: required file not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod 644 templates/Chatty_AI.html
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod 644 templates/*.png 2>/dev/null || echo "No PNG files to set permissions for"
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "import flask_socketio; print('✅ Flask-SocketIO installed')" 2>/dev/null || echo "❌ Flask-SocketIO not installed"
-✅ Flask-SocketIO installed
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install flask-socketio eventlet
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: flask-socketio in ./chatty-venv/lib/python3.11/site-packages (5.5.1)
-Requirement already satisfied: eventlet in ./chatty-venv/lib/python3.11/site-packages (0.40.2)
-Requirement already satisfied: Flask>=0.9 in /usr/lib/python3/dist-packages (from flask-socketio) (2.2.2)
-Requirement already satisfied: python-socketio>=5.12.0 in ./chatty-venv/lib/python3.11/site-packages (from flask-socketio) (5.13.0)
-Requirement already satisfied: dnspython>=1.15.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (2.7.0)
-Requirement already satisfied: greenlet>=1.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (3.2.3)
-Requirement already satisfied: bidict>=0.21.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (0.23.1)
-Requirement already satisfied: python-engineio>=4.11.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (4.12.2)
-Requirement already satisfied: simple-websocket>=0.10.0 in ./chatty-venv/lib/python3.11/site-packages (from python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.1.0)
-Requirement already satisfied: wsproto in ./chatty-venv/lib/python3.11/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.2.0)
-Requirement already satisfied: h11<1,>=0.9.0 in ./chatty-venv/lib/python3.11/site-packages (from wsproto->simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (0.16.0)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la templates/
-total 224
-drwxr-xr-x  2 nickspi5 nickspi5   4096 Aug  7 20:23 .
-drwxr-xr-x 15 nickspi5 nickspi5   4096 Aug  7 20:25 ..
--rw-r--r--  1 nickspi5 nickspi5  20214 Aug  7 20:07 Chatty_AI.html
--rw-r--r--  1 nickspi5 nickspi5  66079 Aug  4 18:19 Chatty_AI_logo.png
--rw-r--r--  1 nickspi5 nickspi5 115204 Aug  4 18:19 diamond_coding_logo.png
--rwxr-xr-x  1 nickspi5 nickspi5  11691 Jul 23 18:45 image_analyse.html
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app.py
-Initializing Chatty AI Web Interface...
-============================================================
-🚀 Starting Flask server on http://0.0.0.0:5000
-📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000
-============================================================
-🔧 Initializing ChattyAI instance...
-🔧 Initializing ChattyAI instance...
-[20:41:12] Response files loaded successfully
-[20:41:12] Personalized responses loaded for 3 people
-[20:41:12] Telegram configuration loaded
-[20:41:12] Attempting to initialize camera for web display...
-[0:46:29.669511337] [2421]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[0:46:29.681629782] [2593]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[0:46:29.695660297] [2593]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media1 and ISP device /dev/media2 using PiSP variant BCM2712_C0
-[0:46:29.700098998] [2421]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[0:46:29.700280476] [2593]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-[20:41:15] Camera initialized for web display - Frame shape: (480, 640, 4)
-ChattyAIWeb instance created - models will be loaded when system starts
-Video feed generation started
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 3
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 debug_startup.py
+[20:08:22] DEBUG: Starting Chatty AI diagnostic...
+[20:08:22] DEBUG: ==================================================
+[20:08:22] DEBUG: Checking system memory...
+[20:08:22] DEBUG: Memory Total: 8062.2 MB
+[20:08:22] DEBUG: Memory Free: 6259.4 MB
+[20:08:22] DEBUG: Memory Available: 7123.1 MB
+[20:08:22] DEBUG: Testing imports...
+[20:08:22] DEBUG: ✅ Flask imported
+[20:08:23] DEBUG: ✅ Flask-SocketIO imported
+[20:08:23] DEBUG: ✅ OpenCV imported
+[20:08:23] DEBUG: ✅ NumPy imported
+[20:08:23] DEBUG: Testing PyTorch import (this may take time)...
+[20:08:23] DEBUG: ❌ PyTorch import failed: No module named 'torch'
+[20:08:23] DEBUG: Testing Transformers import (this may take time)...
+[20:08:23] DEBUG: ❌ Transformers import failed: No module named 'transformers'
+[20:08:23] DEBUG: Testing model directory...
+[20:08:23] DEBUG: ❌ Models directory not found!
+[20:08:23] DEBUG: Model loading test failed
+[20:08:23] DEBUG: Testing camera access...
+[20:08:23] DEBUG: ✅ Camera accessible
+[20:08:23] DEBUG: ==================================================
+[20:08:23] DEBUG: Diagnostic complete. Now attempting to import main application...
+[20:08:23] DEBUG: Importing main application modules...
+[20:08:23] DEBUG: Attempting to import ChattyAI class...
+[20:08:27] DEBUG: ✅ ChattyAI imported successfully!
+[20:08:27] DEBUG: Attempting to create ChattyAI instance...
+Response files loaded successfully
+Personalized responses loaded for 3 people
+Loading AI models...
+Whisper model loaded
+llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+LLaMA model loaded
+Loaded 37 face encodings
+Telegram configuration loaded
+[0:10:28.444834358] [2082]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[0:10:28.456245966] [2111]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[0:10:28.469323700] [2111]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_C0
+[0:10:28.473252009] [2082]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[0:10:28.473377016] [2111]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+Camera initialized
+[20:08:39] DEBUG: ✅ ChattyAI instance created!
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I then opened my Chromium web browser and typed http://192.168.1.16:5000 in the URL text box.
+I can now see three errors as follows:
 
-I then clicked on the Start System button.
+[20:08:23] DEBUG: Testing PyTorch import (this may take time)...
+[20:08:23] DEBUG: ❌ PyTorch import failed: No module named 'torch'
+[20:08:23] DEBUG: Testing Transformers import (this may take time)...
+[20:08:23] DEBUG: ❌ Transformers import failed: No module named 'transformers'
+[20:08:23] DEBUG: Testing model directory...
+[20:08:23] DEBUG: ❌ Models directory not found!
 
-However, the red button at the top right-hand side of the Web UI page still says "Disconnected".
+The local TinyLlama LLM is in the folder /home/nickspi5/Chatty_AI/tinyllama-models not a folder named /home/nickspi5/Chatty_AI/models or /home/nickspi5/Chatty_AI/Models
 
-The dark red button below this button says: "System Stopped."
-
-The Live Camera Feed box window shows live preview from the PI Camera Module 2 camera.
-
-The System Logs box windows says: System Logs
-20:41:12 Chatty AI Web Interface initialized
-20:41:12 Click "Start System" to begin AI operations
-20:43:53 Starting Chatty AI system...
+The local TinyLlama LLM is /home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
 
 How can we fix this?
 
