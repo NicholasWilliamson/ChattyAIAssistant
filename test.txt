@@ -1,273 +1,122 @@
 Thank you, Claude.
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x fix_model_paths.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./fix_model_paths.sh
-bash: ./fix_model_paths.sh: cannot execute: required file not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ if [ ! -f "app.py" ]; then
-    echo "❌ Please run this from the Chatty_AI directory"
-    exit 1
-fi
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "1. Current directory structure:"
-ls -la | grep -E "(models|tinyllama)"
-1. Current directory structure:
-lrwxrwxrwx  1 nickspi5 nickspi5        16 Aug  8 20:45 models -> tinyllama-models
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 16 19:00 qwen-models
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 19 19:48 tinyllama-models
-drwxr-xr-x  4 nickspi5 nickspi5      4096 Jul 16 20:25 whisper-models
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n2. Checking tinyllama-models directory:"
-if [ -d "tinyllama-models" ]; then
-    echo "✅ tinyllama-models directory found"
-    ls -la tinyllama-models/
-else
-    echo "❌ tinyllama-models directory not found"
-fi
-
-2. Checking tinyllama-models directory:
-✅ tinyllama-models directory found
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "1. Current model files in tinyllama-models:"
+ls -la tinyllama-models/
+1. Current model files in tinyllama-models:
 total 2425124
 drwxr-xr-x  2 nickspi5 nickspi5       4096 Jul 19 19:48 .
-drwxr-xr-x 16 nickspi5 nickspi5       4096 Aug  9 12:28 ..
+drwxr-xr-x 16 nickspi5 nickspi5       4096 Aug  9 13:44 ..
 -rwxr-xr-x  1 nickspi5 nickspi5  668788096 Jul 19 18:08 tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 -rwxr-xr-x  1 nickspi5 nickspi5  643728768 Jul 19 18:36 tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
 -rwxr-xr-x  1 nickspi5 nickspi5 1170781568 Jan  1  2024 tinyllama-1.1b-chat-v1.0.Q8_0.gguf
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n3. Creating symbolic link for models directory..."
-# Create a symbolic link from models to tinyllama-models
-if [ -d "tinyllama-models" ] && [ ! -d "models" ]; then
-    ln -s tinyllama-models models
-    echo "✅ Created symbolic link: models -> tinyllama-models"
-elif [ -d "models" ]; then
-    echo "✅ Models directory already exists"
-else
-    echo "❌ Cannot create models link - tinyllama-models not found"
-fi
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\nIn app.py:"
+grep -n "LLAMA_MODEL_PATH\|tinyllama" app.py || echo "No LLAMA_MODEL_PATH found in app.py"
 
-3. Creating symbolic link for models directory...
-✅ Models directory already exists
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n4. Verifying model file access..."
-MODEL_FILE="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf"
-if [ -f "$MODEL_FILE" ]; then
-    echo "✅ TinyLlama model file found"
-    echo "   File: $MODEL_FILE"
-    echo "   Size: $(du -sh "$MODEL_FILE" | cut -f1)"
-else
-    echo "❌ TinyLlama model file not found at: $MODEL_FILE"
-fi
-
-4. Verifying model file access...
-✅ TinyLlama model file found
-   File: tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
-   Size: 614M
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n5. Checking for configuration files that might need updating..."
-# Check if there are any config files that hardcode the models path
-for config_file in config.py settings.py chatty_ai.py app.py; do
-    if [ -f "$config_file" ]; then
-        if grep -q "models/" "$config_file"; then
-            echo "Found 'models/' references in $config_file:"
-            grep -n "models/" "$config_file" | head -3
-        fi
-    fi
-done
-
-5. Checking for configuration files that might need updating...
-Found 'models/' references in chatty_ai.py:
-31:LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-Found 'models/' references in app.py:
+In app.py:
 40:LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n6. Installing missing Python packages (optional for better performance)..."
-echo "   Note: PyTorch and Transformers are not required for GGUF models"
-echo "   But they can provide additional functionality."
+295:                model_path=LLAMA_MODEL_PATH,
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n4. Verifying model path configuration..."
+echo "Current model path configuration is correct (Q4_K_M.gguf)"
+echo "Model file exists and is accessible: $(ls -lh tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf)"
 
-6. Installing missing Python packages (optional for better performance)...
-   Note: PyTorch and Transformers are not required for GGUF models
-   But they can provide additional functionality.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Check if user wants to install PyTorch (it's large)
-echo -e "\n   Would you like to install PyTorch? (This will take ~500MB space and time)"
-echo "   Press 'y' for yes, any other key to skip:"
-read -t 10 -n 1 response
-echo
+4. Verifying model path configuration...
+Current model path configuration is correct (Q4_K_M.gguf)
+Model file exists and is accessible: -rwxr-xr-x 1 nickspi5 nickspi5 638M Jul 19 18:08 tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 
-   Would you like to install PyTorch? (This will take ~500MB space and time)
-   Press 'y' for yes, any other key to skip:
-y
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Check if user wants to install PyTorch (it's large)
-echo -e "\n   Would you like to install PyTorch? (This will take ~500MB space and time)"
-echo "   Press 'y' for yes, any other key to skip:"
-read -t 10 -n 1 response
-echo
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 debug_app.py
+[13:54:55] DEBUG: Importing Flask components...
+[13:54:55] DEBUG: Basic imports successful
+[13:54:55] DEBUG: Attempting to import ChattyAI...
+[13:54:59] DEBUG: ✅ ChattyAI imported successfully
+[13:54:59] DEBUG: Creating Flask app...
+[13:54:59] DEBUG: Setting up global variables...
+[13:54:59] DEBUG: Starting debug version of Chatty AI...
+[13:54:59] DEBUG: Web interface will be at: http://192.168.1.16:5000
+ * Serving Flask app 'debug_app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.16:5000
+Press CTRL+C to quit
+[13:55:49] DEBUG: Index route accessed
+127.0.0.1 - - [09/Aug/2025 13:55:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 13:55:49] "GET /templates/Chatty_AI_logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:49] "GET /video_feed HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /templates/diamond_coding_logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /captured_image HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /socket.io/?EIO=4&transport=polling&t=PYC-7Mq HTTP/1.1" 200 -
+[13:55:50] DEBUG: Client connected to SocketIO
+127.0.0.1 - - [09/Aug/2025 13:55:50] "POST /socket.io/?EIO=4&transport=polling&t=PYC-7Na&sid=eg1pQOFH8EOHbtVrAAAA HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /socket.io/?EIO=4&transport=polling&t=PYC-7Nc&sid=eg1pQOFH8EOHbtVrAAAA HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /socket.io/?EIO=4&transport=polling&t=PYC-7Nz&sid=eg1pQOFH8EOHbtVrAAAA HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 13:55:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:52] "GET /video_feed?t=1754711752109 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:54] "GET /video_feed?t=1754711754119 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:56] "GET /video_feed?t=1754711756127 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:55:58] "GET /video_feed?t=1754711758135 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:00] "GET /video_feed?t=1754711760144 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:02] "GET /video_feed?t=1754711762153 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:04] "GET /video_feed?t=1754711764162 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:06] "GET /video_feed?t=1754711766170 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:08] "GET /video_feed?t=1754711768175 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:10] "GET /video_feed?t=1754711770181 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:12] "GET /video_feed?t=1754711772187 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:14] "GET /video_feed?t=1754711774195 HTTP/1.1" 404 -
+[13:56:15] DEBUG: Start system requested...
+[13:56:15] DEBUG: Creating ChattyAI instance...
+Response files loaded successfully
+Personalized responses loaded for 3 people
+Loading AI models...
+127.0.0.1 - - [09/Aug/2025 13:56:16] "GET /video_feed?t=1754711776204 HTTP/1.1" 404 -
+Whisper model loaded
+llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+LLaMA model loaded
+Loaded 37 face encodings
+Telegram configuration loaded
+[2:15:39.212914549] [3471]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[2:15:39.222159110] [3490]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[2:15:39.234697593] [3490]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
+[2:15:39.238282551] [3471]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[2:15:39.238408699] [3490]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+127.0.0.1 - - [09/Aug/2025 13:56:26] "GET /video_feed?t=1754711786091 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:26] "GET /video_feed?t=1754711786242 HTTP/1.1" 404 -
+Camera initialized
+[13:56:27] DEBUG: ✅ ChattyAI instance created successfully!
+[13:56:27] DEBUG: System startup complete
+127.0.0.1 - - [09/Aug/2025 13:56:28] "GET /video_feed?t=1754711788099 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:28] "GET /video_feed?t=1754711788249 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:30] "GET /video_feed?t=1754711790109 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:30] "GET /video_feed?t=1754711790258 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:32] "GET /video_feed?t=1754711792117 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:32] "GET /video_feed?t=1754711792267 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:34] "GET /video_feed?t=1754711794125 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:34] "GET /video_feed?t=1754711794275 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:36] "GET /video_feed?t=1754711796132 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:36] "GET /video_feed?t=1754711796283 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:38] "GET /video_feed?t=1754711798140 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:38] "GET /video_feed?t=1754711798290 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:40] "GET /video_feed?t=1754711800149 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:40] "GET /video_feed?t=1754711800297 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:42] "GET /video_feed?t=1754711802159 HTTP/1.1" 404 -
+127.0.0.1 - - [09/Aug/2025 13:56:42] "GET /video_feed?t=1754711802307 HTTP/1.1" 404 -
+^CException ignored in: <function Llama.__del__ at 0x7ffed1df23e0>
+Traceback (most recent call last):
+  File "/home/nickspi5/.local/lib/python3.11/site-packages/llama_cpp/llama.py", line 2209, in __del__
+  File "/home/nickspi5/.local/lib/python3.11/site-packages/llama_cpp/llama.py", line 2206, in close
+  File "/usr/lib/python3.11/contextlib.py", line 597, in close
+  File "/usr/lib/python3.11/contextlib.py", line 589, in __exit__
+  File "/usr/lib/python3.11/contextlib.py", line 574, in __exit__
+  File "/usr/lib/python3.11/contextlib.py", line 348, in __exit__
+  File "/home/nickspi5/.local/lib/python3.11/site-packages/llama_cpp/_internals.py", line 83, in close
+  File "/usr/lib/python3.11/contextlib.py", line 597, in close
+  File "/usr/lib/python3.11/contextlib.py", line 589, in __exit__
+  File "/usr/lib/python3.11/contextlib.py", line 574, in __exit__
+  File "/usr/lib/python3.11/contextlib.py", line 457, in _exit_wrapper
+  File "/home/nickspi5/.local/lib/python3.11/site-packages/llama_cpp/_internals.py", line 72, in free_model
+TypeError: 'NoneType' object is not callable
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-if [[ "$response" = "y" || "$response" = "Y" ]]; then
-    echo "Installing PyTorch (this may take several minutes)..."
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
-    
-    echo "Installing Transformers..."
-    pip install transformers
-else
-    echo "Skipping PyTorch installation - GGUF models will work without it"
-fi
-
-   Would you like to install PyTorch? (This will take ~500MB space and time)
-   Press 'y' for yes, any other key to skip:
-y
-Installing PyTorch (this may take several minutes)...
-Looking in indexes: https://download.pytorch.org/whl/cpu, https://www.piwheels.org/simple
-Collecting torch
-  Obtaining dependency information for torch from https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (29 kB)
-Requirement already satisfied: filelock in /usr/lib/python3/dist-packages (from torch) (3.9.0)
-Requirement already satisfied: typing-extensions>=4.10.0 in /home/nickspi5/.local/lib/python3.11/site-packages (from torch) (4.14.1)
-Requirement already satisfied: sympy>=1.13.3 in ./chatty-venv/lib/python3.11/site-packages (from torch) (1.14.0)
-Collecting networkx
-  Downloading https://www.piwheels.org/simple/networkx/networkx-3.3-py3-none-any.whl (1.7 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 352.4 kB/s eta 0:00:00
-Requirement already satisfied: jinja2 in /usr/lib/python3/dist-packages (from torch) (3.1.2)
-Requirement already satisfied: fsspec in ./chatty-venv/lib/python3.11/site-packages (from torch) (2025.7.0)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./chatty-venv/lib/python3.11/site-packages (from sympy>=1.13.3->torch) (1.3.0)
-Downloading https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl (102.1 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.1/102.1 MB 957.5 kB/s eta 0:00:00
-Downloading https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl (102.1 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.1/102.1 MB 808.8 kB/s eta 0:00:00
-Installing collected packages: networkx, torch
-Successfully installed networkx-3.3 torch-2.8.0+cpu
-Installing Transformers...
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting transformers
-  Downloading transformers-4.55.0-py3-none-any.whl (11.3 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 517.8 kB/s eta 0:00:00
-Requirement already satisfied: filelock in /usr/lib/python3/dist-packages (from transformers) (3.9.0)
-Requirement already satisfied: huggingface-hub<1.0,>=0.34.0 in ./chatty-venv/lib/python3.11/site-packages (from transformers) (0.34.1)
-Requirement already satisfied: numpy>=1.17 in /usr/lib/python3/dist-packages (from transformers) (1.24.2)
-Requirement already satisfied: packaging>=20.0 in ./chatty-venv/lib/python3.11/site-packages (from transformers) (25.0)
-Requirement already satisfied: pyyaml>=5.1 in /usr/lib/python3/dist-packages (from transformers) (6.0)
-Collecting regex!=2019.12.17
-  Downloading regex-2025.7.34-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (792 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 792.3/792.3 kB 310.9 kB/s eta 0:00:00
-Requirement already satisfied: requests in /usr/lib/python3/dist-packages (from transformers) (2.28.1)
-Requirement already satisfied: tokenizers<0.22,>=0.21 in ./chatty-venv/lib/python3.11/site-packages (from transformers) (0.21.2)
-Collecting safetensors>=0.4.3
-  Downloading safetensors-0.6.2-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (473 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 473.3/473.3 kB 1.2 MB/s eta 0:00:00
-Requirement already satisfied: tqdm>=4.27 in /usr/lib/python3/dist-packages (from transformers) (4.64.1)
-Requirement already satisfied: fsspec>=2023.5.0 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers) (2025.7.0)
-Requirement already satisfied: typing-extensions>=3.7.4.3 in /home/nickspi5/.local/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers) (4.14.1)
-Requirement already satisfied: hf-xet<2.0.0,>=1.1.3 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers) (1.1.5)
-Installing collected packages: safetensors, regex, transformers
-Successfully installed regex-2025.7.34 safetensors-0.6.2 transformers-4.55.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo -e "\n7. Testing the fix..."
-python3 -c "
-import os
-print('Checking model paths:')
-print('- tinyllama-models exists:', os.path.exists('tinyllama-models'))
-print('- models symlink exists:', os.path.exists('models'))
-print('- model file exists:', os.path.exists('tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf'))
-"
-
-echo -e "\n✅ Model path fix completed!"
-echo -e "\n🚀 Next steps:"
-echo "1. Start the application: python3 app.py"
-echo "2. Open browser to: http://192.168.1.16:5000"
-echo "3. Click 'Start System' - it should work now!"
-echo ""
-echo "💡 The system uses GGUF models which don't require PyTorch"
-echo "   This is actually more efficient for Raspberry Pi!"
-
-7. Testing the fix...
-Checking model paths:
-- tinyllama-models exists: True
-- models symlink exists: True
-- model file exists: True
-
-✅ Model path fix completed!
-
-🚀 Next steps:
-1. Start the application: python3 app.py
-2. Open browser to: http://192.168.1.16:5000
-3. Click 'Start System' - it should work now!
-
-💡 The system uses GGUF models which don't require PyTorch
-   This is actually more efficient for Raspberry Pi!
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x start_chatty_fixed.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./start_chatty_fixed.sh
-bash: ./start_chatty_fixed.sh: cannot execute: required file not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "1. Stopping any existing processes..."
-pkill -f python
-sleep 2
-1. Stopping any existing processes...
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "2. Verifying model setup..."
-if [ -L "models" ] && [ -d "tinyllama-models" ]; then
-    echo "✅ Model directory setup correct"
-elif [ -d "tinyllama-models" ] && [ ! -e "models" ]; then
-    echo "Creating models symlink..."
-    ln -s tinyllama-models models
-    echo "✅ Created models -> tinyllama-models symlink"
-else
-    echo "⚠️  Model directory setup may need attention"
-fi
-2. Verifying model setup...
-✅ Model directory setup correct
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "3. Checking model file..."
-if [ -f "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf" ]; then
-    echo "✅ TinyLlama model file found"
-else
-    echo "❌ TinyLlama model file missing!"
-fi
-3. Checking model file...
-✅ TinyLlama model file found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "4. Checking system resources..."
-echo "Available memory: $(free -h | awk 'NR==2{print $7}')"
-4. Checking system resources...
-Available memory: 6.9Gi
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ echo "5. Starting Chatty AI..."
-echo "   🌐 Web interface will be at: http://192.168.1.16:5000"
-echo "   📱 Click 'Start System' after the page loads"
-echo "   💡 Watch this terminal for startup messages"
-echo ""
-5. Starting Chatty AI...
-   🌐 Web interface will be at: http://192.168.1.16:5000
-   📱 Click 'Start System' after the page loads
-   💡 Watch this terminal for startup messages
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -u app.py
-Initializing Chatty AI Web Interface...
-============================================================
-🚀 Starting Flask server on http://0.0.0.0:5000
-📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000
-============================================================
-🔧 Initializing ChattyAI instance...
-🔧 Initializing ChattyAI instance...
-[13:03:35] Response files loaded successfully
-[13:03:35] Personalized responses loaded for 3 people
-[13:03:35] Telegram configuration loaded
-[13:03:35] Attempting to initialize camera for web display...
-[1:22:49.352820700] [2840]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[1:22:49.361708091] [2996]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[1:22:49.372379227] [2996]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[1:22:49.375563198] [2840]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[1:22:49.375685661] [2996]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-[13:03:37] Camera initialized for web display - Frame shape: (480, 640, 4)
-ChattyAIWeb instance created - models will be loaded when system starts
-Video feed generation started
-
-I then opened up my Chromium browser on my Raspberry PI 5 and typed http://192.168.1.16:5000 into the web browser URL text box.
-
-The Web UI opened and displayed properly.
-
-I clicked on the "Start System" button but the red button at the top right-hand side of the Web UI page still says "Disconnected".
-
-The darker red button below this still says "System Stopped".
-
-The video preview window is displayed the camera feed correctly.
-
-There is nothing displayed in the detected person window.
-
-The System Logs text box displays: 13:03:35 Chatty AI Web Interface initialized
-13:03:35 Click "Start System" to begin AI operations
-13:04:13 Starting Chatty AI system...
-
-There is nothing displayed in the Conversations & Responses text box.
-
-Perhaps this is not possible to achieve.
 
 
 
