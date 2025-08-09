@@ -1,12 +1,12 @@
 Thank you, Claude.
 
-I have my app.py file now in my /home/nickspi5/Chatty_AI folder. My chatty_ai.py Python script is working perfectly.
+I have my chatty_ai.py file, which is working perfectly.
 
-app.py
+chatty_ai.py
 #!/usr/bin/env python3
 """
-app.py - Chatty AI Web Application
-Flask web interface for the AI Assistant with video streaming
+chatty_ai.py - Complete AI Assistant with Facial Recognition and Wake Word Detection
+Enhanced with personalized greetings and responses for different users
 """
 
 import os
@@ -27,20 +27,11 @@ import logging
 from datetime import datetime, timedelta
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
-from flask import Flask, render_template, Response, jsonify, request
-from flask_socketio import SocketIO, emit
-import base64
-import io
-from PIL import Image
+from picamera2 import Picamera2
 
-# Flask application setup
-app = Flask(__name__, 
-            template_folder='/home/nickspi5/Chatty_AI/templates',
-            static_folder='/home/nickspi5/Chatty_AI/templates')
-app.config['SECRET_KEY'] = 'chatty_ai_secret_key_2025'
-socketio = SocketIO(app, cors_allowed_origins="*", logger=False, engineio_logger=False)
-
+# -------------------------------
 # Configuration
+# -------------------------------
 WHISPER_MODEL_SIZE = "base"
 LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
@@ -68,7 +59,7 @@ WARNING_RESPONSES_FILE = "warning_responses.txt"
 GREETING_RESPONSES_FILE = "greeting_responses.txt"
 PERSONALIZED_RESPONSES_FILE = "personalized_responses.json"
 
-# Wake words and commands
+# Wake word phrases
 WAKE_WORDS = [
     "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
     "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
@@ -81,6 +72,7 @@ WAKE_WORDS = [
     "hi cherry", "yo cherry"
 ]
 
+# Command keywords
 COMMANDS = {
     "flush the toilet": "toilet_flush",
     "turn on the lights": "lights_on",
@@ -102,15 +94,13 @@ MIN_SILENCE_DURATION = 1.5
 MAX_RECORDING_DURATION = 30
 
 # Timing parameters
-GREETING_COOLDOWN = 300
-WAITING_INTERVAL = 30
-PERSON_DETECTION_INTERVAL = 0.5
-WAKE_WORD_CHECK_INTERVAL = 1.0
+GREETING_COOLDOWN = 300  # 5 minutes in seconds
+WAITING_INTERVAL = 30    # 30 seconds before offering help
+PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
+WAKE_WORD_CHECK_INTERVAL = 1.0  # Check for wake words every 1 second
 
-class ChattyAIWeb:
+class ChattyAI:
     def __init__(self):
-        print("🔧 Initializing ChattyAI instance...")
-        
         # AI Models
         self.whisper_model = None
         self.llama_model = None
@@ -121,7 +111,6 @@ class ChattyAIWeb:
         
         # Camera
         self.picam2 = None
-        self.camera_initialized = False
         
         # State variables
         self.is_running = False
@@ -129,123 +118,96 @@ class ChattyAIWeb:
         self.last_greeting_time = {}
         self.last_interaction_time = None
         self.person_absent_since = None
-        self.waiting_cycle = 0
-        self.last_bored_response_time = None
-        self.bored_cycle = 0
+        self.waiting_cycle = 0  # 0: joke, 1: fun fact
+        self.last_bored_response_time = None  # NEW: Track when last bored response was given
+        self.bored_cycle = 0  # NEW: 0: joke, 1: fun fact
         self.audio_recording_lock = threading.Lock()
         self.wake_word_active = False
-        
-        # Web-specific variables
-        self.current_frame = None
-        self.current_detected_person = None
-        self.current_confidence = 0.0
-        self.captured_image = None
-        
+
         # Response lists
         self.jokes = []
         self.listening_responses = []
         self.waiting_responses = []
         self.warning_responses = []
         self.greeting_responses = []
-        self.personalized_responses = {}
-        
+        self.personalized_responses = {}  # NEW: Dictionary for personalized responses
+
         # Telegram
         self.telegram_token = None
         self.telegram_chat_id = None
-        
+
         # Threading
         self.camera_thread = None
         self.audio_thread = None
         
-        # Initialize basic components
+        # Initialize everything
         self.setup_directories()
-        self.setup_logging()
         self.load_response_files()
-        self.load_personalized_responses()
+        self.load_personalized_responses()  # NEW
+        self.load_models()
+        self.load_encodings()
         self.load_telegram_config()
-        
-        # Try to initialize camera immediately for web display
-        self.try_initialize_camera()
-        
-        print("ChattyAIWeb instance created - models will be loaded when system starts")
-
-    def emit_log(self, message, log_type="info"):
-        """Emit log message to web interface"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
-        try:
-            socketio.emit('log_update', {
-                'timestamp': timestamp,
-                'message': message,
-                'type': log_type
-            })
-        except Exception as e:
-            print(f"Socket emit error: {e}")
-
-    def emit_conversation(self, message, msg_type="info"):
-        """Emit conversation message to web interface"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] CONVERSATION: {message}")
-        try:
-            socketio.emit('conversation_update', {
-                'timestamp': timestamp,
-                'message': message,
-                'type': msg_type
-            })
-        except Exception as e:
-            print(f"Socket emit error: {e}")
-
+        self.setup_camera()
+        self.setup_logging()
+    
     def setup_directories(self):
         """Create necessary directories"""
         os.makedirs(SECURITY_PHOTOS_DIR, exist_ok=True)
         os.makedirs(SECURITY_LOGS_DIR, exist_ok=True)
-
+    
     def setup_logging(self):
         """Setup logging for detections"""
         log_file = os.path.join(SECURITY_LOGS_DIR, "chatty_ai.log")
         self.logger = logging.getLogger('chatty_ai')
         self.logger.setLevel(logging.INFO)
         
+        # Remove existing handlers
         for handler in self.logger.handlers[:]:
             self.logger.removeHandler(handler)
-            
+        
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
-
+    
     def load_response_files(self):
         """Load response text files"""
         try:
             with open(JOKES_FILE, 'r') as f:
                 self.jokes = [line.strip() for line in f if line.strip()]
+            
             with open(LISTENING_RESPONSES_FILE, 'r') as f:
                 self.listening_responses = [line.strip() for line in f if line.strip()]
+
             with open(GREETING_RESPONSES_FILE, 'r') as f:
                 self.greeting_responses = [line.strip() for line in f if line.strip()]
+
             with open(WAITING_RESPONSES_FILE, 'r') as f:
                 self.waiting_responses = [line.strip() for line in f if line.strip()]
+            
             with open(WARNING_RESPONSES_FILE, 'r') as f:
                 self.warning_responses = [line.strip() for line in f if line.strip()]
-            self.emit_log("Response files loaded successfully")
+            
+            print("Response files loaded successfully")
         except FileNotFoundError as e:
-            self.emit_log(f"Response file not found: {e}", "error")
+            print(f"Response file not found: {e}")
+            # Create default responses if files don't exist
             self.create_default_responses()
-
+    
     def load_personalized_responses(self):
         """Load personalized responses from JSON file"""
         try:
             with open(PERSONALIZED_RESPONSES_FILE, 'r') as f:
                 self.personalized_responses = json.load(f)
-            self.emit_log(f"Personalized responses loaded for {len(self.personalized_responses)} people")
+            print(f"Personalized responses loaded for {len(self.personalized_responses)} people")
         except FileNotFoundError:
-            self.emit_log("Personalized responses file not found. Creating default...", "warning")
+            print(f"Personalized responses file not found. Creating default...")
             self.create_default_personalized_responses()
         except json.JSONDecodeError as e:
-            self.emit_log(f"Error reading personalized responses JSON: {e}", "error")
+            print(f"Error reading personalized responses JSON: {e}")
             self.create_default_personalized_responses()
-
+    
     def create_default_personalized_responses(self):
         """Create default personalized responses file"""
         default_responses = {
@@ -264,355 +226,95 @@ class ChattyAIWeb:
                     "Nick, I'm still here if you need anything",
                     "Your faithful AI assistant is standing by, Nick",
                     "Still waiting to help you, Nick"
+                ],
+                "bored_responses": [
+                    "Nick, I'm getting a bit bored waiting here.",
+                    "Master Nick, I'm still patiently waiting for your commands."
+                ],
+                "joke_responses": [
+                    "Why don't programmers like nature? It has too many bugs!",
+                    "Why do Python programmers prefer snake_case? Because they can't C the point of CamelCase!"
+                ],
+                "fun_fact_responses": [
+                    "Did you know that the first computer bug was an actual bug? Grace Hopper found a moth stuck in a computer relay in 1947!",
+                    "Fun fact: Raspberry Pi computers like the one I'm running on are more powerful than the computers that sent humans to the moon!"
+                ]
+            },
+            "Anne": {
+                "greetings": [
+                    "Hello Anne! How wonderful to see you. I hope you're having a lovely day!",
+                    "Anne! Welcome! It's always a pleasure to see you.",
+                    "Hi Anne! You look fantastic today. How can I help you?"
+                ],
+                "listening": [
+                    "Yes Anne, what can I do for you?",
+                    "I'm here to help, Anne. What do you need?",
+                    "How may I assist you today, Anne?"
+                ],
+                "waiting": [
+                    "Anne, I'm here if you need anything",
+                    "Still available to help you, Anne",
+                    "Let me know if you need assistance, Anne"
+                ],
+                "bored_responses": [
+                    "Anne, I'm here patiently waiting if you need anything.",
+                    "Still here for you, Anne, whenever you're ready."
+                ],
+                "joke_responses": [
+                    "Why don't scientists trust atoms? Because they make up everything!",
+                    "What do you call a bear with no teeth? A gummy bear!"
+                ],
+                "fun_fact_responses": [
+                    "Did you know that octopuses have three hearts and blue blood?",
+                    "Fun fact: Honey never spoils! Archaeologists have found 3000-year-old honey that's still perfectly edible."
+                ]
+            },
+            "Jack": {
+                "greetings": [
+                    "Hey Jack! Good to see you, buddy! What's up?",
+                    "Jack! How's it going, mate? Ready for some fun?",
+                    "What's up Jack! Hope you're having an awesome day!"
+                ],
+                "listening": [
+                    "Yeah Jack, what do you need?",
+                    "I'm listening, Jack. Fire away!",
+                    "What can I help you with, Jack?"
+                ],
+                "waiting": [
+                    "Jack, I'm here if you want to chat",
+                    "Still around if you need me, Jack",
+                    "Ready when you are, Jack"
+                ],
+                "bored_responses": [
+                    "Yo Jack, still hanging around here waiting for you, dude!",
+                    "Jack, your AI buddy is getting restless over here!"
+                ],
+                "joke_responses": [
+                    "Why don't skeletons fight each other? They don't have the guts!",
+                    "What's the best thing about Switzerland? I don't know, but the flag is a big plus!"
+                ],
+                "fun_fact_responses": [
+                    "Dude, did you know that sharks have been around longer than trees? That's wild!",
+                    "Check this out: A shrimp's heart is in its head!"
                 ]
             }
         }
         
+        # Save the default responses
         try:
             with open(PERSONALIZED_RESPONSES_FILE, 'w') as f:
                 json.dump(default_responses, f, indent=4)
             self.personalized_responses = default_responses
-            self.emit_log(f"Created default personalized responses file: {PERSONALIZED_RESPONSES_FILE}")
+            print(f"Created default personalized responses file: {PERSONALIZED_RESPONSES_FILE}")
         except Exception as e:
-            self.emit_log(f"Failed to create personalized responses file: {e}", "error")
+            print(f"Failed to create personalized responses file: {e}")
             self.personalized_responses = default_responses
-
-    def create_default_responses(self):
-        """Create default responses if files are missing"""
-        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
-        self.greeting_responses = ["Hello! How can I help you today?"]
-        self.listening_responses = ["I'm listening, what would you like to know?"]
-        self.waiting_responses = ["I'm still here if you need anything"]
-        self.warning_responses = ["Warning: Unknown person detected. Please identify yourself."]
-
-    def load_models(self):
-        """Load AI models"""
-        self.emit_log("Loading AI models...")
-        try:
-            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-            self.emit_log("Whisper model loaded")
-        except Exception as e:
-            self.emit_log(f"Failed to load Whisper: {e}", "error")
-            return False
-
-        try:
-            self.llama_model = Llama(
-                model_path=LLAMA_MODEL_PATH,
-                n_ctx=2048,
-                temperature=0.7,
-                repeat_penalty=1.1,
-                n_gpu_layers=0,
-                verbose=False
-            )
-            self.emit_log("LLaMA model loaded")
-        except Exception as e:
-            self.emit_log(f"Failed to load LLaMA: {e}", "error")
-            return False
-        return True
-
-    def load_encodings(self):
-        """Load facial recognition encodings"""
-        try:
-            with open(ENCODINGS_FILE, "rb") as f:
-                data = pickle.loads(f.read())
-            self.known_encodings = data["encodings"]
-            self.known_names = data["names"]
-            self.emit_log(f"Loaded {len(self.known_encodings)} face encodings")
-            return True
-        except FileNotFoundError:
-            self.emit_log(f"Encodings file '{ENCODINGS_FILE}' not found!", "error")
-            return False
-        except Exception as e:
-            self.emit_log(f"Failed to load encodings: {e}", "error")
-            return False
-
-    def load_telegram_config(self):
-        """Load Telegram configuration"""
-        try:
-            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
-                config = json.load(f)
-            self.telegram_token = config.get('bot_token')
-            self.telegram_chat_id = config.get('chat_id')
-            self.emit_log("Telegram configuration loaded")
-        except FileNotFoundError:
-            self.emit_log("Telegram config not found - alerts disabled", "warning")
-        except Exception as e:
-            self.emit_log(f"Failed to load Telegram config: {e}", "error")
-
-    def try_initialize_camera(self):
-        """Try to initialize camera for web display"""
-        try:
-            from picamera2 import Picamera2
-            self.emit_log("Attempting to initialize camera for web display...")
-            
-            self.picam2 = Picamera2()
-            config = self.picam2.create_preview_configuration(
-                main={"format": 'XRGB8888', "size": (640, 480)}
-            )
-            self.picam2.configure(config)
-            self.picam2.start()
-            time.sleep(2)
-            
-            # Test capture
-            test_frame = self.picam2.capture_array()
-            self.camera_initialized = True
-            self.emit_log(f"Camera initialized for web display - Frame shape: {test_frame.shape}")
-            return True
-            
-        except Exception as e:
-            self.emit_log(f"Camera initialization for web display failed: {e}", "warning")
-            self.camera_initialized = False
-            if self.picam2:
-                try:
-                    self.picam2.stop()
-                    self.picam2.close()
-                except:
-                    pass
-                self.picam2 = None
-            return False
-
-    def setup_camera(self):
-        """Initialize camera with retry logic for full system"""
-        if self.camera_initialized:
-            self.emit_log("Camera already initialized")
-            return True
-        
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                from picamera2 import Picamera2
-                
-                self.emit_log(f"Camera initialization attempt {attempt + 1}/{max_retries}")
-                
-                # Close any existing camera instance
-                if self.picam2:
-                    try:
-                        self.picam2.stop()
-                        self.picam2.close()
-                    except:
-                        pass
-                    self.picam2 = None
-                    time.sleep(2)
-                
-                # Create new camera instance
-                self.picam2 = Picamera2()
-                config = self.picam2.create_preview_configuration(
-                    main={"format": 'XRGB8888', "size": (640, 480)}
-                )
-                self.picam2.configure(config)
-                self.picam2.start()
-                time.sleep(2)
-                
-                # Test capture
-                test_frame = self.picam2.capture_array()
-                self.camera_initialized = True
-                self.emit_log(f"Camera initialized successfully - Frame shape: {test_frame.shape}")
-                return True
-                
-            except Exception as e:
-                self.emit_log(f"Camera initialization attempt {attempt + 1} failed: {e}", "error")
-                if self.picam2:
-                    try:
-                        self.picam2.stop()
-                        self.picam2.close()
-                    except:
-                        pass
-                    self.picam2 = None
-                
-                if attempt < max_retries - 1:
-                    time.sleep(3)
-                else:
-                    self.emit_log("All camera initialization attempts failed", "error")
-                    self.camera_initialized = False
-                    return False
-        
-        return False
-
-    def detect_faces(self, frame):
-        """Detect and recognize faces in frame"""
-        try:
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-            
-            if len(face_locations) == 0:
-                return None, None, 0.0
-
-            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-            best_name = "Unknown"
-            best_confidence = 0.0
-
-            for face_encoding in face_encodings:
-                matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
-                if True in matches:
-                    face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
-                    best_match_index = face_distances.argmin()
-                    confidence = 1.0 - face_distances[best_match_index]
-                    
-                    if matches[best_match_index] and confidence > 0.4:
-                        if confidence > best_confidence:
-                            best_name = self.known_names[best_match_index]
-                            best_confidence = confidence
-
-            return best_name, face_locations[0], best_confidence
-        except Exception as e:
-            self.emit_log(f"Face detection error: {e}", "error")
-            return None, None, 0.0
-
-    def generate_video_feed(self):
-        """Generate video frames for streaming"""
-        print("Video feed generation started")
-        
-        frame_count = 0
-        while True:  # Keep generating frames continuously
-            try:
-                frame_count += 1
-                
-                if self.picam2 and self.camera_initialized:
-                    frame = self.picam2.capture_array()
-                    
-                    # Convert from RGB/RGBA to BGR for OpenCV
-                    if len(frame.shape) == 3:
-                        if frame.shape[2] == 4:  # RGBA
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
-                        elif frame.shape[2] == 3:  # RGB
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                    
-                    # Only process facial recognition if system is running
-                    if self.is_running and self.known_encodings:
-                        name, face_location, confidence = self.detect_faces(frame)
-                        
-                        # Draw face rectangles and labels
-                        if name and face_location:
-                            top, right, bottom, left = face_location
-                            
-                            # Choose color based on recognition
-                            if name == "Unknown":
-                                color = (0, 0, 255)  # Red
-                                label = f"Unknown ({confidence:.2f})"
-                            else:
-                                color = (0, 255, 0)  # Green
-                                label = f"{name} ({confidence:.2f})"
-                            
-                            # Draw rectangle and label
-                            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-                            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-                            cv2.putText(frame, label, (left + 6, bottom - 6),
-                                      cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
-                            
-                            # Capture image for display
-                            face_img = frame[top:bottom, left:right].copy()
-                            if face_img.size > 0:
-                                self.captured_image = cv2.resize(face_img, (200, 200))
-                            
-                            # Emit person detection update
-                            try:
-                                socketio.emit('person_detected', {
-                                    'name': name,
-                                    'confidence': f"{confidence:.1%}",
-                                    'timestamp': datetime.now().strftime("%H:%M:%S")
-                                })
-                            except:
-                                pass
-                    
-                    # Add status overlay to frame
-                    if self.is_running:
-                        status_text = "Chatty AI Active"
-                        cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                    else:
-                        status_text = "System Ready - Click Start"
-                        cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
-                    
-                    if self.current_person:
-                        person_text = f"Current: {self.current_person}"
-                        cv2.putText(frame, person_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-                    
-                    if self.wake_word_active:
-                        wake_text = "Wake Word: ACTIVE"
-                        cv2.putText(frame, wake_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                    else:
-                        wake_text = "Wake Word: INACTIVE"
-                        cv2.putText(frame, wake_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
-                
-                else:  # No camera available
-                    # Create a black frame with error message
-                    frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                    cv2.putText(frame, "Camera Not Available", (200, 220), 
-                              cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                    cv2.putText(frame, "Check camera connection", (150, 260), 
-                              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (128, 128, 128), 2)
-                
-                # Encode frame as JPEG
-                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-                if ret:
-                    frame_bytes = buffer.tobytes()
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                
-                time.sleep(0.05)  # 20 FPS
-                
-            except Exception as e:
-                print(f"Video feed error: {e}")
-                # Create error frame
-                error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                cv2.putText(error_frame, f"Video Error", (200, 220), 
-                          cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                cv2.putText(error_frame, f"{str(e)[:40]}", (100, 260), 
-                          cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
-                ret, buffer = cv2.imencode('.jpg', error_frame)
-                if ret:
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
-                time.sleep(1)
-
-    def start_system(self):
-        """Start the AI system"""
-        self.emit_log("Starting Chatty AI System...")
-        
-        # Load models first if not already loaded
-        if not self.whisper_model or not self.llama_model:
-            self.emit_log("Loading AI models...", "info")
-            if not self.load_models():
-                self.emit_log("Failed to load AI models", "error")
-                return False
-        
-        if not self.camera_initialized:
-            self.emit_log("Initializing camera for full system...", "info")
-            if not self.setup_camera():
-                self.emit_log("Warning: Camera initialization failed - continuing without full AI features", "warning")
-        
-        if not self.known_encodings:
-            self.emit_log("Loading facial recognition encodings...", "info")
-            if not self.load_encodings():
-                self.emit_log("Warning: No facial recognition data - continuing without person recognition", "warning")
-        
-        self.emit_log("Chatty AI System Started!")
-        self.is_running = True
-        
-        # Start audio thread only if we have the required models
-        if self.whisper_model:
-            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
-            self.audio_thread.start()
-            self.emit_log("Audio processing thread started")
-        
-        # Start camera monitoring thread only if camera and encodings are available
-        if self.camera_initialized and self.known_encodings:
-            self.camera_thread = threading.Thread(target=self.camera_monitoring_thread, daemon=True)
-            self.camera_thread.start()
-            self.emit_log("Camera monitoring thread started")
-        
-        return True
-
-    def stop_system(self):
-        """Stop the AI system"""
-        self.is_running = False
-        self.emit_log("Chatty AI System Stopped")
-
-    # ... [Rest of the methods remain the same - continuing from where we left off]
-
+    
     def get_personalized_response(self, person_name, response_type, fallback_list=None):
         """Get a personalized response for a specific person and response type"""
         person_name_lower = person_name.lower()
         
+        # Check if we have personalized responses for this person
         person_data = None
         for name, data in self.personalized_responses.items():
             if name.lower() == person_name_lower:
@@ -624,18 +326,102 @@ class ChattyAIWeb:
             if responses:
                 return random.choice(responses)
         
+        # Fallback to generic responses with name insertion
         if fallback_list:
             response = random.choice(fallback_list)
+            # Replace {name} placeholder if it exists, otherwise prepend name
             if "{name}" in response:
                 return response.replace("{name}", person_name)
             else:
+                # Simple name insertion at the beginning
                 return f"Hello {person_name}! {response}"
         
+        # Ultimate fallback
         return f"Hello {person_name}! How can I help you today?"
-
+    
+    def create_default_responses(self):
+        """Create default responses if files are missing"""
+        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.greeting_responses = ["Hello {name}! How can I help you today?"]
+        self.listening_responses = ["I'm listening, what would you like to know?"]
+        self.waiting_responses = ["I'm still here if you need anything"]
+        self.warning_responses = ["Warning: Unknown person detected. Please identify yourself."]
+    
+    def load_models(self):
+        """Load AI models"""
+        print("Loading AI models...")
+        
+        try:
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            print("Whisper model loaded")
+        except Exception as e:
+            print(f"Failed to load Whisper: {e}")
+            return False
+        
+        try:
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            print("LLaMA model loaded")
+        except Exception as e:
+            print(f"Failed to load LLaMA: {e}")
+            return False
+        
+        return True
+    
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
+            with open(ENCODINGS_FILE, "rb") as f:
+                data = pickle.loads(f.read())
+                self.known_encodings = data["encodings"]
+                self.known_names = data["names"]
+            print(f"Loaded {len(self.known_encodings)} face encodings")
+            return True
+        except FileNotFoundError:
+            print(f"Encodings file '{ENCODINGS_FILE}' not found!")
+            return False
+        except Exception as e:
+            print(f"Failed to load encodings: {e}")
+            return False
+    
+    def load_telegram_config(self):
+        """Load Telegram configuration"""
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            print("Telegram configuration loaded")
+        except FileNotFoundError:
+            print("Telegram config not found - alerts disabled")
+        except Exception as e:
+            print(f"Failed to load Telegram config: {e}")
+    
+    def setup_camera(self):
+        """Initialize camera"""
+        try:
+            self.picam2 = Picamera2()
+            self.picam2.configure(self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            ))
+            self.picam2.start()
+            time.sleep(2)  # Camera warm-up
+            print("Camera initialized")
+            return True
+        except Exception as e:
+            print(f"Failed to initialize camera: {e}")
+            return False
+    
     def speak_text(self, text):
         """Convert text to speech using Piper"""
         try:
+            # Use lock to prevent audio conflicts
             with self.audio_recording_lock:
                 command = [
                     PIPER_EXECUTABLE,
@@ -645,12 +431,9 @@ class ChattyAIWeb:
                 ]
                 subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
                 subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
-                
-                # Emit to web interface
-                self.emit_conversation(f"🔊 Speaking: {text}", "speech")
         except subprocess.CalledProcessError as e:
-            self.emit_log(f"TTS failed: {e}", "error")
-
+            print(f"TTS failed: {e}")
+    
     def play_beep(self):
         """Play beep sound"""
         try:
@@ -658,7 +441,7 @@ class ChattyAIWeb:
                 subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             pass
-
+    
     def play_laughing(self):
         """Play laughing sound"""
         try:
@@ -666,16 +449,46 @@ class ChattyAIWeb:
                 subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             pass
-
+    
+    def detect_faces(self, frame):
+        """Detect and recognize faces in frame"""
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+        
+        if len(face_locations) == 0:
+            return None, None, 0.0
+        
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        
+        best_name = "Unknown"
+        best_confidence = 0.0
+        
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
+            
+            if True in matches:
+                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
+                best_match_index = face_distances.argmin()
+                confidence = 1.0 - face_distances[best_match_index]
+                
+                if matches[best_match_index] and confidence > 0.4:
+                    if confidence > best_confidence:
+                        best_name = self.known_names[best_match_index]
+                        best_confidence = confidence
+        
+        return best_name, face_locations[0], best_confidence
+    
     def save_security_photo(self, frame, person_name, confidence):
         """Save security photo with timestamp"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{person_name.lower()}_{timestamp}.jpg"
         filepath = os.path.join(SECURITY_PHOTOS_DIR, filename)
         
+        # Add overlay information
         overlay_frame = frame.copy()
         cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
         cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
+        
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
         cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
@@ -684,8 +497,9 @@ class ChattyAIWeb:
         
         cv2.imwrite(filepath, overlay_frame)
         self.logger.info(f"Security photo saved: {filename} | Person: {person_name} | Confidence: {confidence:.2f}")
+        
         return filepath
-
+    
     def send_telegram_alert(self, person_name, confidence, photo_path):
         """Send Telegram alert"""
         if not self.telegram_token or not self.telegram_chat_id:
@@ -693,6 +507,7 @@ class ChattyAIWeb:
         
         try:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
             if person_name == "Unknown":
                 message = f"**UNKNOWN PERSON DETECTED**\n\n**Time:** {timestamp}\n**Status:** Unregistered Person\n**Action:** Photo captured for review"
             else:
@@ -709,311 +524,43 @@ class ChattyAIWeb:
                 response = requests.post(url, data=data, files=files, timeout=30)
                 return response.status_code == 200
         except Exception as e:
-            self.emit_log(f"Telegram alert failed: {e}", "error")
+            print(f"Telegram alert failed: {e}")
             return False
-
+    
     def greet_person(self, name):
         """Greet a detected person with personalized greeting"""
         current_time = time.time()
         
+        # Check if we should greet this person (cooldown check)
         if name in self.last_greeting_time:
             time_since_last = current_time - self.last_greeting_time[name]
             if time_since_last < GREETING_COOLDOWN:
                 return False
         
+        # Get personalized greeting (just the greeting, not listening response)
         greeting = self.get_personalized_response(name, "greetings", self.greeting_responses)
+        
         self.speak_text(greeting)
         self.last_greeting_time[name] = current_time
         self.last_interaction_time = current_time
         
+        # Enable wake word detection after greeting
         self.wake_word_active = True
-        self.last_bored_response_time = current_time
-        self.bored_cycle = 0
-        
-        self.emit_log(f"Greeted {name} with personalized message - Wake word detection now active")
+        self.last_bored_response_time = current_time  # NEW: Reset bored response timer
+        self.bored_cycle = 0  # NEW: Reset bored cycle
+        print(f"Greeted {name} with personalized message - Wake word detection now active")
         return True
-
+    
     def handle_unknown_person(self, frame, confidence):
         """Handle unknown person detection"""
         warning = random.choice(self.warning_responses) if self.warning_responses else "Warning: Unknown person detected."
         self.speak_text(warning)
+        
         photo_path = self.save_security_photo(frame, "Unknown", confidence)
         self.send_telegram_alert("Unknown", confidence, photo_path)
-        self.emit_log("Unknown person detected and warned", "warning")
-
-    def transcribe_audio(self, filename):
-        """Transcribe audio using Whisper"""
-        try:
-            if not os.path.exists(filename):
-                return ""
-            segments, _ = self.whisper_model.transcribe(filename)
-            transcript = " ".join(segment.text for segment in segments).strip()
-            self.emit_log(f"Transcription: '{transcript}'")
-            return transcript
-        except Exception as e:
-            self.emit_log(f"Transcription error: {e}", "error")
-            return ""
-
-    def detect_wake_word(self, text):
-        """Check if text contains wake word"""
-        if not text:
-            return False
-        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
-        for wake_word in WAKE_WORDS:
-            wake_word_cleaned = wake_word.lower().strip()
-            if wake_word_cleaned in text_cleaned:
-                self.emit_conversation(f"Wake word detected: '{wake_word}' in '{text}'", "wake_word")
-                return True
-        return False
-
-    def record_with_silence_detection(self):
-        """Record audio until silence detected"""
-        try:
-            with self.audio_recording_lock:
-                self.emit_log("Recording audio...")
-                audio_data = []
-                silence_duration = 0
-                recording_duration = 0
-                check_interval = 0.2
-                samples_per_check = int(SAMPLE_RATE * check_interval)
-                
-                def audio_callback(indata, frames, time, status):
-                    if status:
-                        self.emit_log(f"Audio callback status: {status}", "warning")
-                    audio_data.extend(indata[:, 0])
-                
-                with sd.InputStream(callback=audio_callback,
-                                  samplerate=SAMPLE_RATE,
-                                  channels=CHANNELS,
-                                  dtype='float32'):
-                    while recording_duration < MAX_RECORDING_DURATION:
-                        time.sleep(check_interval)
-                        recording_duration += check_interval
-                        
-                        if len(audio_data) >= samples_per_check:
-                            recent_audio = np.array(audio_data[-samples_per_check:])
-                            rms = np.sqrt(np.mean(recent_audio**2))
-                            
-                            if rms < SILENCE_THRESHOLD:
-                                silence_duration += check_interval
-                                if silence_duration >= MIN_SILENCE_DURATION:
-                                    self.emit_log(f"Silence detected after {recording_duration:.1f}s")
-                                    break
-                            else:
-                                silence_duration = 0
-                
-                if audio_data:
-                    audio_array = np.array(audio_data, dtype=np.float32)
-                    sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
-                    self.emit_log(f"Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration")
-                    return True
-                return False
-        except Exception as e:
-            self.emit_log(f"Recording error: {e}", "error")
-            return False
-
-    def record_wake_word_check(self):
-        """Record short audio clip for wake word detection"""
-        try:
-            if not self.audio_recording_lock.acquire(blocking=False):
-                return False
-            
-            try:
-                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
-                sd.wait()
-                
-                rms = np.sqrt(np.mean(audio_data**2))
-                if rms > SILENCE_THRESHOLD * 2:
-                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
-                    return True
-                else:
-                    return False
-            finally:
-                self.audio_recording_lock.release()
-        except Exception as e:
-            self.emit_log(f"Wake word recording error: {e}", "error")
-            if self.audio_recording_lock.locked():
-                self.audio_recording_lock.release()
-            return False
-
-    def is_command(self, text):
-        """Check if text is a command"""
-        text_lower = text.lower().strip()
-        for command in COMMANDS.keys():
-            if command in text_lower:
-                return command
-        return None
-
-    def execute_command(self, command):
-        """Execute system command"""
-        responses = {
-            "flush the toilet": f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!",
-            "turn on the lights": "I would turn on the lights if I was connected to a smart home system.",
-            "turn off the lights": "I would turn off the lights if I was connected to a smart home system.",
-            "play music": "I would start playing music if I had access to a music system.",
-            "stop music": "I would stop the music if any music was playing.",
-            "who is sponsoring this video": f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!",
-            "how is the weather today": f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!",
-            "what time is it": f"The current time is {datetime.now().strftime('%I:%M %p')}",
-            "shutdown system": "I would shutdown the system, but I will skip that for safety reasons during testing.",
-            "reboot system": "I would reboot the system, but I will skip that for safety reasons during testing."
-        }
         
-        if command == "who is sponsoring this video":
-            self.play_laughing()
-        
-        return responses.get(command, f"I understand you want me to {command}, but I dont have that capability yet.")
-
-    def query_llama(self, prompt):
-        """Generate LLM response"""
-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-        try:
-            result = self.llama_model(formatted_prompt, max_tokens=100)
-            if "choices" in result and result["choices"]:
-                reply_text = result["choices"][0]["text"].strip()
-                reply_text = re.sub(r"\(.*?\)", "", reply_text)
-                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
-                reply_text = reply_text.strip()
-                
-                sentences = reply_text.split('.')
-                if len(sentences) > 3:
-                    reply_text = '. '.join(sentences[:3]) + '.'
-                return reply_text
-            else:
-                return "I'm not sure how to answer that."
-        except Exception as e:
-            self.emit_log(f"LLM error: {e}", "error")
-            return "Sorry, I had trouble processing that question."
-
-    def process_user_input(self, text):
-        """Process user input"""
-        self.emit_conversation(f"👤 User said: '{text}'", "user_input")
-        
-        command = self.is_command(text)
-        if command:
-            self.emit_conversation(f"🔧 Executing command: {command}", "command")
-            response = self.execute_command(command)
-        else:
-            self.emit_conversation("🤖 Generating LLM response", "llm")
-            response = self.query_llama(text)
-        
-        self.emit_conversation(f"🤖 Response: '{response}'", "response")
-        return response
-
-    def listen_for_wake_word(self):
-        """Listen for wake words in background"""
-        self.emit_log("Wake word detection thread started")
-        
-        while self.is_running:
-            try:
-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
-                    if self.record_wake_word_check():
-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                        if transcript and self.detect_wake_word(transcript):
-                            self.emit_conversation("🎤 WAKE WORD DETECTED! Starting conversation...", "wake_word")
-                            self.play_beep()
-                            
-                            listening_response = self.get_personalized_response(self.current_person, "listening", self.listening_responses)
-                            self.speak_text(listening_response)
-                            
-                            if self.record_with_silence_detection():
-                                user_text = self.transcribe_audio(WAV_FILENAME)
-                                if user_text and len(user_text.strip()) > 2:
-                                    response = self.process_user_input(user_text)
-                                    self.speak_text(response)
-                                    self.last_interaction_time = time.time()
-                                    self.last_bored_response_time = time.time()
-                                else:
-                                    self.emit_conversation("❌ No clear speech detected", "error")
-                                    self.speak_text("I didn't catch that. Could you repeat your request?")
-                            else:
-                                self.emit_conversation("❌ Failed to record user request", "error")
-                                self.speak_text("I'm having trouble hearing you. Please try again.")
-                    
-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                else:
-                    time.sleep(2.0)
-                    
-            except Exception as e:
-                self.emit_log(f"Wake word detection error: {e}", "error")
-                time.sleep(2.0)
-        
-        self.emit_log("Wake word detection thread stopped")
-
-    def camera_monitoring_thread(self):
-        """Camera monitoring thread for facial recognition processing"""
-        self.emit_log("Camera monitoring thread started")
-        
-        while self.is_running:
-            try:
-                if self.picam2 and self.camera_initialized:
-                    frame = self.picam2.capture_array()
-                    
-                    # Convert from RGB/RGBA to BGR for OpenCV
-                    if len(frame.shape) == 3:
-                        if frame.shape[2] == 4:  # RGBA
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
-                        elif frame.shape[2] == 3:  # RGB
-                            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                    
-                    # Process facial recognition
-                    name, face_location, confidence = self.detect_faces(frame)
-                    current_time = time.time()
-                    
-                    # Handle person detection logic
-                    if name and face_location:
-                        # Person detected
-                        if name != self.current_person:
-                            # New person or person changed
-                            self.current_person = name
-                            self.person_absent_since = None
-                            self.wake_word_active = False
-                            
-                            if name == "Unknown":
-                                self.handle_unknown_person(frame, confidence)
-                            else:
-                                # Save photo and send telegram alert for known person
-                                photo_path = self.save_security_photo(frame, name, confidence)
-                                self.send_telegram_alert(name, confidence, photo_path)
-                                # Greet known person
-                                self.greet_person(name)
-                        elif name != "Unknown":
-                            # Same known person still present, check for bored responses
-                            self.check_for_bored_response(name)
-                    else:
-                        # No person detected
-                        if self.current_person:
-                            if not self.person_absent_since:
-                                self.person_absent_since = current_time
-                            elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
-                                # Person has been absent for 5+ minutes, reset
-                                self.current_person = None
-                                self.person_absent_since = None
-                                self.last_interaction_time = None
-                                self.waiting_cycle = 0
-                                self.wake_word_active = False
-                                self.last_bored_response_time = None
-                                self.bored_cycle = 0
-                                self.emit_log("Person left - resetting state")
-                                
-                                # Clear person detection display
-                                try:
-                                    socketio.emit('person_detected', {
-                                        'name': 'No person detected',
-                                        'confidence': '--',
-                                        'timestamp': datetime.now().strftime("%H:%M:%S")
-                                    })
-                                except:
-                                    pass
-                
-                time.sleep(PERSON_DETECTION_INTERVAL)
-                
-            except Exception as e:
-                self.emit_log(f"Camera monitoring error: {e}", "error")
-                time.sleep(1)
-        
-        self.emit_log("Camera monitoring thread stopped")
-
+        print("Unknown person detected and warned")
+    
     def check_for_bored_response(self, name):
         """Check if it's time to give a bored response with joke or fun fact"""
         if not self.wake_word_active or not self.last_bored_response_time:
@@ -1030,7 +577,7 @@ class ChattyAIWeb:
                 full_message = f"{bored_msg} {joke}"
                 self.speak_text(full_message)
                 self.bored_cycle = 1
-                self.emit_log(f"Gave {name} a bored response with joke")
+                print(f"Gave {name} a bored response with joke")
             else:
                 # Give bored response + fun fact
                 bored_msg = self.get_personalized_response(name, "bored_responses", ["I'm still here waiting to help you"])
@@ -1038,33 +585,452 @@ class ChattyAIWeb:
                 full_message = f"{bored_msg} {fun_fact}"
                 self.speak_text(full_message)
                 self.bored_cycle = 0
-                self.emit_log(f"Gave {name} a bored response with fun fact")
+                print(f"Gave {name} a bored response with fun fact")
             
             self.last_bored_response_time = current_time
             return True
+        
         return False
-
+        """Offer help or entertainment to waiting person"""
+        current_time = time.time()
+        
+        if not self.last_interaction_time or (current_time - self.last_interaction_time) >= WAITING_INTERVAL:
+            if self.waiting_cycle == 0:
+                # Offer joke
+                if self.jokes:
+                    waiting_msg = self.get_personalized_response(name, "waiting", self.waiting_responses)
+                    joke = random.choice(self.jokes)
+                    message = f"{waiting_msg} Here's a joke for you: {joke}"
+                    self.speak_text(message)
+                    self.waiting_cycle = 1
+                    print(f"Told {name} a joke")
+            else:
+                # Offer fun fact
+                waiting_msg = self.get_personalized_response(name, "waiting", self.waiting_responses)
+                fun_fact = "Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
+                message = f"{waiting_msg} Here's a fun fact: {fun_fact}"
+                self.speak_text(message)
+                self.waiting_cycle = 0
+                print(f"Told {name} a fun fact")
+            
+            self.last_interaction_time = current_time
+    
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper"""
+        try:
+            if not os.path.exists(filename):
+                return ""
+            
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            print(f"Transcription: '{transcript}'")  # Debug output
+            return transcript
+        except Exception as e:
+            print(f"Transcription error: {e}")
+            return ""
+    
+    def detect_wake_word(self, text):
+        """Check if text contains wake word"""
+        if not text:
+            return False
+            
+        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+        
+        for wake_word in WAKE_WORDS:
+            wake_word_cleaned = wake_word.lower().strip()
+            if wake_word_cleaned in text_cleaned:
+                print(f"Wake word detected: '{wake_word}' in '{text}'")
+                return True
+        return False
+    
+    def record_with_silence_detection(self):
+        """Record audio until silence detected"""
+        try:
+            with self.audio_recording_lock:
+                print("Recording audio...")
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.2
+                samples_per_check = int(SAMPLE_RATE * check_interval)
+                
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        print(f"Audio callback status: {status}")
+                    audio_data.extend(indata[:, 0])
+                
+                with sd.InputStream(callback=audio_callback, 
+                                  samplerate=SAMPLE_RATE, 
+                                  channels=CHANNELS,
+                                  dtype='float32'):
+                    
+                    while recording_duration < MAX_RECORDING_DURATION:
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                        
+                        if len(audio_data) >= samples_per_check:
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+                            rms = np.sqrt(np.mean(recent_audio**2))
+                            
+                            if rms < SILENCE_THRESHOLD:
+                                silence_duration += check_interval
+                                if silence_duration >= MIN_SILENCE_DURATION:
+                                    print(f"Silence detected after {recording_duration:.1f}s")
+                                    break
+                            else:
+                                silence_duration = 0
+                
+                if audio_data:
+                    audio_array = np.array(audio_data, dtype=np.float32)
+                    sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                    print(f"Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration")
+                    return True
+                
+                return False
+                
+        except Exception as e:
+            print(f"Recording error: {e}")
+            return False
+    
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection"""
+        try:
+            if not self.audio_recording_lock.acquire(blocking=False):
+                return False  # Audio system is busy
+            
+            try:
+                # Record 5 seconds of audio for wake word detection
+                print("Listening for wake word...")
+                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()
+                
+                # Check if audio contains sound above threshold
+                rms = np.sqrt(np.mean(audio_data**2))
+                if rms > SILENCE_THRESHOLD * 2:  # Higher threshold for wake word
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    print(f"Wake word audio saved, RMS: {rms:.4f}")
+                    return True
+                else:
+                    print(f"Audio too quiet for wake word, RMS: {rms:.4f}")
+                    return False
+                    
+            finally:
+                self.audio_recording_lock.release()
+                
+        except Exception as e:
+            print(f"Wake word recording error: {e}")
+            if self.audio_recording_lock.locked():
+                self.audio_recording_lock.release()
+            return False
+    
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+    
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+    
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
+    
+    def process_user_input(self, text):
+        """Process user input"""
+        print(f"Processing user input: '{text}'")
+        command = self.is_command(text)
+        if command:
+            print(f"Executing command: {command}")
+            response = self.execute_command(command)
+        else:
+            print("Generating LLM response")
+            response = self.query_llama(text)
+        
+        return response
+    
+    def listen_for_wake_word(self):
+        """Listen for wake words in background"""
+        print("Wake word detection thread started")
+        
+        while self.is_running:
+            try:
+                # Only listen if someone is present and wake word detection is active
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        # Bored response was given, continue to next iteration
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+                    
+                    print("Checking for wake word...")
+                    
+                    # Record audio for wake word detection
+                    if self.record_wake_word_check():
+                        # Transcribe and check for wake word
+                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                        
+                        if transcript and self.detect_wake_word(transcript):
+                            print("WAKE WORD DETECTED! Starting conversation...")
+                            self.play_beep()
+                            
+                            # Speak personalized listening response
+                            listening_response = self.get_personalized_response(self.current_person, "listening", self.listening_responses)
+                            self.speak_text(listening_response)
+                            
+                            # Record full request
+                            print("Please speak your request...")
+                            if self.record_with_silence_detection():
+                                user_text = self.transcribe_audio(WAV_FILENAME)
+                                if user_text and len(user_text.strip()) > 2:
+                                    print(f"User said: '{user_text}'")
+                                    response = self.process_user_input(user_text)
+                                    print(f"Response: '{response}'")
+                                    self.speak_text(response)
+                                    self.last_interaction_time = time.time()
+                                    # Reset bored response timer only after successful interaction
+                                    self.last_bored_response_time = time.time()
+                                else:
+                                    print("No clear speech detected")
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                            else:
+                                print("Failed to record user request")
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                    
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    # No one present or wake word not active, sleep longer
+                    time.sleep(2.0)
+                
+            except Exception as e:
+                print(f"Wake word detection error: {e}")
+                time.sleep(2.0)
+        
+        print("Wake word detection thread stopped")
+    
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop with OpenCV display"""
+        cv2.namedWindow('Chatty AI - Facial Recognition', cv2.WINDOW_AUTOSIZE)
+        
+        while self.is_running:
+            try:
+                frame = self.picam2.capture_array()
+                
+                # Convert from RGB to BGR for OpenCV
+                if len(frame.shape) == 3 and frame.shape[2] == 3:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                
+                # Process facial recognition
+                name, face_location, confidence = self.detect_faces(frame)
+                
+                current_time = time.time()
+                
+                # Draw face rectangles and labels on frame
+                if name and face_location:
+                    top, right, bottom, left = face_location
+                    
+                    # Choose color based on recognition
+                    if name == "Unknown":
+                        color = (0, 0, 255)  # Red for unknown
+                        label = f"Unknown ({confidence:.2f})"
+                    else:
+                        color = (0, 255, 0)  # Green for known
+                        label = f"{name} ({confidence:.2f})"
+                    
+                    # Draw rectangle around face
+                    cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+                    
+                    # Draw label background
+                    cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+                    
+                    # Draw label text
+                    cv2.putText(frame, label, (left + 6, bottom - 6),
+                               cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
+                
+                # Add status information to frame
+                status_text = "Chatty AI Active - Press ESC to exit"
+                cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                
+                # Show current person status
+                if self.current_person:
+                    person_text = f"Current Person: {self.current_person}"
+                    cv2.putText(frame, person_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # Show wake word status
+                if self.wake_word_active:
+                    wake_word_text = "Wake Word Detection: ACTIVE"
+                    cv2.putText(frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                else:
+                    wake_word_text = "Wake Word Detection: INACTIVE"
+                    cv2.putText(frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                
+                # Display the frame
+                cv2.imshow('Chatty AI - Facial Recognition', frame)
+                
+                # Check for key press
+                key = cv2.waitKey(1) & 0xFF
+                if key == 27:  # ESC key
+                    print("\n[INFO] ESC key pressed. Shutting down...")
+                    self.is_running = False
+                    break
+                elif key == ord('q'):  # Q key as alternative
+                    print("\n[INFO] Q key pressed. Shutting down...")
+                    self.is_running = False
+                    break
+                
+                # Process facial recognition logic
+                if name and face_location:
+                    # Person detected
+                    if name != self.current_person:
+                        # New person or person changed
+                        self.current_person = name
+                        self.person_absent_since = None
+                        self.wake_word_active = False  # Reset wake word state
+                        
+                        if name == "Unknown":
+                            self.handle_unknown_person(frame, confidence)
+                        else:
+                            # Save photo and send telegram alert for known person
+                            photo_path = self.save_security_photo(frame, name, confidence)
+                            self.send_telegram_alert(name, confidence, photo_path)
+                            
+                            # Greet known person (this will activate wake word detection)
+                            self.greet_person(name)
+                    
+                    elif name != "Unknown":
+                        # Same known person still present
+                        self.offer_help_or_entertainment(name)
+                
+                else:
+                    # No person detected
+                    if self.current_person:
+                        if not self.person_absent_since:
+                            self.person_absent_since = current_time
+                        elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
+                            # Person has been absent for 5+ minutes, reset
+                            self.current_person = None
+                            self.person_absent_since = None
+                            self.last_interaction_time = None
+                            self.waiting_cycle = 0
+                            self.wake_word_active = False
+                            self.last_bored_response_time = None  # NEW: Reset bored response timer
+                            self.bored_cycle = 0  # NEW: Reset bored cycle
+                            print("Person left - resetting state")
+                
+                time.sleep(PERSON_DETECTION_INTERVAL)
+                
+            except Exception as e:
+                print(f"Camera loop error: {e}")
+                time.sleep(1)
+        
+        # Clean up OpenCV windows
+        cv2.destroyAllWindows()
+    
+    def run(self):
+        """Main run loop"""
+        if not self.whisper_model or not self.llama_model or not self.picam2:
+            print("Required components not initialized")
+            return
+        
+        print("🚀 Chatty AI Complete System Started!")
+        print("=" * 60)
+        print("Features active:")
+        print("• Facial Recognition with Personalized Greetings")
+        print("• Wake Word Detection")
+        print("• AI Assistant (TinyLLaMA)")
+        print("• Security Monitoring")
+        print("• Telegram Alerts")
+        print("• Proactive Entertainment")
+        print("=" * 60)
+        print("Press ESC key to exit")
+        print("\nDEBUG INFO:")
+        print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+        print(f"• Personalized responses: {len(self.personalized_responses)} people configured")
+        print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+        print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+        print("=" * 60)
+        
+        self.is_running = True
+        
+        # Start wake word detection in background thread
+        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+        self.audio_thread.start()
+        
+        try:
+            # Run camera monitoring loop (this will handle the display and ESC key)
+            self.camera_monitoring_loop()
+                
+        except KeyboardInterrupt:
+            print("\nShutting down Chatty AI...")
+        finally:
+            self.cleanup()
+    
     def cleanup(self):
         """Clean up resources"""
-        self.emit_log("Cleaning up resources...")
+        print("Cleaning up resources...")
         self.is_running = False
         
-        # Wait for threads to finish
+        # Wait for audio thread to finish
         if self.audio_thread and self.audio_thread.is_alive():
-            self.emit_log("Waiting for audio thread to stop...")
+            print("Waiting for audio thread to stop...")
             self.audio_thread.join(timeout=3)
-        
-        if self.camera_thread and self.camera_thread.is_alive():
-            self.emit_log("Waiting for camera thread to stop...")
-            self.camera_thread.join(timeout=3)
         
         if self.picam2:
             try:
                 self.picam2.stop()
-                self.picam2.close()
-                self.emit_log("Camera stopped")
+                print("Camera stopped")
             except:
                 pass
+        
+        cv2.destroyAllWindows()
         
         # Clean up audio files
         for audio_file in [WAV_FILENAME, RESPONSE_AUDIO, WAKE_WORD_AUDIO]:
@@ -1074,163 +1040,56 @@ class ChattyAIWeb:
             except:
                 pass
         
-        self.emit_log("Chatty AI cleanup complete")
+        print("Chatty AI shutdown complete")
 
-
-# Global instance - Initialize when needed
-chatty_ai = None
-
-def init_chatty_ai():
-    """Initialize ChattyAI instance after Flask is ready"""
-    global chatty_ai
-    if chatty_ai is None:
-        print("🔧 Initializing ChattyAI instance...")
-        chatty_ai = ChattyAIWeb()
-    return chatty_ai
-
-# Flask routes
-@app.route('/')
-def index():
-    """Main page"""
-    return render_template('Chatty_AI.html')
-
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    """Serve static files from templates directory"""
-    return app.send_static_file(filename)
-
-@app.route('/video_feed')
-def video_feed():
-    """Video streaming route"""
-    chatty = init_chatty_ai()
-    return Response(chatty.generate_video_feed(),
-                   mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/captured_image')
-def captured_image():
-    """Route for captured person image"""
-    chatty = init_chatty_ai()
-    if chatty.captured_image is not None:
-        ret, buffer = cv2.imencode('.jpg', chatty.captured_image)
-        if ret:
-            return Response(buffer.tobytes(), mimetype='image/jpeg')
-    
-    # Return placeholder image if no capture available
-    placeholder = np.zeros((200, 200, 3), dtype=np.uint8)
-    cv2.putText(placeholder, "No Image", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (128, 128, 128), 2)
-    ret, buffer = cv2.imencode('.jpg', placeholder)
-    return Response(buffer.tobytes(), mimetype='image/jpeg')
-
-# Socket.IO events
-@socketio.on('connect')
-def handle_connect():
-    """Handle client connection"""
-    print('Client connected')
-    emit('status', {'message': 'Connected to Chatty AI'})
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    """Handle client disconnection"""
-    print('Client disconnected')
-
-@socketio.on('start_system')
-def handle_start_system():
-    global chatty_ai, system_running
-    try:
-        # These lines are crucial - they update the web interface:
-        socketio.emit('status', {'connected': True, 'system_running': False})
-        socketio.emit('log', {'message': 'Starting system...'})
-        
-        chatty_ai = ChattyAI()  # This works fine (proven by debug)
-        system_running = True
-        
-        # THIS IS THE KEY - emit success status:
-        socketio.emit('status', {'connected': True, 'system_running': True})
-        socketio.emit('log', {'message': 'System started successfully!'})
-        
-    except Exception as e:
-        socketio.emit('log', {'message': f'Error: {str(e)}'})
-
-@socketio.on('stop_system')
-def handle_stop_system():
-    """Handle system stop request"""
-    chatty = init_chatty_ai()
-    chatty.stop_system()
-    emit('system_status', {'running': False})
-
-if __name__ == '__main__':
-    # Initialize the system
-    print("Initializing Chatty AI Web Interface...")
-    print("=" * 60)
-    print("🚀 Starting Flask server on http://0.0.0.0:5000")
-    print("📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000")
+def main():
+    """Main function"""
+    print("Chatty AI - Your smart AI Assistant System")
     print("=" * 60)
     
+    # Check audio devices
     try:
-        # Create templates directory if it doesn't exist
-        os.makedirs('/home/nickspi5/Chatty_AI/templates', exist_ok=True)
-        
-        # Check if logo files exist
-        logo_files = [
-            '/home/nickspi5/Chatty_AI/templates/Chatty_AI_logo.png',
-            '/home/nickspi5/Chatty_AI/templates/diamond_coding_logo.png'
-        ]
-        
-        for logo_file in logo_files:
-            if not os.path.exists(logo_file):
-                print(f"⚠️  Warning: Logo file not found: {logo_file}")
-        
-        # Start Flask-SocketIO server
-        socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)
-        
-    except KeyboardInterrupt:
-        print("\n🛑 Shutting down Chatty AI Web Interface...")
-        if chatty_ai:
-            chatty_ai.cleanup()
+        print("Available audio devices:")
+        print(sd.query_devices())
+        print("=" * 60)
     except Exception as e:
-        print(f"❌ Error starting server: {e}")
-        if chatty_ai:
-            chatty_ai.cleanup()
+        print(f"Could not query audio devices: {e}")
+    
+    chatty = ChattyAI()
+    chatty.run()
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pkill -f app.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pkill -f debug_app.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 3
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app.py
-Initializing Chatty AI Web Interface...
-============================================================
-🚀 Starting Flask server on http://0.0.0.0:5000
-📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000
-============================================================
-🔧 Initializing ChattyAI instance...
-🔧 Initializing ChattyAI instance...
-[14:31:55] Response files loaded successfully
-[14:31:55] Personalized responses loaded for 3 people
-[14:31:55] Telegram configuration loaded
-[14:31:55] Attempting to initialize camera for web display...
-[2:51:09.978295937] [4595]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[2:51:09.986822556] [4662]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[2:51:10.006103310] [4662]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[2:51:10.011365214] [4595]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[2:51:10.011549062] [4662]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-[14:31:57] Camera initialized for web display - Frame shape: (480, 640, 4)
-ChattyAIWeb instance created - models will be loaded when system starts
-Video feed generation started
+if __name__ == "__main__":
+    main()
 
-I opened up the Web UI page in my Chromium browser on my Raspberry PI 5.
+I want to make a few small minor changes to my chatty_ai.py Python script only.
 
-The video preview stream was displaying correctly.
+I want to use the generic responses for people registered in the facial recognition model.
 
-It displayed correctly but when I clicked on the Start System button, the top right-hand side button on the Web UI page did not change from red, displaying the test Disconnected to green, displaying the text Connected.
+I want a variable set that stores the detected person's name, such as current_person.
 
-I think I want to leave this for now. Please remember this in your memory.
+For the "greetings" responses, I want the script to say: f"Hey {self.current_person}. Good to see you, buddy! What's up?", etc., etc.
 
-I want to make some monor changes to my chatty_ai.py file, which is still working perfectly.
+For the "listening" responses, I want the script to say: f"Yes {self.current_person}, I'm listening. What would you like to know?", etc., etc.
 
+For the "waiting" responses, I want the script to say: f"I am still around if you need me, {self.current_person}.", etc., etc.
 
+For the "bored_responses" responses, I want the script to say: f"Yo {self.current_person}, still hanging around here waiting for you, dude!", etc., etc.
 
+Now if the detected person has not asked the AI Assistant a question for 30 seconds, I want the script randomly pick a generic bored_response, ask the local LLM to tell it a joke, then string together the selected bored response, then the text, "Let me tell you a joke!", then add a 2 second pause, then add the joke response from the local LLM model and then speak the entire concactenated text string via the Bluetooth connected speaker.
 
+Then, if the detected person has not asked the AI Assistant a question for another 30 seconds, I want the script randomly pick a generic waiting_response, ask the local LLM to tell it a fun fact, then string together the selected waiting response, then the text, "Let me tell you a fun fact!", then add a 2 second pause, then add the fun fact response from the local LLM model and then speak the entire concactenated text string via the Bluetooth connected speaker.
 
+The above two steps should continue until the detected person's wake word is detected and they issue a command or ask the local LLM a question, then the timer should start again after the speaking has ceased from the connected Bluetooth speaker.
 
+The timer value for the time a detected person has not spoken asked the AI Assistant a question, (i.e. not said a wake word phrase that was detected by the AI Assistant), should be saved to a variable, which can be changed later if I want the duration to be shorter or longer.
+
+The above responses should be valid for all detected persons.
+
+However, if the system cannot verify a registered person in the facial recognition model between the hours of 6:00AM and 12:00PM, I want the AI Assistant to assume this person is a visitor and to just speak a randomly selected greeting such as "Hello. I do not recognize you. Can I be of assistance", or something similar.
+
+But, if the system cannot verify a registered person in the facial recognition model between the hours of 12:01PM and 5:59AM, I want the AI Assistant to assume this person is a burgular or bad person and to speak a randomly selected warning message such as "Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion", or something similar.
+
+Please update my chatty_ai.py Python script to make the requested changes.
 
 
 
