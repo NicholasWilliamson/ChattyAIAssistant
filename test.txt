@@ -1,12 +1,56 @@
 Thank you, Claude.
 
-I still had the first terminal running.
+I added the debug section to app.py
 
-In the second terminal, I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl http://192.168.1.16:5000/
-<h1>Flask Test Server Running!</h1><p>Port 5000 is working correctly.</p>(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app.py
+🔧 DEBUG: Starting main application...
+Initializing Chatty AI Web Interface...
+============================================================
+🚀 Starting Flask server on http://0.0.0.0:5000
+📱 Access your Chatty AI interface at: http://[your-pi-ip]:5000
+============================================================
+🔧 DEBUG: About to create templates directory...
+🔧 DEBUG: Templates directory created/verified
+🔧 DEBUG: Logo file checks completed
+🔧 DEBUG: About to start Flask-SocketIO server...
+🔧 Initializing ChattyAI instance...
+🔧 Initializing ChattyAI instance...
+[13:52:55] Response files loaded successfully
+[13:52:55] Telegram configuration loaded
+[13:52:55] Attempting to initialize camera for web display...
+[3:16:13.687015801] [3599]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[3:16:13.694060903] [3759]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[3:16:13.711691806] [3759]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media1 and ISP device /dev/media2 using PiSP variant BCM2712_C0
+[3:16:13.720221628] [3599]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[3:16:13.720710923] [3759]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+[13:52:57] Camera initialized for web display - Frame shape: (480, 640, 4)
+ChattyAIWeb instance created - models will be loaded when system starts
+Video feed generation started
 
+I opened http://192.168.1.16:5000 in my Chromium browser and clicked on the Start Service button:
+
+I viewed the following System Logs
+13:52:55 🌟 Chatty AI Web Interface initialized
+13:52:55 🔗 Attempting to connect to server...
+13:52:55 💡 Click "Start System" to begin AI operations
+13:52:57 🔍 Checking system components...
+13:52:57 ❌ Cannot get system info - not connected to server
+13:53:11 ❌ Cannot start system - not connected to server
+13:53:15 ❌ Connection error: Error: timeout
+13:53:25 ⚠️ Connection lost - attempting to reconnect...
+13:53:37 ❌ Connection error: Error: timeout
+13:53:55 ⚠️ Connection lost - attempting to reconnect...
+13:53:59 ❌ Connection error: Error: timeout
+13:54:22 ❌ Connection error: Error: timeout
+13:54:25 ⚠️ Connection lost - attempting to reconnect...
+13:54:47 ❌ Connection error: Error: timeout
+13:54:55 ⚠️ Connection lost - attempting to reconnect...
+13:55:12 ❌ Connection error: Error: timeout
+13:55:25 ⚠️ Connection lost - attempting to reconnect...
+13:55:37 ❌ Connection error: Error: timeout
+13:55:49 ❌ Cannot start system - not connected to server
+13:55:55 ⚠️ Connection lost - attempting to reconnect...
+13:56:02 ❌ Connection error: Error: timeout
 
 
 
