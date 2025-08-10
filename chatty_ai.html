@@ -321,6 +321,31 @@
             background-color: #AA0000;
         }
 
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background-color: #222222;
+            color: #FFFFFF;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            min-width: 200px;
+            border: 1px solid #FF6600;
+        }
+
+        .debug-title {
+            color: #FF6600;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-item {
+            margin: 2px 0;
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .main-title {
@@ -358,6 +383,13 @@
             
             .subtitle {
                 font-size: 1.2rem;
+            }
+
+            .debug-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
             }
         }
 
@@ -398,6 +430,23 @@
         .log-info {
             color: #FFFFFF;
         }
+
+        .conversation-wake_word {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .conversation-user_input {
+            color: #00AAFF;
+        }
+
+        .conversation-response {
+            color: #FFAA00;
+        }
+
+        .conversation-speech {
+            color: #FF66FF;
+        }
     </style>
 </head>
 <body>
@@ -405,17 +454,27 @@
         <!-- Status Indicators -->
         <div id="statusIndicator" class="status-indicator offline">Disconnected</div>
         <div id="systemStatus" class="system-status stopped">System Stopped</div>
+        
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel">
+            <div class="debug-title">System Debug Info</div>
+            <div class="debug-item">Socket: <span id="debugSocket">Disconnected</span></div>
+            <div class="debug-item">Camera: <span id="debugCamera">Unknown</span></div>
+            <div class="debug-item">Models: <span id="debugModels">Not Loaded</span></div>
+            <div class="debug-item">Wake Word: <span id="debugWakeWord">Inactive</span></div>
+            <div class="debug-item">Person: <span id="debugPerson">None</span></div>
+        </div>
 
         <!-- Header Row -->
         <div class="header-row">
+            <div class="logo-container">
+                <img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onerror="this.style.display='none'">
+            </div>
             <div class="title-container">
                 <h1 class="main-title">
                     <span class="chatty">Chatty</span> <span class="ai">AI</span>
                 </h1>
                 <p class="subtitle">Your smart AI Assistant</p>
-            </div>
-            <div class="logo-container">
-                <img src="/static/Chatty_AI_logo.png" alt="Chatty AI Logo" onerror="this.style.display='none'">
             </div>
         </div>
 
@@ -454,19 +513,20 @@
                 <button id="stopButton" class="action-button stop-button" onclick="stopSystem()" disabled>Stop System</button>
             </div>
             <div class="feature-buttons">
-                <button class="action-button" onclick="registerPerson()">Register Person</button>
-                <button class="action-button" onclick="trainModel()">Train Model</button>
-                <button class="action-button" onclick="openSettings()">Settings</button>
+                <button class="action-button" onclick="testSpeech()">Test Speech</button>
+                <button class="action-button" onclick="manualWakeWord()">Manual Wake Word</button>
+                <button class="action-button" onclick="getSystemInfo()">System Info</button>
+                <button class="action-button" onclick="clearLogs()">Clear Logs</button>
             </div>
         </div>
 
         <!-- Footer Row -->
         <div class="footer-row">
-            <div class="company-logo">
-                <img src="/static/diamond_coding_logo.png" alt="Diamond Coding Logo" onerror="this.style.display='none'">
-            </div>
             <div class="copyright-container">
                 <p class="copyright-text">Copyright 2025 – Nicholas Williamson & Diamond Coding. All Rights Reserved.</p>
+            </div>
+            <div class="company-logo">
+                <img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onerror="this.style.display='none'">
             </div>
         </div>
     </div>
@@ -487,29 +547,49 @@
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
 
+        // Debug elements
+        const debugSocket = document.getElementById('debugSocket');
+        const debugCamera = document.getElementById('debugCamera');
+        const debugModels = document.getElementById('debugModels');
+        const debugWakeWord = document.getElementById('debugWakeWord');
+        const debugPerson = document.getElementById('debugPerson');
+
         let isSystemRunning = false;
+        let socketConnected = false;
 
         // Connection status
         socket.on('connect', function() {
+            socketConnected = true;
             statusIndicator.textContent = 'Connected';
             statusIndicator.className = 'status-indicator online';
-            addLogEntry('Connected to Chatty AI server', 'success');
+            debugSocket.textContent = 'Connected';
+            debugSocket.style.color = '#44FF44';
+            addLogEntry('✅ Connected to Chatty AI server', 'success');
+            
+            // Request system info on connect
+            setTimeout(() => {
+                socket.emit('get_system_info');
+            }, 1000);
         });
 
         socket.on('disconnect', function() {
+            socketConnected = false;
             statusIndicator.textContent = 'Disconnected';
             statusIndicator.className = 'status-indicator offline';
-            addLogEntry('Disconnected from server', 'error');
+            debugSocket.textContent = 'Disconnected';
+            debugSocket.style.color = '#FF4444';
+            addLogEntry('❌ Disconnected from server', 'error');
             updateSystemStatus(false);
         });
 
-        // System status updates
+        // FIXED: System status updates
         socket.on('system_status', function(data) {
+            console.log('Received system_status:', data);
             updateSystemStatus(data.running);
             if (data.running) {
-                addLogEntry('Chatty AI system started successfully', 'success');
+                addLogEntry('✅ Chatty AI system started successfully', 'success');
             } else {
-                addLogEntry('Chatty AI system stopped', 'warning');
+                addLogEntry('⏹️ Chatty AI system stopped', 'warning');
             }
         });
 
@@ -525,19 +605,70 @@
 
         // Person detection updates
         socket.on('person_detected', function(data) {
+            console.log('Person detected:', data);
             personName.textContent = data.name;
             personConfidence.textContent = `Confidence: ${data.confidence}`;
+            debugPerson.textContent = data.name;
+            
+            // Update debug info color
+            if (data.name === 'Unknown') {
+                debugPerson.style.color = '#FF4444';
+            } else if (data.name === 'No person detected') {
+                debugPerson.style.color = '#888888';
+            } else {
+                debugPerson.style.color = '#44FF44';
+            }
             
             // Add animation for new detection
-            personName.classList.add('person-detected');
-            setTimeout(() => {
-                personName.classList.remove('person-detected');
-            }, 2000);
+            if (data.name !== 'No person detected') {
+                personName.classList.add('person-detected');
+                setTimeout(() => {
+                    personName.classList.remove('person-detected');
+                }, 2000);
+            }
             
             // Update captured image
             capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
             
-            addConversationEntry(`Person detected: ${data.name} (${data.confidence})`, 'info');
+            if (data.name !== 'No person detected') {
+                addConversationEntry(`👤 Person detected: ${data.name} (${data.confidence})`, 'info');
+            }
+        });
+
+        // System info updates
+        socket.on('system_info', function(data) {
+            console.log('System info:', data);
+            debugCamera.textContent = data.camera_initialized ? 'Ready' : 'Not Ready';
+            debugCamera.style.color = data.camera_initialized ? '#44FF44' : '#FF4444';
+            
+            debugModels.textContent = data.models_loaded ? 'Loaded' : 'Not Loaded';
+            debugModels.style.color = data.models_loaded ? '#44FF44' : '#FF4444';
+            
+            debugWakeWord.textContent = data.wake_word_active ? 'Active' : 'Inactive';
+            debugWakeWord.style.color = data.wake_word_active ? '#44FF44' : '#888888';
+            
+            if (data.current_person) {
+                debugPerson.textContent = data.current_person;
+                debugPerson.style.color = data.current_person === 'Unknown' ? '#FF4444' : '#44FF44';
+            }
+        });
+
+        // Test speech result
+        socket.on('speech_test_result', function(data) {
+            if (data.success) {
+                addLogEntry('🔊 Speech test completed successfully', 'success');
+            } else {
+                addLogEntry(`❌ Speech test failed: ${data.message}`, 'error');
+            }
+        });
+
+        // Manual wake word result
+        socket.on('manual_wake_result', function(data) {
+            if (data.success) {
+                addConversationEntry('🎤 Manual wake word triggered successfully', 'success');
+            } else {
+                addLogEntry(`❌ Manual wake word failed: ${data.message}`, 'warning');
+            }
         });
 
         // Helper functions
@@ -551,7 +682,7 @@
 
         function addConversationEntry(message, type = 'info') {
             const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
+            entry.className = `log-entry conversation-${type}`;
             entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
             conversationArea.appendChild(entry);
             conversationArea.scrollTop = conversationArea.scrollHeight;
@@ -568,56 +699,108 @@
                 systemStatus.className = 'system-status running';
                 startButton.disabled = true;
                 stopButton.disabled = false;
+                startButton.textContent = 'Start System';
             } else {
                 systemStatus.textContent = 'System Stopped';
                 systemStatus.className = 'system-status stopped';
                 startButton.disabled = false;
                 stopButton.disabled = true;
+                stopButton.textContent = 'Stop System';
             }
         }
 
         // System control functions
         function startSystem() {
-            addLogEntry('Starting Chatty AI system...', 'info');
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot start system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🚀 Starting Chatty AI system...', 'info');
             socket.emit('start_system');
             startButton.disabled = true;
             startButton.textContent = 'Starting...';
             
+            // Reset button text after timeout if no response
             setTimeout(() => {
-                startButton.textContent = 'Start System';
-            }, 3000);
+                if (startButton.textContent === 'Starting...') {
+                    startButton.textContent = 'Start System';
+                    startButton.disabled = false;
+                }
+            }, 10000);
         }
 
         function stopSystem() {
-            addLogEntry('Stopping Chatty AI system...', 'warning');
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot stop system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('⏹️ Stopping Chatty AI system...', 'warning');
             socket.emit('stop_system');
             stopButton.disabled = true;
             stopButton.textContent = 'Stopping...';
             
+            // Reset button text after timeout
             setTimeout(() => {
-                stopButton.textContent = 'Stop System';
-            }, 2000);
+                if (stopButton.textContent === 'Stopping...') {
+                    stopButton.textContent = 'Stop System';
+                    stopButton.disabled = false;
+                }
+            }, 5000);
         }
 
         // Feature button functions
-        function registerPerson() {
-            addLogEntry('Register Person feature - Coming soon!', 'warning');
-            // TODO: Implement person registration interface
+        function testSpeech() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot test speech - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🔊 Testing speech synthesis...', 'info');
+            socket.emit('test_speech', {'text': 'Hello! This is a test of the Chatty AI speech system.'});
         }
 
-        function trainModel() {
-            addLogEntry('Train Model feature - Coming soon!', 'warning');
-            // TODO: Implement model training interface
+        function manualWakeWord() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot trigger wake word - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🎤 Triggering manual wake word...', 'info');
+            socket.emit('manual_wake_word');
         }
 
-        function openSettings() {
-            addLogEntry('Settings feature - Coming soon!', 'warning');
-            // TODO: Implement settings interface
+        function getSystemInfo() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot get system info - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('ℹ️ Requesting system information...', 'info');
+            socket.emit('get_system_info');
         }
+
+        function clearLogs() {
+            logArea.innerHTML = '';
+            conversationArea.innerHTML = '';
+            addLogEntry('🧹 Logs cleared', 'info');
+        }
+
+        // Connection monitoring
+        function checkConnection() {
+            if (!socketConnected) {
+                addLogEntry('⚠️ Connection lost - attempting to reconnect...', 'warning');
+                socket.connect();
+            }
+        }
+
+        // Monitor connection every 30 seconds
+        setInterval(checkConnection, 30000);
 
         // Handle page unload
         window.addEventListener('beforeunload', function() {
-            if (isSystemRunning) {
+            if (isSystemRunning && socketConnected) {
                 socket.emit('stop_system');
             }
         });
@@ -631,7 +814,7 @@
 
         // Handle video feed errors
         videoFeed.addEventListener('error', function() {
-            addLogEntry('Video feed connection lost - attempting to reconnect...', 'warning');
+            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
             setTimeout(() => {
                 videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
             }, 2000);
@@ -642,9 +825,56 @@
             capturedImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExMTExIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
         });
 
-        // Initial log entry
-        addLogEntry('Chatty AI Web Interface initialized', 'info');
-        addLogEntry('Click "Start System" to begin AI operations', 'info');
+        // Auto-refresh captured image
+        setInterval(() => {
+            if (isSystemRunning) {
+                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            }
+        }, 5000); // Refresh every 5 seconds when system is running
+
+        // Request system info periodically
+        setInterval(() => {
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 10000); // Every 10 seconds
+
+        // Enhanced error handling for socket events
+        socket.on('connect_error', function(error) {
+            addLogEntry(`❌ Connection error: ${error}`, 'error');
+            statusIndicator.textContent = 'Connection Error';
+            statusIndicator.className = 'status-indicator offline';
+        });
+
+        socket.on('error', function(error) {
+            addLogEntry(`❌ Socket error: ${error}`, 'error');
+        });
+
+        // Debug logging for all socket events
+        const originalOn = socket.on;
+        socket.on = function(event, callback) {
+            return originalOn.call(this, event, function(...args) {
+                console.log(`Socket event received: ${event}`, args);
+                return callback.apply(this, args);
+            });
+        };
+
+        const originalEmit = socket.emit;
+        socket.emit = function(event, ...args) {
+            console.log(`Socket event sent: ${event}`, args);
+            return originalEmit.apply(this, [event, ...args]);
+        };
+
+        // Initial setup
+        addLogEntry('🌟 Chatty AI Web Interface initialized', 'info');
+        addLogEntry('🔗 Attempting to connect to server...', 'info');
+        addLogEntry('💡 Click "Start System" to begin AI operations', 'info');
+        
+        // Check for required files on load
+        setTimeout(() => {
+            addLogEntry('🔍 Checking system components...', 'info');
+            getSystemInfo();
+        }, 2000);
     </script>
 </body>
 </html>
