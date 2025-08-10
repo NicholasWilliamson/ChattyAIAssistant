@@ -1,0 +1,342 @@
+#!/usr/bin/env python3
+"""
+Chatty AI Web Interface - Fixed Version (app_2_fixed.py)
+
+Key fixes / goals:
+- Ensure heavy initialization (models, camera) runs in a background task so Flask-SocketIO can bind immediately
+- Start initialization after the server is up and accepting requests (use @app.before_first_request)
+- Provide a robust /video_feed generator that supports Picamera2 (preferred) and falls back to OpenCV VideoCapture
+- Import the existing ChattyAI class from chatty_ai.py in a safe, background-only manner
+- Expose simple Socket.IO events for status/start/stop and basic chat handling
+
+Usage:
+- Place this file in the same folder as chatty_ai.py and your templates/ directory
+- Run inside your virtualenv: python3 app_2_fixed.py
+"""
+
+import os
+import threading
+import time
+import secrets
+import traceback
+from datetime import datetime
+from flask import Flask, render_template, Response, request, jsonify
+from flask_socketio import SocketIO, emit
+
+# Try to import picamera2; if unavailable we'll use cv2.VideoCapture fallback
+try:
+    from picamera2 import Picamera2
+    PICAMERA2_AVAILABLE = True
+except Exception:
+    PICAMERA2_AVAILABLE = False
+
+import cv2
+
+# Attempt to import the heavy ChattyAI class only when we initialize in background.
+# Do not import it at module import time to avoid blocking Flask startup.
+# from chatty_ai import ChattyAI  # imported later in background task
+
+
+# -----------------
+# Flask + SocketIO
+# -----------------
+
+# Locate templates directory (prefer explicit path if run from project root)
+DEFAULT_TEMPLATE_DIR = os.path.join(os.getcwd(), "templates")
+if not os.path.isdir(DEFAULT_TEMPLATE_DIR):
+    # If not present, fall back to packaged location or current working directory
+    DEFAULT_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
+
+app = Flask(__name__, template_folder=DEFAULT_TEMPLATE_DIR, static_folder=DEFAULT_TEMPLATE_DIR)
+app.config['SECRET_KEY'] = secrets.token_hex(16)
+
+# Force threading async mode to avoid dependency on eventlet/gevent in many setups
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading', logger=False, engineio_logger=False)
+
+
+# -----------------
+# Globals / Status
+# -----------------
+chatty_ai = None  # Will hold ChattyAI instance after background init
+system_ready = False
+models_loaded = False
+camera_initialized = False
+initialization_status = "Not initialized"
+
+
+# -----------------
+# Utilities
+# -----------------
+
+def log_message(msg):
+    ts = datetime.now().strftime("%H:%M:%S")
+    print(f"[{ts}] {msg}")
+
+
+# -----------------
+# Background initialization
+# -----------------
+
+def initialize_system_background():
+    """Run heavy initialization in a background task to avoid blocking the server.
+
+    This will import and instantiate ChattyAI from chatty_ai.py only inside the background
+    thread so module import or initialization doesn't block Flask from binding to the socket.
+    """
+    global chatty_ai, system_ready, models_loaded, camera_initialized, initialization_status
+
+    try:
+        initialization_status = "Starting background initialization..."
+        socketio.emit('status_update', {'status': initialization_status}, broadcast=True)
+        log_message("Background init: importing ChattyAI and creating instance...")
+
+        # Import ChattyAI here (inside background thread)
+        from chatty_ai import ChattyAI
+
+        # Instantiate (ChattyAI.__init__ is heavy — that's why we do this in background)
+        chatty_ai = ChattyAI()
+
+        # Evaluate status based on attributes created by ChattyAI
+        models_loaded = getattr(chatty_ai, 'whisper_model', None) is not None and getattr(chatty_ai, 'llama_model', None) is not None
+        camera_initialized = getattr(chatty_ai, 'picam2', None) is not None
+
+        initialization_status = "Ready" if models_loaded or camera_initialized else "Partial"
+        system_ready = True if (models_loaded or camera_initialized) else False
+
+        socketio.emit('status_update', {
+            'status': initialization_status,
+            'system_ready': system_ready,
+            'models_loaded': bool(models_loaded),
+            'camera_ready': bool(camera_initialized)
+        }, broadcast=True)
+
+        log_message(f"Background init completed: models_loaded={models_loaded} camera_initialized={camera_initialized}")
+
+    except Exception as e:
+        initialization_status = f"Error: {e}"
+        system_ready = False
+        log_message(f"Background init failed: {e}")
+        traceback.print_exc()
+        socketio.emit('status_error', {'error': str(e)}, broadcast=True)
+
+
+# Start background initialization after the first HTTP request is received. This ensures
+# Flask has bound the port and the clients will receive status updates.
+@app.before_first_request
+def start_background_init_on_first_request():
+    # Use SocketIO helper to spawn a background task (portable across async modes)
+    socketio.start_background_task(initialize_system_background)
+    log_message("Scheduled background initialization (will run now in a separate thread)")
+
+
+# -----------------
+# Video feed generator
+# -----------------
+
+def generate_video_frames_from_picamera(picam2):
+    """Yield MJPEG frames from a Picamera2 instance."""
+    while True:
+        try:
+            frame = picam2.capture_array()
+            # Picamera2 often returns RGB or RGBA arrays — convert to BGR for OpenCV JPEG encoding
+            if frame is None:
+                time.sleep(0.1)
+                continue
+            if len(frame.shape) == 3:
+                if frame.shape[2] == 4:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+                elif frame.shape[2] == 3:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            ret, buf = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+            if not ret:
+                continue
+            frame_bytes = buf.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            time.sleep(0.04)
+        except Exception as e:
+            log_message(f"Picamera frame error: {e}")
+            time.sleep(0.5)
+
+
+def generate_video_frames_from_cv2(cap_index=0):
+    """Yield MJPEG frames from an OpenCV VideoCapture device."""
+    cap = cv2.VideoCapture(cap_index)
+    if not cap.isOpened():
+        log_message(f"cv2.VideoCapture({cap_index}) failed to open")
+        # yield a single error frame then stop
+        frame = 255 * np.ones((480, 640, 3), dtype='uint8')
+        cv2.putText(frame, "Camera Not Available", (50, 240), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+        ret, buf = cv2.imencode('.jpg', frame)
+        if ret:
+            yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buf.tobytes() + b'\r\n')
+        return
+
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                time.sleep(0.05)
+                continue
+            ret, buf = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            if not ret:
+                continue
+            yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buf.tobytes() + b'\r\n')
+            time.sleep(0.04)
+    finally:
+        cap.release()
+
+
+# -----------------
+# Routes
+# -----------------
+
+@app.route('/')
+def index():
+    try:
+        return render_template('Chatty_AI.html')
+    except Exception as e:
+        log_message(f"Template render error: {e}")
+        return f"<h1>Template Error</h1><p>{e}</p>", 500
+
+
+@app.route('/video_feed')
+def video_feed():
+    """Return multipart MJPEG stream for web UI."""
+    # If our ChattyAI has an initialized Picamera2 instance, use it
+    global chatty_ai
+    if chatty_ai is not None:
+        picam2 = getattr(chatty_ai, 'picam2', None)
+        if picam2 is not None:
+            log_message("Serving video feed from Picamera2")
+            return Response(generate_video_frames_from_picamera(picam2), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    # Otherwise, try fallback to cv2.VideoCapture(0)
+    log_message("Serving video feed from OpenCV VideoCapture fallback")
+    return Response(generate_video_frames_from_cv2(0), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/api/status')
+def api_status():
+    return jsonify({
+        'system_ready': system_ready,
+        'camera_ready': camera_initialized,
+        'models_loaded': models_loaded,
+        'status': initialization_status,
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+# -----------------
+# SocketIO event handlers
+# -----------------
+
+@socketio.on('connect')
+def handle_connect():
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    log_message(f"Client connected: {client_ip} (sid={request.sid})")
+    emit('status_update', {
+        'status': initialization_status,
+        'system_ready': system_ready,
+        'models_loaded': models_loaded,
+        'camera_ready': camera_initialized
+    })
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    log_message(f"Client disconnected (sid={request.sid})")
+
+
+@socketio.on('get_status')
+def handle_get_status():
+    emit('status_update', {
+        'status': initialization_status,
+        'system_ready': system_ready,
+        'models_loaded': models_loaded,
+        'camera_ready': camera_initialized,
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@socketio.on('start_system')
+def handle_start_system():
+    """Allow front-end to request full system start; if ChattyAI exists call its start_system method."""
+    global chatty_ai
+    if chatty_ai is None:
+        emit('system_error', {'error': 'System not yet initialized'})
+        return
+
+    try:
+        if hasattr(chatty_ai, 'start_system'):
+            success = chatty_ai.start_system()
+            emit('system_started', {'success': success})
+            log_message(f"start_system called -> {success}")
+        else:
+            emit('system_started', {'success': True})
+            log_message("start_system: ChattyAI has no start_system method; assuming ready")
+    except Exception as e:
+        emit('system_error', {'error': str(e)})
+        log_message(f"start_system error: {e}")
+
+
+@socketio.on('stop_system')
+def handle_stop_system():
+    global chatty_ai
+    try:
+        if chatty_ai is not None and hasattr(chatty_ai, 'stop_system'):
+            chatty_ai.stop_system()
+            emit('system_stopped', {'success': True})
+            log_message("System stopped by web request")
+        else:
+            emit('system_stopped', {'success': True})
+            log_message("stop_system: nothing to stop")
+    except Exception as e:
+        emit('system_error', {'error': str(e)})
+
+
+@socketio.on('chat_message')
+def handle_chat_message(data):
+    """Simple handler to forward chat messages to the local LLM via ChattyAI if available."""
+    global chatty_ai
+    if chatty_ai is None:
+        emit('chat_error', {'error': 'System not ready'})
+        return
+
+    try:
+        message = data.get('message', '')
+        if not message:
+            emit('chat_error', {'error': 'Empty message'})
+            return
+
+        # Use ChattyAI.process_user_input if available, otherwise fallback to a simple echo
+        if hasattr(chatty_ai, 'process_user_input'):
+            reply = chatty_ai.process_user_input(message)
+        elif hasattr(chatty_ai, 'query_llama'):
+            reply = chatty_ai.query_llama(message)
+        else:
+            reply = f"Echo: {message}"
+
+        emit('chat_response', {'message': reply})
+    except Exception as e:
+        emit('chat_error', {'error': str(e)})
+        log_message(f"chat_message handler error: {e}")
+
+
+# -----------------
+# Main
+# -----------------
+
+if __name__ == '__main__':
+    print("Initializing Chatty AI Web Interface (app_2_fixed.py)")
+    print("Starting Flask-SocketIO server on http://0.0.0.0:5000")
+
+    # Basic template/log checks to help debug UI issues
+    try:
+        os.makedirs(DEFAULT_TEMPLATE_DIR, exist_ok=True)
+        log_message(f"Templates directory checked: {DEFAULT_TEMPLATE_DIR}")
+    except Exception as e:
+        log_message(f"Could not create/check templates dir: {e}")
+
+    # Start the server — background initialization will run after the first HTTP request
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)
