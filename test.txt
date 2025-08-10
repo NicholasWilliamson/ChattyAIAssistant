@@ -1,14 +1,77 @@
 Thank you, Claude.
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_flask.py
+In the first terminal, I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl http://127.0.0.1:5000/
+curl: (7) Failed to connect to 127.0.0.1 port 5000 after 0 ms: Couldn't connect to server
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl http://localhost:5000/
+curl: (7) Failed to connect to localhost port 5000 after 0 ms: Couldn't connect to server
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ hostname -I
+192.168.1.16 2406:3400:313:99c0:117b:224f:1cd9:9280 
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo netstat -tlnp | grep :5000
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ip addr show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast state DOWN group default qlen 1000
+    link/ether 2c:cf:67:9d:a5:27 brd ff:ff:ff:ff:ff:ff
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 2c:cf:67:9d:a5:29 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.16/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+       valid_lft 77774sec preferred_lft 77774sec
+    inet6 2406:3400:313:99c0:117b:224f:1cd9:9280/64 scope global dynamic noprefixroute 
+       valid_lft 402sec preferred_lft 402sec
+    inet6 fe80::910b:8400:13bc:e622/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ifconfig
+eth0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        ether 2c:cf:67:9d:a5:27  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 107  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 59369  bytes 496908333 (473.8 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 59369  bytes 496908333 (473.8 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.16  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::910b:8400:13bc:e622  prefixlen 64  scopeid 0x20<link>
+        inet6 2406:3400:313:99c0:117b:224f:1cd9:9280  prefixlen 64  scopeid 0x0<global>
+        ether 2c:cf:67:9d:a5:29  txqueuelen 1000  (Ethernet)
+        RX packets 11388  bytes 4981805 (4.7 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 6503  bytes 1509942 (1.4 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo iptables -L
+sudo: iptables: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ss -tlnp | grep :5000
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_flask.py
 🚀 Starting minimal Flask test server...
  * Restarting with stat
 🚀 Starting minimal Flask test server...
  * Debugger is active!
  * Debugger PIN: 138-965-334
-(3352) wsgi starting up on http://0.0.0.0:5000
-^C(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl http://192.168.1.16:5000/
-curl: (7) Failed to connect to 192.168.1.16 port 5000 after 0 ms: Couldn't connect to server
+(3418) wsgi starting up on http://0.0.0.0:5000
+(3418) accepted ('127.0.0.1', 54042)
+127.0.0.1 - - [10/Aug/2025 13:04:28] "GET / HTTP/1.1" 200 189 0.000850
+
+In the second terminal, I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl http://127.0.0.1:5000
+<h1>Flask Test Server Running!</h1><p>Port 5000 is working correctly.</p>(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ hostname -I
+192.168.1.16 2406:3400:313:99c0:117b:224f:1cd9:9280 
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo netstat -tlnp | grep :5000
+tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN      3418/python3        
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 
