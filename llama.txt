@@ -1,7 +1,0 @@
-curl http://localhost:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-        "model": "tinyllama.gguf",
-        "prompt": "Hey Chatty, what can you do?",
-        "max_tokens": 50
-      }'
