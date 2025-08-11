@@ -1,12 +1,11 @@
 Thank you, Claude.
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app_4.py
-  File "/home/nickspi5/Chatty_AI/app_4.py", line 538
-    sys.exit(1) e:
-                ^
-SyntaxError: invalid syntax
+I fixed what you recommended.
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app_4.py
+  File "/home/nickspi5/Chatty_AI/app_4.py", line 539
+    logging.error(f"❌ Failed to send Telegram photo: {e}")
+IndentationError: unexpected indent
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 Please fix this issue.
