@@ -2,31 +2,7 @@ Thank you, Claude.
 
 I saved the new Python script you generated as app_test.py
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install flask-socketio eventlet
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: flask-socketio in ./chatty-venv/lib/python3.11/site-packages (5.5.1)
-Requirement already satisfied: eventlet in ./chatty-venv/lib/python3.11/site-packages (0.40.2)
-Requirement already satisfied: Flask>=0.9 in /usr/lib/python3/dist-packages (from flask-socketio) (2.2.2)
-Requirement already satisfied: python-socketio>=5.12.0 in ./chatty-venv/lib/python3.11/site-packages (from flask-socketio) (5.13.0)
-Requirement already satisfied: dnspython>=1.15.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (2.7.0)
-Requirement already satisfied: greenlet>=1.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (3.2.3)
-Requirement already satisfied: bidict>=0.21.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (0.23.1)
-Requirement already satisfied: python-engineio>=4.11.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (4.12.2)
-Requirement already satisfied: simple-websocket>=0.10.0 in ./chatty-venv/lib/python3.11/site-packages (from python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.1.0)
-Requirement already satisfied: wsproto in ./chatty-venv/lib/python3.11/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.2.0)
-Requirement already satisfied: h11<1,>=0.9.0 in ./chatty-venv/lib/python3.11/site-packages (from wsproto->simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (0.16.0)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo ufw status
-sudo: ufw: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo ufw allow 5000
-sudo: ufw: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ netstat -tlnp | grep :5000
-(Not all processes could be identified, non-owned process info
- will not be shown, you would have to be root to see it all.)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ hostname -I
-192.168.1.16 2406:3400:313:99c0:117b:224f:1cd9:9280 
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app_test.py
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app_test.py
 Server initialized for threading.
 INFO:engineio.server:Server initialized for threading.
 
@@ -51,148 +27,2208 @@ INFO:werkzeug:WARNING: This is a development server. Do not use it in a producti
  * Running on http://127.0.0.1:5000
  * Running on http://192.168.1.16:5000
 INFO:werkzeug:Press CTRL+C to quit
-ERROR:app_test:Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 2525, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1822, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1820, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1796, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/app_test.py", line 196, in index
-    return render_template('index.html')
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 146, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1081, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1010, in get_template
-    return self._load_template(name, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 969, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/loaders.py", line 126, in load
-    source, filename, uptodate = self.get_source(environment, name)
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 62, in get_source
-    return self._get_source_fast(environment, template)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 98, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: index.html
-INFO:werkzeug:127.0.0.1 - - [13/Aug/2025 17:10:49] "GET / HTTP/1.1" 500 -
-INFO:werkzeug:127.0.0.1 - - [13/Aug/2025 17:10:50] "GET /favicon.ico HTTP/1.1" 404 -
-ERROR:app_test:Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 2525, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1822, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1820, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1796, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/app_test.py", line 196, in index
-    return render_template('index.html')
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 146, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1081, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1010, in get_template
-    return self._load_template(name, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 969, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/loaders.py", line 126, in load
-    source, filename, uptodate = self.get_source(environment, name)
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 62, in get_source
-    return self._get_source_fast(environment, template)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 98, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: index.html
-INFO:werkzeug:127.0.0.1 - - [13/Aug/2025 17:11:33] "GET / HTTP/1.1" 500 -
-INFO:werkzeug:127.0.0.1 - - [13/Aug/2025 17:11:33] "GET /favicon.ico HTTP/1.1" 404 -
-ERROR:app_test:Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 2525, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1822, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1820, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/app.py", line 1796, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/app_test.py", line 196, in index
-    return render_template('index.html')
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 146, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1081, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 1010, in get_template
-    return self._load_template(name, globals)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/environment.py", line 969, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/jinja2/loaders.py", line 126, in load
-    source, filename, uptodate = self.get_source(environment, name)
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 62, in get_source
-    return self._get_source_fast(environment, template)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/flask/templating.py", line 98, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: index.html
-INFO:werkzeug:192.168.1.16 - - [13/Aug/2025 17:12:56] "GET / HTTP/1.1" 500 -
-INFO:werkzeug:192.168.1.16 - - [13/Aug/2025 17:12:56] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [13/Aug/2025 17:29:17] "GET / HTTP/1.1" 200 -
+KCQFW2lYSfcLvw2EAAAA: Sending packet OPEN data {'sid': 'KCQFW2lYSfcLvw2EAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet OPEN data {'sid': 'KCQFW2lYSfcLvw2EAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+KCQFW2lYSfcLvw2EAAAA: Received request to upgrade to websocket
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received request to upgrade to websocket
+KCQFW2lYSfcLvw2EAAAA: Upgrade to websocket successful
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Upgrade to websocket successful
+KCQFW2lYSfcLvw2EAAAA: Received packet MESSAGE data 0
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet MESSAGE data 0
+INFO:__main__:Client connected. Total clients: 1
+emitting event "status_update" to GN87t5jZBUEV5-KGAAAB [/]
+INFO:socketio.server:emitting event "status_update" to GN87t5jZBUEV5-KGAAAB [/]
+KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+emitting event "system_info" to GN87t5jZBUEV5-KGAAAB [/]
+INFO:socketio.server:emitting event "system_info" to GN87t5jZBUEV5-KGAAAB [/]
+KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":4.7,"memory_percent":15.0,"memory_used":1055735808,"memory_total":8453832704,"cpu_temp":54.55,"gpu_temp":54.9,"timestamp":"2025-08-13T17:29:18.902567"}]
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":4.7,"memory_percent":15.0,"memory_used":1055735808,"memory_total":8453832704,"cpu_temp":54.55,"gpu_temp":54.9,"timestamp":"2025-08-13T17:29:18.902567"}]
+KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 0{"sid":"GN87t5jZBUEV5-KGAAAB"}
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet MESSAGE data 0{"sid":"GN87t5jZBUEV5-KGAAAB"}
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:werkzeug:192.168.1.16 - - [13/Aug/2025 17:30:50] "GET / HTTP/1.1" 200 -
+047Xc90weNjGlCHsAAAC: Sending packet OPEN data {'sid': '047Xc90weNjGlCHsAAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet OPEN data {'sid': '047Xc90weNjGlCHsAAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+047Xc90weNjGlCHsAAAC: Received request to upgrade to websocket
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Received request to upgrade to websocket
+047Xc90weNjGlCHsAAAC: Upgrade to websocket successful
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Upgrade to websocket successful
+047Xc90weNjGlCHsAAAC: Received packet MESSAGE data 0
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Received packet MESSAGE data 0
+INFO:__main__:Client connected. Total clients: 2
+emitting event "status_update" to nbIAX5ilF2pQCr1zAAAD [/]
+INFO:socketio.server:emitting event "status_update" to nbIAX5ilF2pQCr1zAAAD [/]
+047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+emitting event "system_info" to nbIAX5ilF2pQCr1zAAAD [/]
+INFO:socketio.server:emitting event "system_info" to nbIAX5ilF2pQCr1zAAAD [/]
+047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":5.5,"memory_percent":16.0,"memory_used":1103118336,"memory_total":8453832704,"cpu_temp":55.65,"gpu_temp":56.0,"timestamp":"2025-08-13T17:30:53.532510"}]
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":5.5,"memory_percent":16.0,"memory_used":1103118336,"memory_total":8453832704,"cpu_temp":55.65,"gpu_temp":56.0,"timestamp":"2025-08-13T17:30:53.532510"}]
+047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 0{"sid":"nbIAX5ilF2pQCr1zAAAD"}
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet MESSAGE data 0{"sid":"nbIAX5ilF2pQCr1zAAAD"}
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+047Xc90weNjGlCHsAAAC: Sending packet PING data None
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet PING data None
+047Xc90weNjGlCHsAAAC: Received packet PONG data 
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Received packet PONG data 
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
+KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+INFO:engineio.server:KCQFW2lYSfcLvw2EAAAA: Received packet PONG data 
+047Xc90weNjGlCHsAAAC: Sending packet PING data None
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Sending packet PING data None
+047Xc90weNjGlCHsAAAC: Received packet PONG data 
+INFO:engineio.server:047Xc90weNjGlCHsAAAC: Received packet PONG data 
+KCQFW2lYSfcLvw2EAAAA: Sending packet PING data None
 
-First I opened http://localhost:5000/ in my Chromium browser on my Raspberry PI 5 and got the error message:
+I opened my Chromium browser on my Raspberry PI 5 using http://localhost:5000 and the web ui displayed correctly.
 
-Internal Server Error
-The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+I also opened my Chromium browser on my Raspberry PI 5 using http://192.168.1.16:5000 and the web ui displayed correctly.
 
-Next, I opened http://0.0.0.0:5000/ in my Chromium browser on my Raspberry PI 5 and got the error message:
+However, when I clicked on the Start System button, nothing happened.
 
-Internal Server Error
-The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+Furthermore, I do not want the html template included in the Python script.
 
-Finally, I opened http://192.168.1.16:5000/ in my Chromium browser on my Raspberry PI 5 and got the error message:
+I want to use my original Chatty_AI.html web ui template page which is in my /home/nickspi5/Chatty_AI/templates folder.
 
-Internal Server Error
-The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+I do really like the inclusion of the System Information box which displayed the following information:
 
-Please fix this and this time, re-generate the full app_4.py Python script with the changes applied to it.
+CPU Usage
+5.5%
+Memory Usage
+16.0%
+CPU Temperature
+55.6°C
+GPU Temperature
+56.0°C
+
+Please include this as a full page horizontal box above the buttons at the bottom of Chatty_AI.html web ui template page displaying 4 columns for CPU Usage, Memory Usage, CPU Temperature and GPU Temperature, although, I did not know my Raspberry PI 5 has a GPU.
+
+Please include the above features in my current Chatty_AI.html web ui template page, which is:
+
+Chatty_AI.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatty AI - Your Smart AI Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Arial', sans-serif;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Row */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo-container {
+            flex: 0 0 250px;
+        }
+
+        .logo-container img {
+            width: 250px;
+            height: 277px;
+            object-fit: contain;
+        }
+
+        .title-container {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .main-title .chatty {
+            color: #FF6600;
+        }
+
+        .main-title .ai {
+            color: #FFFFFF;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #FF6600;
+            font-weight: normal;
+        }
+
+        /* Video and Image Row */
+        .video-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-container, .image-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: 360px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .captured-image {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .person-info {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .person-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FF6600;
+            margin-bottom: 5px;
+        }
+
+        .person-confidence {
+            font-size: 1.2rem;
+            color: #FF6600;
+        }
+
+        /* Text Areas Row */
+        .text-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .log-container, .conversation-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            resize: none;
+            scrollbar-width: thin;
+            scrollbar-color: #FF6600 #000000;
+        }
+
+        .text-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .text-area::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        .text-area::-webkit-scrollbar-thumb {
+            background: #FF6600;
+            border-radius: 4px;
+        }
+
+        .log-area {
+            color: #FFFFFF;
+        }
+
+        .conversation-area {
+            color: #FF6600;
+        }
+
+        .area-title {
+            color: #FF6600;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Buttons Row */
+        .buttons-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .system-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-button {
+            background-color: #FF6600;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .action-button:hover {
+            background-color: #FF8833;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            background-color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .start-button {
+            background-color: #00AA00;
+        }
+
+        .start-button:hover:not(:disabled) {
+            background-color: #00CC00;
+        }
+
+        .stop-button {
+            background-color: #AA0000;
+        }
+
+        .stop-button:hover:not(:disabled) {
+            background-color: #CC0000;
+        }
+
+        /* Footer Row */
+        .footer-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .company-logo {
+            flex: 0 0 250px;
+        }
+
+        .company-logo img {
+            width: 250px;
+            height: 135px;
+            object-fit: contain;
+        }
+
+        .copyright-container {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        .copyright-text {
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #FF6600;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .status-indicator.offline {
+            background-color: #FF0000;
+        }
+
+        .status-indicator.online {
+            background-color: #00AA00;
+            color: #FFFFFF;
+        }
+
+        /* System Status */
+        .system-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background-color: #333333;
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        .system-status.running {
+            background-color: #00AA00;
+        }
+
+        .system-status.stopped {
+            background-color: #AA0000;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background-color: #222222;
+            color: #FFFFFF;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            min-width: 200px;
+            border: 1px solid #FF6600;
+        }
+
+        .debug-title {
+            color: #FF6600;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-item {
+            margin: 2px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-row, .video-row, .text-row, .footer-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .buttons-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .system-controls, .feature-buttons {
+                justify-content: center;
+            }
+            
+            .logo-container, .company-logo {
+                flex: none;
+                text-align: center;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .debug-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+            }
+        }
+
+        /* Animation for person detection */
+        .person-detected {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Log entry styling */
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .log-timestamp {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .log-error {
+            color: #FF4444;
+        }
+
+        .log-warning {
+            color: #FFAA00;
+        }
+
+        .log-success {
+            color: #44FF44;
+        }
+
+        .log-info {
+            color: #FFFFFF;
+        }
+
+        .conversation-wake_word {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .conversation-user_input {
+            color: #00AAFF;
+        }
+
+        .conversation-response {
+            color: #FFAA00;
+        }
+
+        .conversation-speech {
+            color: #FF66FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Status Indicators -->
+        <div id="statusIndicator" class="status-indicator offline">Disconnected</div>
+        <div id="systemStatus" class="system-status stopped">System Stopped</div>
+        
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel">
+            <div class="debug-title">System Debug Info</div>
+            <div class="debug-item">Socket: <span id="debugSocket">Disconnected</span></div>
+            <div class="debug-item">Camera: <span id="debugCamera">Unknown</span></div>
+            <div class="debug-item">Models: <span id="debugModels">Not Loaded</span></div>
+            <div class="debug-item">Wake Word: <span id="debugWakeWord">Inactive</span></div>
+            <div class="debug-item">Person: <span id="debugPerson">None</span></div>
+        </div>
+
+        <!-- Header Row -->
+        <div class="header-row">
+            <div class="logo-container">
+                <img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="title-container">
+                <h1 class="main-title">
+                    <span class="chatty">Chatty</span> <span class="ai">AI</span>
+                </h1>
+                <p class="subtitle">Your smart AI Assistant</p>
+            </div>
+        </div>
+
+        <!-- Video and Image Row -->
+        <div class="video-row">
+            <div class="video-container">
+                <div class="area-title">Live Camera Feed</div>
+                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
+            </div>
+            <div class="image-container">
+                <div class="area-title">Detected Person</div>
+                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
+                <div class="person-info">
+                    <div id="personName" class="person-name">No person detected</div>
+                    <div id="personConfidence" class="person-confidence">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Areas Row -->
+        <div class="text-row">
+            <div class="log-container">
+                <div class="area-title">System Logs</div>
+                <div id="logArea" class="text-area log-area"></div>
+            </div>
+            <div class="conversation-container">
+                <div class="area-title">Conversations & Responses</div>
+                <div id="conversationArea" class="text-area conversation-area"></div>
+            </div>
+        </div>
+
+        <!-- Buttons Row -->
+        <div class="buttons-row">
+            <div class="system-controls">
+                <button id="startButton" class="action-button start-button" onclick="startSystem()">Start System</button>
+                <button id="stopButton" class="action-button stop-button" onclick="stopSystem()" disabled>Stop System</button>
+            </div>
+            <div class="feature-buttons">
+                <button class="action-button" onclick="get_settings()">Settings</button>
+                <button class="action-button" onclick="register_person()">Register Person</button>
+                <button class="action-button" onclick="train_model()">Train Model</button>
+                <button class="action-button" onclick="view_all_cameras()">View All Cameras</button>
+            </div>
+        </div>
+
+        <!-- Footer Row -->
+        <div class="footer-row">
+            <div class="copyright-container">
+                <p class="copyright-text">Copyright 2025 – Nicholas Williamson & Diamond Coding. All Rights Reserved.</p>
+            </div>
+            <div class="company-logo">
+                <img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Socket.IO connection
+        const socket = io();
+        
+        // DOM elements
+        const statusIndicator = document.getElementById('statusIndicator');
+        const systemStatus = document.getElementById('systemStatus');
+        const logArea = document.getElementById('logArea');
+        const conversationArea = document.getElementById('conversationArea');
+        const personName = document.getElementById('personName');
+        const personConfidence = document.getElementById('personConfidence');
+        const capturedImage = document.getElementById('capturedImage');
+        const videoFeed = document.getElementById('videoFeed');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        // Debug elements
+        const debugSocket = document.getElementById('debugSocket');
+        const debugCamera = document.getElementById('debugCamera');
+        const debugModels = document.getElementById('debugModels');
+        const debugWakeWord = document.getElementById('debugWakeWord');
+        const debugPerson = document.getElementById('debugPerson');
+
+        let isSystemRunning = false;
+        let socketConnected = false;
+
+        // Connection status
+        socket.on('connect', function() {
+            socketConnected = true;
+            statusIndicator.textContent = 'Connected';
+            statusIndicator.className = 'status-indicator online';
+            debugSocket.textContent = 'Connected';
+            debugSocket.style.color = '#44FF44';
+            addLogEntry('✅ Connected to Chatty AI server', 'success');
+            
+            // Request system info on connect
+            setTimeout(() => {
+                socket.emit('get_system_info');
+            }, 1000);
+        });
+
+        socket.on('disconnect', function() {
+            socketConnected = false;
+            statusIndicator.textContent = 'Disconnected';
+            statusIndicator.className = 'status-indicator offline';
+            debugSocket.textContent = 'Disconnected';
+            debugSocket.style.color = '#FF4444';
+            addLogEntry('❌ Disconnected from server', 'error');
+            updateSystemStatus(false);
+        });
+
+        // FIXED: System status updates
+        socket.on('system_status', function(data) {
+            console.log('Received system_status:', data);
+            updateSystemStatus(data.running);
+            if (data.running) {
+                addLogEntry('✅ Chatty AI system started successfully', 'success');
+            } else {
+                addLogEntry('⏹️ Chatty AI system stopped', 'warning');
+            }
+        });
+
+        // Log updates
+        socket.on('log_update', function(data) {
+            addLogEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Conversation updates
+        socket.on('conversation_update', function(data) {
+            addConversationEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Person detection updates
+        socket.on('person_detected', function(data) {
+            console.log('Person detected:', data);
+            personName.textContent = data.name;
+            personConfidence.textContent = `Confidence: ${data.confidence}`;
+            debugPerson.textContent = data.name;
+            
+            // Update debug info color
+            if (data.name === 'Unknown') {
+                debugPerson.style.color = '#FF4444';
+            } else if (data.name === 'No person detected') {
+                debugPerson.style.color = '#888888';
+            } else {
+                debugPerson.style.color = '#44FF44';
+            }
+            
+            // Add animation for new detection
+            if (data.name !== 'No person detected') {
+                personName.classList.add('person-detected');
+                setTimeout(() => {
+                    personName.classList.remove('person-detected');
+                }, 2000);
+            }
+            
+            // Update captured image
+            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            
+            if (data.name !== 'No person detected') {
+                addConversationEntry(`👤 Person detected: ${data.name} (${data.confidence})`, 'info');
+            }
+        });
+
+        // System info updates
+        socket.on('system_info', function(data) {
+            console.log('System info:', data);
+            debugCamera.textContent = data.camera_initialized ? 'Ready' : 'Not Ready';
+            debugCamera.style.color = data.camera_initialized ? '#44FF44' : '#FF4444';
+            
+            debugModels.textContent = data.models_loaded ? 'Loaded' : 'Not Loaded';
+            debugModels.style.color = data.models_loaded ? '#44FF44' : '#FF4444';
+            
+            debugWakeWord.textContent = data.wake_word_active ? 'Active' : 'Inactive';
+            debugWakeWord.style.color = data.wake_word_active ? '#44FF44' : '#888888';
+            
+            if (data.current_person) {
+                debugPerson.textContent = data.current_person;
+                debugPerson.style.color = data.current_person === 'Unknown' ? '#FF4444' : '#44FF44';
+            }
+        });
+
+        // Test speech result
+        socket.on('speech_test_result', function(data) {
+            if (data.success) {
+                addLogEntry('🔊 Speech test completed successfully', 'success');
+            } else {
+                addLogEntry(`❌ Speech test failed: ${data.message}`, 'error');
+            }
+        });
+
+        // Manual wake word result
+        socket.on('manual_wake_result', function(data) {
+            if (data.success) {
+                addConversationEntry('🎤 Manual wake word triggered successfully', 'success');
+            } else {
+                addLogEntry(`❌ Manual wake word failed: ${data.message}`, 'warning');
+            }
+        });
+
+        // Helper functions
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function addConversationEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry conversation-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            conversationArea.appendChild(entry);
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function updateSystemStatus(running) {
+            isSystemRunning = running;
+            if (running) {
+                systemStatus.textContent = 'System Running';
+                systemStatus.className = 'system-status running';
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                startButton.textContent = 'Start System';
+            } else {
+                systemStatus.textContent = 'System Stopped';
+                systemStatus.className = 'system-status stopped';
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                stopButton.textContent = 'Stop System';
+            }
+        }
+
+        // System control functions
+        function startSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot start system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🚀 Starting Chatty AI system...', 'info');
+            socket.emit('start_system');
+            startButton.disabled = true;
+            startButton.textContent = 'Starting...';
+            
+            // Reset button text after timeout if no response
+            setTimeout(() => {
+                if (startButton.textContent === 'Starting...') {
+                    startButton.textContent = 'Start System';
+                    startButton.disabled = false;
+                }
+            }, 10000);
+        }
+
+        function stopSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot stop system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('⏹️ Stopping Chatty AI system...', 'warning');
+            socket.emit('stop_system');
+            stopButton.disabled = true;
+            stopButton.textContent = 'Stopping...';
+            
+            // Reset button text after timeout
+            setTimeout(() => {
+                if (stopButton.textContent === 'Stopping...') {
+                    stopButton.textContent = 'Stop System';
+                    stopButton.disabled = false;
+                }
+            }, 5000);
+        }
+
+        // Feature button functions
+        function testSpeech() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot test speech - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🔊 Testing speech synthesis...', 'info');
+            socket.emit('test_speech', {'text': 'Hello! This is a test of the Chatty AI speech system.'});
+        }
+
+        function manualWakeWord() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot trigger wake word - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🎤 Triggering manual wake word...', 'info');
+            socket.emit('manual_wake_word');
+        }
+
+        function getSystemInfo() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot get system info - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('ℹ️ Requesting system information...', 'info');
+            socket.emit('get_system_info');
+        }
+
+        function clearLogs() {
+            logArea.innerHTML = '';
+            conversationArea.innerHTML = '';
+            addLogEntry('🧹 Logs cleared', 'info');
+        }
+
+        // Connection monitoring
+        function checkConnection() {
+            if (!socketConnected) {
+                addLogEntry('⚠️ Connection lost - attempting to reconnect...', 'warning');
+                socket.connect();
+            }
+        }
+
+        // Monitor connection every 30 seconds
+        setInterval(checkConnection, 30000);
+
+        // Handle page unload
+        window.addEventListener('beforeunload', function() {
+            if (isSystemRunning && socketConnected) {
+                socket.emit('stop_system');
+            }
+        });
+
+        // Refresh video feed periodically to handle any connection issues
+        setInterval(() => {
+            if (videoFeed.complete) {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }
+        }, 30000); // Refresh every 30 seconds
+
+        // Handle video feed errors
+        videoFeed.addEventListener('error', function() {
+            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
+            setTimeout(() => {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }, 2000);
+        });
+
+        // Handle captured image errors
+        capturedImage.addEventListener('error', function() {
+            capturedImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExMTExIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+        });
+
+        // Auto-refresh captured image
+        setInterval(() => {
+            if (isSystemRunning) {
+                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            }
+        }, 5000); // Refresh every 5 seconds when system is running
+
+        // Request system info periodically
+        setInterval(() => {
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 10000); // Every 10 seconds
+
+        // Enhanced error handling for socket events
+        socket.on('connect_error', function(error) {
+            addLogEntry(`❌ Connection error: ${error}`, 'error');
+            statusIndicator.textContent = 'Connection Error';
+            statusIndicator.className = 'status-indicator offline';
+        });
+
+        socket.on('error', function(error) {
+            addLogEntry(`❌ Socket error: ${error}`, 'error');
+        });
+
+        // Debug logging for all socket events
+        const originalOn = socket.on;
+        socket.on = function(event, callback) {
+            return originalOn.call(this, event, function(...args) {
+                console.log(`Socket event received: ${event}`, args);
+                return callback.apply(this, args);
+            });
+        };
+
+        const originalEmit = socket.emit;
+        socket.emit = function(event, ...args) {
+            console.log(`Socket event sent: ${event}`, args);
+            return originalEmit.apply(this, [event, ...args]);
+        };
+
+        // Initial setup
+        addLogEntry('🌟 Chatty AI Web Interface initialized', 'info');
+        addLogEntry('🔗 Attempting to connect to server...', 'info');
+        addLogEntry('💡 Click "Start System" to begin AI operations', 'info');
+        
+        // Check for required files on load
+        setTimeout(() => {
+            addLogEntry('🔍 Checking system components...', 'info');
+            getSystemInfo();
+        }, 2000);
+    </script>
+</body>
+</html>
 
 
+Also, I see the functionality of my original app_4.py Python script is changing.
 
+I want you to fix the socket connection error in my app_4.py and I want you to use a production WSGI server instead of the current development server.
 
+My current app_4.py Python script is as follows:
 
+app_4.py
+#!/usr/bin/env python3
+"""
+app_4.py - Chatty AI Web Interface using Flask and SocketIO
+Converts the standalone chatty_ai.py script to work as a web application
+"""
+
+import os
+import subprocess
+import sounddevice as sd
+import soundfile as sf
+import numpy as np
+import threading
+import time
+import random
+import re
+import cv2
+import face_recognition
+import pickle
+import json
+import requests
+import logging
+from datetime import datetime, timedelta
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+from picamera2 import Picamera2
+from flask import Flask, render_template, Response, jsonify, request, send_from_directory
+from flask_socketio import SocketIO, emit
+import base64
+from io import BytesIO
+from PIL import Image
+
+# -------------------------------
+# Configuration
+# -------------------------------
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+BEEP_SOUND = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+LAUGHING_SOUND = "/home/nickspi5/Chatty_AI/audio_files/laughing.wav"
+ENCODINGS_FILE = "encodings.pickle"
+TELEGRAM_CONFIG_FILE = "telegram_config.json"
+
+# Audio files
+WAV_FILENAME = "user_input.wav"
+RESPONSE_AUDIO = "output.wav"
+WAKE_WORD_AUDIO = "wake_word_check.wav"
+
+# Security directories
+SECURITY_PHOTOS_DIR = "/home/nickspi5/Chatty_AI/security_photos"
+SECURITY_LOGS_DIR = "/home/nickspi5/Chatty_AI/security_logs"
+
+# Response files
+JOKES_FILE = "jokes.txt"
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
+WAITING_RESPONSES_FILE = "waiting_responses.txt"
+WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
+BORED_RESPONSES_FILE = "bored_responses.txt"
+VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+
+# Wake word phrases
+WAKE_WORDS = [
+    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+    "hi cherry", "yo cherry"
+]
+
+# Command keywords
+COMMANDS = {
+    "flush the toilet": "toilet_flush",
+    "turn on the lights": "lights_on",
+    "turn off the lights": "lights_off",
+    "play music": "play_music",
+    "stop music": "stop_music",
+    "what time is it": "get_time",
+    "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
+    "reboot system": "reboot_system"
+}
+
+# Audio parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+SILENCE_THRESHOLD = 0.035
+MIN_SILENCE_DURATION = 1.5
+MAX_RECORDING_DURATION = 30
+
+# Timing parameters
+GREETING_COOLDOWN = 300  # 5 minutes in seconds
+BORED_RESPONSE_INTERVAL = 30  # Configurable duration for bored responses
+PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
+WAKE_WORD_CHECK_INTERVAL = 1.0  # Check for wake words every 1 second
+
+# Flask and SocketIO setup
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'chatty_ai_secret_key_2025'
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+class ChattyAIWeb:
+    def __init__(self):
+        # AI Models
+        self.whisper_model = None
+        self.llama_model = None
+        
+        # Facial Recognition
+        self.known_encodings = []
+        self.known_names = []
+        
+        # Camera
+        self.picam2 = None
+        self.current_frame = None
+        self.captured_person_image = None
+        
+        # State variables
+        self.is_running = False
+        self.system_initialized = False
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.last_bored_response_time = None
+        self.bored_cycle = 0
+        self.audio_recording_lock = threading.Lock()
+        self.wake_word_active = False
+
+        # Response lists
+        self.jokes = []
+        self.listening_responses = []
+        self.waiting_responses = []
+        self.warning_responses = []
+        self.greeting_responses = []
+        self.bored_responses = []
+        self.visitor_greeting_responses = []
+
+        # Telegram
+        self.telegram_token = None
+        self.telegram_chat_id = None
+
+        # Threading
+        self.camera_thread = None
+        self.audio_thread = None
+        
+        # Initialize directories and response files
+        self.setup_directories()
+        self.load_response_files()
+    
+    def setup_directories(self):
+        """Create necessary directories"""
+        os.makedirs(SECURITY_PHOTOS_DIR, exist_ok=True)
+        os.makedirs(SECURITY_LOGS_DIR, exist_ok=True)
+        os.makedirs("templates", exist_ok=True)
+    
+    def setup_logging(self):
+        """Setup logging for detections"""
+        log_file = os.path.join(SECURITY_LOGS_DIR, "chatty_ai_web.log")
+        self.logger = logging.getLogger('chatty_ai_web')
+        self.logger.setLevel(logging.INFO)
+        
+        # Remove existing handlers
+        for handler in self.logger.handlers[:]:
+            self.logger.removeHandler(handler)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+    
+    def load_response_files(self):
+        """Load response text files"""
+        try:
+            with open(JOKES_FILE, 'r') as f:
+                self.jokes = [line.strip() for line in f if line.strip()]
+            
+            with open(LISTENING_RESPONSES_FILE, 'r') as f:
+                self.listening_responses = [line.strip() for line in f if line.strip()]
+
+            with open(GREETING_RESPONSES_FILE, 'r') as f:
+                self.greeting_responses = [line.strip() for line in f if line.strip()]
+
+            with open(WAITING_RESPONSES_FILE, 'r') as f:
+                self.waiting_responses = [line.strip() for line in f if line.strip()]
+            
+            with open(WARNING_RESPONSES_FILE, 'r') as f:
+                self.warning_responses = [line.strip() for line in f if line.strip()]
+            
+            try:
+                with open(BORED_RESPONSES_FILE, 'r') as f:
+                    self.bored_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_bored_responses()
+            
+            try:
+                with open(VISITOR_GREETING_RESPONSES_FILE, 'r') as f:
+                    self.visitor_greeting_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_visitor_responses()
+            
+            self.emit_log("Response files loaded successfully", "success")
+        except FileNotFoundError as e:
+            self.emit_log(f"Response file not found: {e}", "error")
+            self.create_default_responses()
+    
+    def create_default_bored_responses(self):
+        """Create default bored responses file"""
+        default_bored = [
+            "I'm getting a bit bored waiting here",
+            "Still hanging around here waiting for you, dude",
+            "I'm patiently waiting for your commands",
+            "I am feeling restless waiting here",
+            "Still here waiting to help you"
+        ]
+        
+        try:
+            with open(BORED_RESPONSES_FILE, 'w') as f:
+                for response in default_bored:
+                    f.write(response + '\n')
+            self.bored_responses = default_bored
+            self.emit_log(f"Created default bored responses file", "info")
+        except Exception as e:
+            self.emit_log(f"Failed to create bored responses file: {e}", "error")
+            self.bored_responses = default_bored
+    
+    def create_default_visitor_responses(self):
+        """Create default visitor greeting responses file"""
+        default_visitor = [
+            "Hello. I do not recognize you. Can I be of assistance?",
+            "Good day, visitor. How may I help you today?",
+            "Welcome. I do not believe we have met before. What can I do for you?",
+            "Hello there. I am an AI assistant. How can I assist you?",
+            "It is great to meet you. I do not recognize your face, but I am happy to help."
+        ]
+        
+        try:
+            with open(VISITOR_GREETING_RESPONSES_FILE, 'w') as f:
+                for response in default_visitor:
+                    f.write(response + '\n')
+            self.visitor_greeting_responses = default_visitor
+            self.emit_log(f"Created default visitor responses file", "info")
+        except Exception as e:
+            self.emit_log(f"Failed to create visitor responses file: {e}", "error")
+            self.visitor_greeting_responses = default_visitor
+    
+    def create_default_responses(self):
+        """Create default responses if files are missing"""
+        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.greeting_responses = ["Hey {name}! Good to see you, buddy! What's up?"]
+        self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+        self.waiting_responses = ["I am still around if you need me, {name}"]
+        self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."]
+        self.bored_responses = ["I'm getting a bit bored waiting here"]
+        self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
+    
+    def is_daytime_hours(self):
+        """Check if current time is between 6:00AM and 12:00PM (daytime visitor hours)"""
+        current_hour = datetime.now().hour
+        return 6 <= current_hour <= 12
+    
+    def load_models(self):
+        """Load AI models"""
+        self.emit_log("Loading AI models...", "info")
+        
+        try:
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            self.emit_log("Whisper model loaded successfully", "success")
+        except Exception as e:
+            self.emit_log(f"Failed to load Whisper: {e}", "error")
+            return False
+        
+        try:
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            self.emit_log("LLaMA model loaded successfully", "success")
+        except Exception as e:
+            self.emit_log(f"Failed to load LLaMA: {e}", "error")
+            return False
+        
+        return True
+    
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
+            with open(ENCODINGS_FILE, "rb") as f:
+                data = pickle.loads(f.read())
+                self.known_encodings = data["encodings"]
+                self.known_names = data["names"]
+            self.emit_log(f"Loaded {len(self.known_encodings)} face encodings", "success")
+            return True
+        except FileNotFoundError:
+            self.emit_log(f"Encodings file '{ENCODINGS_FILE}' not found!", "error")
+            return False
+        except Exception as e:
+            self.emit_log(f"Failed to load encodings: {e}", "error")
+            return False
+    
+    def load_telegram_config(self):
+        """Load Telegram configuration"""
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            self.emit_log("Telegram configuration loaded", "success")
+        except FileNotFoundError:
+            self.emit_log("Telegram config not found - alerts disabled", "warning")
+        except Exception as e:
+            self.emit_log(f"Failed to load Telegram config: {e}", "error")
+    
+    def setup_camera(self):
+        """Initialize camera"""
+        try:
+            self.picam2 = Picamera2()
+            self.picam2.configure(self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            ))
+            self.picam2.start()
+            time.sleep(2)  # Camera warm-up
+            self.emit_log("Camera initialized successfully", "success")
+            return True
+        except Exception as e:
+            self.emit_log(f"Failed to initialize camera: {e}", "error")
+            return False
+    
+    def emit_log(self, message, log_type="info"):
+        """Emit log message to web interface"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        socketio.emit('log_update', {
+            'message': message,
+            'type': log_type,
+            'timestamp': timestamp
+        })
+        print(f"[{timestamp}] {message}")
+    
+    def emit_conversation(self, message, conv_type="info"):
+        """Emit conversation message to web interface"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        socketio.emit('conversation_update', {
+            'message': message,
+            'type': conv_type,
+            'timestamp': timestamp
+        })
+    
+    def speak_text(self, text):
+        """Convert text to speech using Piper"""
+        try:
+            with self.audio_recording_lock:
+                command = [
+                    PIPER_EXECUTABLE,
+                    "--model", VOICE_PATH,
+                    "--config", CONFIG_PATH,
+                    "--output_file", RESPONSE_AUDIO
+                ]
+                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+                
+                self.emit_conversation(f"🔊 Spoke: {text}", "speech")
+        except subprocess.CalledProcessError as e:
+            self.emit_log(f"TTS failed: {e}", "error")
+    
+    def play_beep(self):
+        """Play beep sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+    
+    def play_laughing(self):
+        """Play laughing sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+    
+    def detect_faces(self, frame):
+        """Detect and recognize faces in frame"""
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+        
+        if len(face_locations) == 0:
+            return None, None, 0.0
+        
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        
+        best_name = "Unknown"
+        best_confidence = 0.0
+        
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
+            
+            if True in matches:
+                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
+                best_match_index = face_distances.argmin()
+                confidence = 1.0 - face_distances[best_match_index]
+                
+                if matches[best_match_index] and confidence > 0.4:
+                    if confidence > best_confidence:
+                        best_name = self.known_names[best_match_index]
+                        best_confidence = confidence
+        
+        return best_name, face_locations[0], best_confidence
+    
+    def save_security_photo(self, frame, person_name, confidence):
+        """Save security photo with timestamp"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{person_name.lower()}_{timestamp}.jpg"
+        filepath = os.path.join(SECURITY_PHOTOS_DIR, filename)
+        
+        # Add overlay information
+        overlay_frame = frame.copy()
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
+        
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
+        if person_name != "Unknown":
+            cv2.putText(overlay_frame, f"Confidence: {confidence:.1%}", (20, 85), font, 0.6, (255, 255, 255), 2)
+        
+        cv2.imwrite(filepath, overlay_frame)
+        
+        if hasattr(self, 'logger'):
+            self.logger.info(f"Security photo saved: {filename} | Person: {person_name} | Confidence: {confidence:.2f}")
+        
+        return filepath
+    
+    def send_telegram_alert(self, person_name, confidence, photo_path):
+        """Send Telegram alert"""
+        if not self.telegram_token or not self.telegram_chat_id:
+            return False
+        
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            if person_name == "Unknown":
+                message = f"**UNKNOWN PERSON DETECTED**\n\n**Time:** {timestamp}\n**Status:** Unregistered Person\n**Action:** Photo captured for review"
+            else:
+                message = f"**AUTHORIZED ACCESS**\n\n**Person:** {person_name}\n**Time:** {timestamp}\n**Confidence:** {confidence:.1%}\n**Status:** Registered User"
+            
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
+            with open(photo_path, 'rb') as photo:
+                files = {'photo': photo}
+                data = {
+                    'chat_id': self.telegram_chat_id,
+                    'caption': message,
+                    'parse_mode': 'Markdown'
+                }
+                response = requests.post(url, data=data, files=files, timeout=30)
+                return response.status_code == 200
+        except Exception as e:
+            self.emit_log(f"Telegram alert failed: {e}", "error")
+            return False
+    
+    def greet_person(self, name):
+        """Greet a detected person with generic greeting using their name"""
+        current_time = time.time()
+        
+        # Check if we should greet this person (cooldown check)
+        if name in self.last_greeting_time:
+            time_since_last = current_time - self.last_greeting_time[name]
+            if time_since_last < GREETING_COOLDOWN:
+                return False
+        
+        # Use generic greeting with person's name
+        if self.greeting_responses:
+            greeting_template = random.choice(self.greeting_responses)
+            greeting = greeting_template.replace("{name}", name)
+        else:
+            greeting = f"Hey {name}! Good to see you, buddy! What's up?"
+        
+        self.speak_text(greeting)
+        self.emit_conversation(f"👋 Greeted: {name}", "greeting")
+        
+        self.last_greeting_time[name] = current_time
+        self.last_interaction_time = current_time
+        
+        # Enable wake word detection after greeting
+        self.wake_word_active = True
+        self.last_bored_response_time = current_time
+        self.bored_cycle = 0
+        
+        self.emit_log(f"Greeted {name} - Wake word detection activated", "success")
+        return True
+    
+    def handle_unknown_person(self, frame, confidence):
+        """Handle unknown person detection with time-based responses"""
+        if self.is_daytime_hours():
+            # 6:00AM - 12:00PM: Assume visitor, be friendly
+            if self.visitor_greeting_responses:
+                visitor_greeting = random.choice(self.visitor_greeting_responses)
+            else:
+                visitor_greeting = "Hello. I do not recognize you. Can I be of assistance?"
+            self.speak_text(visitor_greeting)
+            self.emit_log("Unknown person detected during daytime - treated as visitor", "warning")
+        else:
+            # 12:01PM - 5:59AM: Assume intruder, give warning
+            if self.warning_responses:
+                warning = random.choice(self.warning_responses)
+            else:
+                warning = "Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."
+            self.speak_text(warning)
+            self.emit_log("Unknown person detected during nighttime/evening - treated as intruder", "error")
+        
+        photo_path = self.save_security_photo(frame, "Unknown", confidence)
+        self.send_telegram_alert("Unknown", confidence, photo_path)
+    
+    def get_llm_joke(self):
+        """Ask the local LLM for a joke"""
+        try:
+            prompt = "Tell me a short, clean joke. Just the joke, nothing else."
+            formatted_prompt = f"You are a comedian. Tell a brief, funny joke.\nUser: {prompt}\nAssistant: "
+            
+            result = self.llama_model(formatted_prompt, max_tokens=80)
+            if "choices" in result and result["choices"]:
+                joke = result["choices"][0]["text"].strip()
+                joke = re.sub(r"\(.*?\)", "", joke)
+                joke = re.sub(r"(User:|Assistant:)", "", joke)
+                joke = joke.strip()
+                
+                sentences = joke.split('.')
+                if len(sentences) > 2:
+                    joke = '. '.join(sentences[:2]) + '.'
+                
+                return joke if joke else "Why did the computer go to therapy? Because it had too many bytes!"
+            else:
+                return "Why did the computer go to therapy? Because it had too many bytes!"
+        except Exception as e:
+            self.emit_log(f"LLM joke error: {e}", "error")
+            return "Why did the computer go to therapy? Because it had too many bytes!"
+    
+    def get_llm_fun_fact(self):
+        """Ask the local LLM for a fun fact"""
+        try:
+            prompt = "Tell me an interesting fun fact. Keep it brief and fascinating."
+            formatted_prompt = f"You are a knowledgeable teacher. Share one interesting fact.\nUser: {prompt}\nAssistant: "
+            
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                fact = result["choices"][0]["text"].strip()
+                fact = re.sub(r"\(.*?\)", "", fact)
+                fact = re.sub(r"(User:|Assistant:)", "", fact)
+                fact = fact.strip()
+                
+                sentences = fact.split('.')
+                if len(sentences) > 3:
+                    fact = '. '.join(sentences[:3]) + '.'
+                
+                return fact if fact else "Did you know that octopuses have three hearts and blue blood?"
+            else:
+                return "Did you know that octopuses have three hearts and blue blood?"
+        except Exception as e:
+            self.emit_log(f"LLM fun fact error: {e}", "error")
+            return "Did you know that octopuses have three hearts and blue blood?"
+    
+    def check_for_bored_response(self, name):
+        """Check if it's time to give a bored response with joke or fun fact from LLM"""
+        if not self.wake_word_active or not self.last_bored_response_time:
+            return False
+        
+        current_time = time.time()
+        time_since_bored = current_time - self.last_bored_response_time
+        
+        if time_since_bored >= BORED_RESPONSE_INTERVAL:
+            if self.bored_cycle == 0:
+                # Give bored response + joke from LLM
+                if self.bored_responses:
+                    bored_template = random.choice(self.bored_responses)
+                    bored_msg = bored_template.replace("{name}", name)
+                else:
+                    bored_msg = f"Yo {name}, still hanging around here waiting for you, dude!"
+                
+                joke = self.get_llm_joke()
+                full_message = f"{bored_msg} Let me tell you a joke! ... ... {joke}"
+                self.speak_text(full_message)
+                self.bored_cycle = 1
+                self.emit_conversation(f"😴 Gave bored response with joke to {name}", "entertainment")
+            else:
+                # Give waiting response + fun fact from LLM
+                if self.waiting_responses:
+                    waiting_template = random.choice(self.waiting_responses)
+                    waiting_msg = waiting_template.replace("{name}", name)
+                else:
+                    waiting_msg = f"I am still around if you need me, {name}"
+                
+                fun_fact = self.get_llm_fun_fact()
+                full_message = f"{waiting_msg} Let me tell you a fun fact! ... ... {fun_fact}"
+                self.speak_text(full_message)
+                self.bored_cycle = 0
+                self.emit_conversation(f"💡 Gave waiting response with fun fact to {name}", "entertainment")
+            
+            self.last_bored_response_time = current_time
+            return True
+        
+        return False
+    
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper"""
+        try:
+            if not os.path.exists(filename):
+                return ""
+            
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            self.emit_conversation(f"🎤 Heard: {transcript}", "user_input")
+            return transcript
+        except Exception as e:
+            self.emit_log(f"Transcription error: {e}", "error")
+            return ""
+    
+    def detect_wake_word(self, text):
+        """Check if text contains wake word"""
+        if not text:
+            return False
+            
+        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+        
+        for wake_word in WAKE_WORDS:
+            wake_word_cleaned = wake_word.lower().strip()
+            if wake_word_cleaned in text_cleaned:
+                self.emit_conversation(f"🎯 Wake word detected: '{wake_word}' in '{text}'", "wake_word")
+                return True
+        return False
+    
+    def record_with_silence_detection(self):
+        """Record audio until silence detected"""
+        try:
+            with self.audio_recording_lock:
+                self.emit_log("Recording audio...", "info")
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.2
+                samples_per_check = int(SAMPLE_RATE * check_interval)
+                
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        self.emit_log(f"Audio callback status: {status}", "warning")
+                    audio_data.extend(indata[:, 0])
+                
+                with sd.InputStream(callback=audio_callback, 
+                                  samplerate=SAMPLE_RATE, 
+                                  channels=CHANNELS,
+                                  dtype='float32'):
+                    
+                    while recording_duration < MAX_RECORDING_DURATION:
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                        
+                        if len(audio_data) >= samples_per_check:
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+                            rms = np.sqrt(np.mean(recent_audio**2))
+                            
+                            if rms < SILENCE_THRESHOLD:
+                                silence_duration += check_interval
+                                if silence_duration >= MIN_SILENCE_DURATION:
+                                    self.emit_log(f"Silence detected after {recording_duration:.1f}s", "info")
+                                    break
+                            else:
+                                silence_duration = 0
+                
+                if audio_data:
+                    audio_array = np.array(audio_data, dtype=np.float32)
+                    sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                    self.emit_log(f"Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration", "success")
+                    return True
+                
+                return False
+                
+        except Exception as e:
+            self.emit_log(f"Recording error: {e}", "error")
+            return False
+    
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection"""
+        try:
+            if not self.audio_recording_lock.acquire(blocking=False):
+                return False
+            
+            try:
+                # Record 5 seconds of audio for wake word detection
+                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()
+                
+                # Check if audio contains sound above threshold
+                rms = np.sqrt(np.mean(audio_data**2))
+                if rms > SILENCE_THRESHOLD * 2:
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    return True
+                else:
+                    return False
+                    
+            finally:
+                self.audio_recording_lock.release()
+                
+        except Exception as e:
+            self.emit_log(f"Wake word recording error: {e}", "error")
+            if self.audio_recording_lock.locked():
+                self.audio_recording_lock.release()
+            return False
+    
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+    
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            current_time = datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+    
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            self.emit_log(f"LLM error: {e}", "error")
+            return "Sorry, I had trouble processing that question."
+    
+    def process_user_input(self, text):
+        """Process user input"""
+        self.emit_log(f"Processing user input: '{text}'", "info")
+        command = self.is_command(text)
+        if command:
+            self.emit_log(f"Executing command: {command}", "info")
+            response = self.execute_command(command)
+        else:
+            self.emit_log("Generating LLM response", "info")
+            response = self.query_llama(text)
+        
+        return response
+    
+    def listen_for_wake_word(self):
+        """Listen for wake words in background"""
+        self.emit_log("Wake word detection thread started", "info")
+        
+        while self.is_running:
+            try:
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+                    
+                    # Record audio for wake word detection
+                    if self.record_wake_word_check():
+                        # Transcribe and check for wake word
+                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                        
+                        if transcript and self.detect_wake_word(transcript):
+                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", "success")
+                            self.play_beep()
+                            
+                            # Speak generic listening response with person's name
+                            if self.listening_responses:
+                                listening_template = random.choice(self.listening_responses)
+                                listening_response = listening_template.replace("{name}", self.current_person)
+                            else:
+                                listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
+                            
+                            self.speak_text(listening_response)
+                            
+                            # Record full request
+                            self.emit_log("Please speak your request...", "info")
+                            if self.record_with_silence_detection():
+                                user_text = self.transcribe_audio(WAV_FILENAME)
+                                if user_text and len(user_text.strip()) > 2:
+                                    self.emit_log(f"User said: '{user_text}'", "info")
+                                    response = self.process_user_input(user_text)
+                                    self.emit_conversation(f"🤖 Response: {response}", "response")
+                                    self.speak_text(response)
+                                    self.last_interaction_time = time.time()
+                                    self.last_bored_response_time = time.time()
+                                else:
+                                    self.emit_log("No clear speech detected", "warning")
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                            else:
+                                self.emit_log("Failed to record user request", "error")
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                    
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    time.sleep(2.0)
+                
+            except Exception as e:
+                self.emit_log(f"Wake word detection error: {e}", "error")
+                time.sleep(2.0)
+        
+        self.emit_log("Wake word detection thread stopped", "info")
+    
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop"""
+        self.emit_log("Camera monitoring thread started", "info")
+        
+        while self.is_running:
+            try:
+                frame = self.picam2.capture_array()
+                
+                # Convert from RGB to BGR for OpenCV
+                if len(frame.shape) == 3 and frame.shape[2] == 3:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                
+                # Store current frame for video feed
+                self.current_frame = frame.copy()
+                
+                # Process facial recognition
+                name, face_location, confidence = self.detect_faces(frame)
+                
+                current_time = time.time()
+                
+                # Draw face rectangles and labels on frame
+                if name and face_location:
+                    top, right, bottom, left = face_location
+                    
+                    # Choose color based on recognition
+                    if name == "Unknown":
+                        color = (0, 0, 255)  # Red for unknown
+                        label = f"Unknown ({confidence:.2f})"
+                    else:
+                        color = (0, 255, 0)  # Green for known
+                        label = f"{name} ({confidence:.2f})"
+                    
+                    # Draw rectangle around face
+                    cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+                    cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+                    cv2.putText(frame, label, (left + 6, bottom - 6),
+                               cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
+                
+                # Store frame for captured image display
+                self.current_frame = frame
+                
+                # Process facial recognition logic
+                if name and face_location:
+                    # Person detected
+                    if name != self.current_person:
+                        # New person or person changed
+                        self.current_person = name
+                        self.person_absent_since = None
+                        self.wake_word_active = False
+                        
+                        # Emit person detection to web interface
+                        socketio.emit('person_detected', {
+                            'name': name,
+                            'confidence': f"{confidence:.1%}" if name != "Unknown" else "Unknown",
+                            'timestamp': datetime.now().strftime("%H:%M:%S")
+                        })
+                        
+                        # Store captured person image
+                        self.captured_person_image = frame.copy()
+                        
+                        if name == "Unknown":
+                            self.handle_unknown_person(frame, confidence)
+                        else:
+                            # Save photo and send telegram alert for known person
+                            photo_path = self.save_security_photo(frame, name, confidence)
+                            self.send_telegram_alert(name, confidence, photo_path)
+                            
+                            # Greet known person
+                            self.greet_person(name)
+                
+                else:
+                    # No person detected
+                    if self.current_person:
+                        if not self.person_absent_since:
+                            self.person_absent_since = current_time
+                        elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
+                            # Person has been absent for 5+ minutes, reset
+                            self.current_person = None
+                            self.person_absent_since = None
+                            self.last_interaction_time = None
+                            self.wake_word_active = False
+                            self.last_bored_response_time = None
+                            self.bored_cycle = 0
+                            self.captured_person_image = None
+                            
+                            # Emit no person detected
+                            socketio.emit('person_detected', {
+                                'name': 'No person detected',
+                                'confidence': '--',
+                                'timestamp': datetime.now().strftime("%H:%M:%S")
+                            })
+                            
+                            self.emit_log("Person left - resetting state", "info")
+                
+                time.sleep(PERSON_DETECTION_INTERVAL)
+                
+            except Exception as e:
+                self.emit_log(f"Camera loop error: {e}", "error")
+                time.sleep(1)
+        
+        self.emit_log("Camera monitoring thread stopped", "info")
+    
+    def initialize_system(self):
+        """Initialize all system components"""
+        self.emit_log("Initializing Chatty AI system...", "info")
+        
+        # Setup logging
+        self.setup_logging()
+        
+        # Load models
+        if not self.load_models():
+            self.emit_log("Failed to load AI models", "error")
+            return False
+        
+        # Load encodings
+        if not self.load_encodings():
+            self.emit_log("Failed to load face encodings", "error")
+            return False
+        
+        # Load Telegram config
+        self.load_telegram_config()
+        
+        # Setup camera
+        if not self.setup_camera():
+            self.emit_log("Failed to initialize camera", "error")
+            return False
+        
+        self.system_initialized = True
+        self.emit_log("System initialization complete", "success")
+        return True
+    
+    def start_system(self):
+        """Start the Chatty AI system"""
+        if self.is_running:
+            self.emit_log("System is already running", "warning")
+            return False
+        
+        if not self.system_initialized:
+            if not self.initialize_system():
+                self.emit_log("System initialization failed", "error")
+                return False
+        
+        self.emit_log("Starting Chatty AI system...", "info")
+        self.is_running = True
+        
+        # Start camera monitoring thread
+        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+        self.camera_thread.start()
+        
+        # Start wake word detection thread
+        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+        self.audio_thread.start()
+        
+        self.emit_log("Chatty AI system started successfully", "success")
+        return True
+    
+    def stop_system(self):
+        """Stop the Chatty AI system"""
+        if not self.is_running:
+            self.emit_log("System is already stopped", "warning")
+            return False
+        
+        self.emit_log("Stopping Chatty AI system...", "warning")
+        self.is_running = False
+        
+        # Wait for threads to finish
+        if self.camera_thread and self.camera_thread.is_alive():
+            self.camera_thread.join(timeout=3)
+        
+        if self.audio_thread and self.audio_thread.is_alive():
+            self.audio_thread.join(timeout=3)
+        
+        # Reset state
+        self.current_person = None
+        self.wake_word_active = False
+        self.last_bored_response_time = None
+        
+        # Emit no person detected
+        socketio.emit('person_detected', {
+            'name': 'No person detected',
+            'confidence': '--',
+            'timestamp': datetime.now().strftime("%H:%M:%S")
+        })
+        
+        self.emit_log("Chatty AI system stopped", "info")
+        return True
+    
+    def get_system_info(self):
+        """Get current system information"""
+        return {
+            'running': self.is_running,
+            'camera_initialized': self.picam2 is not None,
+            'models_loaded': self.whisper_model is not None and self.llama_model is not None,
+            'wake_word_active': self.wake_word_active,
+            'current_person': self.current_person,
+            'encodings_loaded': len(self.known_encodings) > 0
+        }
+    
+    def cleanup(self):
+        """Clean up resources"""
+        self.emit_log("Cleaning up resources...", "info")
+        self.is_running = False
+        
+        if self.camera_thread and self.camera_thread.is_alive():
+            self.camera_thread.join(timeout=3)
+        
+        if self.audio_thread and self.audio_thread.is_alive():
+            self.audio_thread.join(timeout=3)
+        
+        if self.picam2:
+            try:
+                self.picam2.stop()
+            except:
+                pass
+        
+        # Clean up audio files
+        for audio_file in [WAV_FILENAME, RESPONSE_AUDIO, WAKE_WORD_AUDIO]:
+            try:
+                if os.path.exists(audio_file):
+                    os.remove(audio_file)
+            except:
+                pass
+        
+        self.emit_log("Cleanup complete", "info")
+
+# Global instance
+chatty_ai = ChattyAIWeb()
+
+# Flask Routes
+@app.route('/')
+def index():
+    """Main web interface"""
+    return render_template('Chatty_AI.html')
+
+@app.route('/templates/<path:filename>')
+def serve_templates(filename):
+    """Serve template files (images, etc.)"""
+    return send_from_directory('templates', filename)
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route"""
+    def generate():
+        while True:
+            if chatty_ai.current_frame is not None:
+                # Encode frame as JPEG
+                ret, buffer = cv2.imencode('.jpg', chatty_ai.current_frame)
+                if ret:
+                    frame = buffer.tobytes()
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            time.sleep(0.1)  # Limit frame rate
+    
+    return Response(generate(),
+                   mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/captured_image')
+def captured_image():
+    """Serve captured person image"""
+    if chatty_ai.captured_person_image is not None:
+        ret, buffer = cv2.imencode('.jpg', chatty_ai.captured_person_image)
+        if ret:
+            return Response(buffer.tobytes(), mimetype='image/jpeg')
+    
+    # Return placeholder image if no person detected
+    placeholder = np.zeros((300, 300, 3), dtype=np.uint8)
+    cv2.putText(placeholder, 'No Person', (80, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    ret, buffer = cv2.imencode('.jpg', placeholder)
+    return Response(buffer.tobytes(), mimetype='image/jpeg')
+
+# SocketIO Events
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    print(f"Client connected: {request.sid}")
+    emit('system_status', {'running': chatty_ai.is_running})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    print(f"Client disconnected: {request.sid}")
+
+@socketio.on('start_system')
+def handle_start_system():
+    """Handle start system request"""
+    success = chatty_ai.start_system()
+    emit('system_status', {'running': chatty_ai.is_running})
+
+@socketio.on('stop_system')
+def handle_stop_system():
+    """Handle stop system request"""
+    success = chatty_ai.stop_system()
+    emit('system_status', {'running': chatty_ai.is_running})
+
+@socketio.on('get_system_info')
+def handle_get_system_info():
+    """Handle system info request"""
+    info = chatty_ai.get_system_info()
+    emit('system_info', info)
+
+@socketio.on('test_speech')
+def handle_test_speech(data):
+    """Handle speech test request"""
+    try:
+        text = data.get('text', 'This is a test of the speech system.')
+        chatty_ai.speak_text(text)
+        emit('speech_test_result', {'success': True})
+    except Exception as e:
+        emit('speech_test_result', {'success': False, 'message': str(e)})
+
+@socketio.on('manual_wake_word')
+def handle_manual_wake_word():
+    """Handle manual wake word trigger"""
+    try:
+        if chatty_ai.current_person and chatty_ai.current_person != "Unknown":
+            chatty_ai.wake_word_active = True
+            chatty_ai.play_beep()
+            response = f"Manual wake word activated for {chatty_ai.current_person}"
+            chatty_ai.speak_text(response)
+            emit('manual_wake_result', {'success': True})
+        else:
+            emit('manual_wake_result', {'success': False, 'message': 'No known person detected'})
+    except Exception as e:
+        emit('manual_wake_result', {'success': False, 'message': str(e)})
+
+# Placeholder functions for the 4 buttons (to be implemented later)
+def get_settings():
+    """Settings button - placeholder function"""
+    pass
+
+def register_person():
+    """Register Person button - placeholder function"""
+    pass
+
+def train_model():
+    """Train Model button - placeholder function"""  
+    pass
+
+def view_all_cameras():
+    """View All Cameras button - placeholder function"""
+    pass
+
+if __name__ == '__main__':
+    try:
+        print("🚀 Starting Chatty AI Web Interface")
+        print("=" * 60)
+        print("Web Interface Features:")
+        print("• Live Video Feed")
+        print("• Facial Recognition")
+        print("• Real-time System Monitoring")
+        print("• Speech Synthesis")
+        print("• Wake Word Detection")
+        print("• AI Assistant Integration")
+        print("=" * 60)
+        print("Access the web interface at: http://localhost:5000")
+        print("Press Ctrl+C to stop the server")
+        print("=" * 60)
+        
+        # Start Flask-SocketIO server
+        socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+        
+    except KeyboardInterrupt:
+        print("\n🛑 Shutting down Chatty AI Web Interface...")
+        chatty_ai.cleanup()
+        print("✅ Shutdown complete")
+    except Exception as e:
+        print(f"❌ Server error: {e}")
+        chatty_ai.cleanup()
+
+Please take your time to analyze everything Claude and make the changes required to get this all working properly.
 
 
 
