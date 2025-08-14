@@ -1,53 +1,63 @@
-Well, I finally got to start Month 4 and just started Lesson 1.
+Thank you, Claude,
 
-I trusted the instructions manually typed in this for my dockercompse.yml file.
+In the terminal on my Raspberry PI 5, I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install psutil flask flask-socketio opencv-python pillow
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Requirement already satisfied: psutil in /usr/lib/python3/dist-packages (5.9.4)
+Requirement already satisfied: flask in /usr/lib/python3/dist-packages (2.2.2)
+Requirement already satisfied: flask-socketio in ./chatty-venv/lib/python3.11/site-packages (5.5.1)
+Requirement already satisfied: opencv-python in /usr/local/lib/python3.11/dist-packages (4.11.0.86)
+Requirement already satisfied: pillow in /usr/lib/python3/dist-packages (9.4.0)
+Requirement already satisfied: python-socketio>=5.12.0 in ./chatty-venv/lib/python3.11/site-packages (from flask-socketio) (5.13.0)
+Requirement already satisfied: numpy>=1.21.2 in /usr/lib/python3/dist-packages (from opencv-python) (1.24.2)
+Requirement already satisfied: bidict>=0.21.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (0.23.1)
+Requirement already satisfied: python-engineio>=4.11.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio>=5.12.0->flask-socketio) (4.12.2)
+Requirement already satisfied: simple-websocket>=0.10.0 in ./chatty-venv/lib/python3.11/site-packages (from python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.1.0)
+Requirement already satisfied: wsproto in ./chatty-venv/lib/python3.11/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (1.2.0)
+Requirement already satisfied: h11<1,>=0.9.0 in ./chatty-venv/lib/python3.11/site-packages (from wsproto->simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.12.0->flask-socketio) (0.16.0)
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 app_test.py
+Server initialized for eventlet.
+2025-08-14 20:13:49,282 - INFO - Server initialized for eventlet.
+2025-08-14 20:13:49,288 - INFO - ChattyAI Web Server initialized
 
-services:
-  homeassistant:
-    container_name: homeassistant
-    image: ghcr.io/home-assistant/home-assistant:stable
-    volumes:
-      - ./config:/config
-      - ./etc/localtime:/etc/localtime:ro
-    devices:
-      - ./dev/ttyAMCO:/dev/ttyAMCO
-    restart: unless-stopped
-    network_mode: host
-    privileged: true
+============================================================
+🚀 Starting Chatty AI Web Interface
+============================================================
+Web Interface Features:
+• Live Video Feed
+• Facial Recognition
+• Real-time System Monitoring
+• Speech Synthesis
+• Wake Word Detection
+• AI Assistant Integration
+============================================================
+Access the web interface at: http://localhost:5000
+Or from other devices at: http://192.168.1.16:5000
+Press Ctrl+C to stop the server
+============================================================
 
-Following the video and finding the instructor saying this:
+I then opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5.
 
-I am not quite sure what this line should be: - ./dev/ttyAMCO:/dev/ttyAMCO
+I clicked on the Start System button but nothing happened.
 
-Well, I tried it and immediate fail.
+I saw the following System Logs:
+20:15:17 🌟 Chatty AI Web Interface initialized
+20:15:17 🔗 Attempting to connect to server...
+20:15:17 💡 Click "Start System" to begin AI operations
+20:15:19 🔍 Checking system components...
+20:15:37 ❌ Connection error: Error: timeout
+20:15:45 ❌ Cannot start system - not connected to server
+20:15:47 ⚠️ Connection lost - attempting to reconnect...
+20:15:58 ❌ Connection error: Error: timeout
+20:16:17 ⚠️ Connection lost - attempting to reconnect...
+20:16:20 ❌ Connection error: Error: timeout
+20:16:24 ❌ Cannot start system - not connected to server
+20:16:45 ❌ Connection error: Error: timeout
 
-71d2a3f3d10d: Pull complete
-Digest: sha256:b064da094630c87b97a3b4ac2750a6ee13b251d0b301c8824bb168d57bc12cd0
-Status: Downloaded newer image for ghcr.io/home-assistant/home-assistant:stable
-Creating homeassistant ... error
+Please fix the socket connection issue in the app_test.py Python script so that it works perfectly.
 
-ERROR: for homeassistant  Cannot start service homeassistant: error gathering device information while adding custom device "./dev/ttyAMCO": no such file or directory
 
-ERROR: for homeassistant  Cannot start service homeassistant: error gathering device information while adding custom device "./dev/ttyAMCO": no such file or directory
-ERROR: Encountered errors while bringing up the project.
-
-Is this really how to run a training course?
-
-Has anyone else encountered this error?
-
-I am only really interested in a couple of aspects of Home Assistant, due to being in Australia and having to buy a load of compatible kit if I want to setup a full local Smart Home.
-
-I can see a few cool aspects I can add to my Chatty AI Assistant.
-
-Also setting up mood lighting is cool and smart switches to turn off everything when leaving or turning on all lights if I hear a weird noise at night that needs investigating is worth my effort.
-
-I put a massive effort into Month 3 as that was my main interest to sign on for this course but TBH, this error straight away after waiting for Docker to start up is a major turn off.
-
-I would redo the Month 1 training video for starters!
-
-If no one has encountered this error, (which I highly doubt), and has a solution to fix it, I will do it myself but I feel this is really unprofessional and very dissappointing!
-
- 
 
 
 
