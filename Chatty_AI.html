@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatty AI - Your Smart AI Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Arial', sans-serif;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Row */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo-container {
+            flex: 0 0 250px;
+        }
+
+        .logo-container img {
+            width: 250px;
+            height: 277px;
+            object-fit: contain;
+        }
+
+        .title-container {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .main-title .chatty {
+            color: #FF6600;
+        }
+
+        .main-title .ai {
+            color: #FFFFFF;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #FF6600;
+            font-weight: normal;
+        }
+
+        /* System Information Row */
+        .system-info-row {
+            margin-bottom: 30px;
+        }
+
+        .system-info-container {
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .system-info-title {
+            color: #FF6600;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .system-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+
+        .metric-item {
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            border-color: #FF6600;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+        }
+
+        .metric-label {
+            color: #FF6600;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            color: #FFFFFF;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-unit {
+            color: #AAAAAA;
+            font-size: 0.9rem;
+        }
+
+        /* Status indicators for metrics */
+        .metric-value.warning {
+            color: #FFAA00;
+        }
+
+        .metric-value.danger {
+            color: #FF4444;
+        }
+
+        .metric-value.good {
+            color: #44FF44;
+        }
+
+        /* Video and Image Row */
+        .video-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-container, .image-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: 360px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .captured-image {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .person-info {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .person-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FF6600;
+            margin-bottom: 5px;
+        }
+
+        .person-confidence {
+            font-size: 1.2rem;
+            color: #FF6600;
+        }
+
+        /* Text Areas Row */
+        .text-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .log-container, .conversation-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            resize: none;
+            scrollbar-width: thin;
+            scrollbar-color: #FF6600 #000000;
+        }
+
+        .text-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .text-area::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        .text-area::-webkit-scrollbar-thumb {
+            background: #FF6600;
+            border-radius: 4px;
+        }
+
+        .log-area {
+            color: #FFFFFF;
+        }
+
+        .conversation-area {
+            color: #FF6600;
+        }
+
+        .area-title {
+            color: #FF6600;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Buttons Row */
+        .buttons-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .system-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-button {
+            background-color: #FF6600;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .action-button:hover {
+            background-color: #FF8833;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            background-color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .start-button {
+            background-color: #00AA00;
+        }
+
+        .start-button:hover:not(:disabled) {
+            background-color: #00CC00;
+        }
+
+        .stop-button {
+            background-color: #AA0000;
+        }
+
+        .stop-button:hover:not(:disabled) {
+            background-color: #CC0000;
+        }
+
+        /* Footer Row */
+        .footer-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .company-logo {
+            flex: 0 0 250px;
+        }
+
+        .company-logo img {
+            width: 250px;
+            height: 135px;
+            object-fit: contain;
+        }
+
+        .copyright-container {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        .copyright-text {
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #FF6600;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .status-indicator.offline {
+            background-color: #FF0000;
+        }
+
+        .status-indicator.online {
+            background-color: #00AA00;
+            color: #FFFFFF;
+        }
+
+        /* System Status */
+        .system-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background-color: #333333;
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        .system-status.running {
+            background-color: #00AA00;
+        }
+
+        .system-status.stopped {
+            background-color: #AA0000;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background-color: #222222;
+            color: #FFFFFF;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            min-width: 200px;
+            border: 1px solid #FF6600;
+        }
+
+        .debug-title {
+            color: #FF6600;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-item {
+            margin: 2px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+            }
+
+            .system-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-row, .video-row, .text-row, .footer-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .buttons-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .system-controls, .feature-buttons {
+                justify-content: center;
+            }
+            
+            .logo-container, .company-logo {
+                flex: none;
+                text-align: center;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .system-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .debug-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .system-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for person detection */
+        .person-detected {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Log entry styling */
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .log-timestamp {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .log-error {
+            color: #FF4444;
+        }
+
+        .log-warning {
+            color: #FFAA00;
+        }
+
+        .log-success {
+            color: #44FF44;
+        }
+
+        .log-info {
+            color: #FFFFFF;
+        }
+
+        .conversation-wake_word {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .conversation-user_input {
+            color: #00AAFF;
+        }
+
+        .conversation-response {
+            color: #FFAA00;
+        }
+
+        .conversation-speech {
+            color: #FF66FF;
+        }
+
+        /* System info update animation */
+        .metric-item.updating {
+            border-color: #FF6600;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
+        }
+
+        @keyframes metric-update {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .metric-value.updated {
+            animation: metric-update 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Status Indicators -->
+        <div id="statusIndicator" class="status-indicator offline">Disconnected</div>
+        <div id="systemStatus" class="system-status stopped">System Stopped</div>
+        
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel">
+            <div class="debug-title">System Debug Info</div>
+            <div class="debug-item">Socket: <span id="debugSocket">Disconnected</span></div>
+            <div class="debug-item">Camera: <span id="debugCamera">Unknown</span></div>
+            <div class="debug-item">Models: <span id="debugModels">Not Loaded</span></div>
+            <div class="debug-item">Wake Word: <span id="debugWakeWord">Inactive</span></div>
+            <div class="debug-item">Person: <span id="debugPerson">None</span></div>
+        </div>
+
+        <!-- Header Row -->
+        <div class="header-row">
+            <div class="logo-container">
+                <img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="title-container">
+                <h1 class="main-title">
+                    <span class="chatty">Chatty</span> <span class="ai">AI</span>
+                </h1>
+                <p class="subtitle">Your smart AI Assistant</p>
+            </div>
+        </div>
+
+        <!-- System Information Row -->
+        <div class="system-info-row">
+            <div class="system-info-container">
+                <div class="system-info-title">System Performance Monitor</div>
+                <div class="system-metrics">
+                    <div class="metric-item">
+                        <div class="metric-label">CPU Usage</div>
+                        <div id="cpuValue" class="metric-value">--</div>
+                        <div class="metric-unit">%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Memory Usage</div>
+                        <div id="memoryValue" class="metric-value">--</div>
+                        <div class="metric-unit">%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">CPU Temperature</div>
+                        <div id="cpuTempValue" class="metric-value">--</div>
+                        <div class="metric-unit">°C</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">GPU Temperature</div>
+                        <div id="gpuTempValue" class="metric-value">--</div>
+                        <div class="metric-unit">°C</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video and Image Row -->
+        <div class="video-row">
+            <div class="video-container">
+                <div class="area-title">Live Camera Feed</div>
+                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
+            </div>
+            <div class="image-container">
+                <div class="area-title">Detected Person</div>
+                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
+                <div class="person-info">
+                    <div id="personName" class="person-name">No person detected</div>
+                    <div id="personConfidence" class="person-confidence">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Areas Row -->
+        <div class="text-row">
+            <div class="log-container">
+                <div class="area-title">System Logs</div>
+                <div id="logArea" class="text-area log-area"></div>
+            </div>
+            <div class="conversation-container">
+                <div class="area-title">Conversations & Responses</div>
+                <div id="conversationArea" class="text-area conversation-area"></div>
+            </div>
+        </div>
+
+        <!-- Buttons Row -->
+        <div class="buttons-row">
+            <div class="system-controls">
+                <button id="startButton" class="action-button start-button" onclick="startSystem()">Start System</button>
+                <button id="stopButton" class="action-button stop-button" onclick="stopSystem()" disabled>Stop System</button>
+            </div>
+            <div class="feature-buttons">
+                <button class="action-button" onclick="get_settings()">Settings</button>
+                <button class="action-button" onclick="register_person()">Register Person</button>
+                <button class="action-button" onclick="train_model()">Train Model</button>
+                <button class="action-button" onclick="view_all_cameras()">View All Cameras</button>
+            </div>
+        </div>
+
+        <!-- Footer Row -->
+        <div class="footer-row">
+            <div class="copyright-container">
+                <p class="copyright-text">Copyright 2025 – Nicholas Williamson & Diamond Coding. All Rights Reserved.</p>
+            </div>
+            <div class="company-logo">
+                <img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Socket.IO connection
+        const socket = io();
+        
+        // DOM elements
+        const statusIndicator = document.getElementById('statusIndicator');
+        const systemStatus = document.getElementById('systemStatus');
+        const logArea = document.getElementById('logArea');
+        const conversationArea = document.getElementById('conversationArea');
+        const personName = document.getElementById('personName');
+        const personConfidence = document.getElementById('personConfidence');
+        const capturedImage = document.getElementById('capturedImage');
+        const videoFeed = document.getElementById('videoFeed');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        // System metrics elements
+        const cpuValue = document.getElementById('cpuValue');
+        const memoryValue = document.getElementById('memoryValue');
+        const cpuTempValue = document.getElementById('cpuTempValue');
+        const gpuTempValue = document.getElementById('gpuTempValue');
+
+        // Debug elements
+        const debugSocket = document.getElementById('debugSocket');
+        const debugCamera = document.getElementById('debugCamera');
+        const debugModels = document.getElementById('debugModels');
+        const debugWakeWord = document.getElementById('debugWakeWord');
+        const debugPerson = document.getElementById('debugPerson');
+
+        let isSystemRunning = false;
+        let socketConnected = false;
+        let lastSystemInfo = {};
+
+        // Connection status
+        socket.on('connect', function() {
+            socketConnected = true;
+            statusIndicator.textContent = 'Connected';
+            statusIndicator.className = 'status-indicator online';
+            debugSocket.textContent = 'Connected';
+            debugSocket.style.color = '#44FF44';
+            addLogEntry('✅ Connected to Chatty AI server', 'success');
+            
+            // Request system info on connect
+            setTimeout(() => {
+                socket.emit('get_system_info');
+            }, 1000);
+        });
+
+        socket.on('disconnect', function() {
+            socketConnected = false;
+            statusIndicator.textContent = 'Disconnected';
+            statusIndicator.className = 'status-indicator offline';
+            debugSocket.textContent = 'Disconnected';
+            debugSocket.style.color = '#FF4444';
+            addLogEntry('❌ Disconnected from server', 'error');
+            updateSystemStatus(false);
+        });
+
+        // System status updates
+        socket.on('status_update', function(data) {
+            console.log('Received status_update:', data);
+            updateSystemStatus(data.is_running);
+            addLogEntry(`📊 ${data.message}`, data.status === 'running' ? 'success' : 'info');
+        });
+
+        // System information updates
+        socket.on('system_info', function(data) {
+            console.log('Received system_info:', data);
+            updateSystemMetrics(data);
+            
+            // Update debug info
+            debugCamera.textContent = data.camera_initialized ? 'Ready' : 'Not Ready';
+            debugCamera.style.color = data.camera_initialized ? '#44FF44' : '#FF4444';
+            
+            debugModels.textContent = data.models_loaded ? 'Loaded' : 'Not Loaded';
+            debugModels.style.color = data.models_loaded ? '#44FF44' : '#FF4444';
+            
+            debugWakeWord.textContent = data.wake_word_active ? 'Active' : 'Inactive';
+            debugWakeWord.style.color = data.wake_word_active ? '#44FF44' : '#888888';
+        });
+
+        // Log updates
+        socket.on('log_update', function(data) {
+            addLogEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Conversation updates
+        socket.on('conversation_update', function(data) {
+            addConversationEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Person detection updates
+        socket.on('person_detected', function(data) {
+            console.log('Person detected:', data);
+            personName.textContent = data.name;
+            personConfidence.textContent = `Confidence: ${data.confidence}`;
+            debugPerson.textContent = data.name;
+            
+            // Update debug info color
+            if (data.name === 'Unknown') {
+                debugPerson.style.color = '#FF4444';
+            } else if (data.name === 'No person detected') {
+                debugPerson.style.color = '#888888';
+            } else {
+                debugPerson.style.color = '#44FF44';
+            }
+            
+            // Add animation for new detection
+            if (data.name !== 'No person detected') {
+                personName.classList.add('person-detected');
+                setTimeout(() => {
+                    personName.classList.remove('person-detected');
+                }, 2000);
+            }
+            
+            // Update captured image
+            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            
+            if (data.name !== 'No person detected') {
+                addConversationEntry(`👤 Person detected: ${data.name} (${data.confidence})`, 'info');
+            }
+        });
+
+        // System metrics update function
+        function updateSystemMetrics(data) {
+            if (data.cpu_percent !== undefined) {
+                updateMetricValue(cpuValue, data.cpu_percent, '%', 'cpu_percent');
+            }
+            
+            if (data.memory_percent !== undefined) {
+                updateMetricValue(memoryValue, data.memory_percent, '%', 'memory_percent');
+            }
+            
+            if (data.cpu_temp !== undefined) {
+                updateMetricValue(cpuTempValue, data.cpu_temp, '°C', 'cpu_temp');
+            }
+            
+            if (data.gpu_temp !== undefined) {
+                updateMetricValue(gpuTempValue, data.gpu_temp, '°C', 'gpu_temp');
+            }
+        }
+
+        function updateMetricValue(element, value, unit, key) {
+            const formattedValue = typeof value === 'number' ? value.toFixed(1) : value;
+            
+            // Only update if value changed
+            if (lastSystemInfo[key] !== value) {
+                element.textContent = formattedValue;
+                element.classList.add('updated');
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    element.classList.remove('updated');
+                }, 500);
+                
+                // Update color based on thresholds
+                element.classList.remove('good', 'warning', 'danger');
+                
+                if (key === 'cpu_percent' || key === 'memory_percent') {
+                    if (value < 50) {
+                        element.classList.add('good');
+                    } else if (value < 80) {
+                        element.classList.add('warning');
+                    } else {
+                        element.classList.add('danger');
+                    }
+                } else if (key === 'cpu_temp' || key === 'gpu_temp') {
+                    if (value < 60) {
+                        element.classList.add('good');
+                    } else if (value < 75) {
+                        element.classList.add('warning');
+                    } else {
+                        element.classList.add('danger');
+                    }
+                }
+                
+                lastSystemInfo[key] = value;
+            }
+        }
+
+        // Helper functions
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function addConversationEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry conversation-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            conversationArea.appendChild(entry);
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function updateSystemStatus(running) {
+            isSystemRunning = running;
+            if (running) {
+                systemStatus.textContent = 'System Running';
+                systemStatus.className = 'system-status running';
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                startButton.textContent = 'Start System';
+            } else {
+                systemStatus.textContent = 'System Stopped';
+                systemStatus.className = 'system-status stopped';
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                stopButton.textContent = 'Stop System';
+            }
+        }
+
+        // System control functions
+        function startSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot start system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🚀 Starting Chatty AI system...', 'info');
+            socket.emit('start_system');
+            startButton.disabled = true;
+            startButton.textContent = 'Starting...';
+            
+            // Reset button text after timeout if no response
+            setTimeout(() => {
+                if (startButton.textContent === 'Starting...') {
+                    startButton.textContent = 'Start System';
+                    startButton.disabled = false;
+                }
+            }, 10000);
+        }
+
+        function stopSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot stop system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('⏹️ Stopping Chatty AI system...', 'warning');
+            socket.emit('stop_system');
+            stopButton.disabled = true;
+            stopButton.textContent = 'Stopping...';
+            
+            // Reset button text after timeout
+            setTimeout(() => {
+                if (stopButton.textContent === 'Stopping...') {
+                    stopButton.textContent = 'Stop System';
+                    stopButton.disabled = false;
+                }
+            }, 5000);
+        }
+
+        // Feature button functions (placeholder implementations)
+        function get_settings() {
+            addLogEntry('⚙️ Settings feature coming soon...', 'info');
+        }
+
+        function register_person() {
+            addLogEntry('👤 Person registration feature coming soon...', 'info');
+        }
+
+        function train_model() {
+            addLogEntry('🧠 Model training feature coming soon...', 'info');
+        }
+
+        function view_all_cameras() {
+            addLogEntry('📷 Camera view feature coming soon...', 'info');
+        }
+
+        // Connection monitoring
+        function checkConnection() {
+            if (!socketConnected) {
+                addLogEntry('⚠️ Connection lost - attempting to reconnect...', 'warning');
+                socket.connect();
+            }
+        }
+
+        // Monitor connection every 30 seconds
+        setInterval(checkConnection, 30000);
+
+        // Handle page unload
+        window.addEventListener('beforeunload', function() {
+            if (isSystemRunning && socketConnected) {
+                socket.emit('stop_system');
+            }
+        });
+
+        // Refresh video feed periodically to handle any connection issues
+        setInterval(() => {
+            if (videoFeed.complete && isSystemRunning) {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }
+        }, 30000); // Refresh every 30 seconds
+
+        // Handle video feed errors
+        videoFeed.addEventListener('error', function() {
+            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
+            setTimeout(() => {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }, 2000);
+        });
+
+        // Handle captured image errors
+        capturedImage.addEventListener('error', function() {
+            capturedImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExMTExIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+        });
+
+        // Auto-refresh captured image
+        setInterval(() => {
+            if (isSystemRunning) {
+                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            }
+        }, 5000); // Refresh every 5 seconds when system is running
+
+        // Request system info periodically
+        setInterval(() => {
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 5000); // Every 5 seconds for real-time monitoring
+
+        // Enhanced error handling for socket events
+        socket.on('connect_error', function(error) {
+            addLogEntry(`❌ Connection error: ${error}`, 'error');
+            statusIndicator.textContent = 'Connection Error';
+            statusIndicator.className = 'status-indicator offline';
+        });
+
+        socket.on('error', function(error) {
+            addLogEntry(`❌ Socket error: ${error}`, 'error');
+        });
+
+        // Debug logging for all socket events (can be disabled in production)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const originalOn = socket.on;
+            socket.on = function(event, callback) {
+                return originalOn.call(this, event, function(...args) {
+                    console.log(`Socket event received: ${event}`, args);
+                    return callback.apply(this, args);
+                });
+            };
+
+            const originalEmit = socket.emit;
+            socket.emit = function(event, ...args) {
+                console.log(`Socket event sent: ${event}`, args);
+                return originalEmit.apply(this, [event, ...args]);
+            };
+        }
+
+        // Initial setup
+        addLogEntry('🌟 Chatty AI Web Interface initialized', 'info');
+        addLogEntry('🔗 Attempting to connect to server...', 'info');
+        addLogEntry('💡 Click "Start System" to begin AI operations', 'info');
+        
+        // Check for required files on load
+        setTimeout(() => {
+            addLogEntry('🔍 Checking system components...', 'info');
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
