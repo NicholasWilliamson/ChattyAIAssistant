@@ -1,113 +1,30 @@
-Thank you, Claude,
+sudo cat > /etc/systemd/system/chatty-ai.service << 'EOF'
+[Unit]
+Description=Chatty AI Web Interface
+After=network.target
+Wants=network-online.target
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo cp chatty-ai.service /etc/systemd/system/
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai
-Created symlink /etc/systemd/system/multi-user.target.wants/chatty-ai.service → /etc/systemd/system/chatty-ai.service.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl start chatty-ai
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai
-● chatty-ai.service - Chatty AI Web Interface
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Sat 2025-08-16 18:35:02 AEST; 2s ago
-   Main PID: 2236 (gunicorn)
-     Status: "Gunicorn arbiter booted"
-      Tasks: 5 (limit: 9571)
-        CPU: 2.557s
-     CGroup: /system.slice/chatty-ai.service
-             ├─2236 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
-             └─2238 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
+[Service]
+Type=notify
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+Environment=CHATTY_AI_ENV=production
 
-Aug 16 18:35:01 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:35:02 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-lines 1-13/13 (END)
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
 
-I then opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5.
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
 
-I saw the following error message: This site can’t be reached
-localhost refused to connect.
-Try:
+NoNewPrivileges=true
 
-Checking the connection
-Checking the proxy and the firewall
-ERR_CONNECTION_REFUSED
-
-I then typed Ctrl C in my terminal window.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl stop chatty-ai
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai --no-pager
-Aug 16 18:34:40 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:34:41 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:34:50 raspberrypi1 chatty-ai[2219]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:34:51 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:34:51 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:34:51 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.743s CPU time.
-Aug 16 18:35:01 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 1.
-Aug 16 18:35:01 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:35:01 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.743s CPU time.
-Aug 16 18:35:01 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:35:02 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:35:07 raspberrypi1 chatty-ai[2238]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:35:08 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:35:08 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:35:08 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.390s CPU time.
-Aug 16 18:35:18 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 2.
-Aug 16 18:35:18 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:35:18 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.390s CPU time.
-Aug 16 18:35:18 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:35:19 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:35:24 raspberrypi1 chatty-ai[2259]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:35:25 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:35:25 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:35:25 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.406s CPU time.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 3.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.406s CPU time.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:35:35 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:45:37 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:45:38 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:45:43 raspberrypi1 chatty-ai[2665]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:45:44 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:45:44 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:45:44 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.363s CPU time.
-Aug 16 18:45:54 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 1.
-Aug 16 18:45:54 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:45:54 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.363s CPU time.
-Aug 16 18:45:54 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:45:55 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:46:00 raspberrypi1 chatty-ai[2682]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:46:01 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:46:01 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:46:01 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.351s CPU time.
-Aug 16 18:46:11 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 2.
-Aug 16 18:46:11 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:46:11 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.351s CPU time.
-Aug 16 18:46:11 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 16 18:46:11 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:46:17 raspberrypi1 chatty-ai[2700]: Failed to find attribute 'app' in 'chatty_ai_web'.
-Aug 16 18:46:18 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=4/NOPERMISSION
-Aug 16 18:46:18 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:46:18 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.388s CPU time.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 3.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.388s CPU time.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Aug 16 18:46:28 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-How can we fix this problem?
-
-
-
-
-
-
-
-
+[Install]
+WantedBy=multi-user.target
+EOF
 
 
