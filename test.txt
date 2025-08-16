@@ -1,4 +1,6 @@
-python3 -c "
+Thank you, Claude,
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
 import sys
 sys.path.insert(0, '.')
 from chatty_ai import ChattyAIWebServer
@@ -9,5 +11,16 @@ print('Has wsgi_app:', hasattr(server.socketio, 'wsgi_app'))
 print('SocketIO callable:', callable(server.socketio))
 print('Flask app callable:', callable(server.app))
 "
+2025-08-16 15:22:22,278 - INFO - ChattyAI Web Server initialized
+socketio type: <class 'flask_socketio.SocketIO'>
+app type: <class 'flask.app.Flask'>
+Has wsgi_app: False
+SocketIO callable: False
+Flask app callable: True
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I have not saved the simpler wsgi.py Python script to my /home/niskpi5/Chatty_AI folder yet.
+
+
 
 
