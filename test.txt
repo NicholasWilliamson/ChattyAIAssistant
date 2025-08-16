@@ -1,110 +1,244 @@
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
-from picamera2 import Picamera2
-import time
-try:
-    picam2 = Picamera2()
-    print('Camera config:', picam2.sensor_modes)
-    picam2.start()
-    time.sleep(2)
-    picam2.stop()
-    print('Camera test successful')
-except Exception as e:
-    print('Camera error:', e)
-"
-[14:02:57.411750120] [24603]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[14:02:57.418771540] [24609]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[14:02:57.427933310] [24609]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[14:02:57.431092863] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[14:02:57.431197844] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-[14:02:57.434315471] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1640x1232-BGGR_PISP_COMP1/RAW
-[14:02:57.434405971] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1640x1232-SBGGR10_1X10 - Selected CFE format: 1640x1232-PC1B
-[14:02:57.439002764] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1920x1080-BGGR_PISP_COMP1/RAW
-[14:02:57.439194763] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1920x1080-SBGGR10_1X10 - Selected CFE format: 1920x1080-PC1B
-[14:02:57.444420426] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 3280x2464-BGGR_PISP_COMP1/RAW
-[14:02:57.444560407] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 3280x2464-SBGGR10_1X10 - Selected CFE format: 3280x2464-PC1B
-[14:02:57.454099380] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 640x480-SBGGR16/RAW
-[14:02:57.454219213] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR8_1X8 - Selected CFE format: 640x480-BYR2
-[14:02:57.457663285] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1640x1232-SBGGR16/RAW
-[14:02:57.457749544] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1640x1232-SBGGR8_1X8 - Selected CFE format: 1640x1232-BYR2
-[14:02:57.463086743] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1920x1080-SBGGR16/RAW
-[14:02:57.463168502] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1920x1080-SBGGR8_1X8 - Selected CFE format: 1920x1080-BYR2
-[14:02:57.468649683] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 3280x2464-SBGGR16/RAW
-[14:02:57.468743701] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 3280x2464-SBGGR8_1X8 - Selected CFE format: 3280x2464-BYR2
-Camera config: [{'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (640, 480), 'fps': 103.33, 'crop_limits': (1000, 752, 1280, 960), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1640, 1232), 'fps': 41.85, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1920, 1080), 'fps': 47.57, 'crop_limits': (680, 692, 1920, 1080), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (3280, 2464), 'fps': 21.19, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (640, 480), 'fps': 103.33, 'crop_limits': (1000, 752, 1280, 960), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (1640, 1232), 'fps': 41.85, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (1920, 1080), 'fps': 47.57, 'crop_limits': (680, 692, 1920, 1080), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (3280, 2464), 'fps': 21.19, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}]
-Camera test successful
-
-I then opened my Chromium browser on my Raspberry PI 5 using http://localhost:5000
-
-I clicked on the "Start System" button.
-
-The System Debug Info box displayed:
-Socket: Connected
-Camera: Ready
-Models: Loaded
-Wake Word: Inactive
-Person: None
-
-The System Logs box displayed:
-08:26:51 🌟 Chatty AI Web Interface initialized
-08:26:51 🔗 Attempting to connect to server...
-08:26:51 💡 Click "Start System" to begin AI operations
-08:26:52 📊 Connected to server successfully
-08:26:52 ✅ Connected to Chatty AI server
-08:26:54 🔍 Checking system components...
-08:27:26 🚀 Starting Chatty AI system...
-08:27:26 [08:27:26] Starting Chatty AI system...
-08:27:26 [08:27:26] Response files loaded successfully
-08:27:26 [08:27:26] Loading AI models...
-08:27:27 [08:27:27] Whisper model loaded successfully
-08:27:27 [08:27:27] LLaMA model loaded successfully
-08:27:27 [08:27:27] Loaded 37 face encodings
-08:27:27 [08:27:27] Telegram configuration loaded
-08:27:29 [08:27:29] Camera initialized successfully
-08:27:29 [08:27:29] Camera monitoring thread started
-08:27:29 [08:27:29] Camera monitoring thread stopped
-08:27:29 [08:27:29] Wake word detection thread started
-08:27:29 [08:27:29] Wake word detection thread stopped
-08:27:29 [08:27:29] Chatty AI system started successfully
-08:27:29 📊 Chatty AI system started successfully
-
-Unfortunately, the Live Camera Feed box just displayed the text "Camera Feed" but no live video preview.
-
-I then typed Ctrl C in the terminal window.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai -f
-Aug 17 08:46:36 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:36,846 - INFO - Loading AI models...
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,606 - INFO - ✅ Whisper model loaded successfully
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,727 - INFO - ✅ LLaMA model loaded successfully
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,728 - INFO - ✅ Loaded 37 face encodings
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,728 - INFO - ✅ Telegram configuration loaded
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - INFO - Initialization successful.
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: [14:23:28.513566286] [6076] ERROR Camera camera.cpp:693 Camera in Running state trying acquire() requiring state Available
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - ERROR - Camera __init__ sequence did not complete.
-Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - ERROR - Failed to initialize camera: Camera __init__ sequence did not complete.
-
-I then opened a second terminal window and ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "camera monitoring\|Camera monitoring" chatty_ai.py
+669-                        self.system_monitor_thread = threading.Thread(
+670-                            target=self.system_monitor_loop, daemon=True)
+671-                        self.system_monitor_thread.start()
+672-                        logger.info("System monitoring thread started")
+673-                    
+674:                    # Start camera monitoring
+675-                    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+676-                    self.camera_thread.start()
+677-                    
+678-                    # Start wake word detection
+679-                    self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+680-                    self.audio_thread.start()
+681-                    
+682-                    self.system_running = True
+683-                    self.emit_log("Chatty AI system started successfully", 'success')
+684-                    
+--
+1348-                time.sleep(2.0)
+1349-        
+1350-        self.emit_log("Wake word detection thread stopped", 'info')
+1351-
+1352-    def camera_monitoring_loop(self):
+1353:        """Main camera monitoring loop for web interface"""
+1354:        self.emit_log("Camera monitoring thread started", 'success')
+1355-        
+1356-        while self.system_running:
+1357-            try:
+1358-                if not self.picam2:
+1359-                    time.sleep(1)
+1360-                    continue
+1361-                    
+1362-                frame = self.picam2.capture_array()
+1363-                
+1364-                # Convert from RGB to BGR for OpenCV
+--
+1494-                
+1495-            except Exception as e:
+1496-                self.emit_log(f"Camera loop error: {e}", 'error')
+1497-                time.sleep(1)
+1498-        
+1499:        self.emit_log("Camera monitoring thread stopped", 'info')
+1500-
+1501-    def signal_handler(self, sig, frame):
+1502-        """Handle shutdown signals"""
+1503-        logger.info("Shutdown signal received")
+1504-        self.cleanup()
+1505-        sys.exit(0)
+1506-
+1507-    def cleanup(self):
+1508-        """Clean up resources"""
+1509-        logger.info("Cleaning up resources...")
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "picam2.*start\|picam2.*stop" chatty_ai.py
+358-        try:
+359-            self.picam2 = Picamera2()
+360-            self.picam2.configure(self.picam2.create_preview_configuration(
+361-                main={"format": 'XRGB8888', "size": (640, 480)}
+362-            ))
+363:            self.picam2.start()
+364-            time.sleep(2)  # Camera warm-up
+365-            self.camera_initialized = True
+366-            self.emit_log("Camera initialized successfully", 'success')
+367-            return True
+368-        except Exception as e:
+--
+727-                    self.bored_cycle = 0
+728-                    
+729-                    # Stop camera
+730-                    if self.picam2:
+731-                        try:
+732:                            self.picam2.stop()
+733-                            self.picam2 = None
+734-                            self.camera_initialized = False
+735-                        except:
+736-                            pass
+737-                    
+--
+1511-        self.monitor_running = False
+1512-        
+1513-        # Stop camera
+1514-        if self.picam2:
+1515-            try:
+1516:                self.picam2.stop()
+1517-                logger.info("Camera stopped")
+1518-            except:
+1519-                pass
+1520-        
+1521-        # Clean up audio files
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "def.*camera\|camera.*init" chatty_ai.py
+143-        self.captured_person_frame = None
+144-        
+145-        # System state
+146-        self.system_running = False
+147-        self.clients = set()
+148:        self.camera_initialized = False
+149-        self.models_loaded = False
+150-        self.wake_word_active = False
+151-        
+152-        # AI Assistant state
+153-        self.current_person = None
+154-        self.last_greeting_time = {}
+155-        self.last_interaction_time = None
+156-        self.person_absent_since = None
+157-        self.last_bored_response_time = None
+158-        self.bored_cycle = 0
+--
+351-            return False
+352-        except Exception as e:
+353-            self.emit_log(f"Failed to load Telegram config: {e}", 'error')
+354-            return False
+355-
+356:    def setup_camera(self):
+357-        """Initialize camera"""
+358-        try:
+359-            self.picam2 = Picamera2()
+360-            self.picam2.configure(self.picam2.create_preview_configuration(
+361-                main={"format": 'XRGB8888', "size": (640, 480)}
+362-            ))
+363-            self.picam2.start()
+364-            time.sleep(2)  # Camera warm-up
+365:            self.camera_initialized = True
+366-            self.emit_log("Camera initialized successfully", 'success')
+367-            return True
+368-        except Exception as e:
+369-            self.emit_log(f"Failed to initialize camera: {e}", 'error')
+370-            return False
+371-
+372-    def get_system_info(self):
+373-        """Get current system performance information"""
+374-        try:
+375-            # Get CPU and memory info
+--
+389-                'memory_used': memory_used,
+390-                'memory_total': memory_total,
+391-                'cpu_temp': round(cpu_temp, 2) if cpu_temp else 0,
+392-                'gpu_temp': round(gpu_temp, 1) if gpu_temp else 0,
+393-                'timestamp': datetime.now().isoformat(),
+394:                'camera_initialized': self.camera_initialized,
+395-                'models_loaded': self.models_loaded,
+396-                'wake_word_active': self.wake_word_active,
+397-                'current_person': self.current_person if self.current_person else "No person detected"
+398-            }
+399-        except Exception as e:
+400-            logger.error(f"Error getting system info: {e}")
+401-            return {
+402-                'cpu_percent': 0,
+403-                'memory_percent': 0,
+404-                'memory_used': 0,
+405-                'memory_total': 0,
+406-                'cpu_temp': 0,
+407-                'gpu_temp': 0,
+408-                'timestamp': datetime.now().isoformat(),
+409:                'camera_initialized': False,
+410-                'models_loaded': False,
+411-                'wake_word_active': False,
+412-                'current_person': 'Error'
+413-            }
+414-
+415-    def get_cpu_temperature(self):
+416-        """Get CPU temperature for Raspberry Pi"""
+417-        try:
+418-            result = subprocess.run(['vcgencmd', 'measure_temp'], 
+419-                                  capture_output=True, text=True, timeout=2)
+--
+729-                    # Stop camera
+730-                    if self.picam2:
+731-                        try:
+732-                            self.picam2.stop()
+733-                            self.picam2 = None
+734:                            self.camera_initialized = False
+735-                        except:
+736-                            pass
+737-                    
+738-                    self.models_loaded = False
+739-                    
+740-                    self.emit_log("Chatty AI system stopped", 'info')
+741-                    
+742-                    response_data = {
+743-                        'status': 'stopped',
+744-                        'is_running': False,
+--
+1347-                self.emit_log(f"Wake word detection error: {e}", 'error')
+1348-                time.sleep(2.0)
+1349-        
+1350-        self.emit_log("Wake word detection thread stopped", 'info')
+1351-
+1352:    def camera_monitoring_loop(self):
+1353-        """Main camera monitoring loop for web interface"""
+1354-        self.emit_log("Camera monitoring thread started", 'success')
+1355-        
+1356-        while self.system_running:
+1357-            try:
+1358-                if not self.picam2:
+1359-                    time.sleep(1)
+1360-                    continue
+1361-                    
+1362-                frame = self.picam2.capture_array()
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-Back in the first terminal window I then saw the following displayed:
-Aug 17 08:52:15 raspberrypi1 systemd[1]: Stopping chatty-ai.service - Chatty AI Web Interface...
-Aug 17 08:52:45 raspberrypi1 systemd[1]: chatty-ai.service: Deactivated successfully.
-Aug 17 08:52:45 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Aug 17 08:52:45 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 24min 31.653s CPU time.
-Aug 17 08:52:45 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
-Aug 17 08:52:45 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai -f
 Aug 17 08:52:50 raspberrypi1 gunicorn[25442]: 2025-08-17 08:52:50,440 - INFO - ChattyAI Web Server initialized
 Aug 17 08:52:50 raspberrypi1 gunicorn[25442]: 2025-08-17 08:52:50,448 - INFO - Client connected: xeKUe8g9b3nPWrLjAAAB. Total clients: 1
+Aug 17 09:02:43 raspberrypi1 gunicorn[25442]: 2025-08-17 09:02:43,830 - INFO - Client disconnected: xeKUe8g9b3nPWrLjAAAB. Total clients: 0
+Aug 17 09:08:18 raspberrypi1 systemd[1]: Stopping chatty-ai.service - Chatty AI Web Interface...
+Aug 17 09:08:19 raspberrypi1 systemd[1]: chatty-ai.service: Deactivated successfully.
+Aug 17 09:08:19 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 17 09:08:19 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 6.633s CPU time.
+Aug 17 09:08:19 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 17 09:08:19 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 17 09:08:24 raspberrypi1 gunicorn[25832]: 2025-08-17 09:08:24,096 - INFO - ChattyAI Web Server initialized
+Aug 17 09:09:00 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:00,338 - INFO - Client connected: Rzv3hUdwWCguQvwYAAAB. Total clients: 1
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,047 - INFO - Received start system request from client: Rzv3hUdwWCguQvwYAAAB
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,048 - INFO - Starting Chatty AI system...
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,049 - INFO - ✅ Response files loaded successfully
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,050 - INFO - Loading AI models...
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,872 - INFO - ✅ Whisper model loaded successfully
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,991 - INFO - ✅ LLaMA model loaded successfully
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,991 - INFO - ✅ Loaded 37 face encodings
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:14,992 - INFO - ✅ Telegram configuration loaded
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: [14:46:05.776698995] [25832]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+Aug 17 09:09:14 raspberrypi1 gunicorn[25832]: [14:46:05.783743838] [25931]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: [14:46:05.793333955] [25931]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:15,017 - INFO - Initialization successful.
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:15,017 - INFO - Camera now open.
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:15,019 - INFO - Camera configuration has been adjusted!
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: [14:46:05.803926405] [25832]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: [14:46:05.804053405] [25931]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:15,020 - INFO - Configuration successful!
+Aug 17 09:09:15 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:15,064 - INFO - Camera started
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,066 - INFO - ✅ Camera initialized successfully
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,067 - INFO - System monitoring thread started
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,067 - INFO - ✅ Camera monitoring thread started
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,068 - INFO - Camera monitoring thread stopped
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,069 - INFO - ✅ Wake word detection thread started
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,069 - INFO - Wake word detection thread stopped
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,069 - INFO - ✅ Chatty AI system started successfully
+Aug 17 09:09:17 raspberrypi1 gunicorn[25832]: 2025-08-17 09:09:17,069 - INFO - System started successfully - status sent to all clients
 
-Then, in the first terminal window, I ran: ^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user disable pipewire.socket pipewire.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user stop wireplumber.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user disable wireplumber.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+I opened my Chromium browser with http://localhost:5000 and clicked on the Start System button but again, there was no live video preview working.
 
 How can we fix this?
 
