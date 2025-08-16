@@ -1,4 +1,13 @@
-python3 -c "
+Thank you, Claude,
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user stop pipewire pipewire-session-manager
+Failed to stop pipewire-session-manager.service: Unit pipewire-session-manager.service not loaded.
+Warning: Stopping pipewire.service, but it can still be activated by:
+  pipewire.socket
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemct restart chatty-ai
+sudo: systemct: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
 from picamera2 import Picamera2
 import time
 try:
@@ -11,5 +20,23 @@ try:
 except Exception as e:
     print('Camera error:', e)
 "
+[1:55:50.242031067] [6126]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[1:55:50.249008139] [6132]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[1:55:50.258156098] [6132]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
+Camera error: 'Picamera2' object has no attribute 'camera_info'
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "Picamera2()" chatty_ai.py
+359:            self.picam2 = Picamera2()
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+How can we fix this?
+
+
+
+
+
+
+
+
+
 
 
