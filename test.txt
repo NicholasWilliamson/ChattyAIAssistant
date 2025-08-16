@@ -1,98 +1,47 @@
 Thank you, Claude,
 
-I updated the wsgi.py file as you recommended and saved it to my /home/nickspi5/Chatty_AI folder
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp chatty_ai.py chatty_ai.py.backup
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i "s/async_mode='threading'/async_mode='eventlet'/g" chatty_ai.py
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "async_mode" chatty_ai.py
+126:                               async_mode='eventlet',
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
+2025-08-16 14:51:45,960 - INFO - ChattyAI Web Server initialized
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "SocketIO" chatty_ai.py
-23-import requests
-24-import io
-25-import signal
-26-from datetime import datetime, timedelta
-27-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
-28:from flask_socketio import SocketIO, emit
-29-from faster_whisper import WhisperModel
-30-from llama_cpp import Llama
-31-from picamera2 import Picamera2
-32-
-33-# -------------------------------
-34-# Configuration
-35-# -------------------------------
-36-WHISPER_MODEL_SIZE = "base"
-37-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-38-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
---
-118-        self.app = Flask(__name__, 
-119-                        template_folder='templates',
-120-                        static_folder='templates')
-121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
-122-        
-123:        # Initialize SocketIO
-124:        self.socketio = SocketIO(self.app, 
-125-                               cors_allowed_origins="*",
-126-                               async_mode='threading',
-127-                               ping_timeout=60,
-128-                               ping_interval=25,
-129-                               logger=False,
-130-                               engineio_logger=False)
-131-        
-132-        # AI Models
-133-        self.whisper_model = None
-134-        self.llama_model = None
---
-582-        def api_system_info():
-583-            """API endpoint for system information"""
-584-            return jsonify(self.get_system_info())
-585-
-586-    def setup_socket_events(self):
-587:        """Setup SocketIO event handlers"""
-588-        
-589-        @self.socketio.on('connect')
-590-        def handle_connect():
-591-            """Handle client connection"""
-592-            client_id = request.sid
-593-            self.clients.add(client_id)
-594-            logger.info(f"Client connected: {client_id}. Total clients: {len(self.clients)}")
-595-            
-596-            # Send initial status
-597-            emit('status_update', {
---
-1571-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
-1572-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
-1573-            print("="*60)
-1574-            
-1575-            # Start the server with better error handling
-1576:            logger.info("Starting Flask-SocketIO server...")
-1577-            self.socketio.run(self.app, 
-1578-                            host=host, 
-1579-                            port=port, 
-1580-                            debug=debug,
-1581-                            use_reloader=False,
-1582-                            log_output=True)
-1583-                            
-1584-        except Exception as e:
-1585-            logger.error(f"Error starting server: {e}")
-1586-            self.cleanup()
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip show flask-socketio
-Name: Flask-SocketIO
-Version: 5.5.1
-Summary: Socket.IO integration for Flask applications
-Home-page: https://github.com/miguelgrinberg/flask-socketio
-Author: 
-Author-email: Miguel Grinberg <miguel.grinberg@gmail.com>
-License: 
-Location: /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages
-Requires: Flask, python-socketio
-Required-by: #N/A
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "socketio" chatty_ai.py | head -10
-28:from flask_socketio import SocketIO, emit
-124:        self.socketio = SocketIO(self.app, 
-460:            self.socketio.emit('log_update', log_entry)
-481:            self.socketio.emit('conversation_update', conv_entry)
-489:                    self.socketio.emit('system_info', system_info)
-589:        @self.socketio.on('connect')
-610:        @self.socketio.on('disconnect')
-617:        @self.socketio.on('start_system')
-692:                    self.socketio.emit('status_update', response_data)
-711:        @self.socketio.on('stop_system')
+Error while loading the application:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
+    self.load()
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 441, in import_app
+    raise AppImportError("Application object must be callable.")
+gunicorn.errors.AppImportError: Application object must be callable.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I then saved the simple wsgi.py fix file to my /home/nickspi5/Chatty_AI folder.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
+2025-08-16 14:58:22,569 - INFO - ChattyAI Web Server initialized
+
+Error while loading the application:
+
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
+    self.load()
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 441, in import_app
+    raise AppImportError("Application object must be callable.")
+gunicorn.errors.AppImportError: Application object must be callable.
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 
