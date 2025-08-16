@@ -1,4 +1,6 @@
-python3 -c "
+Thank you, Claude,
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
 from picamera2 import Picamera2
 import time
 try:
@@ -11,5 +13,108 @@ try:
 except Exception as e:
     print('Camera error:', e)
 "
+[14:02:57.411750120] [24603]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
+[14:02:57.418771540] [24609]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
+[14:02:57.427933310] [24609]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
+[14:02:57.431092863] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
+[14:02:57.431197844] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
+[14:02:57.434315471] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1640x1232-BGGR_PISP_COMP1/RAW
+[14:02:57.434405971] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1640x1232-SBGGR10_1X10 - Selected CFE format: 1640x1232-PC1B
+[14:02:57.439002764] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1920x1080-BGGR_PISP_COMP1/RAW
+[14:02:57.439194763] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1920x1080-SBGGR10_1X10 - Selected CFE format: 1920x1080-PC1B
+[14:02:57.444420426] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 3280x2464-BGGR_PISP_COMP1/RAW
+[14:02:57.444560407] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 3280x2464-SBGGR10_1X10 - Selected CFE format: 3280x2464-PC1B
+[14:02:57.454099380] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 640x480-SBGGR16/RAW
+[14:02:57.454219213] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR8_1X8 - Selected CFE format: 640x480-BYR2
+[14:02:57.457663285] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1640x1232-SBGGR16/RAW
+[14:02:57.457749544] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1640x1232-SBGGR8_1X8 - Selected CFE format: 1640x1232-BYR2
+[14:02:57.463086743] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 1920x1080-SBGGR16/RAW
+[14:02:57.463168502] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 1920x1080-SBGGR8_1X8 - Selected CFE format: 1920x1080-BYR2
+[14:02:57.468649683] [24603]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XBGR8888/sRGB (1) 3280x2464-SBGGR16/RAW
+[14:02:57.468743701] [24609]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 3280x2464-SBGGR8_1X8 - Selected CFE format: 3280x2464-BYR2
+Camera config: [{'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (640, 480), 'fps': 103.33, 'crop_limits': (1000, 752, 1280, 960), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1640, 1232), 'fps': 41.85, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (1920, 1080), 'fps': 47.57, 'crop_limits': (680, 692, 1920, 1080), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB10_CSI2P, 'unpacked': 'SRGGB10', 'bit_depth': 10, 'size': (3280, 2464), 'fps': 21.19, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (640, 480), 'fps': 103.33, 'crop_limits': (1000, 752, 1280, 960), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (1640, 1232), 'fps': 41.85, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (1920, 1080), 'fps': 47.57, 'crop_limits': (680, 692, 1920, 1080), 'exposure_limits': (75, 1238765, 20000)}, {'format': SRGGB8, 'unpacked': 'SRGGB8', 'bit_depth': 8, 'size': (3280, 2464), 'fps': 21.19, 'crop_limits': (0, 0, 3280, 2464), 'exposure_limits': (75, 1238765, 20000)}]
+Camera test successful
+
+I then opened my Chromium browser on my Raspberry PI 5 using http://localhost:5000
+
+I clicked on the "Start System" button.
+
+The System Debug Info box displayed:
+Socket: Connected
+Camera: Ready
+Models: Loaded
+Wake Word: Inactive
+Person: None
+
+The System Logs box displayed:
+08:26:51 🌟 Chatty AI Web Interface initialized
+08:26:51 🔗 Attempting to connect to server...
+08:26:51 💡 Click "Start System" to begin AI operations
+08:26:52 📊 Connected to server successfully
+08:26:52 ✅ Connected to Chatty AI server
+08:26:54 🔍 Checking system components...
+08:27:26 🚀 Starting Chatty AI system...
+08:27:26 [08:27:26] Starting Chatty AI system...
+08:27:26 [08:27:26] Response files loaded successfully
+08:27:26 [08:27:26] Loading AI models...
+08:27:27 [08:27:27] Whisper model loaded successfully
+08:27:27 [08:27:27] LLaMA model loaded successfully
+08:27:27 [08:27:27] Loaded 37 face encodings
+08:27:27 [08:27:27] Telegram configuration loaded
+08:27:29 [08:27:29] Camera initialized successfully
+08:27:29 [08:27:29] Camera monitoring thread started
+08:27:29 [08:27:29] Camera monitoring thread stopped
+08:27:29 [08:27:29] Wake word detection thread started
+08:27:29 [08:27:29] Wake word detection thread stopped
+08:27:29 [08:27:29] Chatty AI system started successfully
+08:27:29 📊 Chatty AI system started successfully
+
+Unfortunately, the Live Camera Feed box just displayed the text "Camera Feed" but no live video preview.
+
+I then typed Ctrl C in the terminal window.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai -f
+Aug 17 08:46:36 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:36,846 - INFO - Loading AI models...
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,606 - INFO - ✅ Whisper model loaded successfully
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: llama_kv_cache_unified: LLAMA_SET_ROWS=0, using old ggml_cpy() method for backwards compatibility
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,727 - INFO - ✅ LLaMA model loaded successfully
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,728 - INFO - ✅ Loaded 37 face encodings
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,728 - INFO - ✅ Telegram configuration loaded
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - INFO - Initialization successful.
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: [14:23:28.513566286] [6076] ERROR Camera camera.cpp:693 Camera in Running state trying acquire() requiring state Available
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - ERROR - Camera __init__ sequence did not complete.
+Aug 17 08:46:37 raspberrypi1 gunicorn[6076]: 2025-08-17 08:46:37,729 - ERROR - Failed to initialize camera: Camera __init__ sequence did not complete.
+
+I then opened a second terminal window and ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+Back in the first terminal window I then saw the following displayed:
+Aug 17 08:52:15 raspberrypi1 systemd[1]: Stopping chatty-ai.service - Chatty AI Web Interface...
+Aug 17 08:52:45 raspberrypi1 systemd[1]: chatty-ai.service: Deactivated successfully.
+Aug 17 08:52:45 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 17 08:52:45 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 24min 31.653s CPU time.
+Aug 17 08:52:45 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 17 08:52:45 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 17 08:52:50 raspberrypi1 gunicorn[25442]: 2025-08-17 08:52:50,440 - INFO - ChattyAI Web Server initialized
+Aug 17 08:52:50 raspberrypi1 gunicorn[25442]: 2025-08-17 08:52:50,448 - INFO - Client connected: xeKUe8g9b3nPWrLjAAAB. Total clients: 1
+
+Then, in the first terminal window, I ran: ^C
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user disable pipewire.socket pipewire.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user stop wireplumber.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl --user disable wireplumber.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+How can we fix this?
+
+
+
+
+
+
+
+
+
 
 
