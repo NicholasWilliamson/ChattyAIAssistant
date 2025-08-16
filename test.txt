@@ -1,231 +1,153 @@
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x deploy_production.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./deploy_production.sh
-bash: ./deploy_production.sh: cannot execute: required file not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Configuration
-PROJECT_DIR="/home/nickspi5/Chatty_AI"
-VENV_DIR="$PROJECT_DIR/chatty-venv"
-SERVICE_NAME="chatty-ai"
-USER="nickspi5"
-
-echo "🚀 Deploying Chatty AI to Production"
-echo "===================================="
-
-# Check if running as correct user
-if [ "$USER" != "nickspi5" ]; then
-    echo "❌ This script should be run as user 'nickspi5'"
-    exit 1
-fi
-🚀 Deploying Chatty AI to Production
-====================================
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Navigate to project directory
-cd "$PROJECT_DIR" || {
-    echo "❌ Cannot access project directory: $PROJECT_DIR"
-    exit 1
-}
-
-echo "📂 Current directory: $(pwd)"
-📂 Current directory: /home/nickspi5/Chatty_AI
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Check if virtual environment exists
-if [ ! -d "$VENV_DIR" ]; then
-    echo "❌ Virtual environment not found at: $VENV_DIR"
-    echo "Please create the virtual environment first"
-    exit 1
-fi
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Activate virtual environment
-echo "🐍 Activating virtual environment..."
-source "$VENV_DIR/bin/activate"
-
-# Verify Python environment
-echo "🔍 Python version: $(python --version)"
-echo "🔍 Pip version: $(pip --version)"
-🐍 Activating virtual environment...
-🔍 Python version: Python 3.11.2
-🔍 Pip version: pip 23.0.1 from /home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/pip (python 3.11)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Install/upgrade production dependencies
-echo "📦 Installing production dependencies..."
-pip install --upgrade pip
-📦 Installing production dependencies...
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: pip in ./chatty-venv/lib/python3.11/site-packages (23.0.1)
-Collecting pip
-  Downloading pip-25.2-py3-none-any.whl (1.8 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 693.6 kB/s eta 0:00:00
-Installing collected packages: pip
-  Attempting uninstall: pip
-    Found existing installation: pip 23.0.1
-    Uninstalling pip-23.0.1:
-      Successfully uninstalled pip-23.0.1
-Successfully installed pip-25.2
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Install Gunicorn and eventlet (required for Socket.IO)
-pip install gunicorn eventlet
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting gunicorn
-  Downloading https://www.piwheels.org/simple/gunicorn/gunicorn-23.0.0-py3-none-any.whl (85 kB)
-Requirement already satisfied: eventlet in ./chatty-venv/lib/python3.11/site-packages (0.40.2)
-Requirement already satisfied: packaging in ./chatty-venv/lib/python3.11/site-packages (from gunicorn) (25.0)
-Requirement already satisfied: dnspython>=1.15.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (2.7.0)
-Requirement already satisfied: greenlet>=1.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (3.2.3)
-WARNING: Error parsing dependencies of send2trash: Expected matching RIGHT_PARENTHESIS for LEFT_PARENTHESIS, after version specifier
-    sys-platform (=="darwin") ; extra == 'objc'
-                 ~^
-Installing collected packages: gunicorn
-Successfully installed gunicorn-23.0.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Verify required Python packages
-echo "🔍 Checking required packages..."
-python -c "
-import sys
-required_packages = [
-    'flask', 'flask_socketio', 'psutil', 'cv2', 'face_recognition',
-    'faster_whisper', 'llama_cpp', 'picamera2', 'sounddevice', 
-    'soundfile', 'numpy', 'requests', 'gunicorn', 'eventlet'
-]
-
-missing_packages = []
-for package in required_packages:
-    try:
-        if package == 'cv2':
-            import cv2
-        else:
-            __import__(package)
-        print(f'✅ {package}')
-    except ImportError:
-        print(f'❌ {package}')
-        missing_packages.append(package)
-
-if missing_packages:
-    print(f'Missing packages: {missing_packages}')
-    sys.exit(1)
-else:
-    print('All required packages are installed!')
-"
-🔍 Checking required packages...
-✅ flask
-✅ flask_socketio
-✅ psutil
-✅ cv2
-✅ face_recognition
-✅ faster_whisper
-✅ llama_cpp
-✅ picamera2
-✅ sounddevice
-✅ soundfile
-✅ numpy
-✅ requests
-✅ gunicorn
-✅ eventlet
-All required packages are installed!
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Set proper permissions
-echo "🔒 Setting file permissions..."
-chmod +x chatty_ai_web.py
-chmod +x gunicorn_config.py
-chmod +r templates/*
-🔒 Setting file permissions...
-chmod: cannot access 'chatty_ai_web.py': No such file or directory
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x chatty_ai.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Test Gunicorn configuration
-echo "🧪 Testing Gunicorn configuration..."
-gunicorn --check-config --config gunicorn_config.py chatty_ai_web:app
-🧪 Testing Gunicorn configuration...
-
-Error while loading the application:
-
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
-    self.load()
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
-    return self.load_wsgiapp()
-           ^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
-    return util.import_app(self.app_uri)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 370, in import_app
-    mod = importlib.import_module(module)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1206, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1142, in _find_and_load_unlocked
-ModuleNotFoundError: No module named 'chatty_ai_web'
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Create/update systemd service file
-echo "⚙️  Setting up systemd service..."
-SERVICE_FILE="/tmp/chatty-ai.service"
-
-# Copy the service file to tmp (user will need to move it manually)
-cat > "$SERVICE_FILE" << 'EOF'
-[Unit]
-Description=Chatty AI Web Interface
-After=network.target
-Wants=network-online.target
-
-[Service]
-Type=notify
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
-Environment=CHATTY_AI_ENV=production
-
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py chatty_ai_web:app
-ExecReload=/bin/kill -s HUP $MAINPID
-
-Restart=always
-RestartSec=10
-StartLimitInterval=60
-StartLimitBurst=3
-
-NoNewPrivileges=true
-echo "Deployment complete! 🎉"_FILE"nfig.py"'{print $1}'):5000"0"
-⚙️  Setting up systemd service...
-📄 Service file created at: /tmp/chatty-ai.service
-📝 Creating startup script...
-🛑 Creating stop script...
-
-✅ Production deployment prepared successfully!
-=============================================
-
-📋 Next steps:
-1. Copy service file to systemd directory:
-   sudo cp /tmp/chatty-ai.service /etc/systemd/system/
-
-2. Reload systemd and enable service:
-   sudo systemctl daemon-reload
-   sudo systemctl enable chatty-ai
-
-3. Start the service:
-   sudo systemctl start chatty-ai
-
-4. Check service status:
-   sudo systemctl status chatty-ai
-
-📄 Manual startup options:
-• Run production server manually: ./start_production.sh
-• Stop production server: ./stop_production.sh
-
-📊 Monitoring commands:
-• View logs: sudo journalctl -u chatty-ai -f
-• Restart service: sudo systemctl restart chatty-ai
-• Stop service: sudo systemctl stop chatty-ai
-
-🌐 Server will be available at:
-• Local: http://localhost:5000
-• Network: http://192.168.1.16:5000
-
-🔧 Configuration files:
-• Main app: chatty_ai_web.py
-• Gunicorn config: gunicorn_config.py
-• Service file: /tmp/chatty-ai.service
-
-Deployment complete! 🎉
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la *.py
+-rw-r--r-- 1 nickspi5 nickspi5 12714 Aug 10 18:21 app_3.py
+-rw-r--r-- 1 nickspi5 nickspi5 53115 Aug 13 07:51 app_4.py
+-rw-r--r-- 1 nickspi5 nickspi5 53357 Aug  9 14:29 app_old.py
+-rw-r--r-- 1 nickspi5 nickspi5 65037 Aug 10 13:48 app.py
+-rw-r--r-- 1 nickspi5 nickspi5 20603 Aug 16 08:20 app_test.py
+-rwxr-xr-x 1 nickspi5 nickspi5   319 Jul 23 07:38 camera_test.py
+-rwxr-xr-x 1 nickspi5 nickspi5 72641 Aug 16 10:27 chatty_ai.py
+-rw-r--r-- 1 nickspi5 nickspi5 47352 Aug  9 17:02 chatty_ai_terminal_working_version.py
+-rwxr-xr-x 1 nickspi5 nickspi5   314 Jul 18 08:54 chatty_ai_test_speaking.py
+-rw-r--r-- 1 nickspi5 nickspi5 47913 Aug  4 15:42 chatty_ai_working.py
+-rw-r--r-- 1 nickspi5 nickspi5  2731 Aug  9 13:54 debug_app.py
+-rw-r--r-- 1 nickspi5 nickspi5  6231 Aug  8 20:05 debug_startup.py
+-rw-r--r-- 1 nickspi5 nickspi5   614 Jul 27 10:44 face_encodings.py
+-rw-r--r-- 1 nickspi5 nickspi5  9015 Aug  6 18:43 fix_camera.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3110 Aug 16 10:24 gunicorn_config.py
+-rw-r--r-- 1 nickspi5 nickspi5 22946 Jul 27 11:31 human_detection.py
+-rwxr-xr-x 1 nickspi5 nickspi5  5592 Jul 23 18:45 image_analyse.py
+-rw-r--r-- 1 nickspi5 nickspi5  3661 Jul 27 19:50 image_capture.py
+-rw-r--r-- 1 nickspi5 nickspi5  2564 Jul 26 20:39 model_training.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3921 Jul 20 09:25 run_chatty_ai_10.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3922 Jul 22 12:16 run_chatty_ai_1.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3918 Jul 22 12:17 run_chatty_ai_2.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3916 Jul 22 12:19 run_chatty_ai_3.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3912 Jul 22 12:20 run_chatty_ai_4.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3924 Jul 22 12:09 run_chatty_ai_5.py
+-rwxr-xr-x 1 nickspi5 nickspi5  3920 Jul 22 12:12 run_chatty_ai_6.py
+-rw-r--r-- 1 nickspi5 nickspi5 12767 Aug  6 18:44 setup_chatty_web.py
+-rw-r--r-- 1 nickspi5 nickspi5  6002 Aug 16 08:14 simple_test.py
+-rw-r--r-- 1 nickspi5 nickspi5  1596 Aug  9 14:20 socketio_fix.py
+-rw-r--r-- 1 nickspi5 nickspi5  4097 Jul 27 11:36 test_camera_display.py
+-rw-r--r-- 1 nickspi5 nickspi5  5761 Aug  4 19:50 test_camera.py
+-rw-r--r-- 1 nickspi5 nickspi5 20193 Aug  2 11:29 test_chatty_ai.py
+-rw-r--r-- 1 nickspi5 nickspi5 16439 Jul 27 15:04 test_facial_recognition_error_on_pickle_file_missing.py
+-rw-r--r-- 1 nickspi5 nickspi5 20369 Jul 27 17:43 test_facial_recognition.py
+-rw-r--r-- 1 nickspi5 nickspi5 18257 Jul 27 12:23 test_facial_recognition_working.py
+-rw-r--r-- 1 nickspi5 nickspi5   628 Aug 10 12:45 test_flask.py
+-rwxr-xr-x 1 nickspi5 nickspi5   467 Jul 18 11:16 test_stt.py
+-rwxr-xr-x 1 nickspi5 nickspi5   471 Jul 18 16:19 test_tts.py
+-rw-r--r-- 1 nickspi5 nickspi5   738 Aug 16 10:22 wsgi.py
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-Are there any errors that require fixing?
+I already have a gunicorn_config.py Python script. The contents of this file are as follows:
 
+gunicorn_config.py
+#!/usr/bin/env python3
+"""
+Gunicorn configuration for Chatty AI production deployment
+"""
+
+import multiprocessing
+import os
+
+# Server socket
+bind = "0.0.0.0:5000"
+backlog = 2048
+
+# Worker processes
+workers = 1  # Single worker for Raspberry Pi 5 to avoid resource conflicts
+worker_class = "eventlet"  # Required for Socket.IO
+worker_connections = 1000
+
+# Restart workers after serving this many requests (helps with memory leaks)
+max_requests = 1000
+max_requests_jitter = 100
+
+# Timeout settings
+timeout = 300  # 5 minutes for AI processing
+keepalive = 2
+graceful_timeout = 30
+
+# Logging
+accesslog = "/home/nickspi5/Chatty_AI/logs/access.log"
+errorlog = "/home/nickspi5/Chatty_AI/logs/error.log"
+loglevel = "info"
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+
+# Process naming
+proc_name = 'chatty_ai_server'
+
+# Server mechanics
+daemon = False  # Keep False for systemd service
+pidfile = '/tmp/chatty_ai.pid'
+user = None  # Let systemd handle user switching
+group = None
+tmp_upload_dir = '/tmp'
+
+# SSL (if you want to enable HTTPS later)
+# keyfile = '/path/to/keyfile'
+# certfile = '/path/to/certfile'
+
+# Application specific
+# Preload app for memory efficiency (be careful with this on single worker)
+preload_app = False  # Set to False to avoid issues with camera/audio resources
+
+# Environment variables
+raw_env = [
+    'CHATTY_AI_ENV=production',
+    'PYTHONPATH=/home/nickspi5/Chatty_AI'
+]
+
+# Memory and resource limits
+limit_request_line = 4094
+limit_request_fields = 100
+limit_request_field_size = 8190
+
+# Security
+forwarded_allow_ips = '*'  # Configure based on your reverse proxy setup
+secure_scheme_headers = {
+    'X-FORWARDED-PROTOCOL': 'ssl',
+    'X-FORWARDED-PROTO': 'https',
+    'X-FORWARDED-SSL': 'on'
+}
+
+def post_fork(server, worker):
+    """Called just after a worker has been forked."""
+    server.log.info("Worker spawned (pid: %s)", worker.pid)
+
+def pre_fork(server, worker):
+    """Called just before a worker is forked."""
+    server.log.info("About to fork worker (pid: %s)", worker.pid)
+
+def worker_int(worker):
+    """Called when a worker receives the SIGINT or SIGQUIT signal."""
+    worker.log.info("Worker received SIGINT/SIGQUIT")
+
+def on_starting(server):
+    """Called just before the master process is initialized."""
+    server.log.info("Chatty AI Server starting...")
+
+def on_reload(server):
+    """Called to recycle workers during a reload via SIGHUP."""
+    server.log.info("Reloading Chatty AI Server...")
+
+def when_ready(server):
+    """Called just after the server is started."""
+    server.log.info("Chatty AI Server is ready. PID: %s", os.getpid())
+
+def on_exit(server):
+    """Called just before exiting."""
+    server.log.info("Chatty AI Server shutting down...")
+
+def pre_request(worker, req):
+    """Called just before a worker processes the request."""
+    worker.log.debug("%s %s" % (req.method, req.path))
+
+def post_request(worker, req, environ, resp):
+    """Called after a worker processes the request."""
+    pass
 
 
