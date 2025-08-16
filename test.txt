@@ -1,54 +1,13 @@
-Thank you, Claude,
-
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp chatty_ai.py chatty_ai.py.backup
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i "s/async_mode='threading'/async_mode='eventlet'/g" chatty_ai.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "async_mode" chatty_ai.py
-126:                               async_mode='eventlet',
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
-2025-08-16 14:51:45,960 - INFO - ChattyAI Web Server initialized
-
-Error while loading the application:
-
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
-    self.load()
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
-    return self.load_wsgiapp()
-           ^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
-    return util.import_app(self.app_uri)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 441, in import_app
-    raise AppImportError("Application object must be callable.")
-gunicorn.errors.AppImportError: Application object must be callable.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I then saved the simple wsgi.py fix file to my /home/nickspi5/Chatty_AI folder.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
-2025-08-16 14:58:22,569 - INFO - ChattyAI Web Server initialized
-
-Error while loading the application:
-
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
-    self.load()
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
-    return self.load_wsgiapp()
-           ^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
-    return util.import_app(self.app_uri)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 441, in import_app
-    raise AppImportError("Application object must be callable.")
-gunicorn.errors.AppImportError: Application object must be callable.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-
-
-
-
-
-
+python3 -c "
+import sys
+sys.path.insert(0, '.')
+from chatty_ai import ChattyAIWebServer
+server = ChattyAIWebServer()
+print('socketio type:', type(server.socketio))
+print('app type:', type(server.app))
+print('Has wsgi_app:', hasattr(server.socketio, 'wsgi_app'))
+print('SocketIO callable:', callable(server.socketio))
+print('Flask app callable:', callable(server.app))
+"
 
 
