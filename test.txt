@@ -1,25 +1,13 @@
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
-import sys
-sys.path.insert(0, '.')
-from chatty_ai import ChattyAIWebServer
-server = ChattyAIWebServer()
-print('socketio type:', type(server.socketio))
-print('app type:', type(server.app))
-print('Has wsgi_app:', hasattr(server.socketio, 'wsgi_app'))
-print('SocketIO callable:', callable(server.socketio))
-print('Flask app callable:', callable(server.app))
-"
-2025-08-16 15:22:22,278 - INFO - ChattyAI Web Server initialized
-socketio type: <class 'flask_socketio.SocketIO'>
-app type: <class 'flask.app.Flask'>
-Has wsgi_app: False
-SocketIO callable: False
-Flask app callable: True
+I saved the simpler wsgi.py Python script you provided to my /home/niskpi5/Chatty_AI folder.
+
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
+2025-08-16 15:42:42,224 - INFO - ChattyAI Web Server initialized
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I have not saved the simpler wsgi.py Python script to my /home/niskpi5/Chatty_AI folder yet.
+It appears to be working correctly now!
+
 
 
 
