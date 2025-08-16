@@ -1,30 +1,92 @@
-sudo cat > /etc/systemd/system/chatty-ai.service << 'EOF'
-[Unit]
-Description=Chatty AI Web Interface
-After=network.target
-Wants=network-online.target
+Thank you, Claude,
 
-[Service]
-Type=notify
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
-Environment=CHATTY_AI_ENV=production
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo cp chatty-ai.service /etc/systemd/system/chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl start chatty-ai
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai
+● chatty-ai.service - Chatty AI Web Interface
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2025-08-16 19:14:46 AEST; 21s ago
+   Main PID: 3183 (gunicorn)
+     Status: "Gunicorn arbiter booted"
+      Tasks: 7 (limit: 9571)
+        CPU: 4.895s
+     CGroup: /system.slice/chatty-ai.service
+             ├─3183 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
+             └─3185 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
 
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
-ExecReload=/bin/kill -s HUP $MAINPID
+Aug 16 19:14:46 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 16 19:14:46 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 16 19:14:51 raspberrypi1 gunicorn[3185]: 2025-08-16 19:14:51,437 - INFO - ChattyAI Web Server initialized
+lines 1-14/14 (END)
 
-Restart=always
-RestartSec=10
-StartLimitInterval=60
-StartLimitBurst=3
+I then opened up my Chromium browser on my Raspberry PI 5 with http://localhost:5000
 
-NoNewPrivileges=true
+This time, my Chatty_AI.html web ui page displayed correctly.
 
-[Install]
-WantedBy=multi-user.target
-EOF
+The button at the top right-hand side of the web ui page was green with the text "Connected" displayed.
+
+I then clicked on the "Start System" button at the bottom left-hand side of the web ui page.
+
+After about 10 seconds, the button below the "Connected" button also turned green with the text "System Running" displayed.
+
+The System Debug Info box displayed:
+Socket: Connected
+Camera: Ready
+Models: Loaded
+Wake Word: Inactive
+Person: None
+
+The System Performance Monitor box displayed:
+CPU Usage
+7.1
+%
+Memory Usage
+20.0
+%
+CPU Temperature
+52.1
+°C
+GPU Temperature
+53.1
+°C
+
+The System Logs box displayed:
+19:15:36 🌟 Chatty AI Web Interface initialized
+19:15:36 🔗 Attempting to connect to server...
+19:15:36 💡 Click "Start System" to begin AI operations
+19:15:37 📊 Connected to server successfully
+19:15:37 ✅ Connected to Chatty AI server
+19:15:39 🔍 Checking system components...
+19:27:46 🚀 Starting Chatty AI system...
+19:27:46 [19:27:46] Starting Chatty AI system...
+19:27:46 [19:27:46] Response files loaded successfully
+19:27:46 [19:27:46] Loading AI models...
+19:27:56 [19:27:48] Whisper model loaded successfully
+19:27:56 [19:27:56] LLaMA model loaded successfully
+19:27:56 [19:27:56] Loaded 37 face encodings
+19:27:56 [19:27:56] Telegram configuration loaded
+19:27:58 [19:27:58] Camera initialized successfully
+19:27:58 [19:27:58] Camera monitoring thread started
+19:27:58 [19:27:58] Camera monitoring thread stopped
+19:27:58 [19:27:58] Wake word detection thread started
+19:27:58 [19:27:58] Wake word detection thread stopped
+19:27:58 [19:27:58] Chatty AI system started successfully
+19:27:58 📊 Chatty AI system started successfully
+
+The only problem now is that the Live Camera Feed box is not displaying the live video preview from my PI Camera Module 2 camera.
+
+Therefore, chatty_ai.py cannot use facial recognition to detect the face of a person registered in the facial recognition model, and then turn on the wake word detection.
+
+How can we fix this?
+
+
+
+
+
+
+
+
+
 
 
