@@ -15,14 +15,8 @@ from chatty_ai import ChattyAIWebServer
 # Create the application instance
 chatty_server = ChattyAIWebServer()
 
-# WSGI application
-app = chatty_server.app
-socketio = chatty_server.socketio
-
-# For Gunicorn with eventlet worker
-if __name__ != "__main__":
-    # When running under Gunicorn, we need to use the socketio app
-    app = socketio
+# WSGI application - For Gunicorn with eventlet worker, use socketio app
+app = chatty_server.socketio
 
 if __name__ == "__main__":
     # Direct execution (development mode)
