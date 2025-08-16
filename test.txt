@@ -2,11 +2,8 @@ Thank you, Claude,
 
 I updated the wsgi.py file as you recommended and saved it to my /home/nickspi5/Chatty_AI folder
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp wsgi.py wsgi.pi.backup
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "^class " chatty_ai.py
-115:class ChattyAIWebServer:
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
-2025-08-16 13:09:47,187 - INFO - ChattyAI Web Server initialized
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
+2025-08-16 13:18:49,974 - INFO - ChattyAI Web Server initialized
 
 Error while loading the application:
 
@@ -23,6 +20,7 @@ Traceback (most recent call last):
     raise AppImportError("Application object must be callable.")
 gunicorn.errors.AppImportError: Application object must be callable.
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
 
 
 
