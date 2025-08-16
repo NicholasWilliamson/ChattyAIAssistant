@@ -1,60 +1,29 @@
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "class.*" chatty_ai.py
-110-        logging.FileHandler('chatty_ai_web.log')
-111-    ]
-112-)
-113-logger = logging.getLogger(__name__)
-114-
+I updated the wsgi.py file as you recommended and saved it to my /home/nickspi5/Chatty_AI folder
 
-116-    def __init__(self):
-117-        # Initialize Flask app
-118-        self.app = Flask(__name__, 
-119-                        template_folder='templates',
-120-                        static_folder='templates')
---
-424-        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError, ValueError):
-425-            pass
-426-        
-427-        # Fallback: try thermal zone
-428-        try:
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp wsgi.py wsgi.pi.backup
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "^class " chatty_ai.py
+115:class ChattyAIWebServer:
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ gunicorn --check-config --config gunicorn_config.py wsgi:app
+2025-08-16 13:09:47,187 - INFO - ChattyAI Web Server initialized
 
-430-                temp_millidegrees = int(f.read().strip())
-431-                return temp_millidegrees / 1000.0
-432-        except (FileNotFoundError, ValueError, IOError):
-433-            pass
-434-        
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "__main__" chatty_ai.py
-1612:if __name__ == '__main__':
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat wsgi.py
-#!/usr/bin/env python3
-"""
-wsgi.py - WSGI Application Entry Point for Chatty AI
-This file is used by Gunicorn to serve the application
-"""
+Error while loading the application:
 
-import os
-import sys
-from chatty_ai_web import ChattyAIWebServer
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/base.py", line 207, in run
+    self.load()
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/gunicorn/util.py", line 441, in import_app
+    raise AppImportError("Application object must be callable.")
+gunicorn.errors.AppImportError: Application object must be callable.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-# Create the application instance
-chatty_server = ChattyAIWebServer()
-
-# WSGI application
-app = chatty_server.app
-socketio = chatty_server.socketio
-
-# For Gunicorn with eventlet worker
-if __name__ != "__main__":
-    # When running under Gunicorn, we need to use the socketio app
-    app = socketio
-
-if __name__ == "__main__":
-    # Direct execution (development mode)
-    chatty_server.run(debug=False)(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 
 
