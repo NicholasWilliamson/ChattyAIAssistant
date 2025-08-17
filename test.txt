@@ -1,41 +1,116 @@
-I can see several issues:
+Thank you, Claude,
 
-Still a process using port 5000 (PID 27701)
-The camera monitoring function got corrupted - there are duplicate docstrings and emit_log calls
-
-Let's fix both:
-bash# Kill the remaining process
-sudo kill -9 27701
-
-# Fix the corrupted camera monitoring function
-sed -i '1367,1372c\
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo kill -9 27701
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '1367,1372c\
         """Main camera monitoring loop for web interface"""\
         logger.info("Camera monitoring thread started - DEBUG INFO")\
         logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")\
         self.emit_log("Camera monitoring thread started", '"'"'success'"'"')' chatty_ai.py
-Let's verify the fix:
-bashsed -n '1365,1380p' chatty_ai.py
-Now try running:
-bashpython3 chatty_ai.py
-Access at: http://localhost:5001
-When you click "Start System", watch the console output carefully for:
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -n '1365,1380p' chatty_ai.py
 
-"Camera monitoring thread started - DEBUG INFO"
-The values of system_running and monitor_running
-Any camera-related errors
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop for web interface"""
+        logger.info("Camera monitoring thread started - DEBUG INFO")
+        logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")
+        self.emit_log("Camera monitoring thread started", 'success')
+        
+        while self.system_running and self.monitor_running:
+            try:
+                if not self.picam2:
+                    time.sleep(1)
+                    continue
+                    
+                frame = self.picam2.capture_array()
+                
+                # Convert from RGB to BGR for OpenCV
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Available audio devices:
+  0 USB PnP Sound Device: Audio (hw:2,0), ALSA (1 in, 0 out)
+  1 pulse, ALSA (32 in, 32 out)
+* 2 default, ALSA (32 in, 32 out)
+============================================================
+2025-08-17 11:43:57,923 - INFO - ChattyAI Web Server initialized
 
-Also check the browser developer console (F12 → Console tab) for any JavaScript errors.
-If the video still doesn't show, let's also check what's happening in the video feed route. The issue might be that self.current_frame is not being set properly.
-Let's add some debugging to see if frames are being captured:
-bash# Add debug to see if frames are being captured
-grep -n -A 20 "self.current_frame = display_frame" chatty_ai.py
-Once you run it and click "Start System", tell me:
+============================================================
+🚀 Starting Chatty AI Web Interface
+============================================================
+Web Interface Features:
+• Complete AI Assistant Integration
+• Live Video Feed with Facial Recognition
+• Real-time System Monitoring
+• Wake Word Detection
+• Speech Synthesis & Processing
+• Security Monitoring & Telegram Alerts
+• LLM-Generated Entertainment
+============================================================
+Access the web interface at: http://localhost:5001
+Or from other devices at: http://192.168.1.16:5001
+Press Ctrl+C to stop the server
+============================================================
 
-What debug output you see in the console
-Any errors in the browser console (F12)
-If you navigate directly to http://localhost:5001/video_feed, what do you see?
+DEBUG INFO:
+• Wake words: 42 phrases loaded
+• Bored response interval: 30 seconds
+• Audio sample rate: 16000 Hz
+• Silence threshold: 0.035
+• Daytime visitor hours: 6:00AM - 12:00PM
+• Intruder detection hours: 12:01PM - 5:59AM
+============================================================
+2025-08-17 11:43:57,923 - INFO - Starting Flask-SocketIO server...
+(27822) wsgi starting up on http://0.0.0.0:5001
+(27822) accepted ('127.0.0.1', 40046)
+(27822) accepted ('127.0.0.1', 40048)
+127.0.0.1 - - [17/Aug/2025 11:46:44] "GET / HTTP/1.1" 200 33561 0.012429
+127.0.0.1 - - [17/Aug/2025 11:46:44] "GET /templates/Chatty_AI_logo.png HTTP/1.1" 200 66380 0.008347
 
-This will help us pinpoint exactly where the video pipeline is breaking. 
+
+I opened http://localhost:5001 on my Chromium browser on my Raspberry PI 5.
+
+I clicked on the Start System button and the red button at the top right-hand side of the web ui page changed from displaying the text "Disconnected" to displaying the text "Connection Error".
+
+The System Logs box displayed:
+11:46:44 🌟 Chatty AI Web Interface initialized
+11:46:44 🔗 Attempting to connect to server...
+11:46:44 💡 Click "Start System" to begin AI operations
+11:46:46 🔍 Checking system components...
+11:46:54 ❌ Cannot start system - not connected to server
+11:47:04 ❌ Connection error: Error: timeout
+11:47:14 ⚠️ Connection lost - attempting to reconnect...
+11:47:25 ❌ Connection error: Error: timeout
+11:47:44 ⚠️ Connection lost - attempting to reconnect...
+11:47:48 ❌ Connection error: Error: timeout
+11:48:13 ❌ Connection error: Error: timeout
+11:48:14 ⚠️ Connection lost - attempting to reconnect...
+11:48:38 ❌ Connection error: Error: timeout
+11:48:44 ⚠️ Connection lost - attempting to reconnect...
+11:49:03 ❌ Connection error: Error: timeout
+11:49:14 ⚠️ Connection lost - attempting to reconnect...
+11:49:28 ❌ Connection error: Error: timeout
+11:49:44 ⚠️ Connection lost - attempting to reconnect...
+11:49:53 ❌ Connection error: Error: timeout
+11:50:14 ⚠️ Connection lost - attempting to reconnect...
+11:50:18 ❌ Connection error: Error: timeout
+11:50:43 ❌ Connection error: Error: timeout
+11:50:44 ⚠️ Connection lost - attempting to reconnect...
+11:51:08 ❌ Connection error: Error: timeout
+11:51:14 ⚠️ Connection lost - attempting to reconnect...
+11:51:33 ❌ Connection error: Error: timeout
+11:51:44 ⚠️ Connection lost - attempting to reconnect...
+11:51:58 ❌ Connection error: Error: timeout
+
+
+I clicked on the F12 to open the browser developer console but could not see any JavaScript errors when I clicked on the Console Tab.
+
+I also then changed all references in my Chatty_AI.html web ui template page from 5000 to 5001
+
+
+
+
+
+
+
+
+
 
 
 
