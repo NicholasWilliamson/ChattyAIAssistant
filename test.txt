@@ -1,10 +1,7 @@
-# Create a backup first
-cp chatty_ai.py chatty_ai.py.backup3
+Thank you, Claude,
 
-# Apply the fixes step by step
-
-# Fix 1: Update setup_camera method
-sed -i '/def setup_camera/,/return False/c\
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp chatty_ai.py chatty_ai.py.backup3
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/def setup_camera/,/return False/c\
     def setup_camera(self):\
         """Initialize camera with proper state management"""\
         try:\
@@ -32,21 +29,92 @@ sed -i '/def setup_camera/,/return False/c\
             self.emit_log(f"Failed to initialize camera: {e}", '\''error'\'')\
             self.camera_initialized = False\
             return False' chatty_ai.py
-Now let's fix the critical race condition by moving system_running = True before the thread starts:
-bash# Find the line where system_running is set and move it up
-sed -i '/self.camera_thread.start()/i\
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/self.camera_thread.start()/i\
                     # Set system_running to True BEFORE starting threads\
                     self.system_running = True' chatty_ai.py
-
-# Remove the old system_running = True line
-sed -i '/self.system_running = True/d' chatty_ai.py
-
-# Add it back in the correct place (after the comment we just added)
-sed -i '/Set system_running to True BEFORE starting threads/a\
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/self.system_running = True/d' chatty_ai.py
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/Set system_running to True BEFORE starting threads/a\
                     self.system_running = True' chatty_ai.py
-Let's verify the fix was applied correctly:
-bashgrep -n -A 10 -B 10 "system_running = True" chatty_ai.py
-Key Issue Solved: The race condition where system_running was False when the camera monitoring loop started, causing it to exit immediately. 
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 10 "system_running = True" chatty_ai.py
+679-                    if not self.monitor_running:
+680-                        self.monitor_running = True
+681-                        self.system_monitor_thread = threading.Thread(
+682-                            target=self.system_monitor_loop, daemon=True)
+683-                        self.system_monitor_thread.start()
+684-                        logger.info("System monitoring thread started")
+685-                    
+686-                    # Start camera monitoring
+687-                    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+688-                    # Set system_running to True BEFORE starting threads
+689:                    self.system_running = True
+690-                    self.camera_thread.start()
+691-                    
+692-                    # Start wake word detection
+693-                    self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+694-                    self.audio_thread.start()
+695-                    
+696-                    self.emit_log("Chatty AI system started successfully", 'success')
+697-                    
+698-                    response_data = {
+699-                        'status': 'running',
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Available audio devices:
+  0 USB PnP Sound Device: Audio (hw:2,0), ALSA (1 in, 0 out)
+  1 pulse, ALSA (32 in, 32 out)
+* 2 default, ALSA (32 in, 32 out)
+============================================================
+2025-08-17 10:37:15,317 - INFO - ChattyAI Web Server initialized
+
+============================================================
+🚀 Starting Chatty AI Web Interface
+============================================================
+Web Interface Features:
+• Complete AI Assistant Integration
+• Live Video Feed with Facial Recognition
+• Real-time System Monitoring
+• Wake Word Detection
+• Speech Synthesis & Processing
+• Security Monitoring & Telegram Alerts
+• LLM-Generated Entertainment
+============================================================
+Access the web interface at: http://localhost:5000
+Or from other devices at: http://192.168.1.16:5000
+Press Ctrl+C to stop the server
+============================================================
+
+DEBUG INFO:
+• Wake words: 42 phrases loaded
+• Bored response interval: 30 seconds
+• Audio sample rate: 16000 Hz
+• Silence threshold: 0.035
+• Daytime visitor hours: 6:00AM - 12:00PM
+• Intruder detection hours: 12:01PM - 5:59AM
+============================================================
+2025-08-17 10:37:15,317 - INFO - Starting Flask-SocketIO server...
+2025-08-17 10:37:15,318 - ERROR - Error starting server: [Errno 98] Address already in use
+2025-08-17 10:37:15,318 - INFO - Cleaning up resources...
+2025-08-17 10:37:15,318 - INFO - Cleaning up resources...
+2025-08-17 10:37:15,318 - ERROR - Fatal error: [Errno 98] Address already in use
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I then ran http://localhost:5000 in my Chromium browser on my Raspberry PI 5.
+
+I clicked on the Start System button.
+
+The same problem exists. The live video preview is not being displayed.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
