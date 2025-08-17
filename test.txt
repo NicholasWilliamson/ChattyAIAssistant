@@ -1,45 +1,292 @@
-I see two issues:
+Thank you, Claude,
 
-Port 5000 is already in use - There's another instance running
-The camera fix was partially applied but we need to complete it
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo pkill -f "python.*chatty"
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo lsof -ti:5000 | xargs sudo kill -9
 
-Let's fix both issues:
-First, kill the existing process:
-bash# Find and kill any existing chatty processes
-sudo pkill -f "python.*chatty"
-sudo lsof -ti:5000 | xargs sudo kill -9
+Usage:
+ kill [options] <pid> [...]
 
-# Wait a moment for cleanup
-sleep 3
-Second, let's complete the camera monitoring loop fix. The issue is that even though we fixed the race condition, the camera monitoring loop still has the old logic. Let's check what we have:
-bashgrep -n -A 15 "def camera_monitoring_loop" chatty_ai.py
-The problem is likely that the camera monitoring loop is still exiting immediately. Let's apply the complete fix:
-bash# Let's see the current camera monitoring loop
-grep -n -A 20 -B 5 "while self.system_running:" chatty_ai.py
-Now let's fix the monitoring loop properly:
-bash# First, let's see the exact structure
-sed -n '1350,1400p' chatty_ai.py
-Based on the earlier grep output, the issue is in the camera_monitoring_loop. Let's fix it by ensuring it also checks for monitor_running:
-bash# Fix the while loop condition in camera_monitoring_loop
-sed -i 's/while self.system_running:/while self.system_running and self.monitor_running:/' chatty_ai.py
+Options:
+ <pid> [...]            send signal to every <pid> listed
+ -<signal>, -s, --signal <signal>
+                        specify the <signal> to be sent
+ -q, --queue <value>    integer value to be sent with the signal
+ -l, --list=[<signal>]  list all signal names, or convert one to a name
+ -L, --table            list all signal names in a nice table
 
-# Also ensure monitor_running is set early
-sed -i '/self.system_running = True/a\
+ -h, --help     display this help and exit
+ -V, --version  output version information and exit
+
+For more details see kill(1).
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo lsof -ti:5000 | xargs
+27454 27458
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo kill -9
+
+Usage:
+ kill [options] <pid> [...]
+
+Options:
+ <pid> [...]            send signal to every <pid> listed
+ -<signal>, -s, --signal <signal>
+                        specify the <signal> to be sent
+ -q, --queue <value>    integer value to be sent with the signal
+ -l, --list=[<signal>]  list all signal names, or convert one to a name
+ -L, --table            list all signal names in a nice table
+
+ -h, --help     display this help and exit
+ -V, --version  output version information and exit
+
+For more details see kill(1).
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 3
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 15 "def camera_monitoring_loop" chatty_ai.py
+1365:    def camera_monitoring_loop(self):
+1366-        """Main camera monitoring loop for web interface"""
+1367-        self.emit_log("Camera monitoring thread started", 'success')
+1368-        
+1369-        while self.system_running:
+1370-            try:
+1371-                if not self.picam2:
+1372-                    time.sleep(1)
+1373-                    continue
+1374-                    
+1375-                frame = self.picam2.capture_array()
+1376-                
+1377-                # Convert from RGB to BGR for OpenCV
+1378-                if len(frame.shape) == 3 and frame.shape[2] == 3:
+1379-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+1380-                
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 20 -B 5 "while self.system_running:" chatty_ai.py
+1327-
+1328-    def listen_for_wake_word(self):
+1329-        """Listen for wake words in background"""
+1330-        self.emit_log("Wake word detection thread started", 'success')
+1331-        
+1332:        while self.system_running:
+1333-            try:
+1334-                # Only listen if someone is present and wake word detection is active
+1335-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+1336-                    # Check for bored response first
+1337-                    if self.check_for_bored_response(self.current_person):
+1338-                        # Bored response was given, continue to next iteration
+1339-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1340-                        continue
+1341-                    
+1342-                    # Record audio for wake word detection
+1343-                    if self.record_wake_word_check():
+1344-                        # Transcribe and check for wake word
+1345-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+1346-                        
+1347-                        if transcript and self.detect_wake_word(transcript):
+1348-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+1349-                            self.emit_conversation(f"🌟 Wake word detected: {transcript}", 'wake_word')
+1350-                            
+1351-                            # Handle the wake word detection
+1352-                            self.handle_wake_word_detected()
+--
+1364-
+1365-    def camera_monitoring_loop(self):
+1366-        """Main camera monitoring loop for web interface"""
+1367-        self.emit_log("Camera monitoring thread started", 'success')
+1368-        
+1369:        while self.system_running:
+1370-            try:
+1371-                if not self.picam2:
+1372-                    time.sleep(1)
+1373-                    continue
+1374-                    
+1375-                frame = self.picam2.capture_array()
+1376-                
+1377-                # Convert from RGB to BGR for OpenCV
+1378-                if len(frame.shape) == 3 and frame.shape[2] == 3:
+1379-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+1380-                
+1381-                # Process facial recognition
+1382-                name, face_location, confidence = self.detect_faces(frame)
+1383-                
+1384-                current_time = time.time()
+1385-                
+1386-                # Draw face rectangles and labels on frame for web display
+1387-                display_frame = frame.copy()
+1388-                if name and face_location:
+1389-                    top, right, bottom, left = face_location
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -n '1350,1400p' chatty_ai.py
+                            
+                            # Handle the wake word detection
+                            self.handle_wake_word_detected()
+                    
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    # No one present or wake word not active, sleep longer
+                    time.sleep(2.0)
+                
+            except Exception as e:
+                self.emit_log(f"Wake word detection error: {e}", 'error')
+                time.sleep(2.0)
+        
+        self.emit_log("Wake word detection thread stopped", 'info')
+
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop for web interface"""
+        self.emit_log("Camera monitoring thread started", 'success')
+        
+        while self.system_running:
+            try:
+                if not self.picam2:
+                    time.sleep(1)
+                    continue
+                    
+                frame = self.picam2.capture_array()
+                
+                # Convert from RGB to BGR for OpenCV
+                if len(frame.shape) == 3 and frame.shape[2] == 3:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                
+                # Process facial recognition
+                name, face_location, confidence = self.detect_faces(frame)
+                
+                current_time = time.time()
+                
+                # Draw face rectangles and labels on frame for web display
+                display_frame = frame.copy()
+                if name and face_location:
+                    top, right, bottom, left = face_location
+                    
+                    # Choose color based on recognition
+                    if name == "Unknown":
+                        color = (0, 0, 255)  # Red for unknown
+                        label = f"Unknown ({confidence:.2f})"
+                    else:
+                        color = (0, 255, 0)  # Green for known
+                        label = f"{name} ({confidence:.2f})"
+                    
+                    # Draw rectangle around face
+                    cv2.rectangle(display_frame, (left, top), (right, bottom), color, 2)
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i 's/while self.system_running:/while self.system_running and self.monitor_running:/' chatty_ai.py
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/self.system_running = True/a\
                     self.monitor_running = True' chatty_ai.py
-Let's verify the changes:
-bashgrep -n -A 5 -B 5 "while self.system_running" chatty_ai.py
-grep -n -A 3 -B 3 "monitor_running = True" chatty_ai.py
-Now let's also add debugging to see what's happening:
-bash# Add debug logging to camera monitoring loop
-sed -i '/def camera_monitoring_loop/a\
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "while self.system_running" chatty_ai.py
+1328-
+1329-    def listen_for_wake_word(self):
+1330-        """Listen for wake words in background"""
+1331-        self.emit_log("Wake word detection thread started", 'success')
+1332-        
+1333:        while self.system_running and self.monitor_running:
+1334-            try:
+1335-                # Only listen if someone is present and wake word detection is active
+1336-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+1337-                    # Check for bored response first
+1338-                    if self.check_for_bored_response(self.current_person):
+--
+1365-
+1366-    def camera_monitoring_loop(self):
+1367-        """Main camera monitoring loop for web interface"""
+1368-        self.emit_log("Camera monitoring thread started", 'success')
+1369-        
+1370:        while self.system_running and self.monitor_running:
+1371-            try:
+1372-                if not self.picam2:
+1373-                    time.sleep(1)
+1374-                    continue
+1375-                    
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 3 -B 3 "monitor_running = True" chatty_ai.py
+677-                    
+678-                    # Start system monitoring
+679-                    if not self.monitor_running:
+680:                        self.monitor_running = True
+681-                        self.system_monitor_thread = threading.Thread(
+682-                            target=self.system_monitor_loop, daemon=True)
+683-                        self.system_monitor_thread.start()
+--
+687-                    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+688-                    # Set system_running to True BEFORE starting threads
+689-                    self.system_running = True
+690:                    self.monitor_running = True
+691-                    self.camera_thread.start()
+692-                    
+693-                    # Start wake word detection
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i '/def camera_monitoring_loop/a\
         """Main camera monitoring loop for web interface"""\
         logger.info("Camera monitoring thread started - DEBUG INFO")\
         logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")\
         self.emit_log("Camera monitoring thread started", '"'"'success'"'"')' chatty_ai.py
-Let's also check that the video streaming route exists:
-bash   grep -n -A 10 -B 5 "video_feed\|/video" chatty_ai.py
-Now try running it:
-bashpython3 chatty_ai.py
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "video_feed\|/video" chatty_ai.py
+515-                return render_template('Chatty_AI.html')
+516-            except Exception as e:
+517-                logger.error(f"Error rendering template: {e}")
+518-                return f"Error: Could not find Chatty_AI.html in templates folder. Error: {e}", 500
+519-
+520:        @self.app.route('/video_feed')
+521:        def video_feed():
+522-            """Video streaming route"""
+523-            def generate():
+524-                while True:
+525-                    try:
+526-                        if self.current_frame is not None and self.system_running:
+527-                            # Convert frame to JPEG
+528-                            is_success, buffer = cv2.imencode(".jpg", self.current_frame)
+529-                            if is_success:
+530-                                frame_bytes = buffer.tobytes()
+531-                                yield (b'--frame\r\n'
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Available audio devices:
+  0 USB PnP Sound Device: Audio (hw:2,0), ALSA (1 in, 0 out)
+  1 pulse, ALSA (32 in, 32 out)
+* 2 default, ALSA (32 in, 32 out)
+============================================================
+2025-08-17 11:01:18,523 - INFO - ChattyAI Web Server initialized
+
+============================================================
+🚀 Starting Chatty AI Web Interface
+============================================================
+Web Interface Features:
+• Complete AI Assistant Integration
+• Live Video Feed with Facial Recognition
+• Real-time System Monitoring
+• Wake Word Detection
+• Speech Synthesis & Processing
+• Security Monitoring & Telegram Alerts
+• LLM-Generated Entertainment
+============================================================
+Access the web interface at: http://localhost:5000
+Or from other devices at: http://192.168.1.16:5000
+Press Ctrl+C to stop the server
+============================================================
+
+DEBUG INFO:
+• Wake words: 42 phrases loaded
+• Bored response interval: 30 seconds
+• Audio sample rate: 16000 Hz
+• Silence threshold: 0.035
+• Daytime visitor hours: 6:00AM - 12:00PM
+• Intruder detection hours: 12:01PM - 5:59AM
+============================================================
+2025-08-17 11:01:18,524 - INFO - Starting Flask-SocketIO server...
+2025-08-17 11:01:18,524 - ERROR - Error starting server: [Errno 98] Address already in use
+2025-08-17 11:01:18,524 - INFO - Cleaning up resources...
+2025-08-17 11:01:18,524 - INFO - Cleaning up resources...
+2025-08-17 11:01:18,524 - ERROR - Fatal error: [Errno 98] Address already in use
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+
+I then ran http://localhost:5000 in my Chromium browser on my Raspberry PI 5.
+
+I clicked on the Start System button.
+
+The same problem exists. The live video preview is not being displayed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
