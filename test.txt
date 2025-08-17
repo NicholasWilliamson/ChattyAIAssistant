@@ -1,130 +1,51 @@
-Thank you, Claude,
+The issue is clear now! The server is not actually running properly. Even though you see startup messages, the server is failing to bind to port 5001.
+The curl commands are failing to connect, which means the server process is crashing or not listening properly. Let's diagnose this:
+First, check if the server is actually running:
+bash# Check if the process is still running
+ps aux | grep python | grep chatty
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "socketio" chatty_ai.py | head -20
-23-import requests
-24-import io
-25-import signal
-26-from datetime import datetime, timedelta
-27-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
-28:from flask_socketio import SocketIO, emit
-29-from faster_whisper import WhisperModel
-30-from llama_cpp import Llama
-31-from picamera2 import Picamera2
-32-
-33-# -------------------------------
---
-119-                        template_folder='templates',
-120-                        static_folder='templates')
-121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
-122-        
-123-        # Initialize SocketIO
-124:        self.socketio = SocketIO(self.app, 
-125-                               cors_allowed_origins="*",
-126-                               async_mode='eventlet',
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "SocketIO\|socketio.*init" chatty_ai.py
-23-import requests
-24-import io
-25-import signal
-26-from datetime import datetime, timedelta
-27-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
-28:from flask_socketio import SocketIO, emit
-29-from faster_whisper import WhisperModel
-30-from llama_cpp import Llama
-31-from picamera2 import Picamera2
-32-
-33-# -------------------------------
-34-# Configuration
-35-# -------------------------------
-36-WHISPER_MODEL_SIZE = "base"
-37-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-38-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
---
-118-        self.app = Flask(__name__, 
-119-                        template_folder='templates',
-120-                        static_folder='templates')
-121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
-122-        
-123:        # Initialize SocketIO
-124:        self.socketio = SocketIO(self.app, 
-125-                               cors_allowed_origins="*",
-126-                               async_mode='eventlet',
-127-                               ping_timeout=60,
-128-                               ping_interval=25,
-129-                               logger=False,
-130-                               engineio_logger=False)
-131-        
-132-        # AI Models
-133-        self.whisper_model = None
-134-        self.llama_model = None
---
-594-        def api_system_info():
-595-            """API endpoint for system information"""
-596-            return jsonify(self.get_system_info())
-597-
-598-    def setup_socket_events(self):
-599:        """Setup SocketIO event handlers"""
-600-        
-601-        @self.socketio.on('connect')
-602-        def handle_connect():
-603-            """Handle client connection"""
-604-            client_id = request.sid
-605-            self.clients.add(client_id)
-606-            logger.info(f"Client connected: {client_id}. Total clients: {len(self.clients)}")
-607-            
-608-            # Send initial status
-609-            emit('status_update', {
---
-1587-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
-1588-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
-1589-            print("="*60)
-1590-            
-1591-            # Start the server with better error handling
-1592:            logger.info("Starting Flask-SocketIO server...")
-1593-            self.socketio.run(self.app, 
-1594-                            host=host, 
-1595-                            port=port, 
-1596-                            debug=debug,
-1597-                            use_reloader=False,
-1598-                            log_output=True)
-1599-                            
-1600-        except Exception as e:
-1601-            logger.error(f"Error starting server: {e}")
-1602-            self.cleanup()
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -I http://localhost:5001
-curl: (7) Failed to connect to localhost port 5001 after 0 ms: Couldn't connect to server
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 15 "__init__" chatty_ai.py | grep -A 15 -B 5 socketio
-119-                        template_folder='templates',
-120-                        static_folder='templates')
-121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
-122-        
-123-        # Initialize SocketIO
-124-        self.socketio = SocketIO(self.app, 
-125-                               cors_allowed_origins="*",
-126-                               async_mode='eventlet',
-127-                               ping_timeout=60,
-128-                               ping_interval=25,
-129-                               logger=False,
-130-                               engineio_logger=False)
-131-        
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "SocketIO" chatty_ai.py
-28:from flask_socketio import SocketIO, emit
-123:        # Initialize SocketIO
-124:        self.socketio = SocketIO(self.app, 
-599:        """Setup SocketIO event handlers"""
-1592:            logger.info("Starting Flask-SocketIO server...")
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -X POST http://localhost:5001/some-test-endpoint
-curl: (7) Failed to connect to localhost port 5001 after 0 ms: Couldn't connect to server
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+# Check what's using port 5001
+sudo netstat -tlnp | grep :5001
+The issue is likely with the eventlet async mode. Let's fix the SocketIO configuration:
+bash# Change from eventlet to threading mode (more reliable)
+sed -i "s/async_mode='eventlet'/async_mode='threading'/g" chatty_ai.py
+Also, let's check if eventlet is installed:
+bashpip list | grep eventlet
+If eventlet is not installed, that's the problem. Let's install it or switch to threading mode:
+bash# Install eventlet
+pip install eventlet
 
+# OR alternatively, let's switch to threading mode which is more reliable
+Let's also add better error handling to see what's failing. Check the server startup:
+bash# Look for any import errors or startup issues
+python3 -c "
+import sys
+sys.path.append('.')
+try:
+    from chatty_ai import ChattyAI
+    print('Import successful')
+except Exception as e:
+    print(f'Import error: {e}')
+"
+Most likely the issue is one of these:
 
+Missing eventlet dependency
+Port binding issue
+Import error preventing the server from starting properly
 
+Let's also try running with threading mode and debug enabled:
+bash# Edit the SocketIO config to use threading and enable debug
+sed -i 's/async_mode=.eventlet./async_mode="threading"/g' chatty_ai.py
+sed -i 's/logger=False/logger=True/g' chatty_ai.py
+sed -i 's/engineio_logger=False/engineio_logger=True/g' chatty_ai.py
+Then try running again:
+bashpython3 chatty_ai.py
+This should give us much better error output to see exactly what's failing. The server startup messages you're seeing might be printed before the actual server binding fails.
+Run these commands and let me know:
 
-
-
-
-
-
-
+What the process/port checks show
+If eventlet is installed
+What the debug output shows when you run with logging enabled
 
 
 
