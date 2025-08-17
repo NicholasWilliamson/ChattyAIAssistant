@@ -1,42 +1,41 @@
-Thank you, Claude,
+I can see several issues:
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo kill -9 27454 27458
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo netstat -tlnp | grep :5000
-tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN      27701/python3       
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i "s/port=5000/port=5001/g" chatty_ai.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sed -i "s/:5000/:5001/g" chatty_ai.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "5000" templates/Chatty_AI.html
-923:            }, 5000);
-986:        }, 5000); // Refresh every 5 seconds when system is running
-993:        }, 5000); // Every 5 seconds for real-time monitoring
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 "def camera_monitoring_loop" chatty_ai.py
-1366:    def camera_monitoring_loop(self):
-1367-        """Main camera monitoring loop for web interface"""
-1368-        logger.info("Camera monitoring thread started - DEBUG INFO")
-1369-        logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")
-1370-        self.emit_log("Camera monitoring thread started", 'success')
-1371-        """Main camera monitoring loop for web interface"""
-1372-        self.emit_log("Camera monitoring thread started", 'success')
-1373-        
-1374-        while self.system_running and self.monitor_running:
-1375-            try:
-1376-                if not self.picam2:
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "def camera_monitoring_loop" chatty_ai.py
-1366:    def camera_monitoring_loop(self):
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+Still a process using port 5000 (PID 27701)
+The camera monitoring function got corrupted - there are duplicate docstrings and emit_log calls
 
+Let's fix both:
+bash# Kill the remaining process
+sudo kill -9 27701
 
+# Fix the corrupted camera monitoring function
+sed -i '1367,1372c\
+        """Main camera monitoring loop for web interface"""\
+        logger.info("Camera monitoring thread started - DEBUG INFO")\
+        logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")\
+        self.emit_log("Camera monitoring thread started", '"'"'success'"'"')' chatty_ai.py
+Let's verify the fix:
+bashsed -n '1365,1380p' chatty_ai.py
+Now try running:
+bashpython3 chatty_ai.py
+Access at: http://localhost:5001
+When you click "Start System", watch the console output carefully for:
 
+"Camera monitoring thread started - DEBUG INFO"
+The values of system_running and monitor_running
+Any camera-related errors
 
+Also check the browser developer console (F12 → Console tab) for any JavaScript errors.
+If the video still doesn't show, let's also check what's happening in the video feed route. The issue might be that self.current_frame is not being set properly.
+Let's add some debugging to see if frames are being captured:
+bash# Add debug to see if frames are being captured
+grep -n -A 20 "self.current_frame = display_frame" chatty_ai.py
+Once you run it and click "Start System", tell me:
 
+What debug output you see in the console
+Any errors in the browser console (F12)
+If you navigate directly to http://localhost:5001/video_feed, what do you see?
 
-
-
-
-
-
-
-
+This will help us pinpoint exactly where the video pipeline is breaking. 
 
 
 
