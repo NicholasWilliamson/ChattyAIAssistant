@@ -1,37 +1,130 @@
-The issue is clear now! The server is running on HTTP but the SocketIO connection is failing. This is a WebSocket/SocketIO connection problem, not a camera problem.
-Looking at the server output, I can see the Flask server is running but the SocketIO connection is timing out. Let's check a few things:
-First, let's see what's happening with SocketIO:
-bash# Check if there are any SocketIO-related errors in the code
-grep -n -A 5 -B 5 "socketio" chatty_ai.py | head -20
-The issue might be with CORS or SocketIO configuration. Let's check the SocketIO initialization:
-bash# Find the SocketIO initialization
-grep -n -A 10 -B 5 "SocketIO\|socketio.*init" chatty_ai.py
-Let's also check if there are any firewall or network issues:
-bash# Test if the server is actually accessible
-curl -I http://localhost:5001
-Most likely fix - SocketIO configuration issue. Let's find and fix the SocketIO setup:
-bash# Look for the SocketIO configuration
-grep -n -A 15 "__init__" chatty_ai.py | grep -A 15 -B 5 socketio
-The problem is likely in the SocketIO configuration. Common issues:
+Thank you, Claude,
 
-CORS settings - SocketIO might be blocking cross-origin requests
-Transport methods - WebSocket transport might be failing
-Threading mode - SocketIO threading configuration
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "socketio" chatty_ai.py | head -20
+23-import requests
+24-import io
+25-import signal
+26-from datetime import datetime, timedelta
+27-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
+28:from flask_socketio import SocketIO, emit
+29-from faster_whisper import WhisperModel
+30-from llama_cpp import Llama
+31-from picamera2 import Picamera2
+32-
+33-# -------------------------------
+--
+119-                        template_folder='templates',
+120-                        static_folder='templates')
+121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
+122-        
+123-        # Initialize SocketIO
+124:        self.socketio = SocketIO(self.app, 
+125-                               cors_allowed_origins="*",
+126-                               async_mode='eventlet',
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "SocketIO\|socketio.*init" chatty_ai.py
+23-import requests
+24-import io
+25-import signal
+26-from datetime import datetime, timedelta
+27-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
+28:from flask_socketio import SocketIO, emit
+29-from faster_whisper import WhisperModel
+30-from llama_cpp import Llama
+31-from picamera2 import Picamera2
+32-
+33-# -------------------------------
+34-# Configuration
+35-# -------------------------------
+36-WHISPER_MODEL_SIZE = "base"
+37-LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+38-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+--
+118-        self.app = Flask(__name__, 
+119-                        template_folder='templates',
+120-                        static_folder='templates')
+121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
+122-        
+123:        # Initialize SocketIO
+124:        self.socketio = SocketIO(self.app, 
+125-                               cors_allowed_origins="*",
+126-                               async_mode='eventlet',
+127-                               ping_timeout=60,
+128-                               ping_interval=25,
+129-                               logger=False,
+130-                               engineio_logger=False)
+131-        
+132-        # AI Models
+133-        self.whisper_model = None
+134-        self.llama_model = None
+--
+594-        def api_system_info():
+595-            """API endpoint for system information"""
+596-            return jsonify(self.get_system_info())
+597-
+598-    def setup_socket_events(self):
+599:        """Setup SocketIO event handlers"""
+600-        
+601-        @self.socketio.on('connect')
+602-        def handle_connect():
+603-            """Handle client connection"""
+604-            client_id = request.sid
+605-            self.clients.add(client_id)
+606-            logger.info(f"Client connected: {client_id}. Total clients: {len(self.clients)}")
+607-            
+608-            # Send initial status
+609-            emit('status_update', {
+--
+1587-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
+1588-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
+1589-            print("="*60)
+1590-            
+1591-            # Start the server with better error handling
+1592:            logger.info("Starting Flask-SocketIO server...")
+1593-            self.socketio.run(self.app, 
+1594-                            host=host, 
+1595-                            port=port, 
+1596-                            debug=debug,
+1597-                            use_reloader=False,
+1598-                            log_output=True)
+1599-                            
+1600-        except Exception as e:
+1601-            logger.error(f"Error starting server: {e}")
+1602-            self.cleanup()
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -I http://localhost:5001
+curl: (7) Failed to connect to localhost port 5001 after 0 ms: Couldn't connect to server
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 15 "__init__" chatty_ai.py | grep -A 15 -B 5 socketio
+119-                        template_folder='templates',
+120-                        static_folder='templates')
+121-        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
+122-        
+123-        # Initialize SocketIO
+124-        self.socketio = SocketIO(self.app, 
+125-                               cors_allowed_origins="*",
+126-                               async_mode='eventlet',
+127-                               ping_timeout=60,
+128-                               ping_interval=25,
+129-                               logger=False,
+130-                               engineio_logger=False)
+131-        
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "SocketIO" chatty_ai.py
+28:from flask_socketio import SocketIO, emit
+123:        # Initialize SocketIO
+124:        self.socketio = SocketIO(self.app, 
+599:        """Setup SocketIO event handlers"""
+1592:            logger.info("Starting Flask-SocketIO server...")
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -X POST http://localhost:5001/some-test-endpoint
+curl: (7) Failed to connect to localhost port 5001 after 0 ms: Couldn't connect to server
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-Let's fix this by updating the SocketIO initialization. First, let me see the current setup:
-bash# Find where SocketIO is initialized
-grep -n "SocketIO" chatty_ai.py
-Run these commands and show me the output. The camera monitoring thread isn't even starting because the SocketIO connection is failing, which means the "Start System" button click isn't reaching the server.
-Quick test to verify the issue:
-bash# Try to manually trigger a simple HTTP endpoint
-curl -X POST http://localhost:5001/some-test-endpoint
-This will help us determine if it's:
 
-A general server connectivity issue
-Specifically a SocketIO/WebSocket problem
-A CORS issue
 
-Once we see the SocketIO configuration, I can provide the exact fix.
+
+
+
+
+
+
+
 
 
 
