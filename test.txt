@@ -1,46 +1,28 @@
-Thank you, Claude,
+Quick Fix Steps:
 
-I made the changes you recommended.
+First, run the diagnostic:
 
-I ran: python3 chatty_ai.py
+bashgrep -n -A 15 "def detect_wake_word" chatty_ai.py
 
-I opened my Chromium browser on my Raspberry PI 5 with http://localhost:5001
+Then apply this exact replacement for the detect_wake_word method:
 
-I clicked on the Start Service buttion.
-
-The AI Assistant correctly recognized me via facial detection recognition.
-
-The wake word detection service started correctly but did not detect my correct wake phrase as displayed in the translation.
-
-The System Logs box displayed:
-19:33:48 🌟 Chatty AI Web Interface initialized
-19:33:48 🔗 Attempting to connect to server...
-19:33:48 💡 Click "Start System" to begin AI operations
-19:33:49 📊 Connected to server successfully
-19:33:49 ✅ Connected to Chatty AI server
-19:33:50 🔍 Checking system components...
-19:34:03 🚀 Starting Chatty AI system...
-19:34:03 [19:34:03] Starting Chatty AI system...
-19:34:03 [19:34:03] Response files loaded successfully
-19:34:03 [19:34:03] Loading AI models...
-19:34:04 [19:34:04] Whisper model loaded successfully
-19:34:04 [19:34:04] LLaMA model loaded successfully
-19:34:04 [19:34:04] Loaded 37 face encodings
-19:34:04 [19:34:04] Telegram configuration loaded
-19:34:06 [19:34:06] Camera initialized successfully
-19:34:06 [19:34:06] Wake word detection thread started
-19:34:06 [19:34:06] Chatty AI system started successfully
-19:34:06 [19:34:06] Camera monitoring thread started
-19:34:06 📊 Chatty AI system started successfully
-19:34:43 [19:34:43] Greeted Nick - Wake word detection now active
-19:34:49 [19:34:49] Wake word audio RMS: 0.0454 (threshold: 0.0300)
-19:34:49 [19:34:49] Wake word audio saved - RMS 0.0454 exceeded threshold
-19:34:54 [19:34:54] Transcription: 'Hello, chatty'
-19:34:54 [19:34:54] Wake word detection error: name 'rms' is not defined
-19:35:01 [19:35:01] Wake word audio RMS: 0.0228 (threshold: 0.0300)
-19:35:01 [19:35:01] Wake word audio saved - RMS 0.0228 exceeded threshold
-
-How can we fix this error?
+Find the detect_wake_word method (around line 1130) and replace it entirely with:
+pythondef detect_wake_word(self, text):
+    """Check if text contains wake word"""
+    if not text:
+        return False
+        
+    text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+    
+    for wake_word in WAKE_WORDS:
+        wake_word_cleaned = wake_word.lower().strip()
+        if wake_word_cleaned in text_cleaned:
+            self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
+            return True
+    
+    # Log that no wake word was found (for debugging)
+    self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
+    return False
 
 
 
