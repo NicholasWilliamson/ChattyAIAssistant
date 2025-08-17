@@ -1,215 +1,523 @@
-# CHATTY AI FIXES
-# Apply these changes to fix wake word detection and improve LLM responses
+Thank you, Claude,
 
-# 1. LOWER SILENCE THRESHOLD (Line 94)
-# Change from: SILENCE_THRESHOLD = 0.035
-# Change to:   SILENCE_THRESHOLD = 0.015
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "detect_wake_word\|record_wake_word" chatty_ai.py
+1125-            return transcript
+1126-        except Exception as e:
+1127-            self.emit_log(f"Transcription error: {e}", 'error')
+1128-            return ""
+1129-
+1130:    def detect_wake_word(self, text):
+1131-        """Check if text contains wake word"""
+1132-        if not text:
+1133-            return False
+1134-            
+1135-        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+1136-        
+1137-        for wake_word in WAKE_WORDS:
+1138-            wake_word_cleaned = wake_word.lower().strip()
+1139-            if wake_word_cleaned in text_cleaned:
+1140-                self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
+--
+1188-                
+1189-        except Exception as e:
+1190-            self.emit_log(f"Recording error: {e}", 'error')
+1191-            return False
+1192-
+1193:    def record_wake_word_check(self):
+1194-        """Record short audio clip for wake word detection"""
+1195-        try:
+1196-            if not self.audio_recording_lock.acquire(blocking=False):
+1197-                return False  # Audio system is busy
+1198-            
+1199-            try:
+1200-                # Record 5 seconds of audio for wake word detection
+1201-                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+1202-                sd.wait()
+1203-                
+--
+1339-                        # Bored response was given, continue to next iteration
+1340-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1341-                        continue
+1342-                    
+1343-                    # Record audio for wake word detection
+1344:                    if self.record_wake_word_check():
+1345-                        # Transcribe and check for wake word
+1346-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+1347-                        
+1348:                        if transcript and self.detect_wake_word(transcript):
+1349-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+1350-                            self.emit_conversation(f"🌟 Wake word detected: {transcript}", 'wake_word')
+1351-                            
+1352-                            # Handle the wake word detection
+1353-                            self.handle_wake_word_detected()
+1354-                    
+1355-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1356-                else:
+1357-                    # No one present or wake word not active, sleep longer
+1358-                    time.sleep(2.0)
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 15 -B 5 "bored.*response\|tell.*joke\|fun.*fact" chatty_ai.py
+56-JOKES_FILE = "jokes.txt"
+57-LISTENING_RESPONSES_FILE = "listening_responses.txt"
+58-WAITING_RESPONSES_FILE = "waiting_responses.txt"
+59-WARNING_RESPONSES_FILE = "warning_responses.txt"
+60-GREETING_RESPONSES_FILE = "greeting_responses.txt"
+61:BORED_RESPONSES_FILE = "bored_responses.txt"
+62-VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+63-
+64-# Wake word phrases
+65-WAKE_WORDS = [
+66-    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+67-    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+68-    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+69-    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+70-    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+71-    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+72-    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+73-    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+74-    "hi cherry", "yo cherry"
+75-]
+76-
+--
+95-MIN_SILENCE_DURATION = 1.5
+96-MAX_RECORDING_DURATION = 30
+97-
+98-# Timing parameters
+99-GREETING_COOLDOWN = 300  # 5 minutes in seconds
+100:BORED_RESPONSE_INTERVAL = 30  # Configurable duration for bored responses
+101-PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
+102-WAKE_WORD_CHECK_INTERVAL = 1.0  # Check for wake words every 1 second
+103-
+104-# Configure logging
+105-logging.basicConfig(
+106-    level=logging.INFO,
+107-    format='%(asctime)s - %(levelname)s - %(message)s',
+108-    handlers=[
+109-        logging.StreamHandler(sys.stdout),
+110-        logging.FileHandler('chatty_ai_web.log')
+111-    ]
+112-)
+113-logger = logging.getLogger(__name__)
+114-
+115-class ChattyAIWebServer:
+--
+152-        # AI Assistant state
+153-        self.current_person = None
+154-        self.last_greeting_time = {}
+155-        self.last_interaction_time = None
+156-        self.person_absent_since = None
+157:        self.last_bored_response_time = None
+158-        self.bored_cycle = 0
+159-        self.audio_recording_lock = threading.Lock()
+160-        
+161-        # Response lists
+162-        self.jokes = []
+163-        self.listening_responses = []
+164-        self.waiting_responses = []
+165-        self.warning_responses = []
+166-        self.greeting_responses = []
+167:        self.bored_responses = []
+168-        self.visitor_greeting_responses = []
+169-        
+170-        # Telegram
+171-        self.telegram_token = None
+172-        self.telegram_chat_id = None
+173-        
+174-        # Threading
+175-        self.camera_thread = None
+176-        self.audio_thread = None
+177-        self.system_monitor_thread = None
+178-        self.monitor_running = False
+179-        
+180-        # Initialize directories and logging
+181-        self.setup_directories()
+182-        self.setup_ai_logging()
+--
+225-                self.waiting_responses = [line.strip() for line in f if line.strip()]
+226-            
+227-            with open(WARNING_RESPONSES_FILE, 'r') as f:
+228-                self.warning_responses = [line.strip() for line in f if line.strip()]
+229-            
+230:            # Load bored responses
+231-            try:
+232-                with open(BORED_RESPONSES_FILE, 'r') as f:
+233:                    self.bored_responses = [line.strip() for line in f if line.strip()]
+234-            except FileNotFoundError:
+235:                self.create_default_bored_responses()
+236-            
+237-            # Load visitor greeting responses
+238-            try:
+239-                with open(VISITOR_GREETING_RESPONSES_FILE, 'r') as f:
+240-                    self.visitor_greeting_responses = [line.strip() for line in f if line.strip()]
+241-            except FileNotFoundError:
+242-                self.create_default_visitor_responses()
+243-            
+244-            self.emit_log("Response files loaded successfully", 'success')
+245-            return True
+246-        except FileNotFoundError as e:
+247-            self.emit_log(f"Response file not found: {e}", 'error')
+248-            self.create_default_responses()
+249-            return False
+250-
+251:    def create_default_bored_responses(self):
+252:        """Create default bored responses file"""
+253-        default_bored = [
+254-            "I'm getting a bit bored waiting here",
+255-            "Still hanging around here waiting for you, dude",
+256-            "I'm patiently waiting for your commands",
+257-            "I am feeling restless waiting here",
+258-            "Still here waiting to help you"
+259-        ]
+260-        
+261-        try:
+262-            with open(BORED_RESPONSES_FILE, 'w') as f:
+263-                for response in default_bored:
+264-                    f.write(response + '\n')
+265:            self.bored_responses = default_bored
+266-        except Exception as e:
+267:            self.bored_responses = default_bored
+268-
+269-    def create_default_visitor_responses(self):
+270-        """Create default visitor greeting responses file"""
+271-        default_visitor = [
+272-            "Hello. I do not recognize you. Can I be of assistance?",
+273-            "Good day, visitor. How may I help you today?",
+274-            "Welcome. I do not believe we have met before. What can I do for you?",
+275-            "Hello there. I am an AI assistant. How can I assist you?",
+276-            "It is great to meet you. I do not recognize your face, but I am happy to help."
+277-        ]
+278-        
+279-        try:
+280-            with open(VISITOR_GREETING_RESPONSES_FILE, 'w') as f:
+281-                for response in default_visitor:
+282-                    f.write(response + '\n')
+--
+289-        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+290-        self.greeting_responses = ["Hey {name}! Good to see you, buddy! What's up?"]
+291-        self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+292-        self.waiting_responses = ["I am still around if you need me, {name}"]
+293-        self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."]
+294:        self.bored_responses = ["I'm getting a bit bored waiting here"]
+295-        self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
+296-
+297-    def load_models(self):
+298-        """Load AI models"""
+299-        try:
+300-            self.emit_log("Loading AI models...", 'info')
+301-            
+302-            # Load Whisper model
+303-            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+304-            self.emit_log("Whisper model loaded successfully", 'success')
+305-            
+306-            # Load LLaMA model
+307-            self.llama_model = Llama(
+308-                model_path=LLAMA_MODEL_PATH,
+309-                n_ctx=2048,
+--
+735-                    # Reset AI Assistant state
+736-                    self.current_person = None
+737-                    self.wake_word_active = False
+738-                    self.last_interaction_time = None
+739-                    self.person_absent_since = None
+740:                    self.last_bored_response_time = None
+741-                    self.bored_cycle = 0
+742-                    
+743-                    # Stop camera
+744-                    if self.picam2:
+745-                        try:
+746-                            self.picam2.stop()
+747-                            self.picam2 = None
+748-                            self.camera_initialized = False
+749-                        except:
+750-                            pass
+751-                    
+752-                    self.models_loaded = False
+753-                    
+754-                    self.emit_log("Chatty AI system stopped", 'info')
+755-                    
+--
+985-        self.last_greeting_time[name] = current_time
+986-        self.last_interaction_time = current_time
+987-        
+988-        # Enable wake word detection after greeting
+989-        self.wake_word_active = True
+990:        self.last_bored_response_time = current_time  # Reset bored response timer
+991-        self.bored_cycle = 0  # Reset bored cycle
+992-        self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
+993-        return True
+994-
+995-    def handle_unknown_person(self, frame, confidence):
+996-        """Handle unknown person detection with time-based responses"""
+997-        if self.is_daytime_hours():
+998-            # 6:00AM - 12:00PM: Assume visitor, be friendly
+999-            if self.visitor_greeting_responses:
+1000-                visitor_greeting = random.choice(self.visitor_greeting_responses)
+1001-            else:
+1002-                visitor_greeting = "Hello. I do not recognize you. Can I be of assistance?"
+1003-            self.speak_text(visitor_greeting)
+1004-            self.emit_conversation(f"👤 Unknown visitor greeted: {visitor_greeting}", 'response')
+1005-            self.emit_log("Unknown person detected during daytime - treated as visitor", 'warning')
+--
+1040-                return "Why did the computer go to therapy? Because it had too many bytes!"
+1041-        except Exception as e:
+1042-            self.emit_log(f"LLM joke error: {e}", 'error')
+1043-            return "Why did the computer go to therapy? Because it had too many bytes!"
+1044-
+1045:    def get_llm_fun_fact(self):
+1046:        """Ask the local LLM for a fun fact"""
+1047-        try:
+1048:            prompt = "Tell me an interesting fun fact. Keep it brief and fascinating."
+1049-            formatted_prompt = f"You are a knowledgeable teacher. Share one interesting fact.\nUser: {prompt}\nAssistant: "
+1050-            
+1051-            result = self.llama_model(formatted_prompt, max_tokens=100)
+1052-            if "choices" in result and result["choices"]:
+1053-                fact = result["choices"][0]["text"].strip()
+1054-                # Clean up the response
+1055-                fact = re.sub(r"\(.*?\)", "", fact)
+1056-                fact = re.sub(r"(User:|Assistant:)", "", fact)
+1057-                fact = fact.strip()
+1058-                
+1059-                # Take only the first few sentences
+1060-                sentences = fact.split('.')
+1061-                if len(sentences) > 3:
+1062-                    fact = '. '.join(sentences[:3]) + '.'
+1063-                
+1064-                return fact if fact else "Did you know that octopuses have three hearts and blue blood?"
+1065-            else:
+1066-                return "Did you know that octopuses have three hearts and blue blood?"
+1067-        except Exception as e:
+1068:            self.emit_log(f"LLM fun fact error: {e}", 'error')
+1069-            return "Did you know that octopuses have three hearts and blue blood?"
+1070-
+1071:    def check_for_bored_response(self, name):
+1072:        """Check if it's time to give a bored response with joke or fun fact from LLM"""
+1073:        if not self.wake_word_active or not self.last_bored_response_time:
+1074-            return False
+1075-        
+1076-        current_time = time.time()
+1077:        time_since_bored = current_time - self.last_bored_response_time
+1078-        
+1079-        if time_since_bored >= BORED_RESPONSE_INTERVAL:
+1080-            if self.bored_cycle == 0:
+1081:                # Give bored response + joke from LLM
+1082:                if self.bored_responses:
+1083:                    bored_template = random.choice(self.bored_responses)
+1084-                    bored_msg = bored_template.replace("{name}", name)
+1085-                else:
+1086-                    bored_msg = f"Yo {name}, still hanging around here waiting for you, dude!"
+1087-                
+1088-                joke = self.get_llm_joke()
+1089-                # Create complete message with 2-second pause represented as spoken text
+1090:                full_message = f"{bored_msg} Let me tell you a joke! ... ... {joke}"
+1091-                self.speak_text(full_message)
+1092-                self.emit_conversation(f"😴 Bored response + joke for {name}: {full_message}", 'response')
+1093-                self.bored_cycle = 1
+1094:                self.emit_log(f"Gave {name} a bored response with LLM joke", 'info')
+1095-            else:
+1096:                # Give waiting response + fun fact from LLM
+1097-                if self.waiting_responses:
+1098-                    waiting_template = random.choice(self.waiting_responses)
+1099-                    waiting_msg = waiting_template.replace("{name}", name)
+1100-                else:
+1101-                    waiting_msg = f"I am still around if you need me, {name}"
+1102-                
+1103:                fun_fact = self.get_llm_fun_fact()
+1104-                # Create complete message with 2-second pause represented as spoken text
+1105:                full_message = f"{waiting_msg} Let me tell you a fun fact! ... ... {fun_fact}"
+1106-                self.speak_text(full_message)
+1107:                self.emit_conversation(f"💡 Waiting response + fun fact for {name}: {full_message}", 'response')
+1108-                self.bored_cycle = 0
+1109:                self.emit_log(f"Gave {name} a waiting response with LLM fun fact", 'info')
+1110-            
+1111:            self.last_bored_response_time = current_time
+1112-            return True
+1113-        
+1114-        return False
+1115-
+1116-    def transcribe_audio(self, filename):
+1117-        """Transcribe audio using Whisper"""
+1118-        try:
+1119-            if not os.path.exists(filename):
+1120-                return ""
+1121-            
+1122-            segments, _ = self.whisper_model.transcribe(filename)
+1123-            transcript = " ".join(segment.text for segment in segments).strip()
+1124-            self.emit_log(f"Transcription: '{transcript}'", 'info')
+1125-            return transcript
+1126-        except Exception as e:
+--
+1313-                self.emit_conversation(f"🎤 User said: '{user_text}'", 'user_input')
+1314-                response = self.process_user_input(user_text)
+1315-                self.emit_conversation(f"🤖 Response: '{response}'", 'response')
+1316-                self.speak_text(response)
+1317-                self.last_interaction_time = time.time()
+1318:                # Reset bored response timer only after successful interaction
+1319:                self.last_bored_response_time = time.time()
+1320-            else:
+1321-                self.emit_log("No clear speech detected", 'warning')
+1322-                self.speak_text("I didn't catch that. Could you repeat your request?")
+1323-                self.emit_conversation("❓ No clear speech detected", 'info')
+1324-        else:
+1325-            self.emit_log("Failed to record user request", 'error')
+1326-            self.speak_text("I'm having trouble hearing you. Please try again.")
+1327-            self.emit_conversation("🚫 Failed to record audio", 'info')
+1328-
+1329-    def listen_for_wake_word(self):
+1330-        """Listen for wake words in background"""
+1331-        self.emit_log("Wake word detection thread started", 'success')
+1332-        
+1333-        while self.system_running and self.monitor_running:
+1334-            try:
+1335-                # Only listen if someone is present and wake word detection is active
+1336-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+1337:                    # Check for bored response first
+1338:                    if self.check_for_bored_response(self.current_person):
+1339-                        # Bored response was given, continue to next iteration
+1340-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1341-                        continue
+1342-                    
+1343-                    # Record audio for wake word detection
+1344-                    if self.record_wake_word_check():
+1345-                        # Transcribe and check for wake word
+1346-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+1347-                        
+1348-                        if transcript and self.detect_wake_word(transcript):
+1349-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+1350-                            self.emit_conversation(f"🌟 Wake word detected: {transcript}", 'wake_word')
+1351-                            
+1352-                            # Handle the wake word detection
+1353-                            self.handle_wake_word_detected()
+--
+1424-                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+1425-                else:
+1426-                    wake_word_text = "Wake Word Detection: INACTIVE"
+1427-                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+1428-                
+1429:                # Show bored response timer
+1430:                if self.last_bored_response_time and self.wake_word_active:
+1431:                    time_since_bored = current_time - self.last_bored_response_time
+1432-                    timer_text = f"Bored Timer: {int(BORED_RESPONSE_INTERVAL - time_since_bored)}s"
+1433-                    cv2.putText(display_frame, timer_text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+1434-                
+1435-                # Update current frame for web streaming
+1436-                self.current_frame = display_frame
+1437-                
+1438-                # Process facial recognition logic
+1439-                if name and face_location:
+1440-                    # Person detected
+1441-                    if name != self.current_person:
+1442-                        # New person or person changed
+1443-                        self.current_person = name
+1444-                        self.person_absent_since = None
+1445-                        self.wake_word_active = False  # Reset wake word state
+1446-                        
+--
+1488-                            old_person = self.current_person
+1489-                            self.current_person = None
+1490-                            self.person_absent_since = None
+1491-                            self.last_interaction_time = None
+1492-                            self.wake_word_active = False
+1493:                            self.last_bored_response_time = None  # Reset bored response timer
+1494-                            self.bored_cycle = 0  # Reset bored cycle
+1495-                            self.captured_person_frame = None
+1496-                            
+1497-                            # Emit person left to web clients
+1498-                            person_data = {
+1499-                                'name': "No person detected",
+1500-                                'confidence': "--",
+1501-                                'timestamp': datetime.now().strftime('%H:%M:%S')
+1502-                            }
+1503-                            
+1504-                            if self.clients:
+1505-                                self.socketio.emit('person_detected', person_data)
+1506-                            
+1507-                            self.emit_log(f"{old_person} left - resetting state", 'info')
+1508-                
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 -B 5 "silence_threshold\|SILENCE_THRESHOLD\|record.*audio" chatty_ai.py
+89-}
+90-
+91-# Audio parameters
+92-SAMPLE_RATE = 16000
+93-CHANNELS = 1
+94:SILENCE_THRESHOLD = 0.035
+95-MIN_SILENCE_DURATION = 1.5
+96-MAX_RECORDING_DURATION = 30
+97-
+98-# Timing parameters
+99-GREETING_COOLDOWN = 300  # 5 minutes in seconds
+--
+1168-                        
+1169-                        if len(audio_data) >= samples_per_check:
+1170-                            recent_audio = np.array(audio_data[-samples_per_check:])
+1171-                            rms = np.sqrt(np.mean(recent_audio**2))
+1172-                            
+1173:                            if rms < SILENCE_THRESHOLD:
+1174-                                silence_duration += check_interval
+1175-                                if silence_duration >= MIN_SILENCE_DURATION:
+1176-                                    self.emit_log(f"Silence detected after {recording_duration:.1f}s", 'info')
+1177-                                    break
+1178-                            else:
+--
+1201-                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+1202-                sd.wait()
+1203-                
+1204-                # Check if audio contains sound above threshold
+1205-                rms = np.sqrt(np.mean(audio_data**2))
+1206:                if rms > SILENCE_THRESHOLD * 2:  # Higher threshold for wake word
+1207-                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+1208-                    return True
+1209-                else:
+1210-                    return False
+1211-                    
+--
+1322-                self.speak_text("I didn't catch that. Could you repeat your request?")
+1323-                self.emit_conversation("❓ No clear speech detected", 'info')
+1324-        else:
+1325-            self.emit_log("Failed to record user request", 'error')
+1326-            self.speak_text("I'm having trouble hearing you. Please try again.")
+1327:            self.emit_conversation("🚫 Failed to record audio", 'info')
+1328-
+1329-    def listen_for_wake_word(self):
+1330-        """Listen for wake words in background"""
+1331-        self.emit_log("Wake word detection thread started", 'success')
+1332-        
+--
+1581-            print("="*60)
+1582-            print("\nDEBUG INFO:")
+1583-            print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+1584-            print(f"• Bored response interval: {BORED_RESPONSE_INTERVAL} seconds")
+1585-            print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+1586:            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+1587-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
+1588-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
+1589-            print("="*60)
+1590-            
+1591-            # Start the server with better error handling
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cp chatty_ai.py chatty_ai.py.backup_before_fixes
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 "def record_wake_word_check" chatty_ai.py
+1193:    def record_wake_word_check(self):
+1194-        """Record short audio clip for wake word detection"""
+1195-        try:
+1196-            if not self.audio_recording_lock.acquire(blocking=False):
+1197-                return False  # Audio system is busy
+1198-            
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 "def detect_wake_word" chatty_ai.py
+1130:    def detect_wake_word(self, text):
+1131-        """Check if text contains wake word"""
+1132-        if not text:
+1133-            return False
+1134-            
+1135-        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 5 "def check_for_bored_response" chatty_ai.py
+1071:    def check_for_bored_response(self, name):
+1072-        """Check if it's time to give a bored response with joke or fun fact from LLM"""
+1073-        if not self.wake_word_active or not self.last_bored_response_time:
+1074-            return False
+1075-        
+1076-        current_time = time.time()
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-# 2. REPLACE record_wake_word_check METHOD (Starting at line 1193)
-def record_wake_word_check(self):
-    """Record short audio clip for wake word detection with debugging"""
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False  # Audio system is busy
-        
-        try:
-            # Record 5 seconds of audio for wake word detection
-            audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
-            sd.wait()
-            
-            # Check if audio contains sound above threshold with debugging
-            rms = np.sqrt(np.mean(audio_data**2))
-            self.emit_log(f"Wake word audio RMS: {rms:.4f} (threshold: {SILENCE_THRESHOLD * 2:.4f})", 'debug')
-            
-            if rms > SILENCE_THRESHOLD * 1.5:  # Lower threshold for more sensitivity
-                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
-                self.emit_log(f"Wake word audio saved - RMS {rms:.4f} exceeded threshold", 'info')
-                return True
-            else:
-                self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
-                return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
-    except Exception as e:
-        self.emit_log(f"Wake word recording error: {e}", 'error')
-        return False
 
-# 3. REPLACE get_llm_joke METHOD (Starting at line ~1020)
-def get_llm_joke(self):
-    """Ask the local LLM for a joke with better prompting"""
-    try:
-        # Randomized joke prompts for variety
-        joke_prompts = [
-            "Tell me a short, funny joke that will make someone laugh. No setup needed, just the punchline style joke.",
-            "Give me a clever one-liner joke. Make it witty and brief.",
-            "Share a funny joke - something silly and lighthearted that's family friendly.",
-            "Tell me a quick joke that's actually funny. Keep it short and punchy.",
-            "Give me a dad joke or pun that's genuinely amusing."
-        ]
-        
-        prompt = random.choice(joke_prompts)
-        formatted_prompt = f"You are a comedian. Tell jokes that are actually funny.\nUser: {prompt}\nAssistant: "
-        
-        # Better LLM parameters for more varied responses
-        result = self.llama_model(
-            formatted_prompt, 
-            max_tokens=80,
-            temperature=0.8,  # More randomness
-            top_p=0.9,
-            repeat_penalty=1.2
-        )
-        
-        if "choices" in result and result["choices"]:
-            joke = result["choices"][0]["text"].strip()
-            # Clean up the response more thoroughly
-            joke = re.sub(r"\(.*?\)", "", joke)
-            joke = re.sub(r"(User:|Assistant:|Here's|Here is)", "", joke, flags=re.IGNORECASE)
-            joke = joke.strip()
-            
-            # Take first sentence if multiple sentences
-            if '.' in joke:
-                first_sentence = joke.split('.')[0].strip()
-                if len(first_sentence) > 10:  # Make sure it's substantial
-                    joke = first_sentence + '.'
-            
-            return joke if len(joke) > 10 else "Why don't scientists trust atoms? Because they make up everything!"
-        else:
-            return "Why don't scientists trust atoms? Because they make up everything!"
-    except Exception as e:
-        self.emit_log(f"LLM joke error: {e}", 'error')
-        return "Why don't scientists trust atoms? Because they make up everything!"
 
-# 4. REPLACE get_llm_fun_fact METHOD (Starting at line ~1045)
-def get_llm_fun_fact(self):
-    """Ask the local LLM for a fun fact with better prompting"""
-    try:
-        # Randomized fact prompts for variety
-        fact_prompts = [
-            "Share a fascinating scientific fact that most people don't know. Keep it brief but mind-blowing.",
-            "Tell me an amazing fact about animals, space, or nature. Make it interesting and surprising.",
-            "Give me a cool historical fact that sounds unbelievable but is true.",
-            "Share an interesting fact about the human body or psychology that's genuinely surprising.",
-            "Tell me a fun fact about technology, science, or the world that will amaze someone."
-        ]
-        
-        prompt = random.choice(fact_prompts)
-        formatted_prompt = f"You are an encyclopedia of amazing facts. Share fascinating knowledge.\nUser: {prompt}\nAssistant: "
-        
-        # Better LLM parameters for more varied responses
-        result = self.llama_model(
-            formatted_prompt, 
-            max_tokens=120,
-            temperature=0.7,  # Some randomness but still factual
-            top_p=0.8,
-            repeat_penalty=1.3
-        )
-        
-        if "choices" in result and result["choices"]:
-            fact = result["choices"][0]["text"].strip()
-            # Clean up the response
-            fact = re.sub(r"\(.*?\)", "", fact)
-            fact = re.sub(r"(User:|Assistant:|Did you know|Here's|Here is)", "", fact, flags=re.IGNORECASE)
-            fact = fact.strip()
-            
-            # Take only the first 2-3 sentences to keep it concise
-            sentences = fact.split('.')
-            if len(sentences) > 3:
-                fact = '. '.join(sentences[:2]) + '.'
-            
-            return fact if len(fact) > 15 else "Did you know that octopuses have three hearts and blue blood?"
-        else:
-            return "Did you know that octopuses have three hearts and blue blood?"
-    except Exception as e:
-        self.emit_log(f"LLM fun fact error: {e}", 'error')
-        return "Did you know that octopuses have three hearts and blue blood?"
-
-# 5. REPLACE check_for_bored_response METHOD (Starting at line 1071)
-def check_for_bored_response(self, name):
-    """Check if it's time to give a bored response with joke or fun fact from LLM"""
-    if not self.wake_word_active or not self.last_bored_response_time:
-        return False
-    
-    current_time = time.time()
-    time_since_bored = current_time - self.last_bored_response_time
-    
-    if time_since_bored >= BORED_RESPONSE_INTERVAL:
-        # Add 1-second delay before response
-        time.sleep(1.0)
-        
-        if self.bored_cycle == 0:
-            # Give bored response + joke from LLM
-            if self.bored_responses:
-                bored_template = random.choice(self.bored_responses)
-                bored_msg = bored_template.replace("{name}", name)
-            else:
-                bored_msg = f"Yo {name}, still hanging around here waiting for you, dude!"
-            
-            # Get LLM joke
-            joke = self.get_llm_joke()
-            
-            # Speak the bored message first
-            self.speak_text(bored_msg)
-            self.emit_conversation(f"😴 Bored response for {name}: {bored_msg}", 'response')
-            
-            # Add 1-second pause between messages
-            time.sleep(1.0)
-            
-            # Then tell the joke
-            joke_intro = "Let me tell you a joke!"
-            self.speak_text(joke_intro)
-            time.sleep(0.5)  # Short pause
-            self.speak_text(joke)
-            self.emit_conversation(f"😄 Joke for {name}: {joke}", 'response')
-            
-            self.bored_cycle = 1
-            self.emit_log(f"Gave {name} a bored response with LLM joke", 'info')
-        else:
-            # Give waiting response + fun fact from LLM
-            if self.waiting_responses:
-                waiting_template = random.choice(self.waiting_responses)
-                waiting_msg = waiting_template.replace("{name}", name)
-            else:
-                waiting_msg = f"I am still around if you need me, {name}"
-            
-            # Get LLM fun fact
-            fun_fact = self.get_llm_fun_fact()
-            
-            # Speak the waiting message first
-            self.speak_text(waiting_msg)
-            self.emit_conversation(f"⏳ Waiting response for {name}: {waiting_msg}", 'response')
-            
-            # Add 1-second pause between messages
-            time.sleep(1.0)
-            
-            # Then share the fun fact
-            fact_intro = "Here's a fun fact for you!"
-            self.speak_text(fact_intro)
-            time.sleep(0.5)  # Short pause
-            self.speak_text(fun_fact)
-            self.emit_conversation(f"💡 Fun fact for {name}: {fun_fact}", 'response')
-            
-            self.bored_cycle = 0
-            self.emit_log(f"Gave {name} a waiting response with LLM fun fact", 'info')
-        
-        self.last_bored_response_time = current_time
-        return True
-    
-    return False
-
-# ADDITIONAL IMPORT NEEDED
-# Add this import at the top with other imports if not already present:
-# import random
-
-# SUMMARY OF CHANGES:
-print("FIXES APPLIED:")
-print("1. ✅ Lowered SILENCE_THRESHOLD from 0.035 to 0.015 for better wake word sensitivity")
-print("2. ✅ Enhanced record_wake_word_check with debugging and lower threshold multiplier")
-print("3. ✅ Improved get_llm_joke with randomized prompts and better LLM parameters")
-print("4. ✅ Enhanced get_llm_fun_fact with varied prompts and better response cleaning")
-print("5. ✅ Updated check_for_bored_response with proper delays and separate speech segments")
-print("6. ✅ Added temperature and repeat_penalty to LLM calls for more variety")
 
 
 
