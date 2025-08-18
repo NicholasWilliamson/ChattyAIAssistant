@@ -1,117 +1,260 @@
-Thank you, Claude,
+# CHATTY AI MODIFICATIONS FOR FILE-BASED RESPONSES
+# Replace the existing methods with these improved versions
 
-I ran: def detect_wake_word(self, text):
-    """Check if text contains wake word"""
-    if not text:
-        return False
+# 1. ADD NEW FILE CONSTANTS (Add near the top with other file constants around line 56)
+JOKES_FILE = "jokes.txt"
+FUN_FACTS_FILE = "fun_facts.txt"
+BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
+WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
+
+# 2. ADD NEW INSTANCE VARIABLES (Add to __init__ method around line 162)
+# Add these to the response lists section:
+self.fun_facts = []
+self.bored_responses_generic = []
+self.waiting_responses_generic = []
+
+# 3. UPDATE load_response_files METHOD (Add these sections to load the new files)
+def load_response_files(self):
+    """Load all response files from disk"""
+    try:
+        # Existing code for jokes
+        with open(JOKES_FILE, 'r') as f:
+            self.jokes = [line.strip() for line in f if line.strip()]
         
-    text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+        # ADD: Load fun facts
+        try:
+            with open(FUN_FACTS_FILE, 'r') as f:
+                self.fun_facts = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_fun_facts()
+        
+        # Existing code for other responses...
+        
+        # ADD: Load generic bored responses
+        try:
+            with open(BORED_RESPONSES_GENERIC_FILE, 'r') as f:
+                self.bored_responses_generic = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_bored_responses_generic()
+        
+        # ADD: Load generic waiting responses  
+        try:
+            with open(WAITING_RESPONSES_GENERIC_FILE, 'r') as f:
+                self.waiting_responses_generic = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_waiting_responses_generic()
+        
+        self.emit_log("Response files loaded successfully", 'success')
+        return True
+    except FileNotFoundError as e:
+        self.emit_log(f"Response file not found: {e}", 'error')
+        self.create_default_responses()
+        return False
+
+# 4. ADD NEW DEFAULT FILE CREATION METHODS
+def create_default_fun_facts(self):
+    """Create default fun facts file"""
+    default_facts = [
+        "Did you know that octopuses have three hearts and blue blood?",
+        "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
+        "A group of flamingos is called a 'flamboyance'.",
+        "The human brain uses about 20% of the body's total energy.",
+        "Bananas are berries, but strawberries aren't!",
+        "There are more possible games of chess than atoms in the observable universe.",
+        "Wombat poop is cube-shaped to prevent it from rolling away.",
+        "A cloud can weigh more than a million pounds."
+    ]
     
-    for wake_word in WAKE_WORDS:
-        wake_word_cleaned = wake_word.lower().strip()
-        if wake_word_cleaned in text_cleaned:
-            self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
-            return True
+    try:
+        with open(FUN_FACTS_FILE, 'w') as f:
+            for fact in default_facts:
+                f.write(fact + '\n')
+        self.fun_facts = default_facts
+    except Exception as e:
+        self.fun_facts = default_facts
+
+def create_default_bored_responses_generic(self):
+    """Create default generic bored responses file"""
+    default_bored_generic = [
+        "I'm getting a bit bored waiting here",
+        "Still hanging around here waiting",
+        "I'm patiently waiting for commands",
+        "I am feeling restless waiting here",
+        "Still here waiting to help"
+    ]
     
-    # Log that no wake word was found (for debugging)
-    self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
+    try:
+        with open(BORED_RESPONSES_GENERIC_FILE, 'w') as f:
+            for response in default_bored_generic:
+                f.write(response + '\n')
+        self.bored_responses_generic = default_bored_generic
+    except Exception as e:
+        self.bored_responses_generic = default_bored_generic
+
+def create_default_waiting_responses_generic(self):
+    """Create default generic waiting responses file"""
+    default_waiting_generic = [
+        "I am still around if you need me",
+        "Still here waiting to assist",
+        "Patiently waiting for your next request",
+        "I'm here whenever you need help",
+        "Standing by for assistance"
+    ]
+    
+    try:
+        with open(WAITING_RESPONSES_GENERIC_FILE, 'w') as f:
+            for response in default_waiting_generic:
+                f.write(response + '\n')
+        self.waiting_responses_generic = default_waiting_generic
+    except Exception as e:
+        self.waiting_responses_generic = default_waiting_generic
+
+# 5. REPLACE get_llm_joke METHOD (Replace entire method)
+def get_file_joke(self):
+    """Get a random joke from jokes.txt file"""
+    try:
+        if self.jokes:
+            joke = random.choice(self.jokes)
+            self.emit_log(f"Selected joke from file: {joke[:50]}...", 'debug')
+            return joke
+        else:
+            return "Why don't scientists trust atoms? Because they make up everything!"
+    except Exception as e:
+        self.emit_log(f"File joke error: {e}", 'error')
+        return "Why don't scientists trust atoms? Because they make up everything!"
+
+# 6. REPLACE get_llm_fun_fact METHOD (Replace entire method)
+def get_file_fun_fact(self):
+    """Get a random fun fact from fun_facts.txt file"""
+    try:
+        if self.fun_facts:
+            fact = random.choice(self.fun_facts)
+            self.emit_log(f"Selected fun fact from file: {fact[:50]}...", 'debug')
+            return fact
+        else:
+            return "Did you know that octopuses have three hearts and blue blood?"
+    except Exception as e:
+        self.emit_log(f"File fun fact error: {e}", 'error')
+        return "Did you know that octopuses have three hearts and blue blood?"
+
+# 7. REPLACE check_for_bored_response METHOD (Complete replacement)
+def check_for_bored_response(self, name):
+    """Check if it's time to give a bored response with joke or fun fact from files"""
+    if not self.wake_word_active or not self.last_bored_response_time:
+        return False
+    
+    current_time = time.time()
+    time_since_bored = current_time - self.last_bored_response_time
+    
+    if time_since_bored >= BORED_RESPONSE_INTERVAL:
+        # Add 1-second delay before response
+        time.sleep(1.0)
+        
+        # Determine if this is a known person or stranger
+        is_known_person = name and name != "Unknown"
+        
+        if self.bored_cycle == 0:
+            # Give bored response + joke from file
+            if is_known_person:
+                # Use personalized bored responses
+                if self.bored_responses:
+                    bored_template = random.choice(self.bored_responses)
+                    bored_msg = bored_template.replace("{name}", name)
+                else:
+                    bored_msg = f"Hey {name}, I'm getting a bit bored waiting here"
+            else:
+                # Use generic bored responses for strangers
+                if self.bored_responses_generic:
+                    bored_msg = random.choice(self.bored_responses_generic)
+                else:
+                    bored_msg = "I'm getting a bit bored waiting here"
+            
+            # Get joke from file
+            joke = self.get_file_joke()
+            
+            # Speak the bored message first
+            self.speak_text(bored_msg)
+            self.emit_conversation(f"😴 Bored response: {bored_msg}", 'response')
+            
+            # Add 1-second pause between messages
+            time.sleep(1.0)
+            
+            # Then tell the joke
+            joke_intro = "Let me tell you a joke!"
+            self.speak_text(joke_intro)
+            time.sleep(0.5)  # Short pause
+            self.speak_text(joke)
+            self.emit_conversation(f"😄 Joke: {joke}", 'response')
+            
+            self.bored_cycle = 1
+            self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a bored response with file joke", 'info')
+        else:
+            # Give waiting response + fun fact from file
+            if is_known_person:
+                # Use personalized waiting responses
+                if self.waiting_responses:
+                    waiting_template = random.choice(self.waiting_responses)
+                    waiting_msg = waiting_template.replace("{name}", name)
+                else:
+                    waiting_msg = f"I am still around if you need me, {name}"
+            else:
+                # Use generic waiting responses for strangers
+                if self.waiting_responses_generic:
+                    waiting_msg = random.choice(self.waiting_responses_generic)
+                else:
+                    waiting_msg = "I am still around if you need assistance"
+            
+            # Get fun fact from file
+            fun_fact = self.get_file_fun_fact()
+            
+            # Speak the waiting message first
+            self.speak_text(waiting_msg)
+            self.emit_conversation(f"⏳ Waiting response: {waiting_msg}", 'response')
+            
+            # Add 1-second pause between messages
+            time.sleep(1.0)
+            
+            # Then share the fun fact
+            fact_intro = "Here's a fun fact for you!"
+            self.speak_text(fact_intro)
+            time.sleep(0.5)  # Short pause
+            self.speak_text(fun_fact)
+            self.emit_conversation(f"💡 Fun fact: {fun_fact}", 'response')
+            
+            self.bored_cycle = 0
+            self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a waiting response with file fun fact", 'info')
+        
+        self.last_bored_response_time = current_time
+        return True
+    
     return False
 
-I then made the changes you recommended to chatty_ai.py
+# 8. UPDATE create_default_responses METHOD (Add the new file creation calls)
+def create_default_responses(self):
+    """Create all default response files"""
+    # Existing default responses...
+    self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+    self.greeting_responses = ["Hello {name}! It is nice to see you again. How may I help you?"]
+    self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+    self.waiting_responses = ["Hey {name}, I am still here if you need anything"]
+    self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."]
+    self.bored_responses = ["Hey {name}, I'm getting a bit bored waiting here"]
+    self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
+    
+    # ADD: Create the new file types
+    self.create_default_fun_facts()
+    self.create_default_bored_responses_generic()
+    self.create_default_waiting_responses_generic()
 
-I then ran python3 chatty_ai.py
-
-I then opened http://localhost:5001 in my Chromium browser.
-
-I then clicked on the Start Service button.
-
-The AI Assistant then detected me correctly using facial recognition and greeted me.
-
-The wake word function then started correctly and detected my spoken wake words.
-
-The System Logs box displayed:
-20:09:58 🌟 Chatty AI Web Interface initialized
-20:09:58 🔗 Attempting to connect to server...
-20:09:58 💡 Click "Start System" to begin AI operations
-20:09:59 📊 Connected to server successfully
-20:09:59 ✅ Connected to Chatty AI server
-20:10:00 🔍 Checking system components...
-20:10:06 🚀 Starting Chatty AI system...
-20:10:06 [20:10:06] Starting Chatty AI system...
-20:10:06 [20:10:06] Response files loaded successfully
-20:10:06 [20:10:06] Loading AI models...
-20:10:07 [20:10:07] Whisper model loaded successfully
-20:10:07 [20:10:07] LLaMA model loaded successfully
-20:10:07 [20:10:07] Loaded 37 face encodings
-20:10:07 [20:10:07] Telegram configuration loaded
-20:10:09 [20:10:09] Camera initialized successfully
-20:10:09 [20:10:09] Wake word detection thread started
-20:10:09 [20:10:09] Chatty AI system started successfully
-20:10:09 [20:10:09] Camera monitoring thread started
-20:10:09 📊 Chatty AI system started successfully
-20:10:28 [20:10:28] Greeted Nick - Wake word detection now active
-20:10:34 [20:10:34] Wake word audio RMS: 0.0848 (threshold: 0.0300)
-20:10:34 [20:10:34] Wake word audio saved - RMS 0.0848 exceeded threshold
-20:10:39 [20:10:39] Transcription: 'Are you alive?'
-20:10:39 [20:10:39] Wake word detected: 'are you alive' in 'Are you alive?'
-20:10:39 [20:10:39] WAKE WORD DETECTED! Starting conversation...
-20:10:44 [20:10:44] Please speak your request...
-20:10:44 [20:10:44] Recording user audio...
-20:11:02 [20:11:02] Silence detected after 18.2s
-20:11:02 [20:11:02] Audio saved: 18.2s duration
-20:11:09 [20:11:09] Transcription: 'What are some fun places to visit in New York, USA?'
-20:11:09 [20:11:09] Processing user input: 'What are some fun places to visit in New York, USA?'
-20:11:09 [20:11:09] Generating LLM response
-20:11:43 [20:11:43] Wake word audio RMS: 0.0169 (threshold: 0.0300)
-20:11:43 [20:11:43] Wake word audio too quiet - RMS 0.0169 below threshold
-20:11:49 [20:11:49] Wake word audio RMS: 0.0719 (threshold: 0.0300)
-20:11:49 [20:11:49] Wake word audio saved - RMS 0.0719 exceeded threshold
-20:11:54 [20:11:54] Transcription: 'Hello, Chetty.'
-20:11:54 [20:11:54] Wake word detected: 'hello chetty' in 'Hello, Chetty.'
-20:11:54 [20:11:54] WAKE WORD DETECTED! Starting conversation...
-20:11:58 [20:11:58] Please speak your request...
-20:11:58 [20:11:58] Recording user audio...
-20:12:02 [20:12:02] Silence detected after 4.2s
-20:12:02 [20:12:02] Audio saved: 4.2s duration
-20:12:07 [20:12:07] Transcription: 'Hey, how was the weather today?'
-20:12:07 [20:12:07] Processing user input: 'Hey, how was the weather today?'
-20:12:07 [20:12:07] Generating LLM response
-20:12:33 [20:12:33] Wake word audio RMS: 0.0183 (threshold: 0.0300)
-20:12:33 [20:12:33] Wake word audio too quiet - RMS 0.0183 below threshold
-20:12:39 [20:12:39] Wake word audio RMS: 0.0823 (threshold: 0.0300)
-20:12:39 [20:12:39] Wake word audio saved - RMS 0.0823 exceeded threshold
-20:12:44 [20:12:44] Transcription: 'Are you awake?'
-20:12:44 [20:12:44] Wake word detected: 'are you awake' in 'Are you awake?'
-20:12:44 [20:12:44] WAKE WORD DETECTED! Starting conversation...
-20:12:48 [20:12:48] Please speak your request...
-20:12:48 [20:12:48] Recording user audio...
-20:13:18 [20:13:18] Audio saved: 30.3s duration
-20:13:26 [20:13:26] Transcription: 'Flush the toilet.'
-20:13:26 [20:13:26] Processing user input: 'Flush the toilet.'
-20:13:26 [20:13:26] Executing command: flush the toilet
-20:13:45 [20:13:45] Wake word audio RMS: 0.0128 (threshold: 0.0300)
-20:13:45 [20:13:45] Wake word audio too quiet - RMS 0.0128 below threshold
-20:13:51 [20:13:51] Wake word audio RMS: 0.0657 (threshold: 0.0300)
-20:13:51 [20:13:51] Wake word audio saved - RMS 0.0657 exceeded threshold
-20:13:56 [20:13:56] Transcription: 'sub-chari'
-20:13:56 [20:13:56] No wake word found in: 'sub-chari'
-20:14:02 [20:14:02] Wake word audio RMS: 0.0198 (threshold: 0.0300)
-20:14:02 [20:14:02] Wake word audio too quiet - RMS 0.0198 below threshold
-20:14:08 [20:14:08] Wake word audio RMS: 0.0164 (threshold: 0.0300)
-20:14:08 [20:14:08] Wake word audio too quiet - RMS 0.0164 below threshold
-20:14:47 [20:14:47] Gave Nick a bored response with LLM joke
-20:15:15 [20:15:15] Gave Nick a waiting response with LLM fun fact
-20:15:21 [20:15:21] Wake word audio RMS: 0.0302 (threshold: 0.0300)
-20:15:21 [20:15:21] Wake word audio saved - RMS 0.0302 exceeded threshold
-20:15:25 [20:15:25] Transcription: ''
-20:15:29 [20:15:29] Nick left - resetting state
-20:16:05 [20:16:05] Gave Nick a bored response with LLM joke
-
-I still need to do a lot of testing now.
-
-
-
-
-
+# SUMMARY OF CHANGES:
+print("MODIFICATIONS SUMMARY:")
+print("1. Added file constants for jokes.txt, fun_facts.txt, and generic response files")
+print("2. Added new instance variables for storing file contents")
+print("3. Enhanced load_response_files to load the new files")
+print("4. Replaced get_llm_joke with get_file_joke (reads from jokes.txt)")
+print("5. Replaced get_llm_fun_fact with get_file_fun_fact (reads from fun_facts.txt)")
+print("6. Updated check_for_bored_response to use file-based responses with name personalization")
+print("7. Added logic to use generic responses for unknown persons")
+print("8. Enhanced greeting responses to include detected person's name")
 
 
