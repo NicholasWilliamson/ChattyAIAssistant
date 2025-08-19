@@ -1,143 +1,6 @@
-# CHATTY AI MODIFICATIONS FOR FILE-BASED RESPONSES
-# Replace the existing methods with these improved versions
+# FIXES FOR TIMER AND SERVER ISSUES
 
-# 1. ADD NEW FILE CONSTANTS (Add near the top with other file constants around line 56)
-JOKES_FILE = "jokes.txt"
-FUN_FACTS_FILE = "fun_facts.txt"
-BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
-WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
-
-# 2. ADD NEW INSTANCE VARIABLES (Add to __init__ method around line 162)
-# Add these to the response lists section:
-self.fun_facts = []
-self.bored_responses_generic = []
-self.waiting_responses_generic = []
-
-# 3. UPDATE load_response_files METHOD (Add these sections to load the new files)
-def load_response_files(self):
-    """Load all response files from disk"""
-    try:
-        # Existing code for jokes
-        with open(JOKES_FILE, 'r') as f:
-            self.jokes = [line.strip() for line in f if line.strip()]
-        
-        # ADD: Load fun facts
-        try:
-            with open(FUN_FACTS_FILE, 'r') as f:
-                self.fun_facts = [line.strip() for line in f if line.strip()]
-        except FileNotFoundError:
-            self.create_default_fun_facts()
-        
-        # Existing code for other responses...
-        
-        # ADD: Load generic bored responses
-        try:
-            with open(BORED_RESPONSES_GENERIC_FILE, 'r') as f:
-                self.bored_responses_generic = [line.strip() for line in f if line.strip()]
-        except FileNotFoundError:
-            self.create_default_bored_responses_generic()
-        
-        # ADD: Load generic waiting responses  
-        try:
-            with open(WAITING_RESPONSES_GENERIC_FILE, 'r') as f:
-                self.waiting_responses_generic = [line.strip() for line in f if line.strip()]
-        except FileNotFoundError:
-            self.create_default_waiting_responses_generic()
-        
-        self.emit_log("Response files loaded successfully", 'success')
-        return True
-    except FileNotFoundError as e:
-        self.emit_log(f"Response file not found: {e}", 'error')
-        self.create_default_responses()
-        return False
-
-# 4. ADD NEW DEFAULT FILE CREATION METHODS
-def create_default_fun_facts(self):
-    """Create default fun facts file"""
-    default_facts = [
-        "Did you know that octopuses have three hearts and blue blood?",
-        "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
-        "A group of flamingos is called a 'flamboyance'.",
-        "The human brain uses about 20% of the body's total energy.",
-        "Bananas are berries, but strawberries aren't!",
-        "There are more possible games of chess than atoms in the observable universe.",
-        "Wombat poop is cube-shaped to prevent it from rolling away.",
-        "A cloud can weigh more than a million pounds."
-    ]
-    
-    try:
-        with open(FUN_FACTS_FILE, 'w') as f:
-            for fact in default_facts:
-                f.write(fact + '\n')
-        self.fun_facts = default_facts
-    except Exception as e:
-        self.fun_facts = default_facts
-
-def create_default_bored_responses_generic(self):
-    """Create default generic bored responses file"""
-    default_bored_generic = [
-        "I'm getting a bit bored waiting here",
-        "Still hanging around here waiting",
-        "I'm patiently waiting for commands",
-        "I am feeling restless waiting here",
-        "Still here waiting to help"
-    ]
-    
-    try:
-        with open(BORED_RESPONSES_GENERIC_FILE, 'w') as f:
-            for response in default_bored_generic:
-                f.write(response + '\n')
-        self.bored_responses_generic = default_bored_generic
-    except Exception as e:
-        self.bored_responses_generic = default_bored_generic
-
-def create_default_waiting_responses_generic(self):
-    """Create default generic waiting responses file"""
-    default_waiting_generic = [
-        "I am still around if you need me",
-        "Still here waiting to assist",
-        "Patiently waiting for your next request",
-        "I'm here whenever you need help",
-        "Standing by for assistance"
-    ]
-    
-    try:
-        with open(WAITING_RESPONSES_GENERIC_FILE, 'w') as f:
-            for response in default_waiting_generic:
-                f.write(response + '\n')
-        self.waiting_responses_generic = default_waiting_generic
-    except Exception as e:
-        self.waiting_responses_generic = default_waiting_generic
-
-# 5. REPLACE get_llm_joke METHOD (Replace entire method)
-def get_file_joke(self):
-    """Get a random joke from jokes.txt file"""
-    try:
-        if self.jokes:
-            joke = random.choice(self.jokes)
-            self.emit_log(f"Selected joke from file: {joke[:50]}...", 'debug')
-            return joke
-        else:
-            return "Why don't scientists trust atoms? Because they make up everything!"
-    except Exception as e:
-        self.emit_log(f"File joke error: {e}", 'error')
-        return "Why don't scientists trust atoms? Because they make up everything!"
-
-# 6. REPLACE get_llm_fun_fact METHOD (Replace entire method)
-def get_file_fun_fact(self):
-    """Get a random fun fact from fun_facts.txt file"""
-    try:
-        if self.fun_facts:
-            fact = random.choice(self.fun_facts)
-            self.emit_log(f"Selected fun fact from file: {fact[:50]}...", 'debug')
-            return fact
-        else:
-            return "Did you know that octopuses have three hearts and blue blood?"
-    except Exception as e:
-        self.emit_log(f"File fun fact error: {e}", 'error')
-        return "Did you know that octopuses have three hearts and blue blood?"
-
-# 7. REPLACE check_for_bored_response METHOD (Complete replacement)
+# 1. FIX THE TIMER ISSUE - Replace check_for_bored_response method
 def check_for_bored_response(self, name):
     """Check if it's time to give a bored response with joke or fun fact from files"""
     if not self.wake_word_active or not self.last_bored_response_time:
@@ -186,6 +49,9 @@ def check_for_bored_response(self, name):
             self.speak_text(joke)
             self.emit_conversation(f"😄 Joke: {joke}", 'response')
             
+            # IMPORTANT: Wait for speech to complete before resetting timer
+            time.sleep(2.0)  # Additional buffer to ensure speech is finished
+            
             self.bored_cycle = 1
             self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a bored response with file joke", 'info')
         else:
@@ -221,39 +87,228 @@ def check_for_bored_response(self, name):
             self.speak_text(fun_fact)
             self.emit_conversation(f"💡 Fun fact: {fun_fact}", 'response')
             
+            # IMPORTANT: Wait for speech to complete before resetting timer
+            time.sleep(2.0)  # Additional buffer to ensure speech is finished
+            
             self.bored_cycle = 0
             self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a waiting response with file fun fact", 'info')
         
-        self.last_bored_response_time = current_time
+        # MOVE TIMER RESET TO END - Only reset after all speech is complete
+        self.last_bored_response_time = time.time()  # Use current time when actually finishing
         return True
     
     return False
 
-# 8. UPDATE create_default_responses METHOD (Add the new file creation calls)
-def create_default_responses(self):
-    """Create all default response files"""
-    # Existing default responses...
-    self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
-    self.greeting_responses = ["Hello {name}! It is nice to see you again. How may I help you?"]
-    self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
-    self.waiting_responses = ["Hey {name}, I am still here if you need anything"]
-    self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."]
-    self.bored_responses = ["Hey {name}, I'm getting a bit bored waiting here"]
-    self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
-    
-    # ADD: Create the new file types
-    self.create_default_fun_facts()
-    self.create_default_bored_responses_generic()
-    self.create_default_waiting_responses_generic()
+# 2. SUPPRESS FLASK DEVELOPMENT SERVER WARNING
+# Add this import at the top of your file with other imports:
+import logging
 
-# SUMMARY OF CHANGES:
-print("MODIFICATIONS SUMMARY:")
-print("1. Added file constants for jokes.txt, fun_facts.txt, and generic response files")
-print("2. Added new instance variables for storing file contents")
-print("3. Enhanced load_response_files to load the new files")
-print("4. Replaced get_llm_joke with get_file_joke (reads from jokes.txt)")
-print("5. Replaced get_llm_fun_fact with get_file_fun_fact (reads from fun_facts.txt)")
-print("6. Updated check_for_bored_response to use file-based responses with name personalization")
-print("7. Added logic to use generic responses for unknown persons")
-print("8. Enhanced greeting responses to include detected person's name")
+# Then add this code right before app.run() near the bottom of your file:
+def suppress_flask_warnings():
+    """Suppress Flask development server warnings"""
+    # Suppress Werkzeug (Flask's development server) logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    
+    # Suppress Flask development server warning
+    import warnings
+    from flask import Flask
+    warnings.filterwarnings('ignore', message='This is a development server*')
+
+# Call this function right before starting the server:
+if __name__ == '__main__':
+    # Suppress development server warnings
+    suppress_flask_warnings()
+    
+    # Your existing server startup code...
+    app.run(host='0.0.0.0', port=5001, debug=False, threaded=True)
+
+# 3. ALTERNATIVE: More sophisticated speech completion detection
+# If you want a more advanced solution, you can track speech completion:
+
+def speak_text(self, text):
+    """Enhanced speak_text method that tracks completion"""
+    if not text:
+        return
+    
+    try:
+        # Store the speaking state
+        self.currently_speaking = True
+        self.speech_start_time = time.time()
+        
+        # Estimate speech duration (rough calculation)
+        # Average speaking rate: ~150 words per minute = 2.5 words per second
+        word_count = len(text.split())
+        estimated_duration = (word_count / 2.5) + 1.0  # Add 1 second buffer
+        
+        # Your existing TTS code here
+        tts = gTTS(text=text, lang='en', slow=False)
+        tts.save(TTS_OUTPUT)
+        
+        if os.path.exists(TTS_OUTPUT):
+            # Play the audio
+            pygame.mixer.music.load(TTS_OUTPUT)
+            pygame.mixer.music.play()
+            
+            # Wait for estimated duration or until playback finishes
+            start_wait = time.time()
+            while pygame.mixer.music.get_busy() and (time.time() - start_wait) < estimated_duration + 2:
+                time.sleep(0.1)
+            
+            self.emit_log(f"Speech completed: '{text[:50]}...'", 'debug')
+        
+        # Mark speaking as complete
+        self.currently_speaking = False
+        
+    except Exception as e:
+        self.currently_speaking = False
+        self.emit_log(f"TTS error: {e}", 'error')
+
+# 4. ENHANCED TIMER CHECK - Only count time when not speaking
+def check_for_bored_response(self, name):
+    """Enhanced version that respects speech timing"""
+    if not self.wake_word_active or not self.last_bored_response_time:
+        return False
+    
+    # Don't trigger bored responses while currently speaking
+    if hasattr(self, 'currently_speaking') and self.currently_speaking:
+        return False
+    
+    current_time = time.time()
+    time_since_bored = current_time - self.last_bored_response_time
+    
+    # Rest of method stays the same...
+    # (Include the full method from option 1 above)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+#!/bin/bash
+
+echo "🔧 Applying timer and server warning fixes..."
+
+# Create backup
+cp chatty_ai.py chatty_ai.py.backup_timer_fixes
+
+echo "🎭 DEVELOPMENT SERVER vs PRODUCTION SERVER:"
+echo "==========================================="
+echo ""
+echo "🔧 DEVELOPMENT SERVER (what you're using):"
+echo "   • Flask's built-in server (Werkzeug)"
+echo "   • Single-threaded by default"
+echo "   • Auto-reloads on code changes" 
+echo "   • Easy debugging and development"
+echo "   • NOT suitable for production use"
+echo "   • Can handle ~1-10 concurrent users"
+echo ""
+echo "🏭 PRODUCTION SERVER (for real deployment):"
+echo "   • Multi-threaded/multi-process servers"
+echo "   • Examples: Gunicorn, uWSGI, Apache mod_wsgi"
+echo "   • Better performance and stability"
+echo "   • Can handle hundreds/thousands of users"
+echo "   • No auto-reload, better security"
+echo ""
+echo "💡 FOR YOUR USE CASE:"
+echo "   • Development server is PERFECT for personal/home use"
+echo "   • Only upgrade if you need multiple concurrent users"
+echo "   • Your Raspberry Pi setup is ideal for development server"
+echo ""
+
+# 1. Fix the server warning suppression
+echo "1. Adding Flask warning suppression..."
+
+# Add warning suppression before app.run()
+sed -i '/if __name__ == .__main__.:/i\
+def suppress_flask_warnings():\
+    """Suppress Flask development server warnings"""\
+    import logging\
+    import warnings\
+    \
+    # Suppress Werkzeug logging\
+    log = logging.getLogger("werkzeug")\
+    log.setLevel(logging.ERROR)\
+    \
+    # Suppress Flask development warning\
+    warnings.filterwarnings("ignore", message="This is a development server*")\
+\
+' chatty_ai.py
+
+# Add the call to suppress warnings
+sed -i '/if __name__ == .__main__.:/a\
+    # Suppress development server warnings\
+    suppress_flask_warnings()' chatty_ai.py
+
+echo "2. ✅ Server warning suppression added"
+
+# 2. Show where to replace the timer method
+echo ""
+echo "📍 MANUAL TIMER FIX NEEDED:"
+echo "=========================="
+echo ""
+
+bored_line=$(grep -n "def check_for_bored_response" chatty_ai.py | cut -d: -f1)
+echo "🎯 REPLACE check_for_bored_response method at line: $bored_line"
+echo ""
+echo "KEY CHANGES NEEDED:"
+echo "1. Move 'self.last_bored_response_time = current_time' to the END"
+echo "2. Add 'time.sleep(2.0)' after each speech sequence"  
+echo "3. Change to 'self.last_bored_response_time = time.time()' at the very end"
+echo ""
+echo "This ensures the timer only resets AFTER speech is completely finished."
+
+# 3. Optional: Add speech tracking variables to __init__
+echo ""
+echo "🎤 OPTIONAL ENHANCEMENT - Add to __init__ method:"
+echo "================================================"
+init_line=$(grep -n "def __init__" chatty_ai.py | tail -1 | cut -d: -f1)
+echo "At line ~$init_line, add these variables:"
+echo ""
+echo "    # Speech tracking"
+echo "    self.currently_speaking = False"
+echo "    self.speech_start_time = None"
+
+echo ""
+echo "🏁 SUMMARY OF FIXES:"
+echo "==================="
+echo ""
+echo "1. ✅ Flask development server warning will be suppressed"
+echo "2. 📝 MANUAL: Replace check_for_bored_response method"
+echo "3. 🎯 KEY CHANGE: Move timer reset to END of method"
+echo "4. ⏱️  ADD: time.sleep(2.0) after each speech block"
+echo ""
+echo "TIMER LOGIC CHANGE:"
+echo "OLD: Timer resets at start of function"
+echo "NEW: Timer resets only after all speech completes"
+echo ""
+echo "RESULT:"
+echo "• Jokes/facts play completely before timer restarts"
+echo "• No interruption of speech sequences"  
+echo "• Clean Flask startup without warnings"
+
+echo ""
+echo "🔄 NEXT STEPS:"
+echo "1. Manual replacement of check_for_bored_response method"
+echo "2. Test that timer waits for speech completion"
+echo "3. Enjoy clean startup without server warnings!"
+
+echo ""
+echo "🎪 WHY THIS MATTERS:"
+echo "Without this fix, the timer could restart while the AI is still"
+echo "speaking a joke, potentially causing another bored response to"
+echo "trigger before the first one finishes - creating overlapping speech!"
 
