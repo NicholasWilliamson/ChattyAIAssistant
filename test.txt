@@ -257,4 +257,3 @@ print("6. Updated check_for_bored_response to use file-based responses with name
 print("7. Added logic to use generic responses for unknown persons")
 print("8. Enhanced greeting responses to include detected person's name")
 
-
