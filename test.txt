@@ -1,67 +1,31 @@
-Thank you, Claude,
+# FIX FOR suppress_flask_warnings SCOPE ERROR
 
-I have the following code at the end of my chatty_ai.py Python script:
+# SOLUTION 1: Move the function OUTSIDE the class (RECOMMENDED)
+# Place this BEFORE the ChattyAIWebServer class definition, around line 115:
 
-    def suppress_flask_warnings():
-        """Suppress Flask development server warnings"""
-        # Suppress Werkzeug (Flask's development server) logging
-        log = logging.getLogger('werkzeug')
-        log.setLevel(logging.ERROR)
+def suppress_flask_warnings():
+    """Suppress Flask development server warnings"""
+    import logging
+    import warnings
     
-        # Suppress Flask development server warning
-        import warnings
-        from flask import Flask
-        warnings.filterwarnings('ignore', message='This is a development server*')
+    # Suppress Werkzeug (Flask's development server) logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
 
-    def run(self, host='0.0.0.0', port=5001, debug=False):
-        """Run the web server"""
-        
-        # Register signal handlers
-        signal.signal(signal.SIGINT, self.signal_handler)
-        signal.signal(signal.SIGTERM, self.signal_handler)
-        
-        try:
-            # Print startup banner
-            print("\n" + "="*60)
-            print("🚀 Starting Chatty AI Web Interface")
-            print("="*60)
-            print("Web Interface Features:")
-            print("• Complete AI Assistant Integration")
-            print("• Live Video Feed with Facial Recognition")
-            print("• Real-time System Monitoring")
-            print("• Wake Word Detection")
-            print("• Speech Synthesis & Processing")
-            print("• Security Monitoring & Telegram Alerts")
-            print("• LLM-Generated Entertainment")
-            print("="*60)
-            print(f"Access the web interface at: http://localhost:{port}")
-            print(f"Or from other devices at: http://{self.get_local_ip()}:{port}")
-            print("Press Ctrl+C to stop the server")
-            print("="*60)
-            print("\nDEBUG INFO:")
-            print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
-            print(f"• Bored response interval: {BORED_RESPONSE_INTERVAL} seconds")
-            print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
-            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
-            print("="*60)
-            
-            # Start the server with better error handling
-            logger.info("Starting Flask-SocketIO server...")
-            self.socketio.run(self.app, 
-                            host=host, 
-                            port=port, 
-                            debug=debug,
-                            use_reloader=False,
-                            log_output=True)
-                            
-        except Exception as e:
-            logger.error(f"Error starting server: {e}")
-            self.cleanup()
-            raise
-        finally:
-            self.cleanup()
+    # Suppress Flask development server warning
+    warnings.filterwarnings('ignore', message='This is a development server*')
+    warnings.filterwarnings('ignore', message='Do not use it in a production deployment*')
+
+
+# Then your existing code at the bottom stays the same:
+if __name__ == '__main__':
+    # Suppress development server warnings
+    suppress_flask_warnings()
+    main()
+
+
+# SOLUTION 2: Alternative - Call it as a method (if you prefer to keep it in the class)
+# Change the bottom of your file to this:
 
 def main():
     """Main function"""
@@ -74,8 +38,13 @@ def main():
         except Exception as e:
             print(f"Could not query audio devices: {e}")
         
-        # Create and run server
+        # Create server instance
         server = ChattyAIWebServer()
+        
+        # Suppress warnings using the server method
+        server.suppress_flask_warnings()
+        
+        # Run server
         server.run(debug=False)
         
     except KeyboardInterrupt:
@@ -85,28 +54,22 @@ def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    # Suppress development server warnings
-    suppress_flask_warnings()
+    main()  # Remove the suppress_flask_warnings() call from here
 
+
+# SOLUTION 3: Quick inline fix (simplest)
+# Replace your current if __name__ == '__main__': section with:
+
+if __name__ == '__main__':
+    # Inline warning suppression
+    import logging
+    import warnings
+    
+    # Suppress Flask development server warnings
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    warnings.filterwarnings('ignore', message='This is a development server*')
+    warnings.filterwarnings('ignore', message='Do not use it in a production deployment*')
+    
     main()
-
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 1770, in <module>
-    suppress_flask_warnings()
-    ^^^^^^^^^^^^^^^^^^^^^^^
-NameError: name 'suppress_flask_warnings' is not defined
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-How can I fix this error?
-
-
-
-
-
-
-
-
-
-
 
