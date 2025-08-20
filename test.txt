@@ -1,81 +1,160 @@
-Thank you Claude,
+# Fix 1: Update the silence detection threshold and add it to configuration
+# Add this to your configuration section at the top of the file:
 
-I made the changes you recommended and everything is working very well.
+# Audio parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+SILENCE_THRESHOLD = 0.035  # Increased from 0.015 to 0.035 for better silence detection
+MIN_SILENCE_DURATION = 1.5  # Keep at 1.5 seconds
+MAX_RECORDING_DURATION = 30
+LLM_MAX_TOKENS = 50  # Reduced from 100 to 50 tokens
 
-This time, the System Logs displayed:
-18:46:29 🌟 Chatty AI Web Interface initialized
-18:46:29 🔗 Attempting to connect to server...
-18:46:29 💡 Click "Start System" to begin AI operations
-18:46:30 📊 Connected to server successfully
-18:46:30 ✅ Connected to Chatty AI server
-18:46:31 🔍 Checking system components...
-18:48:43 🚀 Starting Chatty AI system...
-18:48:43 [18:48:43] Starting Chatty AI system...
-18:48:43 [18:48:43] 📁 Response files loaded successfully
-18:48:43 [18:48:43] Loading AI models...
-18:48:44 [18:48:44] Whisper model loaded successfully
-18:48:44 [18:48:44] LLaMA model loaded successfully
-18:48:44 [18:48:44] Loaded 37 face encodings
-18:48:44 [18:48:44] Telegram configuration loaded
-18:48:46 [18:48:46] Camera initialized successfully
-18:48:46 [18:48:46] Wake word detection thread started
-18:48:46 [18:48:46] Chatty AI system started successfully
-18:48:46 [18:48:46] Camera monitoring thread started
-18:48:46 📊 Chatty AI system started successfully
-18:49:07 [18:49:07] 🎭 Selected greeting template: Hello {name}, my master. I am so happy to see you ...
-18:49:07 [18:49:07] 🔊 Speaking: 'Hello Nick, my master. I am so happy to see you ag...'
-18:49:19 [18:49:19] 🎵 Speech completed: 'Hello Nick, my master. I am so happy to see you ag...'
-18:49:19 [18:49:19] ✅ Greeted Nick - Wake word detection now active
-18:49:25 [18:49:25] Wake word audio RMS: 0.0756 (threshold: 0.0300)
-18:49:25 [18:49:25] Wake word audio saved - RMS 0.0756 exceeded threshold
-18:49:30 [18:49:30] Transcription: 'Hello Cherry'
-18:49:30 [18:49:30] Wake word detected: 'hello cherry' in 'Hello Cherry'
-18:49:30 [18:49:30] WAKE WORD DETECTED! Starting conversation...
-18:49:31 [18:49:31] 🔔 Beep sound played
-18:49:31 [18:49:31] 🔊 Speaking: 'Yes Nick, I am listening, what is on your mind?...'
-18:49:35 [18:49:35] 🎵 Speech completed: 'Yes Nick, I am listening, what is on your mind?...'
-18:49:35 [18:49:35] Please speak your request...
-18:49:35 [18:49:35] Recording user audio...
-18:50:05 [18:50:05] Audio saved: 30.2s duration
-18:50:16 [18:50:16] Transcription: 'Tell me some fun places to visit in New York, USA.'
-18:50:16 [18:50:16] Processing user input: 'Tell me some fun places to visit in New York, USA.'
-18:50:16 [18:50:16] Generating LLM response
-18:50:24 [18:50:24] 🔊 Speaking: '1) Times Square - a bustling entertainment distric...'
-18:50:48 [18:50:48] 🎵 Speech completed: '1) Times Square - a bustling entertainment distric...'
-18:50:54 [18:50:54] Wake word audio RMS: 0.0524 (threshold: 0.0300)
-18:50:54 [18:50:54] Wake word audio saved - RMS 0.0524 exceeded threshold
-18:51:09 [18:51:09] Transcription: 'Are you ready?'
-18:51:09 [18:51:09] No wake word found in: 'are you ready?'
-18:51:15 [18:51:15] Wake word audio RMS: 0.0587 (threshold: 0.0300)
-18:51:15 [18:51:15] Wake word audio saved - RMS 0.0587 exceeded threshold
-18:51:29 [18:51:29] Transcription: 'Hi Cherry!'
-18:51:29 [18:51:29] Wake word detected: 'hi cherry' in 'Hi Cherry!'
-18:51:29 [18:51:29] WAKE WORD DETECTED! Starting conversation...
-18:51:30 [18:51:30] 🔔 Beep sound played
-18:51:30 [18:51:30] 🔊 Speaking: 'Hi Nick, I am here! What can I help you with?...'
-18:51:35 [18:51:35] 🎵 Speech completed: 'Hi Nick, I am here! What can I help you with?...'
-18:51:35 [18:51:35] Please speak your request...
-18:51:35 [18:51:35] Recording user audio...
-18:52:05 [18:52:05] Audio saved: 30.2s duration
-18:52:14 [18:52:14] Transcription: 'How's the weather today?'
-18:52:14 [18:52:14] Processing user input: 'How's the weather today?'
-18:52:14 [18:52:14] Generating LLM response
-18:52:21 [18:52:21] 🔊 Speaking: '✨ It's been a nice day for most of us. The sun is...'
-18:52:36 [18:52:36] 🎵 Speech completed: '✨ It's been a nice day for most of us. The sun is...'
-18:52:42 [18:52:42] Wake word audio RMS: 0.0280 (threshold: 0.0300)
-18:52:42 [18:52:42] Wake word audio saved - RMS 0.0280 exceeded threshold
+# Fix 2: Update the record_with_silence_detection method
+def record_with_silence_detection(self):
+    """Record audio until silence detected with improved detection"""
+    try:
+        with self.audio_recording_lock:
+            self.emit_log("🎙️ Recording user audio...", 'info')
+            audio_data = []
+            silence_duration = 0
+            recording_duration = 0
+            check_interval = 0.1  # Check more frequently (was 0.2)
+            samples_per_check = int(SAMPLE_RATE * check_interval)
+            
+            # Track audio levels for debugging
+            recent_levels = []
+            
+            def audio_callback(indata, frames, time, status):
+                if status:
+                    self.emit_log(f"🔊 Audio callback status: {status}", 'warning')
+                audio_data.extend(indata[:, 0])
 
-Another issue exists now, however.
+            with sd.InputStream(callback=audio_callback,
+                               samplerate=SAMPLE_RATE,
+                               channels=CHANNELS,
+                               dtype='float32'):
+                
+                while recording_duration < MAX_RECORDING_DURATION:
+                    time.sleep(check_interval)
+                    recording_duration += check_interval
+                    
+                    if len(audio_data) >= samples_per_check:
+                        # Get recent audio segment
+                        recent_audio = np.array(audio_data[-samples_per_check:])
+                        rms = np.sqrt(np.mean(recent_audio**2))
+                        recent_levels.append(rms)
+                        
+                        # Keep only last 10 levels for debugging
+                        if len(recent_levels) > 10:
+                            recent_levels = recent_levels[-10:]
+                        
+                        # Log audio levels every 2 seconds for debugging
+                        if int(recording_duration * 10) % 20 == 0:  # Every 2 seconds
+                            avg_level = sum(recent_levels) / len(recent_levels) if recent_levels else 0
+                            self.emit_log(f"🔊 Audio level: {rms:.4f} (avg: {avg_level:.4f}, threshold: {SILENCE_THRESHOLD:.4f})", 'debug')
+                        
+                        if rms < SILENCE_THRESHOLD:
+                            silence_duration += check_interval
+                            if silence_duration >= MIN_SILENCE_DURATION:
+                                self.emit_log(f"🤫 Silence detected after {recording_duration:.1f}s (RMS: {rms:.4f} < {SILENCE_THRESHOLD:.4f})", 'info')
+                                break
+                        else:
+                            silence_duration = 0  # Reset silence counter if sound detected
 
-When the wake word is detected, and I ask a question or speak a command, the AI Assistant does not stop recording my talking after 1.5 seconds of talking, indicating that I have said everything I wanted to say for that question or command.
+            if audio_data:
+                audio_array = np.array(audio_data, dtype=np.float32)
+                sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                final_rms = np.sqrt(np.mean(audio_array**2))
+                self.emit_log(f"💾 Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration, final RMS: {final_rms:.4f}", 'success')
+                return True
+            
+            self.emit_log("❌ No audio data recorded", 'error')
+            return False
+            
+    except Exception as e:
+        self.emit_log(f"🔴 Recording error: {e}", 'error')
+        return False
 
-It continues recording for the full 30.2 second duration.
+# Fix 3: Update the query_llama method to use configurable token limit
+def query_llama(self, prompt):
+    """Generate LLM response with configurable token limit"""
+    formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+    
+    try:
+        self.emit_log(f"🤖 Querying LLM with max tokens: {LLM_MAX_TOKENS}", 'debug')
+        
+        result = self.llama_model(formatted_prompt, max_tokens=LLM_MAX_TOKENS)
+        
+        if "choices" in result and result["choices"]:
+            reply_text = result["choices"][0]["text"].strip()
+            
+            # Clean up the response
+            reply_text = re.sub(r"\(.*?\)", "", reply_text)  # Remove parenthetical content
+            reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)  # Remove labels
+            reply_text = reply_text.strip()
+            
+            # Limit to reasonable number of sentences for speech
+            sentences = reply_text.split('.')
+            if len(sentences) > 3:
+                reply_text = '. '.join(sentences[:3]) + '.'
+            
+            self.emit_log(f"✅ LLM response generated: {len(reply_text)} characters", 'debug')
+            return reply_text
+        else:
+            self.emit_log("⚠️ LLM returned no valid response", 'warning')
+            return "I'm not sure how to answer that."
+            
+    except Exception as e:
+        self.emit_log(f"🔴 LLM error: {e}", 'error')
+        return "Sorry, I had trouble processing that question."
 
-I am wondering if increasing the setting from 0.15 back to 0.35 will correct this?
+# Fix 4: Add a configuration method to easily change settings
+def update_audio_settings(self, silence_threshold=None, min_silence_duration=None, max_tokens=None):
+    """Update audio and LLM settings dynamically"""
+    global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
+    
+    if silence_threshold is not None:
+        SILENCE_THRESHOLD = silence_threshold
+        self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
+    
+    if min_silence_duration is not None:
+        MIN_SILENCE_DURATION = min_silence_duration
+        self.emit_log(f"⚙️ Updated min silence duration to {MIN_SILENCE_DURATION:.1f}s", 'info')
+    
+    if max_tokens is not None:
+        LLM_MAX_TOKENS = max_tokens
+        self.emit_log(f"⚙️ Updated LLM max tokens to {LLM_MAX_TOKENS}", 'info')
 
-If not, how can I fix this?
+# Fix 5: Improved wake word recording with better threshold
+def record_wake_word_check(self):
+    """Record short audio clip for wake word detection with improved sensitivity"""
+    try:
+        if not self.audio_recording_lock.acquire(blocking=False):
+            return False  # Audio system is busy
+        
+        try:
+            # Record 5 seconds of audio for wake word detection
+            audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+            sd.wait()
+            
+            # Check if audio contains sound above threshold
+            rms = np.sqrt(np.mean(audio_data**2))
+            wake_word_threshold = SILENCE_THRESHOLD * 1.2  # Slightly lower threshold for wake word
+            
+            self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+            
+            if rms > wake_word_threshold:
+                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                self.emit_log(f"💾 Wake word audio saved - RMS {rms:.4f} exceeded threshold", 'info')
+                return True
+            else:
+                self.emit_log(f"🔇 Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+                return False
+                
+        finally:
+            self.audio_recording_lock.release()
+            
+    except Exception as e:
+        self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+        return False
 
-Also, I want the maximum number of tokens used for the LLM's response to be 50. This setting should also be able to be changed.
-
-Please fix this if need be.
-  
