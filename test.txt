@@ -1,314 +1,112 @@
-# FIXES FOR TIMER AND SERVER ISSUES
+Thank you, Claude,
 
-# 1. FIX THE TIMER ISSUE - Replace check_for_bored_response method
-def check_for_bored_response(self, name):
-    """Check if it's time to give a bored response with joke or fun fact from files"""
-    if not self.wake_word_active or not self.last_bored_response_time:
-        return False
+I have the following code at the end of my chatty_ai.py Python script:
+
+    def suppress_flask_warnings():
+        """Suppress Flask development server warnings"""
+        # Suppress Werkzeug (Flask's development server) logging
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
     
-    current_time = time.time()
-    time_since_bored = current_time - self.last_bored_response_time
-    
-    if time_since_bored >= BORED_RESPONSE_INTERVAL:
-        # Add 1-second delay before response
-        time.sleep(1.0)
+        # Suppress Flask development server warning
+        import warnings
+        from flask import Flask
+        warnings.filterwarnings('ignore', message='This is a development server*')
+
+    def run(self, host='0.0.0.0', port=5001, debug=False):
+        """Run the web server"""
         
-        # Determine if this is a known person or stranger
-        is_known_person = name and name != "Unknown"
+        # Register signal handlers
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
         
-        if self.bored_cycle == 0:
-            # Give bored response + joke from file
-            if is_known_person:
-                # Use personalized bored responses
-                if self.bored_responses:
-                    bored_template = random.choice(self.bored_responses)
-                    bored_msg = bored_template.replace("{name}", name)
-                else:
-                    bored_msg = f"Hey {name}, I'm getting a bit bored waiting here"
-            else:
-                # Use generic bored responses for strangers
-                if self.bored_responses_generic:
-                    bored_msg = random.choice(self.bored_responses_generic)
-                else:
-                    bored_msg = "I'm getting a bit bored waiting here"
+        try:
+            # Print startup banner
+            print("\n" + "="*60)
+            print("🚀 Starting Chatty AI Web Interface")
+            print("="*60)
+            print("Web Interface Features:")
+            print("• Complete AI Assistant Integration")
+            print("• Live Video Feed with Facial Recognition")
+            print("• Real-time System Monitoring")
+            print("• Wake Word Detection")
+            print("• Speech Synthesis & Processing")
+            print("• Security Monitoring & Telegram Alerts")
+            print("• LLM-Generated Entertainment")
+            print("="*60)
+            print(f"Access the web interface at: http://localhost:{port}")
+            print(f"Or from other devices at: http://{self.get_local_ip()}:{port}")
+            print("Press Ctrl+C to stop the server")
+            print("="*60)
+            print("\nDEBUG INFO:")
+            print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+            print(f"• Bored response interval: {BORED_RESPONSE_INTERVAL} seconds")
+            print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
+            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
+            print("="*60)
             
-            # Get joke from file
-            joke = self.get_file_joke()
-            
-            # Speak the bored message first
-            self.speak_text(bored_msg)
-            self.emit_conversation(f"😴 Bored response: {bored_msg}", 'response')
-            
-            # Add 1-second pause between messages
-            time.sleep(1.0)
-            
-            # Then tell the joke
-            joke_intro = "Let me tell you a joke!"
-            self.speak_text(joke_intro)
-            time.sleep(0.5)  # Short pause
-            self.speak_text(joke)
-            self.emit_conversation(f"😄 Joke: {joke}", 'response')
-            
-            # IMPORTANT: Wait for speech to complete before resetting timer
-            time.sleep(2.0)  # Additional buffer to ensure speech is finished
-            
-            self.bored_cycle = 1
-            self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a bored response with file joke", 'info')
-        else:
-            # Give waiting response + fun fact from file
-            if is_known_person:
-                # Use personalized waiting responses
-                if self.waiting_responses:
-                    waiting_template = random.choice(self.waiting_responses)
-                    waiting_msg = waiting_template.replace("{name}", name)
-                else:
-                    waiting_msg = f"I am still around if you need me, {name}"
-            else:
-                # Use generic waiting responses for strangers
-                if self.waiting_responses_generic:
-                    waiting_msg = random.choice(self.waiting_responses_generic)
-                else:
-                    waiting_msg = "I am still around if you need assistance"
-            
-            # Get fun fact from file
-            fun_fact = self.get_file_fun_fact()
-            
-            # Speak the waiting message first
-            self.speak_text(waiting_msg)
-            self.emit_conversation(f"⏳ Waiting response: {waiting_msg}", 'response')
-            
-            # Add 1-second pause between messages
-            time.sleep(1.0)
-            
-            # Then share the fun fact
-            fact_intro = "Here's a fun fact for you!"
-            self.speak_text(fact_intro)
-            time.sleep(0.5)  # Short pause
-            self.speak_text(fun_fact)
-            self.emit_conversation(f"💡 Fun fact: {fun_fact}", 'response')
-            
-            # IMPORTANT: Wait for speech to complete before resetting timer
-            time.sleep(2.0)  # Additional buffer to ensure speech is finished
-            
-            self.bored_cycle = 0
-            self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a waiting response with file fun fact", 'info')
+            # Start the server with better error handling
+            logger.info("Starting Flask-SocketIO server...")
+            self.socketio.run(self.app, 
+                            host=host, 
+                            port=port, 
+                            debug=debug,
+                            use_reloader=False,
+                            log_output=True)
+                            
+        except Exception as e:
+            logger.error(f"Error starting server: {e}")
+            self.cleanup()
+            raise
+        finally:
+            self.cleanup()
+
+def main():
+    """Main function"""
+    try:
+        # Check audio devices
+        try:
+            print("Available audio devices:")
+            print(sd.query_devices())
+            print("=" * 60)
+        except Exception as e:
+            print(f"Could not query audio devices: {e}")
         
-        # MOVE TIMER RESET TO END - Only reset after all speech is complete
-        self.last_bored_response_time = time.time()  # Use current time when actually finishing
-        return True
-    
-    return False
+        # Create and run server
+        server = ChattyAIWebServer()
+        server.run(debug=False)
+        
+    except KeyboardInterrupt:
+        print("\n\nShutdown requested by user")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        sys.exit(1)
 
-# 2. SUPPRESS FLASK DEVELOPMENT SERVER WARNING
-# Add this import at the top of your file with other imports:
-import logging
-
-# Then add this code right before app.run() near the bottom of your file:
-def suppress_flask_warnings():
-    """Suppress Flask development server warnings"""
-    # Suppress Werkzeug (Flask's development server) logging
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
-    
-    # Suppress Flask development server warning
-    import warnings
-    from flask import Flask
-    warnings.filterwarnings('ignore', message='This is a development server*')
-
-# Call this function right before starting the server:
 if __name__ == '__main__':
     # Suppress development server warnings
     suppress_flask_warnings()
-    
-    # Your existing server startup code...
-    app.run(host='0.0.0.0', port=5001, debug=False, threaded=True)
 
-# 3. ALTERNATIVE: More sophisticated speech completion detection
-# If you want a more advanced solution, you can track speech completion:
+    main()
 
-def speak_text(self, text):
-    """Enhanced speak_text method that tracks completion"""
-    if not text:
-        return
-    
-    try:
-        # Store the speaking state
-        self.currently_speaking = True
-        self.speech_start_time = time.time()
-        
-        # Estimate speech duration (rough calculation)
-        # Average speaking rate: ~150 words per minute = 2.5 words per second
-        word_count = len(text.split())
-        estimated_duration = (word_count / 2.5) + 1.0  # Add 1 second buffer
-        
-        # Your existing TTS code here
-        tts = gTTS(text=text, lang='en', slow=False)
-        tts.save(TTS_OUTPUT)
-        
-        if os.path.exists(TTS_OUTPUT):
-            # Play the audio
-            pygame.mixer.music.load(TTS_OUTPUT)
-            pygame.mixer.music.play()
-            
-            # Wait for estimated duration or until playback finishes
-            start_wait = time.time()
-            while pygame.mixer.music.get_busy() and (time.time() - start_wait) < estimated_duration + 2:
-                time.sleep(0.1)
-            
-            self.emit_log(f"Speech completed: '{text[:50]}...'", 'debug')
-        
-        # Mark speaking as complete
-        self.currently_speaking = False
-        
-    except Exception as e:
-        self.currently_speaking = False
-        self.emit_log(f"TTS error: {e}", 'error')
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Traceback (most recent call last):
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 1770, in <module>
+    suppress_flask_warnings()
+    ^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'suppress_flask_warnings' is not defined
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-# 4. ENHANCED TIMER CHECK - Only count time when not speaking
-def check_for_bored_response(self, name):
-    """Enhanced version that respects speech timing"""
-    if not self.wake_word_active or not self.last_bored_response_time:
-        return False
-    
-    # Don't trigger bored responses while currently speaking
-    if hasattr(self, 'currently_speaking') and self.currently_speaking:
-        return False
-    
-    current_time = time.time()
-    time_since_bored = current_time - self.last_bored_response_time
-    
-    # Rest of method stays the same...
-    # (Include the full method from option 1 above)
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+How can I fix this error?
 
 
 
 
-#!/bin/bash
 
-echo "🔧 Applying timer and server warning fixes..."
 
-# Create backup
-cp chatty_ai.py chatty_ai.py.backup_timer_fixes
 
-echo "🎭 DEVELOPMENT SERVER vs PRODUCTION SERVER:"
-echo "==========================================="
-echo ""
-echo "🔧 DEVELOPMENT SERVER (what you're using):"
-echo "   • Flask's built-in server (Werkzeug)"
-echo "   • Single-threaded by default"
-echo "   • Auto-reloads on code changes" 
-echo "   • Easy debugging and development"
-echo "   • NOT suitable for production use"
-echo "   • Can handle ~1-10 concurrent users"
-echo ""
-echo "🏭 PRODUCTION SERVER (for real deployment):"
-echo "   • Multi-threaded/multi-process servers"
-echo "   • Examples: Gunicorn, uWSGI, Apache mod_wsgi"
-echo "   • Better performance and stability"
-echo "   • Can handle hundreds/thousands of users"
-echo "   • No auto-reload, better security"
-echo ""
-echo "💡 FOR YOUR USE CASE:"
-echo "   • Development server is PERFECT for personal/home use"
-echo "   • Only upgrade if you need multiple concurrent users"
-echo "   • Your Raspberry Pi setup is ideal for development server"
-echo ""
 
-# 1. Fix the server warning suppression
-echo "1. Adding Flask warning suppression..."
 
-# Add warning suppression before app.run()
-sed -i '/if __name__ == .__main__.:/i\
-def suppress_flask_warnings():\
-    """Suppress Flask development server warnings"""\
-    import logging\
-    import warnings\
-    \
-    # Suppress Werkzeug logging\
-    log = logging.getLogger("werkzeug")\
-    log.setLevel(logging.ERROR)\
-    \
-    # Suppress Flask development warning\
-    warnings.filterwarnings("ignore", message="This is a development server*")\
-\
-' chatty_ai.py
 
-# Add the call to suppress warnings
-sed -i '/if __name__ == .__main__.:/a\
-    # Suppress development server warnings\
-    suppress_flask_warnings()' chatty_ai.py
-
-echo "2. ✅ Server warning suppression added"
-
-# 2. Show where to replace the timer method
-echo ""
-echo "📍 MANUAL TIMER FIX NEEDED:"
-echo "=========================="
-echo ""
-
-bored_line=$(grep -n "def check_for_bored_response" chatty_ai.py | cut -d: -f1)
-echo "🎯 REPLACE check_for_bored_response method at line: $bored_line"
-echo ""
-echo "KEY CHANGES NEEDED:"
-echo "1. Move 'self.last_bored_response_time = current_time' to the END"
-echo "2. Add 'time.sleep(2.0)' after each speech sequence"  
-echo "3. Change to 'self.last_bored_response_time = time.time()' at the very end"
-echo ""
-echo "This ensures the timer only resets AFTER speech is completely finished."
-
-# 3. Optional: Add speech tracking variables to __init__
-echo ""
-echo "🎤 OPTIONAL ENHANCEMENT - Add to __init__ method:"
-echo "================================================"
-init_line=$(grep -n "def __init__" chatty_ai.py | tail -1 | cut -d: -f1)
-echo "At line ~$init_line, add these variables:"
-echo ""
-echo "    # Speech tracking"
-echo "    self.currently_speaking = False"
-echo "    self.speech_start_time = None"
-
-echo ""
-echo "🏁 SUMMARY OF FIXES:"
-echo "==================="
-echo ""
-echo "1. ✅ Flask development server warning will be suppressed"
-echo "2. 📝 MANUAL: Replace check_for_bored_response method"
-echo "3. 🎯 KEY CHANGE: Move timer reset to END of method"
-echo "4. ⏱️  ADD: time.sleep(2.0) after each speech block"
-echo ""
-echo "TIMER LOGIC CHANGE:"
-echo "OLD: Timer resets at start of function"
-echo "NEW: Timer resets only after all speech completes"
-echo ""
-echo "RESULT:"
-echo "• Jokes/facts play completely before timer restarts"
-echo "• No interruption of speech sequences"  
-echo "• Clean Flask startup without warnings"
-
-echo ""
-echo "🔄 NEXT STEPS:"
-echo "1. Manual replacement of check_for_bored_response method"
-echo "2. Test that timer waits for speech completion"
-echo "3. Enjoy clean startup without server warnings!"
-
-echo ""
-echo "🎪 WHY THIS MATTERS:"
-echo "Without this fix, the timer could restart while the AI is still"
-echo "speaking a joke, potentially causing another bored response to"
-echo "trigger before the first one finishes - creating overlapping speech!"
 
