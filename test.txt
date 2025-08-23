@@ -1,93 +1,10 @@
-Thank you, Claude,
-
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "5000/5001" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "video_feed\|/video" /home/nickspi5/Chatty_AI/chatty_ai.py
-804:        @self.app.route('/video_feed')
-805:        def video_feed():
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "5001\|5000" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
-923:            }, 5000);
-986:        }, 5000); // Refresh every 5 seconds when system is running
-993:        }, 5000); // Every 5 seconds for real-time monitoring
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -I http://localhost:5000/video_feed
-HTTP/1.1 200 OK
-Server: gunicorn
-Date: Sat, 23 Aug 2025 10:27:23 GMT
-Connection: keep-alive
-Content-Type: multipart/x-mixed-replace; boundary=frame
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service -f
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,608 - INFO - received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet PING data None
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,669 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet PING data None
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Received packet PONG data
-Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,670 - INFO - b-7yr_TphYf1OO4DAAAC: Received packet PONG data
-Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:45,618 - INFO - emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.5,"memory_percent":39.9,"memory_used":3140337664,"memory_total":8453832704,"cpu_temp":51.0,"gpu_temp":52.0,"timestamp":"2025-08-23T20:37:45.618066","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
-Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:45,619 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.5,"memory_percent":39.9,"memory_used":3140337664,"memory_total":8453832704,"cpu_temp":51.0,"gpu_temp":52.0,"timestamp":"2025-08-23T20:37:45.618066","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
-Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Received packet MESSAGE data 2["get_system_info"]
-Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:49,607 - INFO - b-7yr_TphYf1OO4DAAAC: Received packet MESSAGE data 2["get_system_info"]
-Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:49,608 - INFO - received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:50,614 - INFO - emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
-Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.7,"memory_percent":40.0,"memory_used":3145138176,"memory_total":8453832704,"cpu_temp":52.1,"gpu_temp":53.1,"timestamp":"2025-08-23T20:37:50.614774","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
-Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:50,615 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.7,"memory_percent":40.0,"memory_used":3145138176,"memory_total":8453832704,"cpu_temp":52.1,"gpu_temp":53.1,"timestamp":"2025-08-23T20:37:50.614774","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
-^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ lsusb | grep -i camera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo lsusb | grep -i camera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo libcamera-hello --list-cameras
-sudo: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "import cv2; cap = cv2.VideoCapture(0); ret, frame = cap.read(); print('Camera works:', ret); cap.release()"
-Camera works: False
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -A 2 -B 2 "io.connect\|video_feed\|5001\|5000" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
-            <div class="video-container">
-                <div class="area-title">Live Camera Feed</div>
-                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-            </div>
-            <div class="image-container">
---
-                    stopButton.disabled = false;
-                }
-            }, 5000);
-        }
-
---
-        setInterval(() => {
-            if (videoFeed.complete && isSystemRunning) {
-                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-            }
-        }, 30000); // Refresh every 30 seconds
---
-            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
-            setTimeout(() => {
-                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-            }, 2000);
-        });
---
-                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-            }
-        }, 5000); // Refresh every 5 seconds when system is running
-
-        // Request system info periodically
---
-                socket.emit('get_system_info');
-            }
-        }, 5000); // Every 5 seconds for real-time monitoring
-
-        // Enhanced error handling for socket events
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 
-
-
-
-
-
-
+# Test different camera indices
+for i in {0..3}; do
+    echo "Testing camera index $i:"
+    python3 -c "import cv2; cap = cv2.VideoCapture($i); ret, frame = cap.read(); print('Camera $i works:', ret); cap.release()"
+done
 
 
 
