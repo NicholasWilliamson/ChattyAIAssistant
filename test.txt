@@ -1,146 +1,146 @@
-# Add this method to your ChattyAIWebServer class to use preloaded models
+Thank you, Claude,
 
-def load_preloaded_models(self):
-    """Load models from the preloader service instead of loading them fresh"""
-    try:
-        # Check if models are preloaded and ready
-        if not os.path.exists("/tmp/chatty_ai_models_ready"):
-            self.emit_log("⚠️ Models not preloaded yet, waiting for preloader service...", 'warning')
-            
-            # Wait up to 60 seconds for models to be ready
-            timeout = 60
-            waited = 0
-            while waited < timeout and not os.path.exists("/tmp/chatty_ai_models_ready"):
-                time.sleep(2)
-                waited += 2
-                self.emit_log(f"⏳ Waiting for models to be preloaded... ({waited}s/{timeout}s)", 'info')
-            
-            if not os.path.exists("/tmp/chatty_ai_models_ready"):
-                self.emit_log("❌ Timeout waiting for preloaded models, will load fresh", 'error')
-                return self.load_models_fresh()
-        
-        # Read preloader status
-        with open("/tmp/chatty_ai_models_ready", "r") as f:
-            status_info = f.read()
-            self.emit_log(f"📋 Preloader status:\n{status_info}", 'info')
-        
-        self.emit_log("🔗 Connecting to preloaded models...", 'info')
-        
-        # Import the preloader to access the models
-        # Since the models are already in memory from the preloader service,
-        # we just need to create our own instances that will load much faster
-        
-        # Load Whisper model (will be much faster since it's warm)
-        start_time = time.time()
-        self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-        whisper_time = time.time() - start_time
-        self.emit_log(f"🎤 Whisper model connected in {whisper_time:.2f}s (warm start)", 'success')
-        
-        # Load LLaMA model (will be much faster since it's warm)
-        start_time = time.time()
-        self.llama_model = Llama(
-            model_path=LLAMA_MODEL_PATH,
-            n_ctx=2048,
-            temperature=0.7,
-            repeat_penalty=1.1,
-            n_gpu_layers=0,
-            verbose=False
-        )
-        llama_time = time.time() - start_time
-        self.emit_log(f"🤖 LLaMA model connected in {llama_time:.2f}s (warm start)", 'success')
-        
-        self.models_loaded = True
-        total_time = whisper_time + llama_time
-        self.emit_log(f"✅ All models connected in {total_time:.2f}s (using preloaded models)", 'success')
-        return True
-        
-    except Exception as e:
-        self.emit_log(f"❌ Failed to use preloaded models: {e}", 'error')
-        self.emit_log("🔄 Falling back to fresh model loading...", 'warning')
-        return self.load_models_fresh()
+I made the changes you recommended.
 
-def load_models_fresh(self):
-    """Load AI models fresh (fallback method)"""
-    try:
-        self.emit_log("🔄 Loading AI models fresh...", 'info')
-        
-        # Load Whisper model
-        start_time = time.time()
-        self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-        whisper_time = time.time() - start_time
-        self.emit_log(f"🎤 Whisper model loaded in {whisper_time:.2f}s (fresh load)", 'success')
-        
-        # Load LLaMA model
-        start_time = time.time()
-        self.llama_model = Llama(
-            model_path=LLAMA_MODEL_PATH,
-            n_ctx=2048,
-            temperature=0.7,
-            repeat_penalty=1.1,
-            n_gpu_layers=0,
-            verbose=False
-        )
-        llama_time = time.time() - start_time
-        self.emit_log(f"🤖 LLaMA model loaded in {llama_time:.2f}s (fresh load)", 'success')
-        
-        self.models_loaded = True
-        total_time = whisper_time + llama_time
-        self.emit_log(f"✅ All models loaded in {total_time:.2f}s (fresh load)", 'success')
-        return True
-        
-    except Exception as e:
-        self.emit_log(f"❌ Failed to load AI models: {e}", 'error')
-        return False
+My chatty-ai-preloader.service file is as follows:
 
-# Replace your existing load_models method with this:
-def load_models(self):
-    """Load AI models - try preloaded first, fallback to fresh"""
-    return self.load_preloaded_models()
+chatty-ai-preloader.service
+[Unit]
+Description=Chatty AI Model Preloader
+Documentation=https://github.com/NicholasWilliamson/ChattyAIAssistant
+After=network.target
+Wants=network-online.target
+Before=chatty-ai.service
 
-# Update your start system handler to check for preloaded models
-def handle_start_system_with_precheck(self):
-    """Enhanced start system that checks for preloaded models"""
-    try:
-        if not self.system_running:
-            self.emit_log("🚀 Starting Chatty AI system...", 'info')
-            
-            # Check if preloader service is running
-            try:
-                result = subprocess.run(['systemctl', 'is-active', 'chatty-ai-preloader'], 
-                                      capture_output=True, text=True, timeout=5)
-                if result.returncode == 0 and result.stdout.strip() == 'active':
-                    self.emit_log("✅ Model preloader service is active", 'success')
-                else:
-                    self.emit_log("⚠️ Model preloader service not active, models will load fresh", 'warning')
-            except Exception as e:
-                self.emit_log(f"⚠️ Could not check preloader service: {e}", 'warning')
-            
-            # Load response files
-            if not self.load_response_files():
-                emit('status_update', {
-                    'status': 'error',
-                    'is_running': False,
-                    'message': 'Failed to load response files'
-                })
-                return
-            
-            # Load AI models (will use preloaded if available)
-            if not self.load_models():
-                emit('status_update', {
-                    'status': 'error',
-                    'is_running': False,
-                    'message': 'Failed to load AI models'
-                })
-                return
-            
-            # Continue with rest of startup...
-            # [Rest of your existing startup code]
-            
-    except Exception as e:
-        logger.error(f"Error starting system: {e}")
-        emit('status_update', {
-            'status': 'error',
-            'is_running': False,
-            'message': f'Error starting system: {e}'
-        })
+[Service]
+Type=simple
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+Environment=CHATTY_AI_ENV=production
+
+# Preload models at startup
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/model_preloader.py
+
+# Restart policy
+Restart=always
+RestartSec=30
+StartLimitInterval=300
+StartLimitBurst=5
+
+# Resource limits (adjust based on your Pi's memory)
+MemoryMax=2G
+MemoryHigh=1.5G
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/nickspi5/Chatty_AI /tmp
+
+[Install]
+WantedBy=multi-user.target
+
+My chatty-ai.service file is as follows:
+
+chatty-ai.service
+[Unit]
+Description=Chatty AI Web Interface
+After=network.target chatty-ai-preloader.service
+Wants=network-online.target
+Requires=chatty-ai-preloader.service
+
+[Service]
+Type=notify
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+Environment=CHATTY_AI_ENV=production
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
+I then ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x model_preloader.py
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai-preloader.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai-preloader.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+Job for chatty-ai.service failed because the control process exited with error code.
+See "systemctl status chatty-ai.service" and "journalctl -xeu chatty-ai.service" for details.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+× chatty-ai.service - Chatty AI Web Interface
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: failed (Result: exit-code) since Sat 2025-08-23 17:14:05 AEST; 1min 19s ago
+   Duration: 434ms
+    Process: 3179 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app (code=exit>
+   Main PID: 3179 (code=exited, status=3)
+     Status: "Gunicorn arbiter booted"
+        CPU: 741ms
+
+Aug 23 17:14:05 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 3.
+Aug 23 17:14:05 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:14:05 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
+Aug 23 17:14:05 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+Aug 23 17:14:05 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -xeu chatty-ai.service
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://www.debian.org/support
+░░ 
+░░ The unit chatty-ai.service has entered the 'failed' state with result 'exit-code'.
+Aug 23 17:14:05 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
+░░ Subject: A start job for unit chatty-ai.service has failed
+░░ Defined-By: systemd
+░░ Support: https://www.debian.org/support
+░░ 
+░░ A start job for unit chatty-ai.service has finished with a failure.
+░░ 
+░░ The job identifier is 1782 and the job result is failed.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://www.debian.org/support
+░░ 
+░░ The unit chatty-ai.service has entered the 'failed' state with result 'exit-code'.
+Aug 23 17:14:25 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
+░░ Subject: A start job for unit chatty-ai.service has failed
+░░ Defined-By: systemd
+░░ Support: https://www.debian.org/support
+░░ 
+░░ A start job for unit chatty-ai.service has finished with a failure.
+░░ 
+░░ The job identifier is 1865 and the job result is failed.
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+How can we fix this error?
+
+
+
+
+
+
+
+
+
+
 
