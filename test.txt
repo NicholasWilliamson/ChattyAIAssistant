@@ -1,96 +1,70 @@
 Thank you, Claude,
 
-I made the changes you recommended.
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai-preloader.service
+● chatty-ai-preloader.service - Chatty AI Model Preloader
+     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; disabled; preset: enabled)
+     Active: active (running) since Sat 2025-08-23 17:13:33 AEST; 17min ago
+       Docs: https://github.com/NicholasWilliamson/ChattyAIAssistant
+   Main PID: 3145 (python3)
+      Tasks: 19 (limit: 9571)
+        CPU: 4min 18.663s
+     CGroup: /system.slice/chatty-ai-preloader.service
+             └─3145 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/model_preloader.py
 
-My chatty-ai-preloader.service file is as follows:
-
-chatty-ai-preloader.service
-[Unit]
-Description=Chatty AI Model Preloader
-Documentation=https://github.com/NicholasWilliamson/ChattyAIAssistant
-After=network.target
-Wants=network-online.target
-Before=chatty-ai.service
-
-[Service]
-Type=simple
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
-Environment=CHATTY_AI_ENV=production
-
-# Preload models at startup
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/model_preloader.py
-
-# Restart policy
-Restart=always
-RestartSec=30
-StartLimitInterval=300
-StartLimitBurst=5
-
-# Resource limits (adjust based on your Pi's memory)
-MemoryMax=2G
-MemoryHigh=1.5G
-
-# Security settings
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ReadWritePaths=/home/nickspi5/Chatty_AI /tmp
-
-[Install]
-WantedBy=multi-user.target
-
-My chatty-ai.service file is as follows:
-
-chatty-ai.service
-[Unit]
-Description=Chatty AI Web Interface
-After=network.target chatty-ai-preloader.service
-Wants=network-online.target
-Requires=chatty-ai-preloader.service
-
-[Service]
-Type=notify
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
-Environment=CHATTY_AI_ENV=production
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
-ExecReload=/bin/kill -s HUP $MAINPID
-Restart=always
-RestartSec=10
-StartLimitInterval=60
-StartLimitBurst=3
-NoNewPrivileges=true
-
-[Install]
-WantedBy=multi-user.target
-
-I then ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x model_preloader.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai-preloader.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai-preloader.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-Job for chatty-ai.service failed because the control process exited with error code.
-See "systemctl status chatty-ai.service" and "journalctl -xeu chatty-ai.service" for details.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
-× chatty-ai.service - Chatty AI Web Interface
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: failed (Result: exit-code) since Sat 2025-08-23 17:14:05 AEST; 1min 19s ago
-   Duration: 434ms
-    Process: 3179 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app (code=exit>
-   Main PID: 3179 (code=exited, status=3)
-     Status: "Gunicorn arbiter booted"
-        CPU: 741ms
-
+Aug 23 17:19:05 raspberrypi1 python3[3145]: 2025-08-23 17:19:05,937 - INFO - Detected language 'en' with probability 0.66
+Aug 23 17:19:21 raspberrypi1 python3[3145]: 2025-08-23 17:19:21,483 - INFO - 🔥 Periodic warmup completed
+Aug 23 17:24:21 raspberrypi1 python3[3145]: 2025-08-23 17:24:21,483 - INFO - 🔥 Periodic model warmup...
+Aug 23 17:24:21 raspberrypi1 python3[3145]: 2025-08-23 17:24:21,603 - INFO - Processing audio with duration 00:00.500
+Aug 23 17:24:22 raspberrypi1 python3[3145]: 2025-08-23 17:24:22,979 - INFO - Detected language 'en' with probability 0.61
+Aug 23 17:24:44 raspberrypi1 python3[3145]: 2025-08-23 17:24:44,337 - INFO - 🔥 Periodic warmup completed
+Aug 23 17:29:44 raspberrypi1 python3[3145]: 2025-08-23 17:29:44,337 - INFO - 🔥 Periodic model warmup...
+Aug 23 17:29:44 raspberrypi1 python3[3145]: 2025-08-23 17:29:44,454 - INFO - Processing audio with duration 00:00.500
+Aug 23 17:29:45 raspberrypi1 python3[3145]: 2025-08-23 17:29:45,825 - INFO - Detected language 'en' with probability 0.66
+Aug 23 17:30:01 raspberrypi1 python3[3145]: 2025-08-23 17:30:01,529 - INFO - 🔥 Periodic warmup completed
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tail -f /home/nickspi5/Chatty_AI/model_preloader.log
+2025-08-23 17:19:05,937 - INFO - Detected language 'en' with probability 0.66
+2025-08-23 17:19:21,483 - INFO - 🔥 Periodic warmup completed
+2025-08-23 17:24:21,483 - INFO - 🔥 Periodic model warmup...
+2025-08-23 17:24:21,603 - INFO - Processing audio with duration 00:00.500
+2025-08-23 17:24:22,979 - INFO - Detected language 'en' with probability 0.61
+2025-08-23 17:24:44,337 - INFO - 🔥 Periodic warmup completed
+2025-08-23 17:29:44,337 - INFO - 🔥 Periodic model warmup...
+2025-08-23 17:29:44,454 - INFO - Processing audio with duration 00:00.500
+2025-08-23 17:29:45,825 - INFO - Detected language 'en' with probability 0.66
+2025-08-23 17:30:01,529 - INFO - 🔥 Periodic warmup completed
+^C
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat /tmp/chatty_ai_models_ready
+cat: /tmp/chatty_ai_models_ready: No such file or directory
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat /tmp/chatty_ai_models_ready
+cat: /tmp/chatty_ai_models_ready: No such file or directory
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo cat /tmp/chatty_ai_models_ready
+cat: /tmp/chatty_ai_models_ready: No such file or directory
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service --no-pager -l
+Aug 23 12:33:10 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 23 12:33:12 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 23 12:33:28 raspberrypi1 gunicorn[1037]: Server initialized for threading.
+Aug 23 12:33:28 raspberrypi1 gunicorn[1037]: 2025-08-23 12:33:28,489 - INFO - Server initialized for threading.
+Aug 23 12:33:28 raspberrypi1 gunicorn[1037]: 2025-08-23 12:33:28,493 - INFO - ChattyAI Web Server initialized
+Aug 23 17:13:31 raspberrypi1 systemd[1]: Stopping chatty-ai.service - Chatty AI Web Interface...
+Aug 23 17:13:32 raspberrypi1 systemd[1]: chatty-ai.service: Deactivated successfully.
+Aug 23 17:13:32 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:32 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 9.182s CPU time.
+Aug 23 17:13:33 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 23 17:13:33 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:33 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED
+Aug 23 17:13:33 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+Aug 23 17:13:43 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 1.
+Aug 23 17:13:43 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:43 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 23 17:13:44 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:44 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED
+Aug 23 17:13:44 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+Aug 23 17:13:54 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 2.
+Aug 23 17:13:54 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:54 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Aug 23 17:13:54 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Aug 23 17:13:55 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED
+Aug 23 17:13:55 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
 Aug 23 17:14:05 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 3.
 Aug 23 17:14:05 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
 Aug 23 17:14:05 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
@@ -99,38 +73,142 @@ Aug 23 17:14:05 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Cha
 Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
 Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
 Aug 23 17:14:25 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -xeu chatty-ai.service
-░░ Subject: Unit failed
-░░ Defined-By: systemd
-░░ Support: https://www.debian.org/support
-░░ 
-░░ The unit chatty-ai.service has entered the 'failed' state with result 'exit-code'.
-Aug 23 17:14:05 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
-░░ Subject: A start job for unit chatty-ai.service has failed
-░░ Defined-By: systemd
-░░ Support: https://www.debian.org/support
-░░ 
-░░ A start job for unit chatty-ai.service has finished with a failure.
-░░ 
-░░ The job identifier is 1782 and the job result is failed.
-Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Start request repeated too quickly.
-Aug 23 17:14:25 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-░░ Subject: Unit failed
-░░ Defined-By: systemd
-░░ Support: https://www.debian.org/support
-░░ 
-░░ The unit chatty-ai.service has entered the 'failed' state with result 'exit-code'.
-Aug 23 17:14:25 raspberrypi1 systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Interface.
-░░ Subject: A start job for unit chatty-ai.service has failed
-░░ Defined-By: systemd
-░░ Support: https://www.debian.org/support
-░░ 
-░░ A start job for unit chatty-ai.service has finished with a failure.
-░░ 
-░░ The job identifier is 1865 and the job result is failed.
-
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "from wsgi import app; print('WSGI app loads successfully')"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/nickspi5/Chatty_AI/wsgi.py", line 11, in <module>
+    from chatty_ai import ChattyAIWebServer
+  File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 914
+    def handle_start_system():
+IndentationError: unexpected unindent
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I think I see the error being caused by an indentation error in the def handle_start_system(): method in my chatty_ai.py Python script.
+
+chatty_ai.py
+# more code ...
+           except Exception as e:
+                logger.error(f"Error sending initial system info: {e}")
+
+        @self.socketio.on('disconnect')
+        def handle_disconnect():
+            """Handle client disconnection"""
+            client_id = request.sid
+            self.clients.discard(client_id)
+            logger.info(f"Client disconnected: {client_id}. Total clients: {len(self.clients)}")
+
+        @self.socketio.on('start_system')
+    def handle_start_system():
+        """Handle start system request with preloader service integration"""
+        client_id = request.sid
+        logger.info(f"Received start system request from client: {client_id}")
+    
+        try:
+            if not self.system_running:
+                self.emit_log("🚀 Starting Chatty AI system...", 'info')
+            
+                # Check if preloader service is running
+                try:
+                    result = subprocess.run(['systemctl', 'is-active', 'chatty-ai-preloader'], 
+                                            capture_output=True, text=True, timeout=5)
+                    if result.returncode == 0 and result.stdout.strip() == 'active':
+                        self.emit_log("✅ Model preloader service is active", 'success')
+                    else:
+                        self.emit_log("⚠️ Model preloader service not active, models will load fresh", 'warning')
+                except Exception as e:
+                    self.emit_log(f"⚠️ Could not check preloader service: {e}", 'warning')
+            
+                # Load response files
+                if not self.load_response_files():
+                    emit('status_update', {
+                        'status': 'error',
+                        'is_running': False,
+                        'message': 'Failed to load response files'
+                    })
+                    return
+            
+                # Load AI models (will use preloaded if available)
+                if not self.load_models():
+                    emit('status_update', {
+                        'status': 'error',
+                        'is_running': False,
+                        'message': 'Failed to load AI models'
+                    })
+                    return
+            
+                # Load face encodings (this will be handled by the preloader too)
+                if not self.load_encodings():
+                    emit('status_update', {
+                        'status': 'error',
+                        'is_running': False,
+                        'message': 'Failed to load face encodings'
+                    })
+                    return
+            
+                # Load Telegram config
+                self.load_telegram_config()
+            
+                # Setup camera
+                if not self.setup_camera():
+                    emit('status_update', {
+                        'status': 'error',
+                        'is_running': False,
+                        'message': 'Failed to initialize camera'
+                    })
+                    return
+            
+                # Start system monitoring
+                if not self.monitor_running:
+                    self.monitor_running = True
+                    self.system_monitor_thread = threading.Thread(
+                        target=self.system_monitor_loop, daemon=True)
+                    self.system_monitor_thread.start()
+                    logger.info("System monitoring thread started")
+            
+                # Start camera monitoring
+                self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+                # Set system_running to True BEFORE starting threads
+                self.system_running = True
+                self.monitor_running = True
+                self.camera_thread.start()
+            
+                # Start wake word detection
+                self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+                self.audio_thread.start()
+            
+                self.emit_log("✅ Chatty AI system started successfully", 'success')
+            
+                response_data = {
+                    'status': 'running',
+                    'is_running': True,
+                    'message': 'Chatty AI system started successfully'
+                }
+            
+                # Send to all clients
+                self.socketio.emit('status_update', response_data)
+                logger.info("System started successfully - status sent to all clients")
+            
+            else:
+                emit('status_update', {
+                    'status': 'running',
+                    'is_running': True,
+                    'message': 'System is already running'
+                })
+                logger.info("Start system requested but system already running")
+            
+        except Exception as e:
+            logger.error(f"Error starting system: {e}")
+            emit('status_update', {
+                'status': 'error',
+                'is_running': False,
+                'message': f'Error starting system: {e}'
+            })
+
+        @self.socketio.on('stop_system')
+        def handle_stop_system():
+            """Handle stop system request"""
+            client_id = request.sid
+# more code ...
 
 How can we fix this error?
 
