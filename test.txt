@@ -1,47 +1,86 @@
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai-preloader.service
-Created symlink /etc/systemd/system/multi-user.target.wants/chatty-ai-preloader.service → /etc/systemd/system/chatty-ai-preloader.service.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la /tmp/
-total 100
-drwxrwxrwt 21 root     root     12288 Aug 23 19:39 .
-drwxr-xr-x 18 root     root      4096 May 13 10:17 ..
--rw-r--r--  1 nickspi5 nickspi5     0 Aug 23 19:22 chatty_ai_models_ready
--rw-r--r--  1 nickspi5 nickspi5     5 Aug 23 18:56 chatty_ai.pid
-drwxrwxrwt  2 root     root      4096 Aug 23 12:33 .font-unix
-srw----rw-  1 root     root         0 Aug 23 12:33 hailort_uds.sock
-drwxrwxrwt  2 root     root      4096 Aug 23 12:33 .ICE-unix
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.4nAesc
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.7g47vE
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.ddq1Sv
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:38 .org.chromium.Chromium.hivdxL
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.k3MyZR
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.RYwQEU
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 19:39 .org.chromium.Chromium.WuuyP8
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 12:33 pulse-PKdhtXMmr18n
-drwx------  2 nickspi5 nickspi5  4096 Aug 23 12:33 ssh-FCwvTpvpg00a
-drwx------  3 root     root      4096 Aug 23 12:33 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-bluetooth.service-GnzWWP
-drwx------  3 root     root      4096 Aug 23 17:13 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-chatty-ai-preloader.service-ojwXVq
-drwx------  3 root     root      4096 Aug 23 12:33 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-ModemManager.service-3dyWBP
-drwx------  3 root     root      4096 Aug 23 12:33 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-systemd-logind.service-nCoDu5
-drwx------  3 root     root      4096 Aug 23 12:33 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-systemd-timesyncd.service-oVFipH
-drwx------  3 root     root      4096 Aug 23 13:04 systemd-private-9b5a2faf99104db098c77baf9d1f8bf0-upower.service-whDbJM
--r--r--r--  1 nickspi5 nickspi5    11 Aug 23 12:33 .X0-lock
-drwxrwxrwt  2 root     root      4096 Aug 23 12:33 .X11-unix
-drwxrwxrwt  2 root     root      4096 Aug 23 12:33 .XIM-unix
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai-preloader.service
-sleep 15
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat /tmp/chatty_ai_models_ready
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "5000/5001" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "video_feed\|/video" /home/nickspi5/Chatty_AI/chatty_ai.py
+804:        @self.app.route('/video_feed')
+805:        def video_feed():
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "5001\|5000" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
+923:            }, 5000);
+986:        }, 5000); // Refresh every 5 seconds when system is running
+993:        }, 5000); // Every 5 seconds for real-time monitoring
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -I http://localhost:5000/video_feed
+HTTP/1.1 200 OK
+Server: gunicorn
+Date: Sat, 23 Aug 2025 10:27:23 GMT
+Connection: keep-alive
+Content-Type: multipart/x-mixed-replace; boundary=frame
+
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service -f
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,608 - INFO - received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet PING data None
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,669 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet PING data None
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Received packet PONG data
+Aug 23 20:37:44 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:44,670 - INFO - b-7yr_TphYf1OO4DAAAC: Received packet PONG data
+Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:45,618 - INFO - emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.5,"memory_percent":39.9,"memory_used":3140337664,"memory_total":8453832704,"cpu_temp":51.0,"gpu_temp":52.0,"timestamp":"2025-08-23T20:37:45.618066","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
+Aug 23 20:37:45 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:45,619 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.5,"memory_percent":39.9,"memory_used":3140337664,"memory_total":8453832704,"cpu_temp":51.0,"gpu_temp":52.0,"timestamp":"2025-08-23T20:37:45.618066","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
+Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Received packet MESSAGE data 2["get_system_info"]
+Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:49,607 - INFO - b-7yr_TphYf1OO4DAAAC: Received packet MESSAGE data 2["get_system_info"]
+Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:49 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:49,608 - INFO - received event "get_system_info" from 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:50,614 - INFO - emitting event "system_info" to 9qpbVNvZQ4y1AXX1AAAD [/]
+Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.7,"memory_percent":40.0,"memory_used":3145138176,"memory_total":8453832704,"cpu_temp":52.1,"gpu_temp":53.1,"timestamp":"2025-08-23T20:37:50.614774","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
+Aug 23 20:37:50 raspberrypi1 gunicorn[5095]: 2025-08-23 20:37:50,615 - INFO - b-7yr_TphYf1OO4DAAAC: Sending packet MESSAGE data 2["system_info",{"cpu_percent":1.7,"memory_percent":40.0,"memory_used":3145138176,"memory_total":8453832704,"cpu_temp":52.1,"gpu_temp":53.1,"timestamp":"2025-08-23T20:37:50.614774","camera_initialized":true,"models_loaded":true,"wake_word_active":false,"current_person":"No person detected"}]
+^C
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ lsusb | grep -i camera
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras
+bash: libcamera-hello: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo lsusb | grep -i camera
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo libcamera-hello --list-cameras
+sudo: libcamera-hello: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "import cv2; cap = cv2.VideoCapture(0); ret, frame = cap.read(); print('Camera works:', ret); cap.release()"
+Camera works: False
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -A 2 -B 2 "io.connect\|video_feed\|5001\|5000" /home/nickspi5/Chatty_AI/templates/Chatty_AI.html
+            <div class="video-container">
+                <div class="area-title">Live Camera Feed</div>
+                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
+            </div>
+            <div class="image-container">
+--
+                    stopButton.disabled = false;
+                }
+            }, 5000);
+        }
+
+--
+        setInterval(() => {
+            if (videoFeed.complete && isSystemRunning) {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }
+        }, 30000); // Refresh every 30 seconds
+--
+            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
+            setTimeout(() => {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }, 2000);
+        });
+--
+                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            }
+        }, 5000); // Refresh every 5 seconds when system is running
+
+        // Request system info periodically
+--
+                socket.emit('get_system_info');
+            }
+        }, 5000); // Every 5 seconds for real-time monitoring
+
+        // Enhanced error handling for socket events
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I then opened up http://localhost:500 in my Chromium browser on my Raspberry PI 5 and clicked on the Start Service button.
-
-However, the live camera preview still does not display.
-
-How can I fix this?
 
 
 
