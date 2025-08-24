@@ -1,305 +1,160 @@
-Thank you, Claude,
+# Fix 1: Update the silence detection threshold and add it to configuration
+# Add this to your configuration section at the top of the file:
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ /usr/bin/libcamera-hello --list-cameras
-bash: /usr/bin/libcamera-hello: No such file or directory
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --timeout 5000
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ v4l2-ctl --list-devices
-pispbe (platform:1000880000.pisp_be):
-	/dev/video20
-	/dev/video21
-	/dev/video22
-	/dev/video23
-	/dev/video24
-	/dev/video25
-	/dev/video26
-	/dev/video27
-	/dev/video28
-	/dev/video29
-	/dev/video30
-	/dev/video31
-	/dev/video32
-	/dev/video33
-	/dev/video34
-	/dev/video35
-	/dev/media2
-	/dev/media3
+# Audio parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+SILENCE_THRESHOLD = 0.035  # Increased from 0.015 to 0.035 for better silence detection
+MIN_SILENCE_DURATION = 1.5  # Keep at 1.5 seconds
+MAX_RECORDING_DURATION = 30
+LLM_MAX_TOKENS = 50  # Reduced from 100 to 50 tokens
 
-rp1-cfe (platform:1f00110000.csi):
-	/dev/video0
-	/dev/video1
-	/dev/video2
-	/dev/video3
-	/dev/video4
-	/dev/video5
-	/dev/video6
-	/dev/video7
-	/dev/media0
+# Fix 2: Update the record_with_silence_detection method
+def record_with_silence_detection(self):
+    """Record audio until silence detected with improved detection"""
+    try:
+        with self.audio_recording_lock:
+            self.emit_log("🎙️ Recording user audio...", 'info')
+            audio_data = []
+            silence_duration = 0
+            recording_duration = 0
+            check_interval = 0.1  # Check more frequently (was 0.2)
+            samples_per_check = int(SAMPLE_RATE * check_interval)
+            
+            # Track audio levels for debugging
+            recent_levels = []
+            
+            def audio_callback(indata, frames, time, status):
+                if status:
+                    self.emit_log(f"🔊 Audio callback status: {status}", 'warning')
+                audio_data.extend(indata[:, 0])
 
-rpi-hevc-dec (platform:rpi-hevc-dec):
-	/dev/video19
-	/dev/media1
+            with sd.InputStream(callback=audio_callback,
+                               samplerate=SAMPLE_RATE,
+                               channels=CHANNELS,
+                               dtype='float32'):
+                
+                while recording_duration < MAX_RECORDING_DURATION:
+                    time.sleep(check_interval)
+                    recording_duration += check_interval
+                    
+                    if len(audio_data) >= samples_per_check:
+                        # Get recent audio segment
+                        recent_audio = np.array(audio_data[-samples_per_check:])
+                        rms = np.sqrt(np.mean(recent_audio**2))
+                        recent_levels.append(rms)
+                        
+                        # Keep only last 10 levels for debugging
+                        if len(recent_levels) > 10:
+                            recent_levels = recent_levels[-10:]
+                        
+                        # Log audio levels every 2 seconds for debugging
+                        if int(recording_duration * 10) % 20 == 0:  # Every 2 seconds
+                            avg_level = sum(recent_levels) / len(recent_levels) if recent_levels else 0
+                            self.emit_log(f"🔊 Audio level: {rms:.4f} (avg: {avg_level:.4f}, threshold: {SILENCE_THRESHOLD:.4f})", 'debug')
+                        
+                        if rms < SILENCE_THRESHOLD:
+                            silence_duration += check_interval
+                            if silence_duration >= MIN_SILENCE_DURATION:
+                                self.emit_log(f"🤫 Silence detected after {recording_duration:.1f}s (RMS: {rms:.4f} < {SILENCE_THRESHOLD:.4f})", 'info')
+                                break
+                        else:
+                            silence_duration = 0  # Reset silence counter if sound detected
 
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ v4l2-ctl --device=/dev/video0 --info
-Driver Info:
-	Driver name      : rp1-cfe
-	Card type        : rp1-cfe
-	Bus info         : platform:1f00110000.csi
-	Driver version   : 6.12.34
-	Capabilities     : 0xaca00001
-		Video Capture
-		Metadata Capture
-		Metadata Output
-		Streaming
-		Extended Pix Format
-		Device Capabilities
-	Device Caps      : 0x24a00001
-		Video Capture
-		Metadata Capture
-		Streaming
-		Extended Pix Format
-Media Driver Info:
-	Driver name      : rp1-cfe
-	Model            : rp1-cfe
-	Serial           : 
-	Bus info         : platform:1f00110000.csi
-	Media version    : 6.12.34
-	Hardware revision: 0x00114666 (1132134)
-	Driver version   : 6.12.34
-Interface Info:
-	ID               : 0x03000014
-	Type             : V4L Video
-Entity Info:
-	ID               : 0x00000012 (18)
-	Name             : rp1-cfe-csi2_ch0
-	Function         : V4L2 I/O
-	Pad 0x01000013   : 0: Sink, Must Connect
-	  Link 0x02000034: from remote pad 0x1000006 of entity 'csi2' (Video Interface Bridge): Data
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ v4l2-ctl --device=/dev/video1 --info
-Driver Info:
-	Driver name      : rp1-cfe
-	Card type        : rp1-cfe
-	Bus info         : platform:1f00110000.csi
-	Driver version   : 6.12.34
-	Capabilities     : 0xaca00001
-		Video Capture
-		Metadata Capture
-		Metadata Output
-		Streaming
-		Extended Pix Format
-		Device Capabilities
-	Device Caps      : 0x24a00000
-		Metadata Capture
-		Streaming
-		Extended Pix Format
-Media Driver Info:
-	Driver name      : rp1-cfe
-	Model            : rp1-cfe
-	Serial           : 
-	Bus info         : platform:1f00110000.csi
-	Media version    : 6.12.34
-	Hardware revision: 0x00114666 (1132134)
-	Driver version   : 6.12.34
-Interface Info:
-	ID               : 0x03000018
-	Type             : V4L Video
-Entity Info:
-	ID               : 0x00000016 (22)
-	Name             : rp1-cfe-embedded
-	Function         : V4L2 I/O
-	Pad 0x01000017   : 0: Sink, Must Connect
-	  Link 0x02000038: from remote pad 0x1000007 of entity 'csi2' (Video Interface Bridge): Data
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ lsusb | grep -i camera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
-import cv2
-print('Testing different backends...')
+            if audio_data:
+                audio_array = np.array(audio_data, dtype=np.float32)
+                sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                final_rms = np.sqrt(np.mean(audio_array**2))
+                self.emit_log(f"💾 Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration, final RMS: {final_rms:.4f}", 'success')
+                return True
+            
+            self.emit_log("❌ No audio data recorded", 'error')
+            return False
+            
+    except Exception as e:
+        self.emit_log(f"🔴 Recording error: {e}", 'error')
+        return False
 
-# Try with different backends
-backends = [cv2.CAP_ANY, cv2.CAP_V4L2, cv2.CAP_GSTREAMER]
-backend_names = ['CAP_ANY', 'CAP_V4L2', 'CAP_GSTREAMER']
+# Fix 3: Update the query_llama method to use configurable token limit
+def query_llama(self, prompt):
+    """Generate LLM response with configurable token limit"""
+    formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+    
+    try:
+        self.emit_log(f"🤖 Querying LLM with max tokens: {LLM_MAX_TOKENS}", 'debug')
+        
+        result = self.llama_model(formatted_prompt, max_tokens=LLM_MAX_TOKENS)
+        
+        if "choices" in result and result["choices"]:
+            reply_text = result["choices"][0]["text"].strip()
+            
+            # Clean up the response
+            reply_text = re.sub(r"\(.*?\)", "", reply_text)  # Remove parenthetical content
+            reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)  # Remove labels
+            reply_text = reply_text.strip()
+            
+            # Limit to reasonable number of sentences for speech
+            sentences = reply_text.split('.')
+            if len(sentences) > 3:
+                reply_text = '. '.join(sentences[:3]) + '.'
+            
+            self.emit_log(f"✅ LLM response generated: {len(reply_text)} characters", 'debug')
+            return reply_text
+        else:
+            self.emit_log("⚠️ LLM returned no valid response", 'warning')
+            return "I'm not sure how to answer that."
+            
+    except Exception as e:
+        self.emit_log(f"🔴 LLM error: {e}", 'error')
+        return "Sorry, I had trouble processing that question."
 
-for i, (backend, name) in enumerate(zip(backends, backend_names)):
-    print(f'\\nTesting {name}:')
-    for cam_idx in range(8):  # Test more indices since you have /dev/video0-7
-        cap = cv2.VideoCapture(cam_idx, backend)
-        if cap.isOpened():
-            ret, frame = cap.read()
-            if ret and frame is not None:
-                print(f'  ✅ Camera {cam_idx} works with {name}! Frame shape: {frame.shape}')
-                cap.release()
-                break
+# Fix 4: Add a configuration method to easily change settings
+def update_audio_settings(self, silence_threshold=None, min_silence_duration=None, max_tokens=None):
+    """Update audio and LLM settings dynamically"""
+    global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
+    
+    if silence_threshold is not None:
+        SILENCE_THRESHOLD = silence_threshold
+        self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
+    
+    if min_silence_duration is not None:
+        MIN_SILENCE_DURATION = min_silence_duration
+        self.emit_log(f"⚙️ Updated min silence duration to {MIN_SILENCE_DURATION:.1f}s", 'info')
+    
+    if max_tokens is not None:
+        LLM_MAX_TOKENS = max_tokens
+        self.emit_log(f"⚙️ Updated LLM max tokens to {LLM_MAX_TOKENS}", 'info')
+
+# Fix 5: Improved wake word recording with better threshold
+def record_wake_word_check(self):
+    """Record short audio clip for wake word detection with improved sensitivity"""
+    try:
+        if not self.audio_recording_lock.acquire(blocking=False):
+            return False  # Audio system is busy
+        
+        try:
+            # Record 5 seconds of audio for wake word detection
+            audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+            sd.wait()
+            
+            # Check if audio contains sound above threshold
+            rms = np.sqrt(np.mean(audio_data**2))
+            wake_word_threshold = SILENCE_THRESHOLD * 1.2  # Slightly lower threshold for wake word
+            
+            self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+            
+            if rms > wake_word_threshold:
+                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                self.emit_log(f"💾 Wake word audio saved - RMS {rms:.4f} exceeded threshold", 'info')
+                return True
             else:
-                print(f'  ⚠️ Camera {cam_idx} opens but no frames with {name}')
-        cap.release()
-"
-Testing different backends...
-
-Testing CAP_ANY:
-  ⚠️ Camera 0 opens but no frames with CAP_ANY
-[ WARN:0@0.031] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.033] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-  ⚠️ Camera 2 opens but no frames with CAP_ANY
-  ⚠️ Camera 3 opens but no frames with CAP_ANY
-  ⚠️ Camera 4 opens but no frames with CAP_ANY
-  ⚠️ Camera 5 opens but no frames with CAP_ANY
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.040] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-[ WARN:0@0.040] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.041] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-
-Testing CAP_V4L2:
-  ⚠️ Camera 0 opens but no frames with CAP_V4L2
-[ WARN:0@0.043] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.043] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-  ⚠️ Camera 2 opens but no frames with CAP_V4L2
-  ⚠️ Camera 3 opens but no frames with CAP_V4L2
-  ⚠️ Camera 4 opens but no frames with CAP_V4L2
-  ⚠️ Camera 5 opens but no frames with CAP_V4L2
-[ WARN:0@0.051] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.051] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.051] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.051] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-Testing CAP_GSTREAMER:
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ lsusb | grep -i camera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
-import cv2
-print('Testing different backends...')
-
-# Try with different backends
-backends = [cv2.CAP_ANY, cv2.CAP_V4L2, cv2.CAP_GSTREAMER]
-backend_names = ['CAP_ANY', 'CAP_V4L2', 'CAP_GSTREAMER']
-
-for i, (backend, name) in enumerate(zip(backends, backend_names)):
-    print(f'\\nTesting {name}:')
-    for cam_idx in range(8):  # Test more indices since you have /dev/video0-7
-        cap = cv2.VideoCapture(cam_idx, backend)
-        if cap.isOpened():
-            ret, frame = cap.read()
-            if ret and frame is not None:
-                print(f'  ✅ Camera {cam_idx} works with {name}! Frame shape: {frame.shape}')
-                cap.release()
-                break
-            else:
-                print(f'  ⚠️ Camera {cam_idx} opens but no frames with {name}')
-        cap.release()
-"
-Testing different backends...
-
-Testing CAP_ANY:
-  ⚠️ Camera 0 opens but no frames with CAP_ANY
-[ WARN:0@0.031] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.032] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.033] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-  ⚠️ Camera 2 opens but no frames with CAP_ANY
-  ⚠️ Camera 3 opens but no frames with CAP_ANY
-  ⚠️ Camera 4 opens but no frames with CAP_ANY
-  ⚠️ Camera 5 opens but no frames with CAP_ANY
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.039] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.040] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-[ WARN:0@0.040] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:82 xioctl ioctl: fd=3, req=-2140645888
-[ WARN:0@0.040] global obsensor_stream_channel_v4l2.cpp:138 queryUvcDeviceInfoList ioctl error return: 25
-[ERROR:0@0.041] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
-
-Testing CAP_V4L2:
-  ⚠️ Camera 0 opens but no frames with CAP_V4L2
-[ WARN:0@0.043] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.043] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-  ⚠️ Camera 2 opens but no frames with CAP_V4L2
-  ⚠️ Camera 3 opens but no frames with CAP_V4L2
-  ⚠️ Camera 4 opens but no frames with CAP_V4L2
-  ⚠️ Camera 5 opens but no frames with CAP_V4L2
-[ WARN:0@0.051] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.051] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.051] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.051] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-Testing CAP_GSTREAMER:
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
-🔍 Raspberry Pi 5 Camera Diagnostic
-==================================================
-=== Testing libcamera directly ===
-❌ libcamera not available: [Errno 2] No such file or directory: 'libcamera-hello'
-
-=== Testing OpenCV with GStreamer libcamera ===
-❌ Could not open GStreamer libcamera pipeline
-
-=== Extended V4L2 Test ===
-⚠️ /dev/video0 opens but no frames
-[ WARN:0@0.021] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.021] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-⚠️ /dev/video2 opens but no frames
-⚠️ /dev/video3 opens but no frames
-⚠️ /dev/video4 opens but no frames
-⚠️ /dev/video5 opens but no frames
-[ WARN:0@0.029] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.029] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.029] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.029] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-==================================================
-📋 SUMMARY:
-libcamera command: ❌ Not working
-GStreamer pipeline: ❌ Not working
-V4L2 cameras: ❌ None working
-
-❌ No working camera found. Check hardware connections.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I would also like to point out that I am not using a USB Camera. I have a PI Camera Module 2 camera attached via it's cable to my Raspberry PI 5 board.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                self.emit_log(f"🔇 Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+                return False
+                
+        finally:
+            self.audio_recording_lock.release()
+            
+    except Exception as e:
+        self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+        return False
 
