@@ -1,84 +1,73 @@
-Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease                                             
-Hit:3 https://download.docker.com/linux/debian bookworm InRelease                                                   
-Hit:4 http://deb.debian.org/debian bookworm-updates InRelease                         
-Hit:5 http://archive.raspberrypi.com/debian bookworm InRelease  
-Reading package lists... Done                              
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y libcamera-tools
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-libcamera-tools is already the newest version (0.5.1+rpt20250722-1).
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt -y gstreamer1.0-libcamera
-E: Invalid operation gstreamer1.0-libcamera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y gstreamer1.0-libcamera
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-gstreamer1.0-libcamera is already the newest version (0.5.1+rpt20250722-1).
-gstreamer1.0-libcamera set to manually installed.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --timeout 5000
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras --verbose
-bash: libcamera-hello: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-still -o test_image.jpg --timeout 2000
-bash: libcamera-still: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la test_image.jpg
-ls: cannot access 'test_image.jpg': No such file or directory
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
-🔍 Testing Pi Camera Module 2 with OpenCV
-==================================================
 
-Testing pipeline 1: libcamerasrc ! video/x-raw,width=640,height=480,format=BGR ! appsink drop=1
-❌ Could not open pipeline
+# Find where libcamera tools are installed
+echo "=== Searching for libcamera tools ==="
+find /usr -name "libcamera-hello" 2>/dev/null
+find /opt -name "libcamera-hello" 2>/dev/null
+find /bin -name "libcamera-hello" 2>/dev/null
+find /usr/local -name "libcamera-hello" 2>/dev/null
 
-Testing pipeline 2: libcamerasrc ! video/x-raw,width=640,height=480,framerate=30/1,format=BGR ! appsink drop=1
-❌ Could not open pipeline
+# Check if they're in common locations
+ls -la /usr/bin/libcamera* 2>/dev/null || echo "Not in /usr/bin"
+ls -la /opt/vc/bin/libcamera* 2>/dev/null || echo "Not in /opt/vc/bin"
+ls -la /usr/local/bin/libcamera* 2>/dev/null || echo "Not in /usr/local/bin"
 
-Testing pipeline 3: libcamerasrc camera-name=0 ! video/x-raw,width=640,height=480,format=BGR ! appsink drop=1
-❌ Could not open pipeline
+# Check what the libcamera-tools package actually installed
+dpkg -L libcamera-tools | grep bin
 
-Testing pipeline 4: libcamerasrc ! videoconvert ! video/x-raw,format=BGR ! appsink
-❌ Could not open pipeline
+# Check if there are alternative command names
+which libcamera-hello 2>/dev/null || echo "libcamera-hello not in PATH"
+which cam 2>/dev/null || echo "cam not in PATH"
 
-❌ No working pipeline found
+# Show current PATH
+echo "=== Current PATH ==="
+echo $PATH
 
-❌ No working camera configuration found
-Check that:
-1. Camera ribbon cable is properly connected
-2. Camera is enabled in raspi-config
-3. libcamera-tools is installed
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I see errors such as bash: libcamera-hello: command not found
-
-I presume from this the error is that the libcamera suite of commands cannot be found.
-
-Let us fix this once and for all so my Chatty AI Assistant Web UI will work properly.
+# Check if we need to source something
+echo "=== Checking for setup scripts ==="
+ls -la /opt/vc/bin/ 2>/dev/null || echo "No /opt/vc/bin"
+ls -la /boot/config.txt | head -5
 
 
 
 
 
 
+# Try installing legacy camera tools as backup
+sudo apt install -y libraspberrypi-bin
 
+# Check if legacy tools work
+which raspistill
+which raspivid
 
+# Test legacy camera if available
+if command -v raspistill &> /dev/null; then
+    echo "Testing legacy raspistill..."
+    raspistill -o legacy_test.jpg -t 2000 -v
+else
+    echo "Legacy tools not available"
+fi
 
+# Alternative: Try cam utility (part of libcamera)
+if command -v cam &> /dev/null; then
+    echo "Testing cam utility..."
+    cam --list-cameras
+else
+    echo "cam utility not found"
+fi
 
+# Check if we need to enable legacy camera support
+echo "=== Current boot config ==="
+grep -E "(camera|gpu|legacy)" /boot/firmware/config.txt 2>/dev/null || \
+grep -E "(camera|gpu|legacy)" /boot/config.txt 2>/dev/null || \
+echo "Could not read boot config"
 
-
-
-
+# Add legacy camera support if needed
+echo "=== Checking if we need legacy camera support ==="
+if ! grep -q "start_x=1" /boot/firmware/config.txt 2>/dev/null && ! grep -q "start_x=1" /boot/config.txt 2>/dev/null; then
+    echo "Legacy camera support not enabled - this might be needed"
+    echo "You can enable it with: sudo raspi-config -> Advanced Options -> Legacy Camera"
+fi
 
 
 
