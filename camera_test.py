@@ -1,183 +1,184 @@
 #!/usr/bin/env python3
 """
-Comprehensive Raspberry Pi Camera Module test
-Tries multiple approaches to access Pi Camera Module 2
+Test LibCamera integration with OpenCV using the cam utility approach
 """
 
 import cv2
 import subprocess
-import sys
 import os
+import sys
 
-def test_command_available(cmd):
-    """Test if a command is available"""
+def check_camera_with_cam():
+    """Use cam utility to check camera availability"""
+    print("=== Testing with cam utility ===")
+    
     try:
-        result = subprocess.run(['which', cmd], capture_output=True)
-        return result.returncode == 0
-    except:
+        # List cameras
+        result = subprocess.run(['cam', '--list'], capture_output=True, text=True, timeout=10)
+        if result.returncode == 0:
+            print("✅ cam --list output:")
+            print(result.stdout)
+            return True
+        else:
+            print("❌ cam --list failed:")
+            print(result.stderr)
+            return False
+    except Exception as e:
+        print(f"❌ cam utility error: {e}")
         return False
 
-def test_direct_v4l2_devices():
-    """Test direct access to V4L2 devices with specific formats"""
-    print("=== Testing Direct V4L2 with Pi Camera Formats ===")
+def test_libcamerify():
+    """Test using libcamerify wrapper"""
+    print("\n=== Testing libcamerify wrapper ===")
     
-    working_configs = []
-    
-    # Common Pi Camera formats and resolutions
-    formats = [
-        {'width': 640, 'height': 480, 'fourcc': 'MJPG'},
-        {'width': 640, 'height': 480, 'fourcc': 'YUYV'},
-        {'width': 1920, 'height': 1080, 'fourcc': 'MJPG'},
-        {'width': 320, 'height': 240, 'fourcc': 'YUYV'},
-    ]
-    
-    for device_idx in range(8):  # Test /dev/video0 to /dev/video7
-        device_path = f"/dev/video{device_idx}"
-        if not os.path.exists(device_path):
-            continue
-            
-        print(f"\nTesting {device_path}:")
-        
-        for fmt in formats:
-            try:
-                cap = cv2.VideoCapture(device_idx, cv2.CAP_V4L2)
-                if not cap.isOpened():
-                    continue
-                
-                # Set format
-                if fmt['fourcc'] == 'MJPG':
-                    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
-                elif fmt['fourcc'] == 'YUYV':
-                    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y','U','Y','V'))
-                
-                cap.set(cv2.CAP_PROP_FRAME_WIDTH, fmt['width'])
-                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, fmt['height'])
-                cap.set(cv2.CAP_PROP_FPS, 30)
-                
-                # Try to read a frame
-                ret, frame = cap.read()
-                if ret and frame is not None:
-                    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                    
-                    print(f"  ✅ SUCCESS: {device_path} with {fmt['fourcc']} {actual_width}x{actual_height}")
-                    print(f"     Frame shape: {frame.shape}")
-                    
-                    working_configs.append({
-                        'device': device_idx,
-                        'format': fmt['fourcc'],
-                        'width': actual_width,
-                        'height': actual_height,
-                        'backend': cv2.CAP_V4L2
-                    })
-                    
-                    # Save test image
-                    cv2.imwrite(f'test_camera_{device_idx}_{fmt["fourcc"]}.jpg', frame)
-                    
-                else:
-                    print(f"  ❌ {device_path} {fmt['fourcc']} {fmt['width']}x{fmt['height']}: No frames")
-                
-                cap.release()
-                
-            except Exception as e:
-                print(f"  ❌ {device_path} {fmt['fourcc']}: {e}")
-    
-    return working_configs
+    try:
+        # Create a simple test script that uses cv2.VideoCapture
+        test_script = '''
+import cv2
+import sys
 
-def test_gstreamer_alternatives():
-    """Test alternative GStreamer approaches"""
-    print("\n=== Testing Alternative GStreamer Pipelines ===")
-    
-    # More GStreamer pipeline variations
-    pipelines = [
-        # Try with v4l2src instead of libcamerasrc
-        "v4l2src device=/dev/video0 ! video/x-raw,format=BGR,width=640,height=480 ! appsink",
-        "v4l2src device=/dev/video0 ! videoconvert ! video/x-raw,format=BGR ! appsink",
+cap = cv2.VideoCapture(0)
+if cap.isOpened():
+    ret, frame = cap.read()
+    if ret and frame is not None:
+        print(f"SUCCESS: Frame shape {frame.shape}")
+        cv2.imwrite("libcamerify_test.jpg", frame)
+        sys.exit(0)
+    else:
+        print("FAILED: No frames")
+        sys.exit(1)
+else:
+    print("FAILED: Cannot open camera")
+    sys.exit(1)
+cap.release()
+'''
         
-        # Try different video devices
-        "v4l2src device=/dev/video2 ! video/x-raw,format=BGR,width=640,height=480 ! appsink",
-        "v4l2src device=/dev/video2 ! videoconvert ! video/x-raw,format=BGR ! appsink",
+        # Write test script
+        with open('libcamerify_test.py', 'w') as f:
+            f.write(test_script)
         
-        # Try with MJPEG
-        "v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink",
+        # Run with libcamerify
+        result = subprocess.run(['libcamerify', 'python3', 'libcamerify_test.py'], 
+                              capture_output=True, text=True, timeout=15)
         
-        # Legacy approach
-        "v4l2src device=/dev/video0 ! video/x-raw,format=YUY2,width=640,height=480 ! videoconvert ! video/x-raw,format=BGR ! appsink",
-    ]
-    
-    for i, pipeline in enumerate(pipelines):
-        print(f"\nTesting pipeline {i+1}: {pipeline}")
+        print(f"libcamerify output: {result.stdout}")
+        if result.stderr:
+            print(f"libcamerify errors: {result.stderr}")
         
-        try:
-            cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+        if result.returncode == 0:
+            print("✅ libcamerify approach works!")
+            return True
+        else:
+            print("❌ libcamerify approach failed")
+            return False
             
+    except Exception as e:
+        print(f"❌ libcamerify test error: {e}")
+        return False
+    finally:
+        # Clean up
+        if os.path.exists('libcamerify_test.py'):
+            os.remove('libcamerify_test.py')
+
+def test_media_device_approach():
+    """Test using media device information"""
+    print("\n=== Testing media device approach ===")
+    
+    try:
+        # Check media devices
+        result = subprocess.run(['v4l2-ctl', '--list-devices'], capture_output=True, text=True)
+        print("Media devices:")
+        print(result.stdout)
+        
+        # Look for rp1-cfe devices and test them specifically
+        lines = result.stdout.split('\n')
+        rp1_devices = []
+        
+        capture_next = False
+        for line in lines:
+            if 'rp1-cfe' in line:
+                capture_next = True
+                continue
+            if capture_next and line.strip().startswith('/dev/video'):
+                device = line.strip()
+                rp1_devices.append(device)
+            elif line.strip() == '':
+                capture_next = False
+        
+        print(f"Found rp1-cfe devices: {rp1_devices}")
+        
+        # Test these devices with specific libcamera settings
+        for device in rp1_devices[:2]:  # Test first 2 devices
+            device_num = device.replace('/dev/video', '')
+            print(f"\nTesting {device} (index {device_num})...")
+            
+            # Try with specific media device configuration
+            pipeline = f"v4l2src device={device} ! video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1"
+            
+            cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
             if cap.isOpened():
                 ret, frame = cap.read()
                 if ret and frame is not None:
-                    print(f"  ✅ SUCCESS! Frame: {frame.shape}")
-                    cv2.imwrite(f'gst_test_{i}.jpg', frame)
+                    print(f"✅ SUCCESS with {device}! Frame: {frame.shape}")
+                    cv2.imwrite(f'media_test_{device_num}.jpg', frame)
                     cap.release()
-                    return pipeline
+                    return device_num, pipeline
                 else:
-                    print(f"  ❌ Opens but no frames")
+                    print(f"❌ {device} opens but no frames")
             else:
-                print(f"  ❌ Cannot open")
-            
+                print(f"❌ Cannot open {device}")
             cap.release()
-            
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
-    
-    return None
+        
+        return None, None
+        
+    except Exception as e:
+        print(f"❌ Media device test error: {e}")
+        return None, None
 
 def main():
-    print("🔍 Comprehensive Pi Camera Module Test")
+    print("🔍 Advanced LibCamera Test for Pi Camera Module 2")
     print("=" * 60)
     
-    # Check available commands
-    print("\n=== Command Availability ===")
-    commands = ['libcamera-hello', 'raspistill', 'cam', 'v4l2-ctl']
-    for cmd in commands:
-        available = test_command_available(cmd)
-        print(f"{cmd}: {'✅ Available' if available else '❌ Not found'}")
+    # Test 1: Check camera with cam utility
+    cam_works = check_camera_with_cam()
     
-    # Test direct V4L2 access
-    working_v4l2 = test_direct_v4l2_devices()
+    # Test 2: Try libcamerify wrapper
+    libcamerify_works = test_libcamerify()
     
-    # Test GStreamer alternatives
-    working_gst = test_gstreamer_alternatives()
+    # Test 3: Try media device approach
+    device_num, pipeline = test_media_device_approach()
     
     # Summary
     print("\n" + "=" * 60)
-    print("📋 FINAL RESULTS:")
+    print("📋 RESULTS SUMMARY:")
     
-    if working_v4l2:
-        print(f"\n✅ WORKING V4L2 CONFIGURATIONS:")
-        for config in working_v4l2:
-            print(f"  Device: /dev/video{config['device']}")
-            print(f"  Format: {config['format']}")
-            print(f"  Size: {config['width']}x{config['height']}")
-            print(f"  Backend: V4L2")
-            print()
-        
-        print("🎯 RECOMMENDED SOLUTION FOR CHATTY AI:")
-        best_config = working_v4l2[0]  # Use first working config
-        print(f"cap = cv2.VideoCapture({best_config['device']}, cv2.CAP_V4L2)")
-        if best_config['format'] == 'MJPG':
-            print(f"cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))")
-        print(f"cap.set(cv2.CAP_PROP_FRAME_WIDTH, {best_config['width']})")
-        print(f"cap.set(cv2.CAP_PROP_FRAME_HEIGHT, {best_config['height']})")
+    if cam_works:
+        print("✅ Camera hardware detected by libcamera")
+    else:
+        print("❌ Camera hardware not detected by libcamera")
     
-    if working_gst:
-        print(f"\n✅ WORKING GSTREAMER PIPELINE:")
-        print(f"cap = cv2.VideoCapture('{working_gst}', cv2.CAP_GSTREAMER)")
+    if libcamerify_works:
+        print("✅ libcamerify wrapper approach works!")
+        print("\n🎯 SOLUTION FOR CHATTY AI:")
+        print("Run your chatty_ai.py with: libcamerify python3 chatty_ai.py")
+        return True
     
-    if not working_v4l2 and not working_gst:
-        print("\n❌ NO WORKING CONFIGURATION FOUND")
-        print("Possible issues:")
-        print("1. Camera ribbon cable not properly connected")
-        print("2. Camera not enabled in boot config")
-        print("3. Wrong camera module or hardware issue")
+    if device_num and pipeline:
+        print(f"✅ Direct GStreamer approach works with /dev/video{device_num}")
+        print(f"\n🎯 SOLUTION FOR CHATTY AI:")
+        print(f"Use this pipeline in your code:")
+        print(f'cap = cv2.VideoCapture("{pipeline}", cv2.CAP_GSTREAMER)')
+        return True
+    
+    print("\n❌ No working solution found yet.")
+    print("Next steps:")
+    print("1. Check physical camera connection")
+    print("2. Verify camera in raspi-config")
+    print("3. Check boot configuration")
+    
+    return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    if success:
+        print("\n🎉 Ready to fix your Chatty AI!")

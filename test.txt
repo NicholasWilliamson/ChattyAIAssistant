@@ -1,264 +1,35 @@
-Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Find where libcamera tools are installed
-echo "=== Searching for libcamera tools ==="
-find /usr -name "libcamera-hello" 2>/dev/null
-find /opt -name "libcamera-hello" 2>/dev/null
-find /bin -name "libcamera-hello" 2>/dev/null
-find /usr/local -name "libcamera-hello" 2>/dev/null
 
-# Check if they're in common locations
-ls -la /usr/bin/libcamera* 2>/dev/null || echo "Not in /usr/bin"
-ls -la /opt/vc/bin/libcamera* 2>/dev/null || echo "Not in /opt/vc/bin"
-ls -la /usr/local/bin/libcamera* 2>/dev/null || echo "Not in /usr/local/bin"
+# Test the cam utility (this is the modern libcamera tool)
+echo "=== Testing cam utility ==="
 
-# Check what the libcamera-tools package actually installed
-dpkg -L libcamera-tools | grep bin
+# List available cameras
+cam --list
 
-# Check if there are alternative command names
-which libcamera-hello 2>/dev/null || echo "libcamera-hello not in PATH"
-which cam 2>/dev/null || echo "cam not in PATH"
+# Get detailed info about cameras
+cam --list-properties
 
-# Show current PATH
-echo "=== Current PATH ==="
-echo $PATH
+# Try to capture a frame to test if camera works
+echo "Testing camera capture..."
+cam --camera=0 --capture=1 --file=test_frame.bin
 
-# Check if we need to source something
-echo "=== Checking for setup scripts ==="
-ls -la /opt/vc/bin/ 2>/dev/null || echo "No /opt/vc/bin"
-ls -la /boot/config.txt | head -5
-=== Searching for libcamera tools ===
-Not in /usr/bin
-Not in /opt/vc/bin
-Not in /usr/local/bin
-/usr/bin
-/usr/bin/cam
-/usr/bin/ipa_verify
-/usr/bin/lc-compliance
-/usr/bin/libcamerify
-libcamera-hello not in PATH
-/usr/bin/cam
-=== Current PATH ===
-/home/nickspi5/Chatty_AI/chatty-venv/bin:/home/nickspi5/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/go/bin:/home/nickspi5/go/bin:/usr/local/go/bin
-=== Checking for setup scripts ===
-No /opt/vc/bin
--rw-r--r-- 1 root root 91 May 13 10:06 /boot/config.txt
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ # Try installing legacy camera tools as backup
-sudo apt install -y libraspberrypi-bin
-
-# Check if legacy tools work
-which raspistill
-which raspivid
-
-# Test legacy camera if available
-if command -v raspistill &> /dev/null; then
-    echo "Testing legacy raspistill..."
-    raspistill -o legacy_test.jpg -t 2000 -v
+# Check if file was created
+if [ -f "test_frame.bin" ]; then
+    echo "✅ Camera capture successful! File created: $(ls -la test_frame.bin)"
 else
-    echo "Legacy tools not available"
+    echo "❌ Camera capture failed"
 fi
 
-# Alternative: Try cam utility (part of libcamera)
-if command -v cam &> /dev/null; then
-    echo "Testing cam utility..."
-    cam --list-cameras
-else
-    echo "cam utility not found"
+# Try with different camera index if 0 doesn't work
+if [ ! -f "test_frame.bin" ]; then
+    echo "Trying camera index 1..."
+    cam --camera=1 --capture=1 --file=test_frame.bin
 fi
 
-# Check if we need to enable legacy camera support
-echo "=== Current boot config ==="
-grep -E "(camera|gpu|legacy)" /boot/firmware/config.txt 2>/dev/null || \
-grep -E "(camera|gpu|legacy)" /boot/config.txt 2>/dev/null || \
-echo "Could not read boot config"
-
-fi  echo "You can enable it with: sudo raspi-config -> Advanced Options -> Legacy Camera"boot/config.txt 2>/dev/null; then
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
-
-The following packages have unmet dependencies:
- libdtovl0 : Breaks: libraspberrypi0 but 1:2+git20231018~131943+3c97f76-1 is to be installed
-E: Error, pkgProblemResolver::Resolve generated breaks, this may be caused by held packages.
-Legacy tools not available
-Testing cam utility...
-Invalid option --list-cameras
-Options:
-  -c, --camera camera ...                               Specify which camera to operate on, by id or by index
-  -h, --help                                            Display this help message
-  -I, --info                                            Display information about stream(s)
-  -l, --list                                            List all cameras
-      --list-controls                                   List cameras controls
-  -p, --list-properties                                 List cameras properties
-  -m, --monitor                                         Monitor for hotplug and unplug camera events
-
-Options valid in the context of --camera:
-  -C, --capture[=count]                                 Capture until interrupted by user or until <count> frames captured
-  -o, --orientation orientation                         Desired image orientation (rot0, rot180, mirror, flip)
-  -D, --display[=connector]                             Display viewfinder through DRM/KMS on specified connector
-  -F, --file[=filename]                                 Write captured frames to disk
-                                                        If the file name ends with a '/', it sets the directory in which
-                                                        to write files, using the default file name. Otherwise it sets the
-                                                        full file path and name. The first '#' character in the file name
-                                                        is expanded to the camera index, stream name and frame sequence number.
-                                                        If the file name ends with '.dng', then the frame will be written to
-                                                        the output file(s) in DNG format.
-                                                        If the file name ends with '.ppm', then the frame will be written to
-                                                        the output file(s) in PPM format.
-                                                        The default file name is 'frame-#.bin'.
-  -S, --sdl                                             Display viewfinder through SDL
-  -s, --stream key=value[,key=value,...] ...            Set configuration of a camera stream
-          colorspace=string                             Color space
-          height=integer                                Height in pixels
-          pixelformat=string                            Pixel format name
-          role=string                                   Role for the stream (viewfinder, video, still, raw)
-          width=integer                                 Width in pixels
-      --strict-formats                                  Do not allow requested stream format(s) to be adjusted
-      --metadata                                        Print the metadata for completed requests
-      --script script                                   Load a capture session configuration script from a file
-=== Current boot config ===
-# Automatically load overlays for detected cameras
-camera_auto_detect=1
-# This line should be removed if the legacy DWC2 controller is required
-=== Checking if we need legacy camera support ===
-Legacy camera support not enabled - this might be needed
-You can enable it with: sudo raspi-config -> Advanced Options -> Legacy Camera
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ find /usr -name "libcamera-hello" 2>/dev/null
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ dpkg -L libcamera-tools | grep bin
-/usr/bin
-/usr/bin/cam
-/usr/bin/ipa_verify
-/usr/bin/lc-compliance
-/usr/bin/libcamerify
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y libraspberrypi-bin
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
-
-The following packages have unmet dependencies:
- libdtovl0 : Breaks: libraspberrypi0 but 1:2+git20231018~131943+3c97f76-1 is to be installed
-E: Error, pkgProblemResolver::Resolve generated breaks, this may be caused by held packages.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
-🔍 Comprehensive Pi Camera Module Test
-============================================================
-
-=== Command Availability ===
-libcamera-hello: ❌ Not found
-raspistill: ❌ Not found
-cam: ✅ Available
-v4l2-ctl: ✅ Available
-=== Testing Direct V4L2 with Pi Camera Formats ===
-
-Testing /dev/video0:
-  ❌ /dev/video0 MJPG 640x480: No frames
-  ❌ /dev/video0 YUYV 640x480: No frames
-  ❌ /dev/video0 MJPG 1920x1080: No frames
-  ❌ /dev/video0 YUYV 320x240: No frames
-
-Testing /dev/video1:
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.039] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.039] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.039] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.039] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
-[ WARN:0@0.039] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-Testing /dev/video2:
-  ❌ /dev/video2 MJPG 640x480: No frames
-  ❌ /dev/video2 YUYV 640x480: No frames
-  ❌ /dev/video2 MJPG 1920x1080: No frames
-  ❌ /dev/video2 YUYV 320x240: No frames
-
-Testing /dev/video3:
-  ❌ /dev/video3 MJPG 640x480: No frames
-  ❌ /dev/video3 YUYV 640x480: No frames
-  ❌ /dev/video3 MJPG 1920x1080: No frames
-  ❌ /dev/video3 YUYV 320x240: No frames
-
-Testing /dev/video4:
-  ❌ /dev/video4 MJPG 640x480: No frames
-  ❌ /dev/video4 YUYV 640x480: No frames
-  ❌ /dev/video4 MJPG 1920x1080: No frames
-  ❌ /dev/video4 YUYV 320x240: No frames
-
-Testing /dev/video5:
-  ❌ /dev/video5 MJPG 640x480: No frames
-  ❌ /dev/video5 YUYV 640x480: No frames
-  ❌ /dev/video5 MJPG 1920x1080: No frames
-  ❌ /dev/video5 YUYV 320x240: No frames
-
-Testing /dev/video6:
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-Testing /dev/video7:
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-[ WARN:0@0.106] global cap_v4l.cpp:913 open VIDEOIO(V4L2:/dev/video7): can't open camera by index
-[ WARN:0@0.106] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
-
-=== Testing Alternative GStreamer Pipelines ===
-
-Testing pipeline 1: v4l2src device=/dev/video0 ! video/x-raw,format=BGR,width=640,height=480 ! appsink
-  ❌ Cannot open
-
-Testing pipeline 2: v4l2src device=/dev/video0 ! videoconvert ! video/x-raw,format=BGR ! appsink
-  ❌ Cannot open
-
-Testing pipeline 3: v4l2src device=/dev/video2 ! video/x-raw,format=BGR,width=640,height=480 ! appsink
-  ❌ Cannot open
-
-Testing pipeline 4: v4l2src device=/dev/video2 ! videoconvert ! video/x-raw,format=BGR ! appsink
-  ❌ Cannot open
-
-Testing pipeline 5: v4l2src device=/dev/video0 ! image/jpeg,width=640,height=480 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink
-  ❌ Cannot open
-
-Testing pipeline 6: v4l2src device=/dev/video0 ! video/x-raw,format=YUY2,width=640,height=480 ! videoconvert ! video/x-raw,format=BGR ! appsink
-  ❌ Cannot open
-
-============================================================
-📋 FINAL RESULTS:
-
-❌ NO WORKING CONFIGURATION FOUND
-Possible issues:
-1. Camera ribbon cable not properly connected
-2. Camera not enabled in boot config
-3. Wrong camera module or hardware issue
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-
-Let us fix this once and for all so my Chatty AI Assistant Web UI will work properly.
-
-
-
-
-
-
-
-
+# Get more detailed camera information
+echo "=== Camera Details ==="
+cam --camera=0 --list-controls 2>/dev/null || echo "Camera 0 not available"
+cam --camera=1 --list-controls 2>/dev/null || echo "Camera 1 not available"
 
 
 
