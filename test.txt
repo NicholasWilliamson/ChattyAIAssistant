@@ -1,160 +1,85 @@
-# Fix 1: Update the silence detection threshold and add it to configuration
-# Add this to your configuration section at the top of the file:
+Thank you, Claude,
 
-# Audio parameters
-SAMPLE_RATE = 16000
-CHANNELS = 1
-SILENCE_THRESHOLD = 0.035  # Increased from 0.015 to 0.035 for better silence detection
-MIN_SILENCE_DURATION = 1.5  # Keep at 1.5 seconds
-MAX_RECORDING_DURATION = 30
-LLM_MAX_TOKENS = 50  # Reduced from 100 to 50 tokens
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt update
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease                                             
+Hit:3 https://download.docker.com/linux/debian bookworm InRelease                                                   
+Hit:4 http://deb.debian.org/debian bookworm-updates InRelease                         
+Hit:5 http://archive.raspberrypi.com/debian bookworm InRelease  
+Reading package lists... Done                              
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y libcamera-tools
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+libcamera-tools is already the newest version (0.5.1+rpt20250722-1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt -y gstreamer1.0-libcamera
+E: Invalid operation gstreamer1.0-libcamera
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install -y gstreamer1.0-libcamera
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+gstreamer1.0-libcamera is already the newest version (0.5.1+rpt20250722-1).
+gstreamer1.0-libcamera set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras
+bash: libcamera-hello: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --timeout 5000
+bash: libcamera-hello: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-hello --list-cameras --verbose
+bash: libcamera-hello: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ libcamera-still -o test_image.jpg --timeout 2000
+bash: libcamera-still: command not found
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la test_image.jpg
+ls: cannot access 'test_image.jpg': No such file or directory
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
+🔍 Testing Pi Camera Module 2 with OpenCV
+==================================================
 
-# Fix 2: Update the record_with_silence_detection method
-def record_with_silence_detection(self):
-    """Record audio until silence detected with improved detection"""
-    try:
-        with self.audio_recording_lock:
-            self.emit_log("🎙️ Recording user audio...", 'info')
-            audio_data = []
-            silence_duration = 0
-            recording_duration = 0
-            check_interval = 0.1  # Check more frequently (was 0.2)
-            samples_per_check = int(SAMPLE_RATE * check_interval)
-            
-            # Track audio levels for debugging
-            recent_levels = []
-            
-            def audio_callback(indata, frames, time, status):
-                if status:
-                    self.emit_log(f"🔊 Audio callback status: {status}", 'warning')
-                audio_data.extend(indata[:, 0])
+Testing pipeline 1: libcamerasrc ! video/x-raw,width=640,height=480,format=BGR ! appsink drop=1
+❌ Could not open pipeline
 
-            with sd.InputStream(callback=audio_callback,
-                               samplerate=SAMPLE_RATE,
-                               channels=CHANNELS,
-                               dtype='float32'):
-                
-                while recording_duration < MAX_RECORDING_DURATION:
-                    time.sleep(check_interval)
-                    recording_duration += check_interval
-                    
-                    if len(audio_data) >= samples_per_check:
-                        # Get recent audio segment
-                        recent_audio = np.array(audio_data[-samples_per_check:])
-                        rms = np.sqrt(np.mean(recent_audio**2))
-                        recent_levels.append(rms)
-                        
-                        # Keep only last 10 levels for debugging
-                        if len(recent_levels) > 10:
-                            recent_levels = recent_levels[-10:]
-                        
-                        # Log audio levels every 2 seconds for debugging
-                        if int(recording_duration * 10) % 20 == 0:  # Every 2 seconds
-                            avg_level = sum(recent_levels) / len(recent_levels) if recent_levels else 0
-                            self.emit_log(f"🔊 Audio level: {rms:.4f} (avg: {avg_level:.4f}, threshold: {SILENCE_THRESHOLD:.4f})", 'debug')
-                        
-                        if rms < SILENCE_THRESHOLD:
-                            silence_duration += check_interval
-                            if silence_duration >= MIN_SILENCE_DURATION:
-                                self.emit_log(f"🤫 Silence detected after {recording_duration:.1f}s (RMS: {rms:.4f} < {SILENCE_THRESHOLD:.4f})", 'info')
-                                break
-                        else:
-                            silence_duration = 0  # Reset silence counter if sound detected
+Testing pipeline 2: libcamerasrc ! video/x-raw,width=640,height=480,framerate=30/1,format=BGR ! appsink drop=1
+❌ Could not open pipeline
 
-            if audio_data:
-                audio_array = np.array(audio_data, dtype=np.float32)
-                sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
-                final_rms = np.sqrt(np.mean(audio_array**2))
-                self.emit_log(f"💾 Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration, final RMS: {final_rms:.4f}", 'success')
-                return True
-            
-            self.emit_log("❌ No audio data recorded", 'error')
-            return False
-            
-    except Exception as e:
-        self.emit_log(f"🔴 Recording error: {e}", 'error')
-        return False
+Testing pipeline 3: libcamerasrc camera-name=0 ! video/x-raw,width=640,height=480,format=BGR ! appsink drop=1
+❌ Could not open pipeline
 
-# Fix 3: Update the query_llama method to use configurable token limit
-def query_llama(self, prompt):
-    """Generate LLM response with configurable token limit"""
-    formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-    
-    try:
-        self.emit_log(f"🤖 Querying LLM with max tokens: {LLM_MAX_TOKENS}", 'debug')
-        
-        result = self.llama_model(formatted_prompt, max_tokens=LLM_MAX_TOKENS)
-        
-        if "choices" in result and result["choices"]:
-            reply_text = result["choices"][0]["text"].strip()
-            
-            # Clean up the response
-            reply_text = re.sub(r"\(.*?\)", "", reply_text)  # Remove parenthetical content
-            reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)  # Remove labels
-            reply_text = reply_text.strip()
-            
-            # Limit to reasonable number of sentences for speech
-            sentences = reply_text.split('.')
-            if len(sentences) > 3:
-                reply_text = '. '.join(sentences[:3]) + '.'
-            
-            self.emit_log(f"✅ LLM response generated: {len(reply_text)} characters", 'debug')
-            return reply_text
-        else:
-            self.emit_log("⚠️ LLM returned no valid response", 'warning')
-            return "I'm not sure how to answer that."
-            
-    except Exception as e:
-        self.emit_log(f"🔴 LLM error: {e}", 'error')
-        return "Sorry, I had trouble processing that question."
+Testing pipeline 4: libcamerasrc ! videoconvert ! video/x-raw,format=BGR ! appsink
+❌ Could not open pipeline
 
-# Fix 4: Add a configuration method to easily change settings
-def update_audio_settings(self, silence_threshold=None, min_silence_duration=None, max_tokens=None):
-    """Update audio and LLM settings dynamically"""
-    global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
-    
-    if silence_threshold is not None:
-        SILENCE_THRESHOLD = silence_threshold
-        self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
-    
-    if min_silence_duration is not None:
-        MIN_SILENCE_DURATION = min_silence_duration
-        self.emit_log(f"⚙️ Updated min silence duration to {MIN_SILENCE_DURATION:.1f}s", 'info')
-    
-    if max_tokens is not None:
-        LLM_MAX_TOKENS = max_tokens
-        self.emit_log(f"⚙️ Updated LLM max tokens to {LLM_MAX_TOKENS}", 'info')
+❌ No working pipeline found
 
-# Fix 5: Improved wake word recording with better threshold
-def record_wake_word_check(self):
-    """Record short audio clip for wake word detection with improved sensitivity"""
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False  # Audio system is busy
-        
-        try:
-            # Record 5 seconds of audio for wake word detection
-            audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
-            sd.wait()
-            
-            # Check if audio contains sound above threshold
-            rms = np.sqrt(np.mean(audio_data**2))
-            wake_word_threshold = SILENCE_THRESHOLD * 1.2  # Slightly lower threshold for wake word
-            
-            self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
-            
-            if rms > wake_word_threshold:
-                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
-                self.emit_log(f"💾 Wake word audio saved - RMS {rms:.4f} exceeded threshold", 'info')
-                return True
-            else:
-                self.emit_log(f"🔇 Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
-                return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
-    except Exception as e:
-        self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
-        return False
+❌ No working camera configuration found
+Check that:
+1. Camera ribbon cable is properly connected
+2. Camera is enabled in raspi-config
+3. libcamera-tools is installed
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I see errors such as bash: libcamera-hello: command not found
+
+I presume from this the error is that the libcamera suite of commands cannot be found.
+
+Let us fix this once and for all so my Chatty AI Assistant Web UI will work properly.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
