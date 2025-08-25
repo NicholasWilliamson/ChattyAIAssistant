@@ -1,680 +1,3090 @@
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi1:~ $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease
-Hit:3 http://deb.debian.org/debian bookworm-updates InRelease    
-Hit:4 http://archive.raspberrypi.com/debian bookworm InRelease   
-Reading package lists... Done                             
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-nickspi5@raspberrypi1:~ $ sudo apt upgrade -y
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Calculating upgrade... Done
-The following packages were automatically installed and are no longer required:
-  libbasicusageenvironment1 libgroupsock8 liblivemedia77 python3-v4l2
-Use 'sudo apt autoremove' to remove them.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-nickspi5@raspberrypi1:~ $ sudo apt autoremove
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following packages will be REMOVED:
-  libbasicusageenvironment1 libgroupsock8 liblivemedia77 python3-v4l2
-0 upgraded, 0 newly installed, 4 to remove and 0 not upgraded.
-After this operation, 1,457 kB disk space will be freed.
-Do you want to continue? [Y/n] y
-(Reading database ... 149722 files and directories currently installed.)
-Removing liblivemedia77:arm64 (2020.01.19-1+build1) ...
-Removing libgroupsock8:arm64 (2020.01.19-1+build1) ...
-Removing libbasicusageenvironment1:arm64 (2020.01.19-1+build1) ...
-Removing python3-v4l2 (0.3.5-1) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y python3-pip python3-venv git cmake build-essential
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-python3-pip is already the newest version (23.0.1+dfsg-1+rpt1).
-python3-venv is already the newest version (3.11.2-1+b1).
-git is already the newest version (1:2.39.5-0+deb12u2).
-build-essential is already the newest version (12.9).
-Suggested packages:
-  cmake-doc cmake-format elpa-cmake-mode
-The following NEW packages will be installed:
-  cmake cmake-data libjsoncpp25 librhash0 libuv1
-0 upgraded, 5 newly installed, 0 to remove and 0 not upgraded.
-Need to get 9,166 kB of archives.
-After this operation, 37.2 MB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 libjsoncpp25 arm64 1.9.5-4 [72.3 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 librhash0 arm64 1.4.3-3 [131 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 libuv1 arm64 1.44.2-1+deb12u1 [130 kB]
-Get:4 http://deb.debian.org/debian bookworm/main arm64 cmake-data all 3.25.1-1 [2,026 kB]
-Get:5 http://deb.debian.org/debian bookworm/main arm64 cmake arm64 3.25.1-1 [6,806 kB]
-Fetched 9,166 kB in 8s (1,162 kB/s)                                                                                          
-Selecting previously unselected package libjsoncpp25:arm64.
-(Reading database ... 149696 files and directories currently installed.)
-Preparing to unpack .../libjsoncpp25_1.9.5-4_arm64.deb ...
-Unpacking libjsoncpp25:arm64 (1.9.5-4) ...
-Selecting previously unselected package librhash0:arm64.
-Preparing to unpack .../librhash0_1.4.3-3_arm64.deb ...
-Unpacking librhash0:arm64 (1.4.3-3) ...
-Selecting previously unselected package libuv1:arm64.
-Preparing to unpack .../libuv1_1.44.2-1+deb12u1_arm64.deb ...
-Unpacking libuv1:arm64 (1.44.2-1+deb12u1) ...
-Selecting previously unselected package cmake-data.
-Preparing to unpack .../cmake-data_3.25.1-1_all.deb ...
-Unpacking cmake-data (3.25.1-1) ...
-Selecting previously unselected package cmake.
-Preparing to unpack .../cmake_3.25.1-1_arm64.deb ...
-Unpacking cmake (3.25.1-1) ...
-Setting up libuv1:arm64 (1.44.2-1+deb12u1) ...
-Setting up libjsoncpp25:arm64 (1.9.5-4) ...
-Setting up librhash0:arm64 (1.4.3-3) ...
-Setting up cmake-data (3.25.1-1) ...
-Setting up cmake (3.25.1-1) ...
-Processing triggers for man-db (2.11.2-2) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y portaudio19-dev python3-pyaudio
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  libasound2-dev libjack-jackd2-dev libportaudio2 libportaudiocpp0
-Suggested packages:
-  libasound2-doc portaudio19-doc python-pyaudio-doc
-The following NEW packages will be installed:
-  libasound2-dev libjack-jackd2-dev libportaudio2 libportaudiocpp0 portaudio19-dev python3-pyaudio
-0 upgraded, 6 newly installed, 0 to remove and 0 not upgraded.
-Need to get 381 kB of archives.
-After this operation, 1,964 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 libjack-jackd2-dev arm64 1.9.21~dfsg-3 [59.7 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 libportaudio2 arm64 19.6.0-1.2 [61.2 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 libportaudiocpp0 arm64 19.6.0-1.2 [18.4 kB]
-Get:4 http://deb.debian.org/debian bookworm/main arm64 portaudio19-dev arm64 19.6.0-1.2 [104 kB]
-Get:5 http://deb.debian.org/debian bookworm/main arm64 python3-pyaudio arm64 0.2.13-1+b1 [27.5 kB]
-Get:6 http://archive.raspberrypi.com/debian bookworm/main arm64 libasound2-dev arm64 1.2.8-1+rpt1 [110 kB]
-Fetched 381 kB in 2s (183 kB/s)                                   
-Selecting previously unselected package libasound2-dev:arm64.
-(Reading database ... 152950 files and directories currently installed.)
-Preparing to unpack .../0-libasound2-dev_1.2.8-1+rpt1_arm64.deb ...
-Unpacking libasound2-dev:arm64 (1.2.8-1+rpt1) ...
-Selecting previously unselected package libjack-jackd2-dev:arm64.
-Preparing to unpack .../1-libjack-jackd2-dev_1.9.21~dfsg-3_arm64.deb ...
-Unpacking libjack-jackd2-dev:arm64 (1.9.21~dfsg-3) ...
-Selecting previously unselected package libportaudio2:arm64.
-Preparing to unpack .../2-libportaudio2_19.6.0-1.2_arm64.deb ...
-Unpacking libportaudio2:arm64 (19.6.0-1.2) ...
-Selecting previously unselected package libportaudiocpp0:arm64.
-Preparing to unpack .../3-libportaudiocpp0_19.6.0-1.2_arm64.deb ...
-Unpacking libportaudiocpp0:arm64 (19.6.0-1.2) ...
-Selecting previously unselected package portaudio19-dev:arm64.
-Preparing to unpack .../4-portaudio19-dev_19.6.0-1.2_arm64.deb ...
-Unpacking portaudio19-dev:arm64 (19.6.0-1.2) ...
-Selecting previously unselected package python3-pyaudio.
-Preparing to unpack .../5-python3-pyaudio_0.2.13-1+b1_arm64.deb ...
-Unpacking python3-pyaudio (0.2.13-1+b1) ...
-Setting up libportaudio2:arm64 (19.6.0-1.2) ...
-Setting up libjack-jackd2-dev:arm64 (1.9.21~dfsg-3) ...
-Setting up libportaudiocpp0:arm64 (19.6.0-1.2) ...
-Setting up libasound2-dev:arm64 (1.2.8-1+rpt1) ...
-Setting up python3-pyaudio (0.2.13-1+b1) ...
-Setting up portaudio19-dev:arm64 (19.6.0-1.2) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y libcamera-tools libcamera-dev
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-libcamera-tools is already the newest version (0.5.1+rpt20250722-1).
-The following NEW packages will be installed:
-  libcamera-dev
-0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
-Need to get 37.2 kB of archives.
-After this operation, 190 kB of additional disk space will be used.
-Get:1 http://archive.raspberrypi.com/debian bookworm/main arm64 libcamera-dev arm64 0.5.1+rpt20250722-1 [37.2 kB]
-Fetched 37.2 kB in 1s (29.4 kB/s)        
-Selecting previously unselected package libcamera-dev:arm64.
-(Reading database ... 153121 files and directories currently installed.)
-Preparing to unpack .../libcamera-dev_0.5.1+rpt20250722-1_arm64.deb ...
-Unpacking libcamera-dev:arm64 (0.5.1+rpt20250722-1) ...
-Setting up libcamera-dev:arm64 (0.5.1+rpt20250722-1) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y opencv-contrib-python
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-E: Unable to locate package opencv-contrib-python
+I have my chatty_ai.py Python script to run my Chatty AI Assistant, including faster whisper for stt, piper for tts, Tinyllama as a local LLM, facial recognition detection and many other features.
+
+I am using chatty_ai.py through a Web UI page at http://localhost:5000 on my Raspberry PI 5.
+
+My /home/nickspi5/Chatty_AI/chatty_ai.py Python script is as follows:
+
+chatty_ai.py
+#!/usr/bin/env python3
+"""
+chatty_ai_web.py - Complete AI Assistant with Facial Recognition and Wake Word Detection
+Web UI version with real-time monitoring and control interface
+"""
+
+import os
+import sys
+import time
+import logging
+import threading
+import psutil
+import subprocess
+import sounddevice as sd
+import soundfile as sf
+import numpy as np
+import random
+import re
+import cv2
+import face_recognition
+import pickle
+import json
+import requests
+import io
+import signal
+from datetime import datetime, timedelta
+from flask import Flask, render_template, Response, jsonify, send_from_directory, request
+from flask_socketio import SocketIO, emit
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+from picamera2 import Picamera2
+
+# -------------------------------
+# Configuration
+# -------------------------------
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+BEEP_SOUND = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+LAUGHING_SOUND = "/home/nickspi5/Chatty_AI/audio_files/laughing.wav"
+ENCODINGS_FILE = "encodings.pickle"
+TELEGRAM_CONFIG_FILE = "telegram_config.json"
+
+# Audio files
+WAV_FILENAME = "user_input.wav"
+RESPONSE_AUDIO = "output.wav"
+WAKE_WORD_AUDIO = "wake_word_check.wav"
+
+# Security directories
+SECURITY_PHOTOS_DIR = "/home/nickspi5/Chatty_AI/security_photos"
+SECURITY_LOGS_DIR = "/home/nickspi5/Chatty_AI/security_logs"
+
+# Response files
+JOKES_FILE = "jokes.txt"
+FUN_FACTS_FILE = "fun_facts.txt"
+BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
+WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
+WAITING_RESPONSES_FILE = "waiting_responses.txt"
+WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
+BORED_RESPONSES_FILE = "bored_responses.txt"
+VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+
+# Wake word phrases
+WAKE_WORDS = [
+    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+    "hi cherry", "yo cherry"
+]
+
+# Command keywords
+COMMANDS = {
+    "flush the toilet": "toilet_flush",
+    "turn on the lights": "lights_on",
+    "turn off the lights": "lights_off",
+    "play music": "play_music",
+    "stop music": "stop_music",
+    "what time is it": "get_time",
+    "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
+    "reboot system": "reboot_system"
+}
+
+# Audio parameters
+SAMPLE_RATE = 16000
+CHANNELS = 1
+SILENCE_THRESHOLD = 0.035
+MIN_SILENCE_DURATION = 1.5
+MAX_RECORDING_DURATION = 30
+LLM_MAX_TOKENS = 50
+
+# Timing parameters
+GREETING_COOLDOWN = 300  # 5 minutes in seconds
+BORED_RESPONSE_INTERVAL = 30  # Configurable duration for bored responses
+PERSON_DETECTION_INTERVAL = 0.5  # Check for people every 0.5 seconds
+WAKE_WORD_CHECK_INTERVAL = 1.0  # Check for wake words every 1 second
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('chatty_ai_web.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def suppress_flask_warnings():
+    """Suppress Flask development server warnings"""
+    import logging
+    import warnings
+    
+    # Suppress Werkzeug (Flask's development server) logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
+    # Suppress Flask development server warning
+    warnings.filterwarnings('ignore', message='This is a development server*')
+    warnings.filterwarnings('ignore', message='Do not use it in a production deployment*')
+
+class ChattyAIWebServer:
+    def __init__(self):
+        # Initialize Flask app
+        self.app = Flask(__name__, 
+                        template_folder='templates',
+                        static_folder='templates')
+        self.app.config['SECRET_KEY'] = 'chatty_ai_web_secret_key_2025'
+        
+        # Initialize SocketIO
+        self.socketio = SocketIO(self.app, 
+                               cors_allowed_origins="*",
+                               async_mode='threading',
+                               ping_timeout=60,
+                               ping_interval=25,
+                               logger=True,
+                               engineio_logger=True)
+        
+        # AI Models
+        self.whisper_model = None
+        self.llama_model = None
+        
+        # Facial Recognition
+        self.known_encodings = []
+        self.known_names = []
+        
+        # Camera
+        self.picam2 = None
+        self.current_frame = None
+        self.captured_person_frame = None
+        
+        # System state
+        self.system_running = False
+        self.clients = set()
+        self.camera_initialized = False
+        self.models_loaded = False
+        self.wake_word_active = False
+        
+        # AI Assistant state
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.last_bored_response_time = None
+        self.bored_cycle = 0
+        self.audio_recording_lock = threading.Lock()
+        
+        # Response lists
+        self.jokes = []
+        self.listening_responses = []
+        self.waiting_responses = []
+        self.warning_responses = []
+        self.greeting_responses = []
+        self.bored_responses = []
+        self.visitor_greeting_responses = []
+        self.fun_facts = []
+        self.bored_responses_generic = []
+        self.waiting_responses_generic = []
+
+        # Telegram
+        self.telegram_token = None
+        self.telegram_chat_id = None
+        
+        # Threading
+        self.camera_thread = None
+        self.audio_thread = None
+        self.system_monitor_thread = None
+        self.monitor_running = False
+        
+        # Initialize directories and logging
+        self.setup_directories()
+        self.setup_ai_logging()
+        
+        # Setup routes and socket events
+        self.setup_routes()
+        self.setup_socket_events()
+        
+        logger.info("ChattyAI Web Server initialized")
+
+    def setup_directories(self):
+        """Create necessary directories"""
+        os.makedirs(SECURITY_PHOTOS_DIR, exist_ok=True)
+        os.makedirs(SECURITY_LOGS_DIR, exist_ok=True)
+        os.makedirs('logs', exist_ok=True)  # For web server logs
+
+    def setup_ai_logging(self):
+        """Setup logging for AI detections"""
+        log_file = os.path.join(SECURITY_LOGS_DIR, "chatty_ai.log")
+        self.ai_logger = logging.getLogger('chatty_ai')
+        self.ai_logger.setLevel(logging.INFO)
+        
+        # Remove existing handlers
+        for handler in self.ai_logger.handlers[:]:
+            self.ai_logger.removeHandler(handler)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+        file_handler.setFormatter(formatter)
+        self.ai_logger.addHandler(file_handler)
+
+    def load_response_files(self):
+        """Load all response files from disk"""
+        try:
+            # Load jokes
+            try:
+                with open(JOKES_FILE, 'r') as f:
+                    self.jokes = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_jokes()
+
+            # Load fun facts
+            try:
+                with open(FUN_FACTS_FILE, 'r') as f:
+                    self.fun_facts = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_fun_facts()
+
+            # Load greeting responses
+            try:
+                with open(GREETING_RESPONSES_FILE, 'r') as f:
+                    self.greeting_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_greeting_responses()
+
+            # Load listening responses
+            try:
+                with open(LISTENING_RESPONSES_FILE, 'r') as f:
+                    self.listening_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_listening_responses()
+
+            # Load waiting responses
+            try:
+                with open(WAITING_RESPONSES_FILE, 'r') as f:
+                    self.waiting_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_waiting_responses()
+
+            # Load warning responses
+            try:
+                with open(WARNING_RESPONSES_FILE, 'r') as f:
+                    self.warning_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_warning_responses()
+
+            # Load bored responses
+            try:
+                with open(BORED_RESPONSES_FILE, 'r') as f:
+                    self.bored_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_bored_responses()
+
+            # Load visitor greeting responses
+            try:
+                with open(VISITOR_GREETING_RESPONSES_FILE, 'r') as f:
+                    self.visitor_greeting_responses = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_visitor_responses()
+
+            # Load generic bored responses
+            try:
+                with open(BORED_RESPONSES_GENERIC_FILE, 'r') as f:
+                    self.bored_responses_generic = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_bored_responses_generic()
+
+            # Load generic waiting responses
+            try:
+                with open(WAITING_RESPONSES_GENERIC_FILE, 'r') as f:
+                    self.waiting_responses_generic = [line.strip() for line in f if line.strip()]
+            except FileNotFoundError:
+                self.create_default_waiting_responses_generic()
+
+            self.emit_log("📁 Response files loaded successfully", 'success')
+            return True
+
+        except Exception as e:
+            self.emit_log(f"❌ Failed to load response files: {e}", 'error')
+            self.create_default_responses()
+            return False
+
+    def create_default_jokes(self):
+        """Create default jokes file"""
+        default_jokes = [
+            "Why don't scientists trust atoms? Because they make up everything!",
+            "Why don't eggs tell jokes? They'd crack each other up!",
+            "Why don't scientists trust stairs? Because they're always up to something!",
+            "What do you call a fake noodle? An impasta!",
+            "Why did the scarecrow win an award? He was outstanding in his field!"
+        ]
+        try:
+            with open(JOKES_FILE, 'w') as f:
+                for joke in default_jokes:
+                    f.write(joke + '\n')
+            self.jokes = default_jokes
+        except Exception as e:
+            self.jokes = default_jokes
+
+    def create_default_greeting_responses(self):
+        """Create default greeting responses file"""
+        default_greetings = [
+            "Hello {name}! It is nice to see you again. How may I help you?",
+            "Hey {name}! Good to see you, buddy! What's up?",
+            "Hi there {name}! Welcome back! How can I assist you today?",
+            "Great to see you {name}! What can I do for you?",
+            "Hello {name}! Always a pleasure to see you. What's on your mind?"
+        ]
+        try:
+            with open(GREETING_RESPONSES_FILE, 'w') as f:
+                for response in default_greetings:
+                    f.write(response + '\n')
+            self.greeting_responses = default_greetings
+        except Exception as e:
+            self.greeting_responses = default_greetings
+
+    def create_default_listening_responses(self):
+        """Create default listening responses file"""
+        default_listening = [
+            "Yes {name}, I'm listening. What would you like to know?",
+            "I'm here {name}, what can I help you with?",
+            "Go ahead {name}, I'm all ears!",
+            "What's on your mind {name}?",
+            "I'm ready to help {name}. What do you need?"
+        ]
+        try:
+            with open(LISTENING_RESPONSES_FILE, 'w') as f:
+                for response in default_listening:
+                    f.write(response + '\n')
+            self.listening_responses = default_listening
+        except Exception as e:
+            self.listening_responses = default_listening
+
+    def create_default_waiting_responses(self):
+        """Create default waiting responses file"""
+        default_waiting = [
+            "Hey {name}, I am still here if you need anything",
+            "I'm still around {name}, just let me know if you need help",
+            "Still here waiting to assist you {name}",
+            "I'm patiently waiting for your next request {name}",
+            "Standing by if you need me {name}"
+        ]
+        try:
+            with open(WAITING_RESPONSES_FILE, 'w') as f:
+                for response in default_waiting:
+                    f.write(response + '\n')
+            self.waiting_responses = default_waiting
+        except Exception as e:
+            self.waiting_responses = default_waiting
+
+    def create_default_warning_responses(self):
+        """Create default warning responses file"""
+        default_warnings = [
+            "Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion.",
+            "Warning! You are trespassing on private property. Please leave immediately or authorities will be contacted.",
+            "This is a restricted area. You do not have permission to be here. Please leave now.",
+            "Security alert! Unauthorized person detected. Please vacate the premises immediately."
+        ]
+        try:
+            with open(WARNING_RESPONSES_FILE, 'w') as f:
+                for response in default_warnings:
+                    f.write(response + '\n')
+            self.warning_responses = default_warnings
+        except Exception as e:
+            self.warning_responses = default_warnings
+
+    def create_default_fun_facts(self):
+        """Create default fun facts file"""
+        default_facts = [
+            "Did you know that octopuses have three hearts and blue blood?",
+            "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
+            "A group of flamingos is called a 'flamboyance'.",
+            "The human brain uses about 20% of the body's total energy.",
+            "Bananas are berries, but strawberries aren't!",
+            "There are more possible games of chess than atoms in the observable universe.",
+            "Wombat poop is cube-shaped to prevent it from rolling away.",
+            "A cloud can weigh more than a million pounds."
+        ]
+    
+        try:
+            with open(FUN_FACTS_FILE, 'w') as f:
+                for fact in default_facts:
+                    f.write(fact + '\n')
+            self.fun_facts = default_facts
+        except Exception as e:
+            self.fun_facts = default_facts
+
+    def create_default_bored_responses_generic(self):
+        """Create default generic bored responses file"""
+        default_bored_generic = [
+            "I'm getting a bit bored waiting here",
+            "Still hanging around here waiting",
+            "I'm patiently waiting for commands",
+            "I am feeling restless waiting here",
+            "Still here waiting to help"
+        ]
+    
+        try:
+            with open(BORED_RESPONSES_GENERIC_FILE, 'w') as f:
+                for response in default_bored_generic:
+                    f.write(response + '\n')
+            self.bored_responses_generic = default_bored_generic
+        except Exception as e:
+            self.bored_responses_generic = default_bored_generic
+
+    def create_default_waiting_responses_generic(self):
+        """Create default generic waiting responses file"""
+        default_waiting_generic = [
+            "I am still around if you need me",
+            "Still here waiting to assist",
+            "Patiently waiting for your next request",
+            "I'm here whenever you need help",
+            "Standing by for assistance"
+        ]
+    
+        try:
+            with open(WAITING_RESPONSES_GENERIC_FILE, 'w') as f:
+                for response in default_waiting_generic:
+                    f.write(response + '\n')
+            self.waiting_responses_generic = default_waiting_generic
+        except Exception as e:
+            self.waiting_responses_generic = default_waiting_generic
+
+    def create_default_bored_responses(self):
+        """Create default bored responses file"""
+        default_bored = [
+            "I'm getting a bit bored waiting here",
+            "Still hanging around here waiting for you, dude",
+            "I'm patiently waiting for your commands",
+            "I am feeling restless waiting here",
+            "Still here waiting to help you"
+        ]
+        
+        try:
+            with open(BORED_RESPONSES_FILE, 'w') as f:
+                for response in default_bored:
+                    f.write(response + '\n')
+            self.bored_responses = default_bored
+        except Exception as e:
+            self.bored_responses = default_bored
+
+    def create_default_visitor_responses(self):
+        """Create default visitor greeting responses file"""
+        default_visitor = [
+            "Hello. I do not recognize you. Can I be of assistance?",
+            "Good day, visitor. How may I help you today?",
+            "Welcome. I do not believe we have met before. What can I do for you?",
+            "Hello there. I am an AI assistant. How can I assist you?",
+            "It is great to meet you. I do not recognize your face, but I am happy to help."
+        ]
+        
+        try:
+            with open(VISITOR_GREETING_RESPONSES_FILE, 'w') as f:
+                for response in default_visitor:
+                    f.write(response + '\n')
+            self.visitor_greeting_responses = default_visitor
+        except Exception as e:
+            self.visitor_greeting_responses = default_visitor
+
+    def create_default_responses(self):
+        """Create all default response files"""
+        # Existing default responses...
+        self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+        self.greeting_responses = ["Hello {name}! It is nice to see you again. How may I help you?"]
+        self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+        self.waiting_responses = ["Hey {name}, I am still here if you need anything"]
+        self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."]
+        self.bored_responses = ["Hey {name}, I'm getting a bit bored waiting here"]
+        self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
+    
+        # ADD: Create the new file types
+        self.create_default_fun_facts()
+        self.create_default_bored_responses_generic()
+        self.create_default_waiting_responses_generic()
+
+    def load_models(self):
+        """Load AI models"""
+        try:
+            self.emit_log("Loading AI models...", 'info')
+            
+            # Load Whisper model
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            self.emit_log("Whisper model loaded successfully", 'success')
+            
+            # Load LLaMA model
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            self.emit_log("LLaMA model loaded successfully", 'success')
+            
+            self.models_loaded = True
+            return True
+            
+        except Exception as e:
+            self.emit_log(f"Failed to load AI models: {e}", 'error')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
+            with open(ENCODINGS_FILE, "rb") as f:
+                data = pickle.loads(f.read())
+                self.known_encodings = data["encodings"]
+                self.known_names = data["names"]
+            self.emit_log(f"Loaded {len(self.known_encodings)} face encodings", 'success')
+            return True
+        except FileNotFoundError:
+            self.emit_log(f"Encodings file '{ENCODINGS_FILE}' not found!", 'error')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+        except Exception as e:
+            self.emit_log(f"Failed to load encodings: {e}", 'error')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+
+    def load_telegram_config(self):
+        """Load Telegram configuration"""
+        try:
+            with open(TELEGRAM_CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                self.telegram_token = config.get('bot_token')
+                self.telegram_chat_id = config.get('chat_id')
+            self.emit_log("Telegram configuration loaded", 'success')
+            return True
+        except FileNotFoundError:
+            self.emit_log("Telegram config not found - alerts disabled", 'warning')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+        except Exception as e:
+            self.emit_log(f"Failed to load Telegram config: {e}", 'error')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+
+    def setup_camera(self):
+        """Initialize camera with proper state management"""
+        try:
+            # Clean up any existing camera first
+            if self.picam2:
+                try:
+                    self.picam2.stop()
+                    self.picam2.close()
+                    time.sleep(1)
+                except:
+                    pass
+                self.picam2 = None
+            
+            # Initialize new camera
+            self.picam2 = Picamera2()
+            self.picam2.configure(self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            ))
+            self.picam2.start()
+            time.sleep(2)  # Camera warm-up
+            self.camera_initialized = True
+            self.emit_log("Camera initialized successfully", 'success')
+            return True
+        except Exception as e:
+            self.emit_log(f"Failed to initialize camera: {e}", 'error')
+            self.camera_initialized = False
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+
+    def get_system_info(self):
+        """Get current system performance information"""
+        try:
+            # Get CPU and memory info
+            cpu_percent = psutil.cpu_percent(interval=1)
+            memory = psutil.virtual_memory()
+            memory_percent = memory.percent
+            memory_used = memory.used
+            memory_total = memory.total
+            
+            # Get temperature info (Raspberry Pi specific)
+            cpu_temp = self.get_cpu_temperature()
+            gpu_temp = self.get_gpu_temperature()
+            
+            return {
+                'cpu_percent': round(cpu_percent, 1),
+                'memory_percent': round(memory_percent, 1),
+                'memory_used': memory_used,
+                'memory_total': memory_total,
+                'cpu_temp': round(cpu_temp, 2) if cpu_temp else 0,
+                'gpu_temp': round(gpu_temp, 1) if gpu_temp else 0,
+                'timestamp': datetime.now().isoformat(),
+                'camera_initialized': self.camera_initialized,
+                'models_loaded': self.models_loaded,
+                'wake_word_active': self.wake_word_active,
+                'current_person': self.current_person if self.current_person else "No person detected"
+            }
+        except Exception as e:
+            logger.error(f"Error getting system info: {e}")
+            return {
+                'cpu_percent': 0,
+                'memory_percent': 0,
+                'memory_used': 0,
+                'memory_total': 0,
+                'cpu_temp': 0,
+                'gpu_temp': 0,
+                'timestamp': datetime.now().isoformat(),
+                'camera_initialized': False,
+                'models_loaded': False,
+                'wake_word_active': False,
+                'current_person': 'Error'
+            }
+
+    def get_cpu_temperature(self):
+        """Get CPU temperature for Raspberry Pi"""
+        try:
+            result = subprocess.run(['vcgencmd', 'measure_temp'], 
+                                  capture_output=True, text=True, timeout=2)
+            if result.returncode == 0:
+                temp_str = result.stdout.strip()
+                if temp_str.startswith('temp=') and temp_str.endswith("'C"):
+                    return float(temp_str[5:-2])
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError, ValueError):
+            pass
+        
+        # Fallback: try thermal zone
+        try:
+            with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
+                temp_millidegrees = int(f.read().strip())
+                return temp_millidegrees / 1000.0
+        except (FileNotFoundError, ValueError, IOError):
+            pass
+        
+        return None
+
+    def get_gpu_temperature(self):
+        """Get GPU temperature for Raspberry Pi"""
+        try:
+            result = subprocess.run(['vcgencmd', 'measure_temp'], 
+                                  capture_output=True, text=True, timeout=2)
+            if result.returncode == 0:
+                temp_str = result.stdout.strip()
+                if temp_str.startswith('temp=') and temp_str.endswith("'C"):
+                    return float(temp_str[5:-2]) + 1.0
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError, ValueError):
+            pass
+        
+        return None
+
+    def emit_log(self, message, log_type='info'):
+        """Emit log message to web clients"""
+        log_entry = {
+            'timestamp': datetime.now().strftime('%H:%M:%S'),
+            'message': message,
+            'type': log_type
+        }
+        
+        if self.clients:
+            self.socketio.emit('log_update', log_entry)
+        
+        # Also log to file
+        if log_type == 'error':
+            logger.error(message)
+        elif log_type == 'warning':
+            logger.warning(message)
+        elif log_type == 'success':
+            logger.info(f"✅ {message}")
+        else:
+            logger.info(message)
+
+    def emit_conversation(self, message, conv_type='info'):
+        """Emit conversation message to web clients"""
+        conv_entry = {
+            'timestamp': datetime.now().strftime('%H:%M:%S'),
+            'message': message,
+            'type': conv_type
+        }
+        
+        if self.clients:
+            self.socketio.emit('conversation_update', conv_entry)
+
+    def system_monitor_loop(self):
+        """Background thread for system monitoring"""
+        while self.monitor_running:
+            try:
+                if self.clients:  # Only send if there are connected clients
+                    system_info = self.get_system_info()
+                    self.socketio.emit('system_info', system_info)
+                
+                time.sleep(5)  # Update every 5 seconds
+            except Exception as e:
+                logger.error(f"Error in system monitor loop: {e}")
+                time.sleep(5)
+
+    def setup_routes(self):
+        """Setup Flask routes"""
+        
+        @self.app.route('/')
+        def index():
+            """Main page"""
+            try:
+                return render_template('Chatty_AI.html')
+            except Exception as e:
+                logger.error(f"Error rendering template: {e}")
+                return f"Error: Could not find Chatty_AI.html in templates folder. Error: {e}", 500
+
+        @self.app.route('/video_feed')
+        def video_feed():
+            """Video streaming route"""
+            def generate():
+                while True:
+                    try:
+                        if self.current_frame is not None and self.system_running:
+                            # Convert frame to JPEG
+                            is_success, buffer = cv2.imencode(".jpg", self.current_frame)
+                            if is_success:
+                                frame_bytes = buffer.tobytes()
+                                yield (b'--frame\r\n'
+                                      b'Content-Type: image/jpeg\r\n\r\n' + 
+                                      frame_bytes + b'\r\n')
+                        else:
+                            # Create placeholder image
+                            placeholder = np.zeros((480, 640, 3), dtype=np.uint8)
+                            cv2.putText(placeholder, "Camera Feed", (200, 240), 
+                                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            if not self.system_running:
+                                cv2.putText(placeholder, "System Stopped", (190, 280), 
+                                           cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                            
+                            is_success, buffer = cv2.imencode(".jpg", placeholder)
+                            if is_success:
+                                frame_bytes = buffer.tobytes()
+                                yield (b'--frame\r\n'
+                                      b'Content-Type: image/jpeg\r\n\r\n' + 
+                                      frame_bytes + b'\r\n')
+                        
+                        time.sleep(0.1)  # ~10 FPS
+                    except Exception as e:
+                        logger.error(f"Error in video feed: {e}")
+                        break
+                        
+            return Response(generate(),
+                          mimetype='multipart/x-mixed-replace; boundary=frame')
+
+        @self.app.route('/captured_image')
+        def captured_image():
+            """Return the captured person image"""
+            try:
+                if self.captured_person_frame is not None:
+                    is_success, buffer = cv2.imencode(".jpg", self.captured_person_frame)
+                    if is_success:
+                        return Response(buffer.tobytes(), mimetype='image/jpeg')
+                
+                # Return placeholder image
+                placeholder = np.zeros((300, 300, 3), dtype=np.uint8)
+                cv2.putText(placeholder, "No Person", (80, 140), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                cv2.putText(placeholder, "Detected", (90, 180), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                
+                is_success, buffer = cv2.imencode(".jpg", placeholder)
+                if is_success:
+                    return Response(buffer.tobytes(), mimetype='image/jpeg')
+                else:
+                    return Response(b'', mimetype='image/jpeg')
+                    
+            except Exception as e:
+                logger.error(f"Error serving captured image: {e}")
+                return Response(b'', mimetype='image/jpeg')
+
+        @self.app.route('/templates/<path:filename>')
+        def serve_template_files(filename):
+            """Serve template files (images, etc.)"""
+            try:
+                return send_from_directory('templates', filename)
+            except Exception as e:
+                logger.error(f"Error serving template file {filename}: {e}")
+                return "File not found", 404
+
+        @self.app.route('/api/system_info')
+        def api_system_info():
+            """API endpoint for system information"""
+            return jsonify(self.get_system_info())
+
+    def setup_socket_events(self):
+        """Setup SocketIO event handlers"""
+        
+        @self.socketio.on('connect')
+        def handle_connect():
+            """Handle client connection"""
+            client_id = request.sid
+            self.clients.add(client_id)
+            logger.info(f"Client connected: {client_id}. Total clients: {len(self.clients)}")
+            
+            # Send initial status
+            emit('status_update', {
+                'status': 'running' if self.system_running else 'stopped',
+                'is_running': self.system_running,
+                'message': 'Connected to server successfully'
+            })
+            
+            # Send initial system info
+            try:
+                system_info = self.get_system_info()
+                emit('system_info', system_info)
+            except Exception as e:
+                logger.error(f"Error sending initial system info: {e}")
+
+        @self.socketio.on('disconnect')
+        def handle_disconnect():
+            """Handle client disconnection"""
+            client_id = request.sid
+            self.clients.discard(client_id)
+            logger.info(f"Client disconnected: {client_id}. Total clients: {len(self.clients)}")
+
+        @self.socketio.on('start_system')
+        def handle_start_system():
+            """Handle start system request"""
+            client_id = request.sid
+            logger.info(f"Received start system request from client: {client_id}")
+            
+            try:
+                if not self.system_running:
+                    self.emit_log("Starting Chatty AI system...", 'info')
+                    
+                    # Load response files
+                    if not self.load_response_files():
+                        emit('status_update', {
+                            'status': 'error',
+                            'is_running': False,
+                            'message': 'Failed to load response files'
+                        })
+                        return
+                    
+                    # Load AI models
+                    if not self.load_models():
+                        emit('status_update', {
+                            'status': 'error',
+                            'is_running': False,
+                            'message': 'Failed to load AI models'
+                        })
+                        return
+                    
+                    # Load face encodings
+                    if not self.load_encodings():
+                        emit('status_update', {
+                            'status': 'error',
+                            'is_running': False,
+                            'message': 'Failed to load face encodings'
+                        })
+                        return
+                    
+                    # Load Telegram config
+                    self.load_telegram_config()
+                    
+                    # Setup camera
+                    if not self.setup_camera():
+                        emit('status_update', {
+                            'status': 'error',
+                            'is_running': False,
+                            'message': 'Failed to initialize camera'
+                        })
+                        return
+                    
+                    # Start system monitoring
+                    if not self.monitor_running:
+                        self.monitor_running = True
+                        self.system_monitor_thread = threading.Thread(
+                            target=self.system_monitor_loop, daemon=True)
+                        self.system_monitor_thread.start()
+                        logger.info("System monitoring thread started")
+                    
+                    # Start camera monitoring
+                    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+                    # Set system_running to True BEFORE starting threads
+                    self.system_running = True
+                    self.monitor_running = True
+                    self.camera_thread.start()
+                    
+                    # Start wake word detection
+                    self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+                    self.audio_thread.start()
+                    
+                    self.emit_log("Chatty AI system started successfully", 'success')
+                    
+                    response_data = {
+                        'status': 'running',
+                        'is_running': True,
+                        'message': 'Chatty AI system started successfully'
+                    }
+                    
+                    # Send to all clients
+                    self.socketio.emit('status_update', response_data)
+                    logger.info("System started successfully - status sent to all clients")
+                    
+                else:
+                    emit('status_update', {
+                        'status': 'running',
+                        'is_running': True,
+                        'message': 'System is already running'
+                    })
+                    logger.info("Start system requested but system already running")
+                    
+            except Exception as e:
+                logger.error(f"Error starting system: {e}")
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': False,
+                    'message': f'Error starting system: {e}'
+                })
+
+        @self.socketio.on('stop_system')
+        def handle_stop_system():
+            """Handle stop system request"""
+            client_id = request.sid
+            logger.info(f"Received stop system request from client: {client_id}")
+            try:
+                if self.system_running:
+                    self.system_running = False
+                    self.monitor_running = False
+                    
+                    # Reset AI Assistant state
+                    self.current_person = None
+                    self.wake_word_active = False
+                    self.last_interaction_time = None
+                    self.person_absent_since = None
+                    self.last_bored_response_time = None
+                    self.bored_cycle = 0
+                    
+                    # Stop camera
+                    if self.picam2:
+                        try:
+                            self.picam2.stop()
+                            self.picam2 = None
+                            self.camera_initialized = False
+                        except:
+                            pass
+                    
+                    self.models_loaded = False
+                    
+                    self.emit_log("Chatty AI system stopped", 'info')
+                    
+                    response_data = {
+                        'status': 'stopped',
+                        'is_running': False,
+                        'message': 'Chatty AI system stopped'
+                    }
+                    
+                    # Send to all clients
+                    self.socketio.emit('status_update', response_data)
+                    logger.info("System stopped successfully - status sent to all clients")
+                    
+                else:
+                    emit('status_update', {
+                        'status': 'stopped',
+                        'is_running': False,
+                        'message': 'System is already stopped'
+                    })
+                    logger.info("Stop system requested but system already stopped")
+                    
+            except Exception as e:
+                logger.error(f"Error stopping system: {e}")
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': self.system_running,
+                    'message': f'Error stopping system: {e}'
+                })
+
+        @self.socketio.on('get_system_info')
+        def handle_get_system_info():
+            """Handle system info request"""
+            try:
+                system_info = self.get_system_info()
+                emit('system_info', system_info)
+            except Exception as e:
+                logger.error(f"Error getting system info: {e}")
+                emit('system_info', {
+                    'error': f'Error getting system info: {e}'
+                })
+
+        @self.socketio.on('test_speech')
+        def handle_test_speech(data):
+            """Handle speech test request"""
+            try:
+                text = data.get('text', 'Test speech from Chatty AI')
+                logger.info(f"Speech test requested: {text}")
+                
+                if self.system_running:
+                    self.speak_text(text)
+                    self.emit_conversation(f"🔊 Speech test: {text}", 'speech')
+                    
+                    emit('speech_test_result', {
+                        'success': True,
+                        'message': 'Speech test completed successfully'
+                    })
+                else:
+                    emit('speech_test_result', {
+                        'success': False,
+                        'message': 'System must be running for speech test'
+                    })
+                
+            except Exception as e:
+                logger.error(f"Error in speech test: {e}")
+                emit('speech_test_result', {
+                    'success': False,
+                    'message': f'Speech test failed: {e}'
+                })
+
+        @self.socketio.on('manual_wake_word')
+        def handle_manual_wake_word():
+            """Handle manual wake word trigger"""
+            try:
+                if self.system_running and self.current_person:
+                    logger.info("Manual wake word triggered")
+                    self.emit_conversation(f"⚡ Manual wake word activated for {self.current_person}", 'wake_word')
+                    
+                    # Trigger wake word response
+                    self.handle_wake_word_detected()
+                    
+                    emit('manual_wake_result', {
+                        'success': True,
+                        'message': 'Manual wake word triggered successfully'
+                    })
+                else:
+                    emit('manual_wake_result', {
+                        'success': False,
+                        'message': 'System must be running with person detected for manual wake word'
+                    })
+                
+            except Exception as e:
+                logger.error(f"Error in manual wake word: {e}")
+                emit('manual_wake_result', {
+                    'success': False,
+                    'message': f'Manual wake word failed: {e}'
+                })
+
+    # AI Assistant Core Functions
+    def is_daytime_hours(self):
+        """Check if current time is between 6:00AM and 12:00PM (daytime visitor hours)"""
+        current_hour = datetime.now().hour
+        return 6 <= current_hour <= 12
+
+    def speak_text(self, text):
+        """Enhanced speak_text method using Piper TTS"""
+        if not text:
+            return
+    
+        try:
+            # Store the speaking state
+            self.currently_speaking = True
+            self.speech_start_time = time.time()
+        
+            # Estimate speech duration (rough calculation)
+            # Average speaking rate: ~150 words per minute = 2.5 words per second
+            word_count = len(text.split())
+            estimated_duration = (word_count / 2.5) + 1.0  # Add 1 second buffer
+        
+            self.emit_log(f"🔊 Speaking: '{text[:50]}...'", 'info')
+        
+            # Use Piper TTS instead of gTTS
+            piper_command = [
+                PIPER_EXECUTABLE,
+                "--model", VOICE_PATH,
+                "--config", CONFIG_PATH,
+                "--output_file", RESPONSE_AUDIO
+            ]
+        
+            # Run Piper TTS
+            result = subprocess.run(
+                piper_command,
+                input=text,
+                text=True,
+                capture_output=True,
+                check=True,
+                timeout=30
+            )
+        
+            if result.returncode == 0 and os.path.exists(RESPONSE_AUDIO):
+                # Play the generated audio file
+                with self.audio_recording_lock:
+                    subprocess.run(["aplay", RESPONSE_AUDIO], 
+                                    check=True, 
+                                    capture_output=True,
+                                    timeout=estimated_duration + 5)
+            
+                self.emit_log(f"🎵 Speech completed: '{text[:50]}...'", 'success')
+            
+                # Clean up the audio file
+                try:
+                    os.remove(RESPONSE_AUDIO)
+                except:
+                    pass
+            else:
+                self.emit_log(f"❌ Piper TTS failed to generate audio", 'error')
+        
+            # Mark speaking as complete
+            self.currently_speaking = False
+        
+        except subprocess.TimeoutExpired:
+            self.currently_speaking = False
+            self.emit_log(f"⏰ TTS timeout for: '{text[:50]}...'", 'error')
+        except subprocess.CalledProcessError as e:
+            self.currently_speaking = False
+            self.emit_log(f"🔧 Piper TTS error (exit code {e.returncode}): {e.stderr.decode() if e.stderr else 'Unknown error'}", 'error')
+        except Exception as e:
+            self.currently_speaking = False
+            self.emit_log(f"❌ TTS error: {e}", 'error')
+    
+    def play_laughing(self):
+        """Play laughing sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+
+    def detect_faces(self, frame):
+        """Detect and recognize faces in frame"""
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
+        
+        if len(face_locations) == 0:
+            return None, None, 0.0
+        
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        
+        best_name = "Unknown"
+        best_confidence = 0.0
+        
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
+            
+            if True in matches:
+                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
+                best_match_index = face_distances.argmin()
+                confidence = 1.0 - face_distances[best_match_index]
+                
+                if matches[best_match_index] and confidence > 0.4:
+                    if confidence > best_confidence:
+                        best_name = self.known_names[best_match_index]
+                        best_confidence = confidence
+        
+        return best_name, face_locations[0], best_confidence
+
+    def save_security_photo(self, frame, person_name, confidence):
+        """Save security photo with timestamp"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{person_name.lower()}_{timestamp}.jpg"
+        filepath = os.path.join(SECURITY_PHOTOS_DIR, filename)
+        
+        # Add overlay information
+        overlay_frame = frame.copy()
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (0, 0, 0), -1)
+        cv2.rectangle(overlay_frame, (10, 10), (500, 100), (255, 255, 255), 2)
+        
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(overlay_frame, f"Person: {person_name}", (20, 35), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(overlay_frame, f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (20, 60), font, 0.6, (255, 255, 255), 2)
+        if person_name != "Unknown":
+            cv2.putText(overlay_frame, f"Confidence: {confidence:.1%}", (20, 85), font, 0.6, (255, 255, 255), 2)
+        
+        cv2.imwrite(filepath, overlay_frame)
+        self.ai_logger.info(f"Security photo saved: {filename} | Person: {person_name} | Confidence: {confidence:.2f}")
+        
+        return filepath
+
+    def send_telegram_alert(self, person_name, confidence, photo_path):
+        """Send Telegram alert"""
+        if not self.telegram_token or not self.telegram_chat_id:
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+        
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            if person_name == "Unknown":
+                message = f"**UNKNOWN PERSON DETECTED**\n\n**Time:** {timestamp}\n**Status:** Unregistered Person\n**Action:** Photo captured for review"
+            else:
+                message = f"**AUTHORIZED ACCESS**\n\n**Person:** {person_name}\n**Time:** {timestamp}\n**Confidence:** {confidence:.1%}\n**Status:** Registered User"
+            
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendPhoto"
+            with open(photo_path, 'rb') as photo:
+                files = {'photo': photo}
+                data = {
+                    'chat_id': self.telegram_chat_id,
+                    'caption': message,
+                    'parse_mode': 'Markdown'
+                }
+                response = requests.post(url, data=data, files=files, timeout=30)
+                return response.status_code == 200
+        except Exception as e:
+            self.emit_log(f"Telegram alert failed: {e}", 'error')
+            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+            return False
+
+    def greet_person(self, name):
+        """Greet a detected person using responses from greeting_responses.txt file"""
+        current_time = time.time()
+    
+        # Check if we should greet this person (cooldown check)
+        if name in self.last_greeting_time:
+            time_since_last = current_time - self.last_greeting_time[name]
+            if time_since_last < GREETING_COOLDOWN:
+                self.emit_log(f"⏳ Skipping greeting for {name} - cooldown active ({time_since_last:.1f}s < {GREETING_COOLDOWN}s)", 'debug')
+                return False
+
+        # Select greeting from file-based responses
+        if self.greeting_responses:
+            greeting_template = random.choice(self.greeting_responses)
+            greeting = greeting_template.replace("{name}", name)
+            self.emit_log(f"🎭 Selected greeting template: {greeting_template[:50]}...", 'debug')
+        else:
+            greeting = f"Hey {name}! Good to see you, buddy! What's up?"
+            self.emit_log("⚠️ Using fallback greeting - no templates loaded", 'warning')
+
+        self.speak_text(greeting)
+        self.emit_conversation(f"👋 Greeted {name}: {greeting}", 'response')
+    
+        self.last_greeting_time[name] = current_time
+        self.last_interaction_time = current_time
+    
+        # Enable wake word detection after greeting
+        self.wake_word_active = True
+        self.last_bored_response_time = current_time  # Reset bored response timer
+        self.bored_cycle = 0  # Reset bored cycle
+    
+        self.emit_log(f"✅ Greeted {name} - Wake word detection now active", 'success')
+        return True
+
+    def handle_unknown_person(self, frame, confidence):
+        """Handle unknown person detection with time-based responses using file-based responses"""
+        if self.is_daytime_hours():
+            # 6:00AM - 12:00PM: Assume visitor, be friendly
+            if self.visitor_greeting_responses:
+                visitor_greeting = random.choice(self.visitor_greeting_responses)
+                self.emit_log(f"🌅 Selected daytime visitor greeting from file", 'debug')
+            else:
+                visitor_greeting = "Hello. I do not recognize you. Can I be of assistance?"
+                self.emit_log("⚠️ Using fallback visitor greeting - no templates loaded", 'warning')
+            
+            self.speak_text(visitor_greeting)
+            self.emit_conversation(f"👤 Unknown visitor greeted: {visitor_greeting}", 'response')
+            self.emit_log("🌞 Unknown person detected during daytime - treated as visitor", 'warning')
+        else:
+            # 12:01PM - 5:59AM: Assume intruder, give warning
+            if self.warning_responses:
+                warning = random.choice(self.warning_responses)
+                self.emit_log(f"🌙 Selected nighttime warning from file", 'debug')
+            else:
+                warning = "Attention unauthorized person, you are not authorized to access this property. Leave immediately. I am contacting the authorities to report your intrusion."
+                self.emit_log("⚠️ Using fallback warning - no templates loaded", 'warning')
+            
+            self.speak_text(warning)
+            self.emit_conversation(f"🚨 Intruder warning: {warning}", 'response')
+            self.emit_log("🌚 Unknown person detected during nighttime/evening - treated as intruder", 'error')
+
+        # Save security photo and send alert regardless of time
+        photo_path = self.save_security_photo(frame, "Unknown", confidence)
+        self.send_telegram_alert("Unknown", confidence, photo_path)
+
+    def get_file_joke(self):
+        """Get a random joke from jokes.txt file"""
+        try:
+            if self.jokes:
+                joke = random.choice(self.jokes)
+                self.emit_log(f"Selected joke from file: {joke[:50]}...", 'debug')
+                return joke
+            else:
+                return "Why don't scientists trust atoms? Because they make up everything!"
+        except Exception as e:
+            self.emit_log(f"File joke error: {e}", 'error')
+            return "Why don't scientists trust atoms? Because they make up everything!"
+
+    def get_file_fun_fact(self):
+        """Get a random fun fact from fun_facts.txt file"""
+        try:
+            if self.fun_facts:
+                fact = random.choice(self.fun_facts)
+                self.emit_log(f"Selected fun fact from file: {fact[:50]}...", 'debug')
+                return fact
+            else:
+                return "Did you know that octopuses have three hearts and blue blood?"
+        except Exception as e:
+            self.emit_log(f"File fun fact error: {e}", 'error')
+            return "Did you know that octopuses have three hearts and blue blood?"
+
+    def check_for_bored_response(self, name):
+        """Enhanced version that respects speech timing"""
+        if not self.wake_word_active or not self.last_bored_response_time:
+            return False
+
+        # Don't trigger bored responses while currently speaking
+        if hasattr(self, 'currently_speaking') and self.currently_speaking:
+            return False
+
+        current_time = time.time()
+        time_since_bored = current_time - self.last_bored_response_time
+
+        if time_since_bored >= BORED_RESPONSE_INTERVAL:
+            # Add 1-second delay before response
+            time.sleep(1.0)
+        
+            # Determine if this is a known person or stranger
+            is_known_person = name and name != "Unknown"
+        
+            if self.bored_cycle == 0:
+                # Give bored response + joke from file
+                if is_known_person:
+                    # Use personalized bored responses
+                    if self.bored_responses:
+                        bored_template = random.choice(self.bored_responses)
+                        bored_msg = bored_template.replace("{name}", name)
+                    else:
+                        bored_msg = f"Hey {name}, I'm getting a bit bored waiting here"
+                else:
+                    # Use generic bored responses for strangers
+                    if self.bored_responses_generic:
+                        bored_msg = random.choice(self.bored_responses_generic)
+                    else:
+                        bored_msg = "I'm getting a bit bored waiting here"
+            
+                # Get joke from file
+                joke = self.get_file_joke()
+            
+                # Speak the bored message first
+                self.speak_text(bored_msg)
+                self.emit_conversation(f"😴 Bored response: {bored_msg}", 'response')
+            
+                # Add 1-second pause between messages
+                time.sleep(1.0)
+            
+                # Then tell the joke
+                joke_intro = "Let me tell you a joke!"
+                self.speak_text(joke_intro)
+                time.sleep(0.5)  # Short pause
+                self.speak_text(joke)
+                self.emit_conversation(f"😄 Joke: {joke}", 'response')
+            
+                self.bored_cycle = 1
+                self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a bored response with file joke", 'info')
+            else:
+                # Give waiting response + fun fact from file
+                if is_known_person:
+                    # Use personalized waiting responses
+                    if self.waiting_responses:
+                        waiting_template = random.choice(self.waiting_responses)
+                        waiting_msg = waiting_template.replace("{name}", name)
+                    else:
+                        waiting_msg = f"I am still around if you need me, {name}"
+                else:
+                    # Use generic waiting responses for strangers
+                    if self.waiting_responses_generic:
+                        waiting_msg = random.choice(self.waiting_responses_generic)
+                    else:
+                        waiting_msg = "I am still around if you need assistance"
+            
+                # Get fun fact from file
+                fun_fact = self.get_file_fun_fact()
+            
+                # Speak the waiting message first
+                self.speak_text(waiting_msg)
+                self.emit_conversation(f"⏳ Waiting response: {waiting_msg}", 'response')
+            
+                # Add 1-second pause between messages
+                time.sleep(1.0)
+            
+                # Then share the fun fact
+                fact_intro = "Here's a fun fact for you!"
+                self.speak_text(fact_intro)
+                time.sleep(0.5)  # Short pause
+                self.speak_text(fun_fact)
+                self.emit_conversation(f"💡 Fun fact: {fun_fact}", 'response')
+            
+                self.bored_cycle = 0
+                self.emit_log(f"Gave {'known person ' + name if is_known_person else 'stranger'} a waiting response with file fun fact", 'info')
+        
+            self.last_bored_response_time = current_time
+            return True
+    
+        return False
+
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper"""
+        try:
+            if not os.path.exists(filename):
+                return ""
+            
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            self.emit_log(f"Transcription: '{transcript}'", 'info')
+            return transcript
+        except Exception as e:
+            self.emit_log(f"Transcription error: {e}", 'error')
+            return ""
+
+    def detect_wake_word(self, text):
+        """Check if text contains wake word"""
+        if not text:
+            return False
+        
+        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+    
+        for wake_word in WAKE_WORDS:
+            wake_word_cleaned = wake_word.lower().strip()
+            if wake_word_cleaned in text_cleaned:
+                self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
+                return True
+    
+        # Log that no wake word was found (for debugging)
+        self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
+        return False
+
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection with improved sensitivity"""
+        try:
+            if not self.audio_recording_lock.acquire(blocking=False):
+                return False  # Audio system is busy
+        
+            try:
+                # Record 5 seconds of audio for wake word detection
+                audio_data = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype='float32')
+                sd.wait()
+            
+                # Check if audio contains sound above threshold
+                rms = np.sqrt(np.mean(audio_data**2))
+                wake_word_threshold = SILENCE_THRESHOLD * 1.2  # Slightly lower threshold for wake word
+            
+                self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+            
+                if rms > wake_word_threshold:
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    self.emit_log(f"💾 Wake word audio saved - RMS {rms:.4f} exceeded threshold", 'info')
+                    return True
+                else:
+                    self.emit_log(f"🔇 Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+                    return False
+                
+            finally:
+                self.audio_recording_lock.release()
+            
+        except Exception as e:
+            self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+            return False
+
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            current_time = datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+
+    def query_llama(self, prompt):
+        """Generate LLM response with configurable token limit"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+    
+        try:
+            self.emit_log(f"🤖 Querying LLM with max tokens: {LLM_MAX_TOKENS}", 'debug')
+        
+            result = self.llama_model(formatted_prompt, max_tokens=LLM_MAX_TOKENS)
+        
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+            
+                # Clean up the response
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)  # Remove parenthetical content
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)  # Remove labels
+                reply_text = reply_text.strip()
+            
+                # Limit to reasonable number of sentences for speech
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+            
+                self.emit_log(f"✅ LLM response generated: {len(reply_text)} characters", 'debug')
+                return reply_text
+            else:
+                self.emit_log("⚠️ LLM returned no valid response", 'warning')
+                return "I'm not sure how to answer that."
+            
+        except Exception as e:
+            self.emit_log(f"🔴 LLM error: {e}", 'error')
+            return "Sorry, I had trouble processing that question."
+
+    def process_user_input(self, text):
+        """Process user input"""
+        self.emit_log(f"Processing user input: '{text}'", 'info')
+        command = self.is_command(text)
+        if command:
+            self.emit_log(f"Executing command: {command}", 'info')
+            response = self.execute_command(command)
+        else:
+            self.emit_log("Generating LLM response", 'info')
+            response = self.query_llama(text)
+        
+        return response
+
+    def play_beep(self):
+        """Play beep sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True, timeout=5)
+                self.emit_log("🔔 Beep sound played", 'debug')
+        except subprocess.CalledProcessError as e:
+            self.emit_log(f"🔇 Beep sound failed: {e}", 'warning')
+        except Exception as e:
+            self.emit_log(f"🔇 Beep error: {e}", 'warning')
+
+    def play_laughing(self):
+        """Play laughing sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True, timeout=10)
+                self.emit_log("😄 Laughing sound played", 'debug')
+        except subprocess.CalledProcessError as e:
+            self.emit_log(f"🔇 Laughing sound failed: {e}", 'warning')
+        except Exception as e:
+            self.emit_log(f"🔇 Laughing error: {e}", 'warning')
+
+    def record_with_silence_detection(self):
+        """Record audio until silence detected with improved detection"""
+        try:
+            with self.audio_recording_lock:
+                self.emit_log("🎙️ Recording user audio...", 'info')
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.1  # Check more frequently (was 0.2)
+                samples_per_check = int(SAMPLE_RATE * check_interval)
+            
+                # Track audio levels for debugging
+                recent_levels = []
+            
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        self.emit_log(f"🔊 Audio callback status: {status}", 'warning')
+                    audio_data.extend(indata[:, 0])
+
+                with sd.InputStream(callback=audio_callback,
+                                    samplerate=SAMPLE_RATE,
+                                    channels=CHANNELS,
+                                    dtype='float32'):
+                
+                    while recording_duration < MAX_RECORDING_DURATION:
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                    
+                        if len(audio_data) >= samples_per_check:
+                            # Get recent audio segment
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+                            rms = np.sqrt(np.mean(recent_audio**2))
+                            recent_levels.append(rms)
+                        
+                            # Keep only last 10 levels for debugging
+                            if len(recent_levels) > 10:
+                                recent_levels = recent_levels[-10:]
+                        
+                            # Log audio levels every 2 seconds for debugging
+                            if int(recording_duration * 10) % 20 == 0:  # Every 2 seconds
+                                avg_level = sum(recent_levels) / len(recent_levels) if recent_levels else 0
+                                self.emit_log(f"🔊 Audio level: {rms:.4f} (avg: {avg_level:.4f}, threshold: {SILENCE_THRESHOLD:.4f})", 'debug')
+                        
+                            if rms < SILENCE_THRESHOLD:
+                                silence_duration += check_interval
+                                if silence_duration >= MIN_SILENCE_DURATION:
+                                    self.emit_log(f"🤫 Silence detected after {recording_duration:.1f}s (RMS: {rms:.4f} < {SILENCE_THRESHOLD:.4f})", 'info')
+                                    break
+                            else:
+                                silence_duration = 0  # Reset silence counter if sound detected
+
+                if audio_data:
+                    audio_array = np.array(audio_data, dtype=np.float32)
+                    sf.write(WAV_FILENAME, audio_array, SAMPLE_RATE)
+                    final_rms = np.sqrt(np.mean(audio_array**2))
+                    self.emit_log(f"💾 Audio saved: {len(audio_array)/SAMPLE_RATE:.1f}s duration, final RMS: {final_rms:.4f}", 'success')
+                    return True
+            
+                self.emit_log("❌ No audio data recorded", 'error')
+                return False
+            
+        except Exception as e:
+            self.emit_log(f"🔴 Recording error: {e}", 'error')
+            return False
+
+    def handle_wake_word_detected(self):
+        """Handle wake word detection and start conversation"""
+        self.play_beep()
+        
+        # Speak generic listening response with person's name
+        if self.listening_responses:
+            listening_template = random.choice(self.listening_responses)
+            listening_response = listening_template.replace("{name}", self.current_person)
+        else:
+            listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
+        
+        self.speak_text(listening_response)
+        self.emit_conversation(f"👂 Listening: {listening_response}", 'response')
+        
+        # Record full request
+        self.emit_log("Please speak your request...", 'info')
+        if self.record_with_silence_detection():
+            user_text = self.transcribe_audio(WAV_FILENAME)
+            if user_text and len(user_text.strip()) > 2:
+                self.emit_conversation(f"🎤 User said: '{user_text}'", 'user_input')
+                response = self.process_user_input(user_text)
+                self.emit_conversation(f"🤖 Response: '{response}'", 'response')
+                self.speak_text(response)
+                self.last_interaction_time = time.time()
+                # Reset bored response timer only after successful interaction
+                self.last_bored_response_time = time.time()
+            else:
+                self.emit_log("No clear speech detected", 'warning')
+                self.speak_text("I didn't catch that. Could you repeat your request?")
+                self.emit_conversation("❓ No clear speech detected", 'info')
+        else:
+            self.emit_log("Failed to record user request", 'error')
+            self.speak_text("I'm having trouble hearing you. Please try again.")
+            self.emit_conversation("🚫 Failed to record audio", 'info')
+
+    def listen_for_wake_word(self):
+        """Listen for wake words in background"""
+        self.emit_log("Wake word detection thread started", 'success')
+        
+        while self.system_running and self.monitor_running:
+            try:
+                # Only listen if someone is present and wake word detection is active
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        # Bored response was given, continue to next iteration
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+                    
+                    # Record audio for wake word detection
+                    if self.record_wake_word_check():
+                        # Transcribe and check for wake word
+                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                        
+                        if transcript and self.detect_wake_word(transcript):
+                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+                            self.emit_conversation(f"🌟 Wake word detected: {transcript}", 'wake_word')
+                            
+                            # Handle the wake word detection
+                            self.handle_wake_word_detected()
+                    
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    # No one present or wake word not active, sleep longer
+                    time.sleep(2.0)
+                
+            except Exception as e:
+                self.emit_log(f"Wake word detection error: {e}", 'error')
+                time.sleep(2.0)
+        
+        self.emit_log("Wake word detection thread stopped", 'info')
+
+    def update_audio_settings(self, silence_threshold=None, min_silence_duration=None, max_tokens=None):
+        """Update audio and LLM settings dynamically"""
+        global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
+    
+        if silence_threshold is not None:
+            SILENCE_THRESHOLD = silence_threshold
+            self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
+    
+        if min_silence_duration is not None:
+            MIN_SILENCE_DURATION = min_silence_duration
+            self.emit_log(f"⚙️ Updated min silence duration to {MIN_SILENCE_DURATION:.1f}s", 'info')
+    
+        if max_tokens is not None:
+            LLM_MAX_TOKENS = max_tokens
+            self.emit_log(f"⚙️ Updated LLM max tokens to {LLM_MAX_TOKENS}", 'info')
+
+    def camera_monitoring_loop(self):
+        """Main camera monitoring loop for web interface"""
+        logger.info("Camera monitoring thread started - DEBUG INFO")
+        logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")
+        self.emit_log("Camera monitoring thread started", 'success')
+        
+        while self.system_running and self.monitor_running:
+            try:
+                if not self.picam2:
+                    time.sleep(1)
+                    continue
+                    
+                frame = self.picam2.capture_array()
+                
+                # Convert from RGB to BGR for OpenCV
+                if len(frame.shape) == 3 and frame.shape[2] == 3:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                
+                # Process facial recognition
+                name, face_location, confidence = self.detect_faces(frame)
+                
+                current_time = time.time()
+                
+                # Draw face rectangles and labels on frame for web display
+                display_frame = frame.copy()
+                if name and face_location:
+                    top, right, bottom, left = face_location
+                    
+                    # Choose color based on recognition
+                    if name == "Unknown":
+                        color = (0, 0, 255)  # Red for unknown
+                        label = f"Unknown ({confidence:.2f})"
+                    else:
+                        color = (0, 255, 0)  # Green for known
+                        label = f"{name} ({confidence:.2f})"
+                    
+                    # Draw rectangle around face
+                    cv2.rectangle(display_frame, (left, top), (right, bottom), color, 2)
+                    
+                    # Draw label background
+                    cv2.rectangle(display_frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+                    
+                    # Draw label text
+                    cv2.putText(display_frame, label, (left + 6, bottom - 6),
+                               cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
+                
+                # Add status information to frame
+                status_text = "Chatty AI Web Interface Active"
+                cv2.putText(display_frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                
+                # Show current person status
+                if self.current_person:
+                    person_text = f"Current Person: {self.current_person}"
+                    cv2.putText(display_frame, person_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # Show wake word status
+                if self.wake_word_active:
+                    wake_word_text = "Wake Word Detection: ACTIVE"
+                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                else:
+                    wake_word_text = "Wake Word Detection: INACTIVE"
+                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                
+                # Show bored response timer
+                if self.last_bored_response_time and self.wake_word_active:
+                    time_since_bored = current_time - self.last_bored_response_time
+                    timer_text = f"Bored Timer: {int(BORED_RESPONSE_INTERVAL - time_since_bored)}s"
+                    cv2.putText(display_frame, timer_text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+                
+                # Update current frame for web streaming
+                self.current_frame = display_frame
+                
+                # Process facial recognition logic
+                if name and face_location:
+                    # Person detected
+                    if name != self.current_person:
+                        # New person or person changed
+                        self.current_person = name
+                        self.person_absent_since = None
+                        self.wake_word_active = False  # Reset wake word state
+                        
+                        # Create captured person frame (crop face area)
+                        if face_location:
+                            top, right, bottom, left = face_location
+                            # Expand the crop area a bit
+                            margin = 50
+                            crop_top = max(0, top - margin)
+                            crop_bottom = min(frame.shape[0], bottom + margin)
+                            crop_left = max(0, left - margin)
+                            crop_right = min(frame.shape[1], right + margin)
+                            
+                            cropped_face = frame[crop_top:crop_bottom, crop_left:crop_right]
+                            # Resize to standard size
+                            self.captured_person_frame = cv2.resize(cropped_face, (300, 300))
+                        
+                        # Emit person detection to web clients
+                        person_data = {
+                            'name': name,
+                            'confidence': f"{confidence:.1%}" if name != "Unknown" else "N/A",
+                            'timestamp': datetime.now().strftime('%H:%M:%S')
+                        }
+                        
+                        if self.clients:
+                            self.socketio.emit('person_detected', person_data)
+                        
+                        if name == "Unknown":
+                            self.handle_unknown_person(frame, confidence)
+                        else:
+                            # Save photo and send telegram alert for known person
+                            photo_path = self.save_security_photo(frame, name, confidence)
+                            self.send_telegram_alert(name, confidence, photo_path)
+                            
+                            # Greet known person (this will activate wake word detection)
+                            self.greet_person(name)
+                
+                else:
+                    # No person detected
+                    if self.current_person:
+                        if not self.person_absent_since:
+                            self.person_absent_since = current_time
+                        elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
+                            # Person has been absent for 5+ minutes, reset
+                            old_person = self.current_person
+                            self.current_person = None
+                            self.person_absent_since = None
+                            self.last_interaction_time = None
+                            self.wake_word_active = False
+                            self.last_bored_response_time = None  # Reset bored response timer
+                            self.bored_cycle = 0  # Reset bored cycle
+                            self.captured_person_frame = None
+                            
+                            # Emit person left to web clients
+                            person_data = {
+                                'name': "No person detected",
+                                'confidence': "--",
+                                'timestamp': datetime.now().strftime('%H:%M:%S')
+                            }
+                            
+                            if self.clients:
+                                self.socketio.emit('person_detected', person_data)
+                            
+                            self.emit_log(f"{old_person} left - resetting state", 'info')
+                
+                time.sleep(PERSON_DETECTION_INTERVAL)
+                
+            except Exception as e:
+                self.emit_log(f"Camera loop error: {e}", 'error')
+                time.sleep(1)
+        
+        self.emit_log("Camera monitoring thread stopped", 'info')
+
+    def signal_handler(self, sig, frame):
+        """Handle shutdown signals"""
+        logger.info("Shutdown signal received")
+        self.cleanup()
+        sys.exit(0)
+
+    def cleanup(self):
+        """Clean up resources"""
+        logger.info("Cleaning up resources...")
+        self.system_running = False
+        self.monitor_running = False
+        
+        # Stop camera
+        if self.picam2:
+            try:
+                self.picam2.stop()
+                logger.info("Camera stopped")
+            except:
+                pass
+        
+        # Clean up audio files
+        for audio_file in [WAV_FILENAME, RESPONSE_AUDIO, WAKE_WORD_AUDIO]:
+            try:
+                if os.path.exists(audio_file):
+                    os.remove(audio_file)
+            except:
+                pass
+
+    def get_local_ip(self):
+        """Get local IP address"""
+        try:
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except:
+            return "localhost"
+
+    def run(self, host='0.0.0.0', port=5001, debug=False):
+        """Run the web server"""
+        
+        # Register signal handlers
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
+        
+        try:
+            # Print startup banner
+            print("\n" + "="*60)
+            print("🚀 Starting Chatty AI Web Interface")
+            print("="*60)
+            print("Web Interface Features:")
+            print("• Complete AI Assistant Integration")
+            print("• Live Video Feed with Facial Recognition")
+            print("• Real-time System Monitoring")
+            print("• Wake Word Detection")
+            print("• Speech Synthesis & Processing")
+            print("• Security Monitoring & Telegram Alerts")
+            print("• LLM-Generated Entertainment")
+            print("="*60)
+            print(f"Access the web interface at: http://localhost:{port}")
+            print(f"Or from other devices at: http://{self.get_local_ip()}:{port}")
+            print("Press Ctrl+C to stop the server")
+            print("="*60)
+            print("\nDEBUG INFO:")
+            print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+            print(f"• Bored response interval: {BORED_RESPONSE_INTERVAL} seconds")
+            print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
+            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
+            print("="*60)
+            
+            # Start the server with better error handling
+            logger.info("Starting Flask-SocketIO server...")
+            self.socketio.run(self.app, 
+                            host=host, 
+                            port=port, 
+                            debug=debug,
+                            use_reloader=False,
+                            log_output=True)
+                            
+        except Exception as e:
+            logger.error(f"Error starting server: {e}")
+            self.cleanup()
+            raise
+        finally:
+            self.cleanup()
+
+def main():
+    """Main function"""
+    try:
+        # Check audio devices
+        try:
+            print("Available audio devices:")
+            print(sd.query_devices())
+            print("=" * 60)
+        except Exception as e:
+            print(f"Could not query audio devices: {e}")
+        
+        # Create and run server
+        server = ChattyAIWebServer()
+        server.run(debug=False)
+        
+    except KeyboardInterrupt:
+        print("\n\nShutdown requested by user")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    # Suppress development server warnings
+    suppress_flask_warnings()
+    main()
+
+My /home/nickspi5/Chatty_AI/templates/Chatty_AI.html web ui template page is as follows:
+
+Chatty_AI.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatty AI - Your Smart AI Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Arial', sans-serif;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Row */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo-container {
+            flex: 0 0 250px;
+        }
+
+        .logo-container img {
+            width: 250px;
+            height: 277px;
+            object-fit: contain;
+        }
+
+        .title-container {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .main-title .chatty {
+            color: #FF6600;
+        }
+
+        .main-title .ai {
+            color: #FFFFFF;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #FF6600;
+            font-weight: normal;
+        }
+
+        /* System Information Row */
+        .system-info-row {
+            margin-bottom: 30px;
+        }
+
+        .system-info-container {
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .system-info-title {
+            color: #FF6600;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .system-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+
+        .metric-item {
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            border-color: #FF6600;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+        }
+
+        .metric-label {
+            color: #FF6600;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            color: #FFFFFF;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-unit {
+            color: #AAAAAA;
+            font-size: 0.9rem;
+        }
+
+        /* Status indicators for metrics */
+        .metric-value.warning {
+            color: #FFAA00;
+        }
+
+        .metric-value.danger {
+            color: #FF4444;
+        }
+
+        .metric-value.good {
+            color: #44FF44;
+        }
+
+        /* Video and Image Row */
+        .video-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-container, .image-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: 360px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .captured-image {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .person-info {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .person-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FF6600;
+            margin-bottom: 5px;
+        }
+
+        .person-confidence {
+            font-size: 1.2rem;
+            color: #FF6600;
+        }
+
+        /* Text Areas Row */
+        .text-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .log-container, .conversation-container {
+            flex: 1;
+            background-color: #111111;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 300px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            resize: none;
+            scrollbar-width: thin;
+            scrollbar-color: #FF6600 #000000;
+        }
+
+        .text-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .text-area::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        .text-area::-webkit-scrollbar-thumb {
+            background: #FF6600;
+            border-radius: 4px;
+        }
+
+        .log-area {
+            color: #FFFFFF;
+        }
+
+        .conversation-area {
+            color: #FF6600;
+        }
+
+        .area-title {
+            color: #FF6600;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Buttons Row */
+        .buttons-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .system-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-button {
+            background-color: #FF6600;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .action-button:hover {
+            background-color: #FF8833;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            background-color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .start-button {
+            background-color: #00AA00;
+        }
+
+        .start-button:hover:not(:disabled) {
+            background-color: #00CC00;
+        }
+
+        .stop-button {
+            background-color: #AA0000;
+        }
+
+        .stop-button:hover:not(:disabled) {
+            background-color: #CC0000;
+        }
+
+        /* Footer Row */
+        .footer-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .company-logo {
+            flex: 0 0 250px;
+        }
+
+        .company-logo img {
+            width: 250px;
+            height: 135px;
+            object-fit: contain;
+        }
+
+        .copyright-container {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        .copyright-text {
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #FF6600;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .status-indicator.offline {
+            background-color: #FF0000;
+        }
+
+        .status-indicator.online {
+            background-color: #00AA00;
+            color: #FFFFFF;
+        }
+
+        /* System Status */
+        .system-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background-color: #333333;
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        .system-status.running {
+            background-color: #00AA00;
+        }
+
+        .system-status.stopped {
+            background-color: #AA0000;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background-color: #222222;
+            color: #FFFFFF;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            min-width: 200px;
+            border: 1px solid #FF6600;
+        }
+
+        .debug-title {
+            color: #FF6600;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-item {
+            margin: 2px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+            }
+
+            .system-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-row, .video-row, .text-row, .footer-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .buttons-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .system-controls, .feature-buttons {
+                justify-content: center;
+            }
+            
+            .logo-container, .company-logo {
+                flex: none;
+                text-align: center;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .system-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .debug-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .system-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for person detection */
+        .person-detected {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Log entry styling */
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .log-timestamp {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .log-error {
+            color: #FF4444;
+        }
+
+        .log-warning {
+            color: #FFAA00;
+        }
+
+        .log-success {
+            color: #44FF44;
+        }
+
+        .log-info {
+            color: #FFFFFF;
+        }
+
+        .conversation-wake_word {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .conversation-user_input {
+            color: #00AAFF;
+        }
+
+        .conversation-response {
+            color: #FFAA00;
+        }
+
+        .conversation-speech {
+            color: #FF66FF;
+        }
+
+        /* System info update animation */
+        .metric-item.updating {
+            border-color: #FF6600;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
+        }
+
+        @keyframes metric-update {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .metric-value.updated {
+            animation: metric-update 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Status Indicators -->
+        <div id="statusIndicator" class="status-indicator offline">Disconnected</div>
+        <div id="systemStatus" class="system-status stopped">System Stopped</div>
+        
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel">
+            <div class="debug-title">System Information</div>
+            <div class="debug-item">Socket: <span id="debugSocket">Disconnected</span></div>
+            <div class="debug-item">Camera: <span id="debugCamera">Unknown</span></div>
+            <div class="debug-item">Models: <span id="debugModels">Not Loaded</span></div>
+            <div class="debug-item">Wake Word: <span id="debugWakeWord">Inactive</span></div>
+            <div class="debug-item">Person: <span id="debugPerson">None</span></div>
+        </div>
+
+        <!-- Header Row -->
+        <div class="header-row">
+            <div class="logo-container">
+                <img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="title-container">
+                <h1 class="main-title">
+                    <span class="chatty">Chatty</span> <span class="ai">AI</span>
+                </h1>
+                <p class="subtitle">Your smart AI Assistant</p>
+            </div>
+        </div>
+
+        <!-- Video and Image Row -->
+        <div class="video-row">
+            <div class="video-container">
+                <div class="area-title">Live Camera Feed</div>
+                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
+            </div>
+            <div class="image-container">
+                <div class="area-title">Detected Person</div>
+                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
+                <div class="person-info">
+                    <div id="personName" class="person-name">No person detected</div>
+                    <div id="personConfidence" class="person-confidence">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Areas Row -->
+        <div class="text-row">
+            <div class="log-container">
+                <div class="area-title">System Logs</div>
+                <div id="logArea" class="text-area log-area"></div>
+            </div>
+            <div class="conversation-container">
+                <div class="area-title">Conversations & Responses</div>
+                <div id="conversationArea" class="text-area conversation-area"></div>
+            </div>
+        </div>
+
+        <!-- System Information Row -->
+        <div class="system-info-row">
+            <div class="system-info-container">
+                <div class="system-info-title">System Performance Monitor</div>
+                <div class="system-metrics">
+                    <div class="metric-item">
+                        <div class="metric-label">CPU Usage</div>
+                        <div id="cpuValue" class="metric-value">--</div>
+                        <div class="metric-unit">%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Memory Usage</div>
+                        <div id="memoryValue" class="metric-value">--</div>
+                        <div class="metric-unit">%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">CPU Temperature</div>
+                        <div id="cpuTempValue" class="metric-value">--</div>
+                        <div class="metric-unit">°C</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">GPU Temperature</div>
+                        <div id="gpuTempValue" class="metric-value">--</div>
+                        <div class="metric-unit">°C</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons Row -->
+        <div class="buttons-row">
+            <div class="system-controls">
+                <button id="startButton" class="action-button start-button" onclick="startSystem()">Start System</button>
+                <button id="stopButton" class="action-button stop-button" onclick="stopSystem()" disabled>Stop System</button>
+            </div>
+            <div class="feature-buttons">
+                <button class="action-button" onclick="get_settings()">Settings</button>
+                <button class="action-button" onclick="register_person()">Register Person</button>
+                <button class="action-button" onclick="train_model()">Train Model</button>
+                <button class="action-button" onclick="view_all_cameras()">View All Cameras</button>
+            </div>
+        </div>
+
+        <!-- Footer Row -->
+        <div class="footer-row">
+            <div class="copyright-container">
+                <p class="copyright-text">Copyright 2025 – Nicholas Williamson & Diamond Coding. All Rights Reserved.</p>
+            </div>
+            <div class="company-logo">
+                <img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Socket.IO connection
+        const socket = io();
+        
+        // DOM elements
+        const statusIndicator = document.getElementById('statusIndicator');
+        const systemStatus = document.getElementById('systemStatus');
+        const logArea = document.getElementById('logArea');
+        const conversationArea = document.getElementById('conversationArea');
+        const personName = document.getElementById('personName');
+        const personConfidence = document.getElementById('personConfidence');
+        const capturedImage = document.getElementById('capturedImage');
+        const videoFeed = document.getElementById('videoFeed');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        // System metrics elements
+        const cpuValue = document.getElementById('cpuValue');
+        const memoryValue = document.getElementById('memoryValue');
+        const cpuTempValue = document.getElementById('cpuTempValue');
+        const gpuTempValue = document.getElementById('gpuTempValue');
+
+        // Debug elements
+        const debugSocket = document.getElementById('debugSocket');
+        const debugCamera = document.getElementById('debugCamera');
+        const debugModels = document.getElementById('debugModels');
+        const debugWakeWord = document.getElementById('debugWakeWord');
+        const debugPerson = document.getElementById('debugPerson');
+
+        let isSystemRunning = false;
+        let socketConnected = false;
+        let lastSystemInfo = {};
+
+        // Connection status
+        socket.on('connect', function() {
+            socketConnected = true;
+            statusIndicator.textContent = 'Connected';
+            statusIndicator.className = 'status-indicator online';
+            debugSocket.textContent = 'Connected';
+            debugSocket.style.color = '#44FF44';
+            addLogEntry('✅ Connected to Chatty AI server', 'success');
+            
+            // Request system info on connect
+            setTimeout(() => {
+                socket.emit('get_system_info');
+            }, 1000);
+        });
+
+        socket.on('disconnect', function() {
+            socketConnected = false;
+            statusIndicator.textContent = 'Disconnected';
+            statusIndicator.className = 'status-indicator offline';
+            debugSocket.textContent = 'Disconnected';
+            debugSocket.style.color = '#FF4444';
+            addLogEntry('❌ Disconnected from server', 'error');
+            updateSystemStatus(false);
+        });
+
+        // System status updates
+        socket.on('status_update', function(data) {
+            console.log('Received status_update:', data);
+            updateSystemStatus(data.is_running);
+            addLogEntry(`📊 ${data.message}`, data.status === 'running' ? 'success' : 'info');
+        });
+
+        // System information updates
+        socket.on('system_info', function(data) {
+            console.log('Received system_info:', data);
+            updateSystemMetrics(data);
+            
+            // Update debug info
+            debugCamera.textContent = data.camera_initialized ? 'Ready' : 'Not Ready';
+            debugCamera.style.color = data.camera_initialized ? '#44FF44' : '#FF4444';
+            
+            debugModels.textContent = data.models_loaded ? 'Loaded' : 'Not Loaded';
+            debugModels.style.color = data.models_loaded ? '#44FF44' : '#FF4444';
+            
+            debugWakeWord.textContent = data.wake_word_active ? 'Active' : 'Inactive';
+            debugWakeWord.style.color = data.wake_word_active ? '#44FF44' : '#888888';
+        });
+
+        // Log updates
+        socket.on('log_update', function(data) {
+            addLogEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Conversation updates
+        socket.on('conversation_update', function(data) {
+            addConversationEntry(`[${data.timestamp}] ${data.message}`, data.type);
+        });
+
+        // Person detection updates
+        socket.on('person_detected', function(data) {
+            console.log('Person detected:', data);
+            personName.textContent = data.name;
+            personConfidence.textContent = `Confidence: ${data.confidence}`;
+            debugPerson.textContent = data.name;
+            
+            // Update debug info color
+            if (data.name === 'Unknown') {
+                debugPerson.style.color = '#FF4444';
+            } else if (data.name === 'No person detected') {
+                debugPerson.style.color = '#888888';
+            } else {
+                debugPerson.style.color = '#44FF44';
+            }
+            
+            // Add animation for new detection
+            if (data.name !== 'No person detected') {
+                personName.classList.add('person-detected');
+                setTimeout(() => {
+                    personName.classList.remove('person-detected');
+                }, 2000);
+            }
+            
+            // Update captured image
+            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            
+            if (data.name !== 'No person detected') {
+                addConversationEntry(`👤 Person detected: ${data.name} (${data.confidence})`, 'info');
+            }
+        });
+
+        // System metrics update function
+        function updateSystemMetrics(data) {
+            if (data.cpu_percent !== undefined) {
+                updateMetricValue(cpuValue, data.cpu_percent, '%', 'cpu_percent');
+            }
+            
+            if (data.memory_percent !== undefined) {
+                updateMetricValue(memoryValue, data.memory_percent, '%', 'memory_percent');
+            }
+            
+            if (data.cpu_temp !== undefined) {
+                updateMetricValue(cpuTempValue, data.cpu_temp, '°C', 'cpu_temp');
+            }
+            
+            if (data.gpu_temp !== undefined) {
+                updateMetricValue(gpuTempValue, data.gpu_temp, '°C', 'gpu_temp');
+            }
+        }
+
+        function updateMetricValue(element, value, unit, key) {
+            const formattedValue = typeof value === 'number' ? value.toFixed(1) : value;
+            
+            // Only update if value changed
+            if (lastSystemInfo[key] !== value) {
+                element.textContent = formattedValue;
+                element.classList.add('updated');
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    element.classList.remove('updated');
+                }, 500);
+                
+                // Update color based on thresholds
+                element.classList.remove('good', 'warning', 'danger');
+                
+                if (key === 'cpu_percent' || key === 'memory_percent') {
+                    if (value < 50) {
+                        element.classList.add('good');
+                    } else if (value < 80) {
+                        element.classList.add('warning');
+                    } else {
+                        element.classList.add('danger');
+                    }
+                } else if (key === 'cpu_temp' || key === 'gpu_temp') {
+                    if (value < 60) {
+                        element.classList.add('good');
+                    } else if (value < 75) {
+                        element.classList.add('warning');
+                    } else {
+                        element.classList.add('danger');
+                    }
+                }
+                
+                lastSystemInfo[key] = value;
+            }
+        }
+
+        // Helper functions
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function addConversationEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry conversation-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">${getCurrentTime()}</span> ${message}`;
+            conversationArea.appendChild(entry);
+            conversationArea.scrollTop = conversationArea.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function updateSystemStatus(running) {
+            isSystemRunning = running;
+            if (running) {
+                systemStatus.textContent = 'System Running';
+                systemStatus.className = 'system-status running';
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                startButton.textContent = 'Start System';
+            } else {
+                systemStatus.textContent = 'System Stopped';
+                systemStatus.className = 'system-status stopped';
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                stopButton.textContent = 'Stop System';
+            }
+        }
+
+        // System control functions
+        function startSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot start system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('🚀 Starting Chatty AI system...', 'info');
+            socket.emit('start_system');
+            startButton.disabled = true;
+            startButton.textContent = 'Starting...';
+            
+            // Reset button text after timeout if no response
+            setTimeout(() => {
+                if (startButton.textContent === 'Starting...') {
+                    startButton.textContent = 'Start System';
+                    startButton.disabled = false;
+                }
+            }, 10000);
+        }
+
+        function stopSystem() {
+            if (!socketConnected) {
+                addLogEntry('❌ Cannot stop system - not connected to server', 'error');
+                return;
+            }
+            
+            addLogEntry('⏹️ Stopping Chatty AI system...', 'warning');
+            socket.emit('stop_system');
+            stopButton.disabled = true;
+            stopButton.textContent = 'Stopping...';
+            
+            // Reset button text after timeout
+            setTimeout(() => {
+                if (stopButton.textContent === 'Stopping...') {
+                    stopButton.textContent = 'Stop System';
+                    stopButton.disabled = false;
+                }
+            }, 5001);
+        }
+
+        // Feature button functions (placeholder implementations)
+        function get_settings() {
+            addLogEntry('⚙️ Settings feature coming soon...', 'info');
+        }
+
+        function register_person() {
+            addLogEntry('👤 Person registration feature coming soon...', 'info');
+        }
+
+        function train_model() {
+            addLogEntry('🧠 Model training feature coming soon...', 'info');
+        }
+
+        function view_all_cameras() {
+            addLogEntry('📷 Camera view feature coming soon...', 'info');
+        }
+
+        // Connection monitoring
+        function checkConnection() {
+            if (!socketConnected) {
+                addLogEntry('⚠️ Connection lost - attempting to reconnect...', 'warning');
+                socket.connect();
+            }
+        }
+
+        // Monitor connection every 30 seconds
+        setInterval(checkConnection, 30000);
+
+        // Handle page unload
+        window.addEventListener('beforeunload', function() {
+            if (isSystemRunning && socketConnected) {
+                socket.emit('stop_system');
+            }
+        });
+
+        // Refresh video feed periodically to handle any connection issues
+        setInterval(() => {
+            if (videoFeed.complete && isSystemRunning) {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }
+        }, 30000); // Refresh every 30 seconds
+
+        // Handle video feed errors
+        videoFeed.addEventListener('error', function() {
+            addLogEntry('⚠️ Video feed connection lost - attempting to reconnect...', 'warning');
+            setTimeout(() => {
+                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
+            }, 2000);
+        });
+
+        // Handle captured image errors
+        capturedImage.addEventListener('error', function() {
+            capturedImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExMTExIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+        });
+
+        // Auto-refresh captured image
+        setInterval(() => {
+            if (isSystemRunning) {
+                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
+            }
+        }, 5001); // Refresh every 5 seconds when system is running
+
+        // Request system info periodically
+        setInterval(() => {
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 5001); // Every 5 seconds for real-time monitoring
+
+        // Enhanced error handling for socket events
+        socket.on('connect_error', function(error) {
+            addLogEntry(`❌ Connection error: ${error}`, 'error');
+            statusIndicator.textContent = 'Connection Error';
+            statusIndicator.className = 'status-indicator offline';
+        });
+
+        socket.on('error', function(error) {
+            addLogEntry(`❌ Socket error: ${error}`, 'error');
+        });
+
+        // Debug logging for all socket events (can be disabled in production)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const originalOn = socket.on;
+            socket.on = function(event, callback) {
+                return originalOn.call(this, event, function(...args) {
+                    console.log(`Socket event received: ${event}`, args);
+                    return callback.apply(this, args);
+                });
+            };
+
+            const originalEmit = socket.emit;
+            socket.emit = function(event, ...args) {
+                console.log(`Socket event sent: ${event}`, args);
+                return originalEmit.apply(this, [event, ...args]);
+            };
+        }
+
+        // Initial setup
+        addLogEntry('🌟 Chatty AI Web Interface initialized', 'info');
+        addLogEntry('🔗 Attempting to connect to server...', 'info');
+        addLogEntry('💡 Click "Start System" to begin AI operations', 'info');
+        
+        // Check for required files on load
+        setTimeout(() => {
+            addLogEntry('🔍 Checking system components...', 'info');
+            if (socketConnected) {
+                socket.emit('get_system_info');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
+
+My chatty-ai.service file is as follows:
+
+chatty-ai.service
+[Unit]
+Description=Chatty AI Web Interface
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+Environment=CHATTY_AI_ENV=production
+
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
+I would now like the Tinyllama LLM - tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf, the English US Amy voice model - home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx, the faster whisper, piper and any other services that can be preloaded, to be preloaded when my Raspberry PI 5 boots up.
+
+This is to dramatically increase response and processing speed for my Chatty AI Assistant.
+
+Please instruct me as to how I can achieve this?
+
+Also, I would like a much cooler and more high tech looking web ui page.
+
+Please keep the JavaScript functionality and page layout exactly the same as it is now but make the web page asthetically look more high tech, possibly with a lattice of lines background animation that responds to the mouse cursor location and use a bright fluorescent colors for everything except for the text in the display boxes.
 
 
-
-
-
-
-
-
-
-
-
-nickspi5@raspberrypi1:~ $ sudo apt install -y espeak espeak-data libespeak1 libespeak-dev
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  libsonic0
-The following NEW packages will be installed:
-  espeak espeak-data libespeak-dev libespeak1 libsonic0
-0 upgraded, 5 newly installed, 0 to remove and 0 not upgraded.
-Need to get 1,420 kB of archives.
-After this operation, 3,555 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 libsonic0 arm64 0.2.0-12 [10.4 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 espeak-data arm64 1.48.15+dfsg-3 [1,011 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 libespeak1 arm64 1.48.15+dfsg-3 [147 kB]
-Get:4 http://deb.debian.org/debian bookworm/main arm64 espeak arm64 1.48.15+dfsg-3 [72.0 kB]
-Get:5 http://deb.debian.org/debian bookworm/main arm64 libespeak-dev arm64 1.48.15+dfsg-3 [181 kB]
-Fetched 1,420 kB in 3s (522 kB/s)      
-Selecting previously unselected package libsonic0:arm64.
-(Reading database ... 153165 files and directories currently installed.)
-Preparing to unpack .../libsonic0_0.2.0-12_arm64.deb ...
-Unpacking libsonic0:arm64 (0.2.0-12) ...
-Selecting previously unselected package espeak-data:arm64.
-Preparing to unpack .../espeak-data_1.48.15+dfsg-3_arm64.deb ...
-Unpacking espeak-data:arm64 (1.48.15+dfsg-3) ...
-Selecting previously unselected package libespeak1:arm64.
-Preparing to unpack .../libespeak1_1.48.15+dfsg-3_arm64.deb ...
-Unpacking libespeak1:arm64 (1.48.15+dfsg-3) ...
-Selecting previously unselected package espeak.
-Preparing to unpack .../espeak_1.48.15+dfsg-3_arm64.deb ...
-Unpacking espeak (1.48.15+dfsg-3) ...
-Selecting previously unselected package libespeak-dev:arm64.
-Preparing to unpack .../libespeak-dev_1.48.15+dfsg-3_arm64.deb ...
-Unpacking libespeak-dev:arm64 (1.48.15+dfsg-3) ...
-Setting up libsonic0:arm64 (0.2.0-12) ...
-Setting up espeak-data:arm64 (1.48.15+dfsg-3) ...
-Setting up libespeak1:arm64 (1.48.15+dfsg-3) ...
-Setting up espeak (1.48.15+dfsg-3) ...
-Setting up libespeak-dev:arm64 (1.48.15+dfsg-3) ...
-Processing triggers for man-db (2.11.2-2) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y pulseaudio pulseaudio-utils alsa-utils
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-pulseaudio is already the newest version (16.1+dfsg1-2+rpt1).
-pulseaudio set to manually installed.
-pulseaudio-utils is already the newest version (16.1+dfsg1-2+rpt1).
-pulseaudio-utils set to manually installed.
-alsa-utils is already the newest version (1.2.8-1+rpt1).
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-nickspi5@raspberrypi1:~ $ sudo apt install -y ffmpeg libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-ffmpeg is already the newest version (8:5.1.6-0+deb12u1+rpt3).
-The following additional packages will be installed:
-  libavfilter-dev libpostproc-dev
-The following NEW packages will be installed:
-  libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavutil-dev libpostproc-dev libswresample-dev
-  libswscale-dev
-0 upgraded, 8 newly installed, 0 to remove and 0 not upgraded.
-Need to get 13.6 MB of archives.
-After this operation, 37.4 MB of additional disk space will be used.
-Get:1 http://archive.raspberrypi.com/debian bookworm/main arm64 libavutil-dev arm64 8:5.1.6-0+deb12u1+rpt3 [671 kB]
-Get:2 http://archive.raspberrypi.com/debian bookworm/main arm64 libswresample-dev arm64 8:5.1.6-0+deb12u1+rpt3 [119 kB]
-Get:3 http://archive.raspberrypi.com/debian bookworm/main arm64 libavcodec-dev arm64 8:5.1.6-0+deb12u1+rpt3 [7,676 kB]
-Get:4 http://archive.raspberrypi.com/debian bookworm/main arm64 libavformat-dev arm64 8:5.1.6-0+deb12u1+rpt3 [1,917 kB]      
-Get:5 http://archive.raspberrypi.com/debian bookworm/main arm64 libpostproc-dev arm64 8:5.1.6-0+deb12u1+rpt3 [83.6 kB]       
-Get:6 http://archive.raspberrypi.com/debian bookworm/main arm64 libswscale-dev arm64 8:5.1.6-0+deb12u1+rpt3 [271 kB]         
-Get:7 http://archive.raspberrypi.com/debian bookworm/main arm64 libavfilter-dev arm64 8:5.1.6-0+deb12u1+rpt3 [2,665 kB]      
-Get:8 http://archive.raspberrypi.com/debian bookworm/main arm64 libavdevice-dev arm64 8:5.1.6-0+deb12u1+rpt3 [170 kB]        
-Fetched 13.6 MB in 22s (627 kB/s)                                                                                            
-Selecting previously unselected package libavutil-dev:arm64.
-(Reading database ... 153500 files and directories currently installed.)
-Preparing to unpack .../0-libavutil-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libavutil-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libswresample-dev:arm64.
-Preparing to unpack .../1-libswresample-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libswresample-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libavcodec-dev:arm64.
-Preparing to unpack .../2-libavcodec-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libavcodec-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libavformat-dev:arm64.
-Preparing to unpack .../3-libavformat-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libavformat-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libpostproc-dev:arm64.
-Preparing to unpack .../4-libpostproc-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libpostproc-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libswscale-dev:arm64.
-Preparing to unpack .../5-libswscale-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libswscale-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libavfilter-dev:arm64.
-Preparing to unpack .../6-libavfilter-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libavfilter-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Selecting previously unselected package libavdevice-dev:arm64.
-Preparing to unpack .../7-libavdevice-dev_8%3a5.1.6-0+deb12u1+rpt3_arm64.deb ...
-Unpacking libavdevice-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libavutil-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libswresample-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libavcodec-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libpostproc-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libavformat-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libswscale-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libavfilter-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-Setting up libavdevice-dev:arm64 (8:5.1.6-0+deb12u1+rpt3) ...
-nickspi5@raspberrypi1:~ $ sudo apt install -y libopenblas-dev liblapack-dev libatlas-base-dev gfortran
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  gfortran-12 libatlas3-base libgfortran-12-dev libopenblas-pthread-dev libopenblas0 libopenblas0-pthread
-Suggested packages:
-  gfortran-doc gfortran-12-doc libcoarrays-dev libatlas-doc liblapack-doc
-The following NEW packages will be installed:
-  gfortran gfortran-12 libatlas-base-dev libatlas3-base libgfortran-12-dev liblapack-dev libopenblas-dev
-  libopenblas-pthread-dev libopenblas0 libopenblas0-pthread
-0 upgraded, 10 newly installed, 0 to remove and 0 not upgraded.
-Need to get 25.1 MB of archives.
-After this operation, 149 MB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian bookworm/main arm64 libgfortran-12-dev arm64 12.2.0-14+deb12u1 [396 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 gfortran-12 arm64 12.2.0-14+deb12u1 [8,644 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 gfortran arm64 4:12.2.0-3 [1,420 B]                                   
-Get:4 http://deb.debian.org/debian bookworm/main arm64 libatlas3-base arm64 3.10.3-13 [2,537 kB]                             
-Get:5 http://deb.debian.org/debian bookworm/main arm64 libatlas-base-dev arm64 3.10.3-13 [2,655 kB]                          
-Get:6 http://deb.debian.org/debian bookworm/main arm64 libopenblas0-pthread arm64 0.3.21+ds-4 [4,532 kB]                     
-Get:7 http://deb.debian.org/debian bookworm/main arm64 libopenblas-pthread-dev arm64 0.3.21+ds-4 [3,169 kB]                  
-Get:8 http://deb.debian.org/debian bookworm/main arm64 liblapack-dev arm64 3.11.0-2 [3,065 kB]                               
-Get:9 http://deb.debian.org/debian bookworm/main arm64 libopenblas0 arm64 0.3.21+ds-4 [32.6 kB]                              
-Get:10 http://deb.debian.org/debian bookworm/main arm64 libopenblas-dev arm64 0.3.21+ds-4 [44.9 kB]                          
-Fetched 25.1 MB in 27s (915 kB/s)                                                                                            
-Selecting previously unselected package libgfortran-12-dev:arm64.
-(Reading database ... 153702 files and directories currently installed.)
-Preparing to unpack .../0-libgfortran-12-dev_12.2.0-14+deb12u1_arm64.deb ...
-Unpacking libgfortran-12-dev:arm64 (12.2.0-14+deb12u1) ...
-Selecting previously unselected package gfortran-12.
-Preparing to unpack .../1-gfortran-12_12.2.0-14+deb12u1_arm64.deb ...
-Unpacking gfortran-12 (12.2.0-14+deb12u1) ...
-Selecting previously unselected package gfortran.
-Preparing to unpack .../2-gfortran_4%3a12.2.0-3_arm64.deb ...
-Unpacking gfortran (4:12.2.0-3) ...
-Selecting previously unselected package libatlas3-base:arm64.
-Preparing to unpack .../3-libatlas3-base_3.10.3-13_arm64.deb ...
-Unpacking libatlas3-base:arm64 (3.10.3-13) ...
-Selecting previously unselected package libatlas-base-dev:arm64.
-Preparing to unpack .../4-libatlas-base-dev_3.10.3-13_arm64.deb ...
-Unpacking libatlas-base-dev:arm64 (3.10.3-13) ...
-Selecting previously unselected package libopenblas0-pthread:arm64.
-Preparing to unpack .../5-libopenblas0-pthread_0.3.21+ds-4_arm64.deb ...
-Unpacking libopenblas0-pthread:arm64 (0.3.21+ds-4) ...
-Selecting previously unselected package libopenblas-pthread-dev:arm64.
-Preparing to unpack .../6-libopenblas-pthread-dev_0.3.21+ds-4_arm64.deb ...
-Unpacking libopenblas-pthread-dev:arm64 (0.3.21+ds-4) ...
-Selecting previously unselected package liblapack-dev:arm64.
-Preparing to unpack .../7-liblapack-dev_3.11.0-2_arm64.deb ...
-Unpacking liblapack-dev:arm64 (3.11.0-2) ...
-Selecting previously unselected package libopenblas0:arm64.
-Preparing to unpack .../8-libopenblas0_0.3.21+ds-4_arm64.deb ...
-Unpacking libopenblas0:arm64 (0.3.21+ds-4) ...
-Selecting previously unselected package libopenblas-dev:arm64.
-Preparing to unpack .../9-libopenblas-dev_0.3.21+ds-4_arm64.deb ...
-Unpacking libopenblas-dev:arm64 (0.3.21+ds-4) ...
-Setting up libopenblas0-pthread:arm64 (0.3.21+ds-4) ...
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 to provide /usr/lib/aarch64-linux-gnu/libb
-las.so.3 (libblas.so.3-aarch64-linux-gnu) in auto mode
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/liblapack.so.3 to provide /usr/lib/aarch64-linux-gnu/li
-blapack.so.3 (liblapack.so.3-aarch64-linux-gnu) in auto mode
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblas.so.0 to provide /usr/lib/aarch64-linux-gnu/
-libopenblas.so.0 (libopenblas.so.0-aarch64-linux-gnu) in auto mode
-Setting up libatlas3-base:arm64 (3.10.3-13) ...
-Setting up libgfortran-12-dev:arm64 (12.2.0-14+deb12u1) ...
-Setting up libatlas-base-dev:arm64 (3.10.3-13) ...
-update-alternatives: using /usr/lib/aarch64-linux-gnu/atlas/libblas.so to provide /usr/lib/aarch64-linux-gnu/libblas.so (libbl
-as.so-aarch64-linux-gnu) in auto mode
-update-alternatives: using /usr/lib/aarch64-linux-gnu/atlas/liblapack.so to provide /usr/lib/aarch64-linux-gnu/liblapack.so (l
-iblapack.so-aarch64-linux-gnu) in auto mode
-Setting up gfortran-12 (12.2.0-14+deb12u1) ...
-Setting up liblapack-dev:arm64 (3.11.0-2) ...
-Setting up libopenblas0:arm64 (0.3.21+ds-4) ...
-Setting up libopenblas-pthread-dev:arm64 (0.3.21+ds-4) ...
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so to provide /usr/lib/aarch64-linux-gnu/libbla
-s.so (libblas.so-aarch64-linux-gnu) in auto mode
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/liblapack.so to provide /usr/lib/aarch64-linux-gnu/libl
-apack.so (liblapack.so-aarch64-linux-gnu) in auto mode
-update-alternatives: using /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblas.so to provide /usr/lib/aarch64-linux-gnu/li
-bopenblas.so (libopenblas.so-aarch64-linux-gnu) in auto mode
-Setting up gfortran (4:12.2.0-3) ...
-update-alternatives: using /usr/bin/gfortran to provide /usr/bin/f95 (f95) in auto mode
-update-alternatives: using /usr/bin/gfortran to provide /usr/bin/f77 (f77) in auto mode
-Setting up libopenblas-dev:arm64 (0.3.21+ds-4) ...
-Processing triggers for man-db (2.11.2-2) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-nickspi5@raspberrypi1:~ $ mkdir -p ~/Chatty_AI
-nickspi5@raspberrypi1:~ $ cd ~/Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ mkdir -p models faces security_photos logs static/css static/js templates
-nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m venv chatty-venv
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-nickspi5@raspberrypi1:~/Chatty_AI $ python3 -m venv chatty-venv
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-Looking in indexes: https://download.pytorch.org/whl/cpu, https://www.piwheels.org/simple
-Collecting torch
-  Obtaining dependency information for torch from https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (29 kB)
-Collecting torchvision
-  Obtaining dependency information for torchvision from https://download.pytorch.org/whl/cpu/torchvision-0.23.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/cpu/torchvision-0.23.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (6.1 kB)
-Collecting torchaudio
-  Obtaining dependency information for torchaudio from https://download.pytorch.org/whl/cpu/torchaudio-2.8.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/cpu/torchaudio-2.8.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (7.2 kB)
-Collecting filelock
-  Downloading https://www.piwheels.org/simple/filelock/filelock-3.18.0-py3-none-any.whl (16 kB)
-Collecting typing-extensions>=4.10.0
-  Downloading https://www.piwheels.org/simple/typing-extensions/typing_extensions-4.14.0-py3-none-any.whl (43 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.8/43.8 kB 862.0 kB/s eta 0:00:00
-Collecting sympy>=1.13.3
-  Downloading https://www.piwheels.org/simple/sympy/sympy-1.14.0-py3-none-any.whl (6.3 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 66.4 kB/s eta 0:00:00
-Collecting networkx
-  Downloading https://www.piwheels.org/simple/networkx/networkx-3.5-py3-none-any.whl (2.0 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 245.8 kB/s eta 0:00:00
-Collecting jinja2
-  Downloading https://www.piwheels.org/simple/jinja2/jinja2-3.1.6-py3-none-any.whl (134 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 178.9 kB/s eta 0:00:00
-Collecting fsspec
-  Downloading https://www.piwheels.org/simple/fsspec/fsspec-2025.5.1-py3-none-any.whl (199 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 199.1/199.1 kB 370.1 kB/s eta 0:00:00
-Collecting numpy
-  Obtaining dependency information for numpy from https://download.pytorch.org/whl/numpy-2.1.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/numpy-2.1.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (62 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 1.2 MB/s eta 0:00:00
-Collecting pillow!=8.3.*,>=5.3.0
-  Obtaining dependency information for pillow!=8.3.*,>=5.3.0 from https://download.pytorch.org/whl/pillow-11.0.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata
-  Downloading https://download.pytorch.org/whl/pillow-11.0.0-cp311-cp311-manylinux_2_28_aarch64.whl.metadata (9.1 kB)
-Collecting mpmath<1.4,>=1.1.0
-  Downloading https://www.piwheels.org/simple/mpmath/mpmath-1.3.0-py3-none-any.whl (536 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 222.2 kB/s eta 0:00:00
-Collecting MarkupSafe>=2.0
-  Downloading https://download.pytorch.org/whl/MarkupSafe-2.1.5-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (29 kB)
-Downloading https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl (102.1 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.1/102.1 MB 514.2 kB/s eta 0:00:00
-Downloading https://download.pytorch.org/whl/cpu/torchvision-0.23.0-cp311-cp311-manylinux_2_28_aarch64.whl (2.4 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.4/2.4 MB 652.0 kB/s eta 0:00:00
-Downloading https://download.pytorch.org/whl/cpu/torchaudio-2.8.0-cp311-cp311-manylinux_2_28_aarch64.whl (1.7 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 666.1 kB/s eta 0:00:00
-Downloading https://download.pytorch.org/whl/pillow-11.0.0-cp311-cp311-manylinux_2_28_aarch64.whl (4.2 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 672.9 kB/s eta 0:00:00
-Downloading https://download.pytorch.org/whl/numpy-2.1.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (13.9 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.9/13.9 MB 641.2 kB/s eta 0:00:00
-Using cached https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl (102.1 MB)
-Using cached https://download.pytorch.org/whl/cpu/torchvision-0.23.0-cp311-cp311-manylinux_2_28_aarch64.whl (2.4 MB)
-Using cached https://download.pytorch.org/whl/cpu/torchaudio-2.8.0-cp311-cp311-manylinux_2_28_aarch64.whl (1.7 MB)
-Using cached https://download.pytorch.org/whl/pillow-11.0.0-cp311-cp311-manylinux_2_28_aarch64.whl (4.2 MB)
-Using cached https://download.pytorch.org/whl/numpy-2.1.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (13.9 MB)
-Installing collected packages: mpmath, typing-extensions, sympy, pillow, numpy, networkx, MarkupSafe, fsspec, filelock, jinja2, torch, torchvision, torchaudio
-Successfully installed MarkupSafe-2.1.5 filelock-3.18.0 fsspec-2025.5.1 jinja2-3.1.6 mpmath-1.3.0 networkx-3.5 numpy-2.1.2 pillow-11.0.0 sympy-1.14.0 torch-2.8.0+cpu torchaudio-2.8.0 torchvision-0.23.0 typing-extensions-4.14.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install transformers
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting transformers
-  Downloading transformers-4.55.4-py3-none-any.whl (11.3 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 738.4 kB/s eta 0:00:00
-Requirement already satisfied: filelock in ./chatty-venv/lib/python3.11/site-packages (from transformers) (3.18.0)
-Collecting huggingface-hub<1.0,>=0.34.0
-  Downloading huggingface_hub-0.34.4-py3-none-any.whl (561 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 561.5/561.5 kB 880.5 kB/s eta 0:00:00
-Requirement already satisfied: numpy>=1.17 in ./chatty-venv/lib/python3.11/site-packages (from transformers) (2.1.2)
-Collecting packaging>=20.0
-  Downloading https://www.piwheels.org/simple/packaging/packaging-25.0-py3-none-any.whl (66 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 80.1 kB/s eta 0:00:00
-Collecting pyyaml>=5.1
-  Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (736 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 736.8/736.8 kB 984.6 kB/s eta 0:00:00
-Collecting regex!=2019.12.17
-  Downloading regex-2025.7.34-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (792 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 792.3/792.3 kB 738.3 kB/s eta 0:00:00
-Collecting requests
-  Downloading requests-2.32.5-py3-none-any.whl (64 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 957.7 kB/s eta 0:00:00
-Collecting tokenizers<0.22,>=0.21
-  Downloading tokenizers-0.21.4-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (3.0 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 872.4 kB/s eta 0:00:00
-Collecting safetensors>=0.4.3
-  Downloading safetensors-0.6.2-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (473 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 473.3/473.3 kB 1.1 MB/s eta 0:00:00
-Collecting tqdm>=4.27
-  Downloading https://www.piwheels.org/simple/tqdm/tqdm-4.67.1-py3-none-any.whl (78 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 47.1 kB/s eta 0:00:00
-Requirement already satisfied: fsspec>=2023.5.0 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers) (2025.5.1)
-Requirement already satisfied: typing-extensions>=3.7.4.3 in ./chatty-venv/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers) (4.14.0)
-Collecting hf-xet<2.0.0,>=1.1.3
-  Downloading hf_xet-1.1.8-cp37-abi3-manylinux_2_28_aarch64.whl (3.1 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 789.5 kB/s eta 0:00:00
-Collecting charset_normalizer<4,>=2
-  Downloading charset_normalizer-3.4.3-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (145 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.5/145.5 kB 605.7 kB/s eta 0:00:00
-Collecting idna<4,>=2.5
-  Downloading https://www.piwheels.org/simple/idna/idna-3.10-py3-none-any.whl (70 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 70.4/70.4 kB 151.8 kB/s eta 0:00:00
-Collecting urllib3<3,>=1.21.1
-  Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 129.8/129.8 kB 880.0 kB/s eta 0:00:00
-Collecting certifi>=2017.4.17
-  Downloading certifi-2025.8.3-py3-none-any.whl (161 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 161.2/161.2 kB 405.2 kB/s eta 0:00:00
-Installing collected packages: urllib3, tqdm, safetensors, regex, pyyaml, packaging, idna, hf-xet, charset_normalizer, certifi, requests, huggingface-hub, tokenizers, transformers
-Successfully installed certifi-2025.8.3 charset_normalizer-3.4.3 hf-xet-1.1.8 huggingface-hub-0.34.4 idna-3.10 packaging-25.0 pyyaml-6.0.2 regex-2025.7.34 requests-2.32.5 safetensors-0.6.2 tokenizers-0.21.4 tqdm-4.67.1 transformers-4.55.4 urllib3-2.5.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install whisper
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting whisper
-  Downloading https://www.piwheels.org/simple/whisper/whisper-1.1.10-py3-none-any.whl (40 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.4/40.4 kB 3.1 MB/s eta 0:00:00
-Collecting six
-  Downloading https://www.piwheels.org/simple/six/six-1.17.0-py2.py3-none-any.whl (11 kB)
-Installing collected packages: six, whisper
-Successfully installed six-1.17.0 whisper-1.1.10
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install openai-whisper
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting openai-whisper
-  Downloading openai_whisper-20250625.tar.gz (803 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 803.2/803.2 kB 1.0 MB/s eta 0:00:00
-  Installing build dependencies ... done
-  Getting requirements to build wheel ... done
-  Preparing metadata (pyproject.toml) ... done
-Collecting more-itertools
-  Downloading https://www.piwheels.org/simple/more-itertools/more_itertools-10.7.0-py3-none-any.whl (65 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 65.3/65.3 kB 150.7 kB/s eta 0:00:00
-Collecting numba
-  Downloading numba-0.61.2-cp311-cp311-manylinux_2_28_aarch64.whl (3.5 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 892.2 kB/s eta 0:00:00
-Requirement already satisfied: numpy in ./chatty-venv/lib/python3.11/site-packages (from openai-whisper) (2.1.2)
-Collecting tiktoken
-  Downloading tiktoken-0.11.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (1.1 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 747.7 kB/s eta 0:00:00
-Requirement already satisfied: torch in ./chatty-venv/lib/python3.11/site-packages (from openai-whisper) (2.8.0+cpu)
-Requirement already satisfied: tqdm in ./chatty-venv/lib/python3.11/site-packages (from openai-whisper) (4.67.1)
-WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))': /simple/llvmlite/
-Collecting llvmlite<0.45,>=0.44.0dev0
-  Downloading llvmlite-0.44.0-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (41.2 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.2/41.2 MB 802.8 kB/s eta 0:00:00
-Requirement already satisfied: regex>=2022.1.18 in ./chatty-venv/lib/python3.11/site-packages (from tiktoken->openai-whisper) (2025.7.34)
-Requirement already satisfied: requests>=2.26.0 in ./chatty-venv/lib/python3.11/site-packages (from tiktoken->openai-whisper) (2.32.5)
-Requirement already satisfied: filelock in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (3.18.0)
-Requirement already satisfied: typing-extensions>=4.10.0 in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (4.14.0)
-Requirement already satisfied: sympy>=1.13.3 in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (1.14.0)
-Requirement already satisfied: networkx in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (3.5)
-Requirement already satisfied: jinja2 in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (3.1.6)
-Requirement already satisfied: fsspec in ./chatty-venv/lib/python3.11/site-packages (from torch->openai-whisper) (2025.5.1)
-Requirement already satisfied: charset_normalizer<4,>=2 in ./chatty-venv/lib/python3.11/site-packages (from requests>=2.26.0->tiktoken->openai-whisper) (3.4.3)
-Requirement already satisfied: idna<4,>=2.5 in ./chatty-venv/lib/python3.11/site-packages (from requests>=2.26.0->tiktoken->openai-whisper) (3.10)
-Requirement already satisfied: urllib3<3,>=1.21.1 in ./chatty-venv/lib/python3.11/site-packages (from requests>=2.26.0->tiktoken->openai-whisper) (2.5.0)
-Requirement already satisfied: certifi>=2017.4.17 in ./chatty-venv/lib/python3.11/site-packages (from requests>=2.26.0->tiktoken->openai-whisper) (2025.8.3)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./chatty-venv/lib/python3.11/site-packages (from sympy>=1.13.3->torch->openai-whisper) (1.3.0)
-Requirement already satisfied: MarkupSafe>=2.0 in ./chatty-venv/lib/python3.11/site-packages (from jinja2->torch->openai-whisper) (2.1.5)
-Building wheels for collected packages: openai-whisper
-  Building wheel for openai-whisper (pyproject.toml) ... done
-  Created wheel for openai-whisper: filename=openai_whisper-20250625-py3-none-any.whl size=803979 sha256=1000c2aa84177cce06f93bcca1d45e4d38d69a7c9510ccba918d67b2d0e14d6b
-  Stored in directory: /home/nickspi5/.cache/pip/wheels/32/d2/9a/801b5cc5b2a1af2e280089b71c326711a682fc1d50ea29d0ed
-Successfully built openai-whisper
-Installing collected packages: more-itertools, llvmlite, tiktoken, numba, openai-whisper
-Successfully installed llvmlite-0.44.0 more-itertools-10.7.0 numba-0.61.2 openai-whisper-20250625 tiktoken-0.11.0
-
-
-
-
-
-
-
-
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install SpeechRecognition
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting SpeechRecognition
-  Downloading https://www.piwheels.org/simple/speechrecognition/speechrecognition-3.14.3-py3-none-any.whl (32.9 MB)
-     ━━━━╸━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/32.9 MB 122.1 kB/s eta 0:03:59
-ERROR: THESE PACKAGES DO NOT MATCH THE HASHES FROM THE REQUIREMENTS FILE. If you have updated the package versions, please update the hashes. Otherwise, examine the package contents carefully; someone may have tampered with them.
-    SpeechRecognition from https://www.piwheels.org/simple/speechrecognition/speechrecognition-3.14.3-py3-none-any.whl#sha256=82658103ce8e980fe0afcf41669fb742f49c8530b28706c7f85d7731008c58f7:
-        Expected sha256 82658103ce8e980fe0afcf41669fb742f49c8530b28706c7f85d7731008c58f7
-             Got        51f38ec6b2b15656b5dfea9da0a0ac77e423998a0913bbb836b2b3abea5ea5d0
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install pyttsx3
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting pyttsx3
-  Downloading pyttsx3-2.99-py3-none-any.whl (32 kB)
-Installing collected packages: pyttsx3
-Successfully installed pyttsx3-2.99
-
-
-
-
-
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install face_recognition
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting face_recognition
-  Downloading https://www.piwheels.org/simple/face-recognition/face_recognition-1.3.0-py2.py3-none-any.whl (15 kB)
-Collecting face-recognition-models>=0.3.0
-  Downloading https://www.piwheels.org/simple/face-recognition-models/face_recognition_models-0.3.0-py2.py3-none-any.whl (100.6 MB)
-     ━━╸━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.4/100.6 MB 376.9 kB/s eta 0:04:08
-ERROR: THESE PACKAGES DO NOT MATCH THE HASHES FROM THE REQUIREMENTS FILE. If you have updated the package versions, please update the hashes. Otherwise, examine the package contents carefully; someone may have tampered with them.
-    face-recognition-models>=0.3.0 from https://www.piwheels.org/simple/face-recognition-models/face_recognition_models-0.3.0-py2.py3-none-any.whl#sha256=8d6b0af2e37a17120c3f13107974bc252142a4ffcb4e58eabdfcf26608e52c24 (from face_recognition):
-        Expected sha256 8d6b0af2e37a17120c3f13107974bc252142a4ffcb4e58eabdfcf26608e52c24
-             Got        d10ce7751e62b3e9b2a1ae08eb4fcdc8bb3c29f25b439a5d722012b588a76e3a
-
-
-
-
-
-
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install opencv-python
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting opencv-python
-  Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (45.9 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.9/45.9 MB 1.3 MB/s eta 0:00:00
-Requirement already satisfied: numpy<2.3.0,>=2 in ./chatty-venv/lib/python3.11/site-packages (from opencv-python) (2.1.2)
-Installing collected packages: opencv-python
-Successfully installed opencv-python-4.12.0.88
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install flask
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting flask
-  Downloading flask-3.1.2-py3-none-any.whl (103 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.3/103.3 kB 445.1 kB/s eta 0:00:00
-Collecting blinker>=1.9.0
-  Downloading https://www.piwheels.org/simple/blinker/blinker-1.9.0-py3-none-any.whl (8.5 kB)
-Collecting click>=8.1.3
-  Downloading https://www.piwheels.org/simple/click/click-8.2.1-py3-none-any.whl (102 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.2/102.2 kB 135.5 kB/s eta 0:00:00
-Collecting itsdangerous>=2.2.0
-  Downloading https://www.piwheels.org/simple/itsdangerous/itsdangerous-2.2.0-py3-none-any.whl (16 kB)
-Requirement already satisfied: jinja2>=3.1.2 in ./chatty-venv/lib/python3.11/site-packages (from flask) (3.1.6)
-Requirement already satisfied: markupsafe>=2.1.1 in ./chatty-venv/lib/python3.11/site-packages (from flask) (2.1.5)
-Collecting werkzeug>=3.1.0
-  Downloading https://www.piwheels.org/simple/werkzeug/werkzeug-3.1.3-py3-none-any.whl (224 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 224.5/224.5 kB 225.9 kB/s eta 0:00:00
-Installing collected packages: werkzeug, itsdangerous, click, blinker, flask
-Successfully installed blinker-1.9.0 click-8.2.1 flask-3.1.2 itsdangerous-2.2.0 werkzeug-3.1.3
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install flask-socketio
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting flask-socketio
-  Downloading https://www.piwheels.org/simple/flask-socketio/Flask_SocketIO-5.5.1-py3-none-any.whl (18 kB)
-Requirement already satisfied: Flask>=0.9 in ./chatty-venv/lib/python3.11/site-packages (from flask-socketio) (3.1.2)
-Collecting python-socketio>=5.12.0
-  Downloading https://www.piwheels.org/simple/python-socketio/python_socketio-5.13.0-py3-none-any.whl (77 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 77.8/77.8 kB 68.8 kB/s eta 0:00:00
-Requirement already satisfied: blinker>=1.9.0 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (1.9.0)
-Requirement already satisfied: click>=8.1.3 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (8.2.1)
-Requirement already satisfied: itsdangerous>=2.2.0 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (2.2.0)
-Requirement already satisfied: jinja2>=3.1.2 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (3.1.6)
-Requirement already satisfied: markupsafe>=2.1.1 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (2.1.5)
-Requirement already satisfied: werkzeug>=3.1.0 in ./chatty-venv/lib/python3.11/site-packages (from Flask>=0.9->flask-socketio) (3.1.3)
-Collecting bidict>=0.21.0
-  Downloading https://www.piwheels.org/simple/bidict/bidict-0.23.1-py3-none-any.whl (32 kB)
-Collecting python-engineio>=4.11.0
-  Downloading https://www.piwheels.org/simple/python-engineio/python_engineio-4.12.2-py3-none-any.whl (59 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 kB 67.0 kB/s eta 0:00:00
-Collecting simple-websocket>=0.10.0
-  Downloading https://www.piwheels.org/simple/simple-websocket/simple_websocket-1.1.0-py3-none-any.whl (13 kB)
-Collecting wsproto
-  Downloading https://www.piwheels.org/simple/wsproto/wsproto-1.2.0-py3-none-any.whl (24 kB)
-Collecting h11<1,>=0.9.0
-  Downloading https://www.piwheels.org/simple/h11/h11-0.16.0-py3-none-any.whl (37 kB)
-Installing collected packages: h11, bidict, wsproto, simple-websocket, python-engineio, python-socketio, flask-socketio
-Successfully installed bidict-0.23.1 flask-socketio-5.5.1 h11-0.16.0 python-engineio-4.12.2 python-socketio-5.13.0 simple-websocket-1.1.0 wsproto-1.2.0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install requests
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: requests in ./chatty-venv/lib/python3.11/site-packages (2.32.5)
-Requirement already satisfied: charset_normalizer<4,>=2 in ./chatty-venv/lib/python3.11/site-packages (from requests) (3.4.3)
-Requirement already satisfied: idna<4,>=2.5 in ./chatty-venv/lib/python3.11/site-packages (from requests) (3.10)
-Requirement already satisfied: urllib3<3,>=1.21.1 in ./chatty-venv/lib/python3.11/site-packages (from requests) (2.5.0)
-Requirement already satisfied: certifi>=2017.4.17 in ./chatty-venv/lib/python3.11/site-packages (from requests) (2025.8.3)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install python-telegram-bot
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting python-telegram-bot
-  Downloading python_telegram_bot-22.3-py3-none-any.whl (717 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 717.1/717.1 kB 1.5 MB/s eta 0:00:00
-Collecting httpx<0.29,>=0.27
-  Downloading https://www.piwheels.org/simple/httpx/httpx-0.28.1-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 163.8 kB/s eta 0:00:00
-Collecting anyio
-  Downloading anyio-4.10.0-py3-none-any.whl (107 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.2/107.2 kB 1.6 MB/s eta 0:00:00
-Requirement already satisfied: certifi in ./chatty-venv/lib/python3.11/site-packages (from httpx<0.29,>=0.27->python-telegram-bot) (2025.8.3)
-Collecting httpcore==1.*
-  Downloading https://www.piwheels.org/simple/httpcore/httpcore-1.0.9-py3-none-any.whl (78 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 1.9 MB/s eta 0:00:00
-Requirement already satisfied: idna in ./chatty-venv/lib/python3.11/site-packages (from httpx<0.29,>=0.27->python-telegram-bot) (3.10)
-Requirement already satisfied: h11>=0.16 in ./chatty-venv/lib/python3.11/site-packages (from httpcore==1.*->httpx<0.29,>=0.27->python-telegram-bot) (0.16.0)
-Collecting sniffio>=1.1
-  Downloading https://www.piwheels.org/simple/sniffio/sniffio-1.3.1-py3-none-any.whl (10 kB)
-Requirement already satisfied: typing_extensions>=4.5 in ./chatty-venv/lib/python3.11/site-packages (from anyio->httpx<0.29,>=0.27->python-telegram-bot) (4.14.0)
-Installing collected packages: sniffio, httpcore, anyio, httpx, python-telegram-bot
-Successfully installed anyio-4.10.0 httpcore-1.0.9 httpx-0.28.1 python-telegram-bot-22.3 sniffio-1.3.1
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install pyaudio
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting pyaudio
-  Downloading PyAudio-0.2.14.tar.gz (47 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.1/47.1 kB 1.1 MB/s eta 0:00:00
-  Installing build dependencies ... done
-  Getting requirements to build wheel ... done
-  Preparing metadata (pyproject.toml) ... done
-Building wheels for collected packages: pyaudio
-  Building wheel for pyaudio (pyproject.toml) ... done
-  Created wheel for pyaudio: filename=pyaudio-0.2.14-cp311-cp311-linux_aarch64.whl size=66598 sha256=6405d52ea9a4b99bb970a33faa2dc2df462c79ee0f013599a1ee2e96b9459ae1
-  Stored in directory: /home/nickspi5/.cache/pip/wheels/80/b1/c1/67e4ef443de2665d86031d4760508094eab5de37d5d64d9c27
-Successfully built pyaudio
-Installing collected packages: pyaudio
-Successfully installed pyaudio-0.2.14
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install numpy
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: numpy in ./chatty-venv/lib/python3.11/site-packages (2.1.2)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install pillow
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: pillow in ./chatty-venv/lib/python3.11/site-packages (11.0.0)
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install python-dotenv
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting python-dotenv
-  Downloading python_dotenv-1.1.1-py3-none-any.whl (20 kB)
-Installing collected packages: python-dotenv
-Successfully installed python-dotenv-1.1.1
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 
 
