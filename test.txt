@@ -3082,7 +3082,7 @@ Please instruct me as to how I can achieve this?
 
 Also, I would like a much cooler and more high tech looking web ui page.
 
-Please keep the JavaScript functionality and page layout exactly the same as it is now but make the web page asthetically look more high tech, possibly with a lattice of lines background animation that responds to the mouse cursor location and use a bright fluorescent colors for everything except for the text in the display boxes.
+Please keep the JavaScript functionality and page layout exactly the same as it is now but make the web page asthetically look more high tech, possibly with an animated lattice of different sized trangular in the background that respond to the mouse cursors location and use a bright fluorescent colors for everything except for the text in the display boxes.
 
 
 
