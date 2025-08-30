@@ -1,217 +1,114 @@
-Thank you, Claude,
-
-I modified my chatty_ai_startup.sh file to include the following:
-
-    # Play video in fullscreen with audio
-    # Using cvlc (command line VLC) for better control
-    sudo -u "$USER" DISPLAY=:0 cvlc \
-        --fullscreen \
-        --no-video-title-show \
-        --play-and-exit \
-        --no-loop \
-        --no-repeat \
-        --aout=alsa
-        --alsa-audio-device=hdmi
-        --intf dummy \
-        "$VIDEO_PATH" 2>/dev/null &
-
-    VLC_PID=$!
-    log_message "VLC started with PID: $VLC_PID"
 
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ aplay -l
-**** List of PLAYBACK Hardware Devices ****
-card 0: vc4hdmi0 [vc4-hdmi-0], device 0: MAI PCM i2s-hifi-0 [MAI PCM i2s-hifi-0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: vc4hdmi1 [vc4-hdmi-1], device 0: MAI PCM i2s-hifi-0 [MAI PCM i2s-hifi-0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ speaker-test -c 2
-
-speaker-test 1.2.8
-
-Playback device is default
-Stream parameters are 48000Hz, S16_LE, 2 channels
-Using 16 octaves of pink noise
-Rate set to 48000Hz (requested 48000Hz)
-Buffer size range from 96 to 1048576
-Period size range from 32 to 349526
-Using max buffer size 1048576
-Periods = 4
-was set period_size = 262144
-was set buffer_size = 1048576
- 0 - Front Left
- 1 - Front Right
-Time per period = 11.201271
- 0 - Front Left
- 1 - Front Right
-Time per period = 11.177622
- 0 - Front Left
- 1 - Front Right
-Time per period = 11.177892
- 0 - Front Left
- 1 - Front Right
-Time per period = 11.178967
- 0 - Front Left
- 1 - Front Right
-Time per period = 11.178491
- 0 - Front Left
-^C^C 1 - Front Right
-Time per period = 5.591044
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ curl -I http://localhost:5000/video_feed
-HTTP/1.1 200 OK
-Server: gunicorn
-Date: Sat, 30 Aug 2025 06:12:10 GMT
-Connection: keep-alive
-Content-Type: multipart/x-mixed-replace; boundary=frame
-
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la /dev/video*
-crw-rw----+ 1 root video 81, 17 Aug 30 14:09 /dev/video0
-crw-rw----+ 1 root video 81, 18 Aug 30 14:09 /dev/video1
-crw-rw----+ 1 root video 81, 16 Aug 30 14:09 /dev/video19
-crw-rw----+ 1 root video 81, 19 Aug 30 14:09 /dev/video2
-crw-rw----+ 1 root video 81,  0 Aug 30 14:09 /dev/video20
-crw-rw----+ 1 root video 81,  1 Aug 30 14:09 /dev/video21
-crw-rw----+ 1 root video 81,  2 Aug 30 14:09 /dev/video22
-crw-rw----+ 1 root video 81,  3 Aug 30 14:09 /dev/video23
-crw-rw----+ 1 root video 81,  4 Aug 30 14:09 /dev/video24
-crw-rw----+ 1 root video 81,  5 Aug 30 14:09 /dev/video25
-crw-rw----+ 1 root video 81,  6 Aug 30 14:09 /dev/video26
-crw-rw----+ 1 root video 81,  7 Aug 30 14:09 /dev/video27
-crw-rw----+ 1 root video 81,  8 Aug 30 14:09 /dev/video28
-crw-rw----+ 1 root video 81,  9 Aug 30 14:09 /dev/video29
-crw-rw----+ 1 root video 81, 20 Aug 30 14:09 /dev/video3
-crw-rw----+ 1 root video 81, 10 Aug 30 14:09 /dev/video30
-crw-rw----+ 1 root video 81, 11 Aug 30 14:09 /dev/video31
-crw-rw----+ 1 root video 81, 12 Aug 30 14:09 /dev/video32
-crw-rw----+ 1 root video 81, 13 Aug 30 14:09 /dev/video33
-crw-rw----+ 1 root video 81, 14 Aug 30 14:09 /dev/video34
-crw-rw----+ 1 root video 81, 15 Aug 30 14:09 /dev/video35
-crw-rw----+ 1 root video 81, 21 Aug 30 14:09 /dev/video4
-crw-rw----+ 1 root video 81, 22 Aug 30 14:09 /dev/video5
-crw-rw----+ 1 root video 81, 23 Aug 30 14:09 /dev/video6
-crw-rw----+ 1 root video 81, 24 Aug 30 14:09 /dev/video7
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ groups nickspi5
-nickspi5 : nickspi5 adm dialout cdrom sudo audio video plugdev games users input render netdev spi i2c gpio lpadmin docker
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I modified the def video_feed(): method in my chatty_ai.py Python script as follows:
-
-        def video_feed():
-            """Video streaming route"""
-            def generate():
-                frame_count = 0
-                while True:
-                    try:
-                        if self.current_frame is not None and self.system_running:
-                            # Log every 100th frame for debugging
-                            if frame_count % 100 == 0:
-                                self.emit_log(f"Streaming frame {frame_count}", 'debug')
-                    
-                            is_success, buffer = cv2.imencode(".jpg", self.current_frame)
-                            if is_success:
-                                frame_bytes = buffer.tobytes()
-                                yield (b'--frame\r\n'
-                                        b'Content-Type: image/jpeg\r\n\r\n' + 
-                                        frame_bytes + b'\r\n')
-                            frame_count += 1
-                        else:
-                            # Send a placeholder when no frame available
-                            placeholder = np.zeros((480, 640, 3), dtype=np.uint8)
-                            cv2.putText(placeholder, "Waiting for Camera", (150, 240), 
-                                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                    
-                            is_success, buffer = cv2.imencode(".jpg", placeholder)
-                            if is_success:
-                                frame_bytes = buffer.tobytes()
-                                yield (b'--frame\r\n'
-                                        b'Content-Type: image/jpeg\r\n\r\n' + 
-                                        frame_bytes + b'\r\n')
+3. Fix Camera Display Issue
+The video feed endpoint is responding but the camera might not be initializing properly. The issue is likely that the camera thread isn't starting when you click "Initialize".
+Check your chatty_ai.py for this issue in the handle_start_system socket event handler. Make sure the camera thread actually starts:
+python@self.socketio.on('start_system')
+def handle_start_system():
+    # ... existing code ...
+    
+    # After setting up camera, verify it's working
+    if self.setup_camera():
+        self.emit_log("Camera initialized, starting monitoring thread...", 'info')
+        
+        # Make sure these are set BEFORE starting threads
+        self.system_running = True
+        self.monitor_running = True
+        
+        # Start camera monitoring thread
+        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+        self.camera_thread.start()
+        self.emit_log("Camera monitoring thread started", 'success')
+        
+        # Give camera time to capture first frame
+        time.sleep(2)
+        
+        # Check if frame is being captured
+        if self.current_frame is not None:
+            self.emit_log("Camera is capturing frames", 'success')
+        else:
+            self.emit_log("Warning: Camera not capturing frames yet", 'warning')
+4. Debug Camera Frame Updates
+Add debugging to see if frames are being captured in camera_monitoring_loop:
+pythondef camera_monitoring_loop(self):
+    """Main camera monitoring loop for web interface"""
+    logger.info("Camera monitoring thread started")
+    self.emit_log("Camera monitoring thread started", 'success')
+    
+    frame_count = 0
+    while self.system_running and self.monitor_running:
+        try:
+            if not self.picam2:
+                self.emit_log("Camera not initialized in monitoring loop", 'error')
+                time.sleep(1)
+                continue
                 
-                        time.sleep(0.033)  # ~30 FPS
-                    except Exception as e:
-                        logger.error(f"Video feed error: {e}")
-                        time.sleep(1)
-                    
-            return Response(generate(),
-                        mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-I added the following code to my chatty_ai_startup.sh Shell Script file:
-
-# Check for development mode
-DEV_MODE="${1:-production}"
-
-# Later, when launching Chromium:
-if [ "$DEV_MODE" = "dev" ]; then
-    log_message "Launching Chromium in development mode (windowed)..."
-    chromium-browser --start-maximized "$CHATTY_URL" 2>/dev/null &
-else
-    log_message "Launching Chromium in kiosk mode..."
-    chromium-browser --kiosk --noerrdialogs --disable-infobars "$CHATTY_URL" 2>/dev/null &
-fi
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/test_video_feed.py << 'EOF'
-import requests
+            frame = self.picam2.capture_array()
+            
+            # Debug log every 30 frames (1 second at 30fps)
+            if frame_count % 30 == 0:
+                self.emit_log(f"Captured frame {frame_count}, shape: {frame.shape}", 'debug')
+            
+            # ... rest of your existing code ...
+            
+            # Make sure to update self.current_frame
+            self.current_frame = display_frame  # This is the important line!
+            
+            frame_count += 1
+5. Quick Test Script
+Create a test to verify camera streaming works independently:
+bashcat > /home/nickspi5/Chatty_AI/test_camera_stream.py << 'EOF'
+#!/usr/bin/env python3
+from flask import Flask, Response
+import cv2
+from picamera2 import Picamera2
 import time
 
-url = "http://localhost:5000/video_feed"
-try:
-    response = requests.get(url, stream=True, timeout=5)
-    print(f"Status: {response.status_code}")
-    print(f"Headers: {response.headers}")
-    
-    # Read first few bytes
-    for chunk in response.iter_content(chunk_size=1024):
-        print(f"Received {len(chunk)} bytes")
-        break
-        
-except Exception as e:
-    print(f"Error: {e}")
-EOF
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_video_feed.py
-Status: 200
-Headers: {'Server': 'gunicorn', 'Date': 'Sat, 30 Aug 2025 07:18:40 GMT', 'Connection': 'keep-alive', 'Transfer-Encoding': 'chunked', 'Content-Type': 'multipart/x-mixed-replace; boundary=frame'}
-Received 1024 bytes
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/test_video_feed.py << 'EOF'
-import requests
-import time
+app = Flask(__name__)
+picam2 = None
 
-url = "http://localhost:5000/video_feed"
-try:
-    response = requests.get(url, stream=True, timeout=5)
-    print(f"Status: {response.status_code}")
-    print(f"Headers: {response.headers}")
-    
-    # Read first few bytes
-    for chunk in response.iter_content(chunk_size=1024):
-        print(f"Received {len(chunk)} bytes")
-        break
-        
-except Exception as e:
-    print(f"Error: {e}")
-EOF
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_video_feed.py
-Status: 200
-Headers: {'Server': 'gunicorn', 'Date': 'Sat, 30 Aug 2025 07:18:40 GMT', 'Connection': 'keep-alive', 'Transfer-Encoding': 'chunked', 'Content-Type': 'multipart/x-mixed-replace; boundary=frame'}
-Received 1024 bytes
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chatty_ai_startup.sh dev
-bash: chatty_ai_startup.sh: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ /homes/nickspi5/Chatty_AI/chatty_ai_startup.sh dev
-bash: /homes/nickspi5/Chatty_AI/chatty_ai_startup.sh: No such file or directory
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ file chatty_ai_startup.sh
-chatty_ai_startup.sh: Bourne-Again shell script, ASCII text executable
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ dos2unix chatty_ai_startup.sh
-dos2unix: converting file chatty_ai_startup.sh to Unix format...
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chatty_ai_startup.sh dev
-bash: chatty_ai_startup.sh: command not found
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+def init_camera():
+    global picam2
+    picam2 = Picamera2()
+    picam2.configure(picam2.create_preview_configuration(
+        main={"format": 'XRGB8888', "size": (640, 480)}
+    ))
+    picam2.start()
+    time.sleep(2)
+    print("Camera initialized")
 
-I am now going to reboot my Raspberry PI 5 to ensure all changes to the raspi-config settings have been applied correctly.
+@app.route('/')
+def index():
+    return '<html><body><img src="/video_feed"></body></html>'
+
+@app.route('/video_feed')
+def video_feed():
+    def generate():
+        while True:
+            frame = picam2.capture_array()
+            if len(frame.shape) == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            ret, buffer = cv2.imencode('.jpg', frame)
+            if ret:
+                yield (b'--frame\r\n'
+                      b'Content-Type: image/jpeg\r\n\r\n' + 
+                      buffer.tobytes() + b'\r\n')
+            time.sleep(0.1)
+    
+    return Response(generate(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    init_camera()
+    app.run(host='0.0.0.0', port=5001, debug=True)
+EOF
+
+chmod +x test_camera_stream.py
+python3 test_camera_stream.py
+Then open http://localhost:5001 in a browser to see if the camera works.
+
+
+
 
 
 
