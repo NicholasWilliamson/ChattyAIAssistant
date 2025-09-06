@@ -173,6 +173,17 @@ The System Matrix box displayed:
 17:23:46 [17:23:46] Chatty AI system started successfully
 17:23:46 📊 Chatty AI system started successfull
 
+I then rebooted my Raspberry PI 5.
+
+This time the startup video played perfectly once with audio.
+
+About 70 seconds later, http://localhost:5000 opened up in my Chromium browser on my Raspberry PI 5 in full screen kiosk mode.
+
+I clicked on the Initialize button.
+
+The same issue with the live video preview not being displayed is still occuring.
+
+How can we fix this once and for all?
 
 
 
@@ -182,37 +193,7 @@ The System Matrix box displayed:
 
 
 
-5. Alternative: Use rc.local for Boot Launch
 
-If autostart doesn't work, try rc.local:
-
-bashsudo nano /etc/rc.local
-
-Add before exit 0:
-
-bash# Launch Chatty AI after boot
-
-su - nickspi5 -c "sleep 20 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh &" &
-
-Make sure rc.local is executable:
-
-bash sudo chmod +x /etc/rc.local
-sudo systemctl enable rc-local.service
-
-6. Test Everything
-
-bash# Test services are running
-sudo systemctl status chatty-ai-preloader.service
-sudo systemctl status chatty-ai.service
-
-# Check if port 5000 is open
-netstat -tuln | grep 5000
-
-# Test the startup script
-/home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-
-# Check camera permissions
-ls -la /dev/video* | head -5
 
 
 
