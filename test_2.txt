@@ -1,0 +1,220 @@
+Thank you, Claude,
+
+I replaced the camera_monitoring_loop(self): method with what you recommended in my chatty_ai.py Python script.
+
+I then ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ mkdir -p /home/nickspi5/.config/autostart
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash -c "sleep 15 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+EOF
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+I then edited the video playing section in the chatty_ai_startup.sh Shell Script.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/test_stream.py << 'EOF'
+#!/usr/bin/env python3
+import requests
+import cv2
+import numpy as np
+
+print("Testing video stream...")
+url = "http://localhost:5000/video_feed"
+
+try:
+    response = requests.get(url, stream=True, timeout=5)
+    print(f"Status: {response.status_code}")
+    
+    bytes_data = b''
+    for chunk in response.iter_content(chunk_size=1024):
+        bytes_data += chunk
+        if len(bytes_data) > 100000:  # After ~100KB
+            print(f"Received {len(bytes_data)} bytes")
+            
+            # Try to find JPEG markers
+            if b'\xff\xd8' in bytes_data and b'\xff\xd9' in bytes_data:
+                print("Found complete JPEG frame!")
+            else:
+                print("No complete JPEG frame found yet")
+            break
+            
+except Exception as e:
+    print(f"Error: {e}")
+EOF
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_stream.py
+Testing video stream...
+Status: 200
+Received 100168 bytes
+Found complete JPEG frame!
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai-preloader.service
+● chatty-ai-preloader.service - Chatty AI Model Preloader Service
+     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2025-09-06 13:41:21 AEST; 3h 30min ago
+   Main PID: 843 (python)
+      Tasks: 19 (limit: 9571)
+        CPU: 1min 6.075s
+     CGroup: /system.slice/chatty-ai-preloader.service
+             └─843 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+
+Sep 06 17:07:37 raspberrypi1 python[843]: 2025-09-06 17:07:37,075 - INFO - Status updated: {'heartbeat': 1757142457.0749896, >
+Sep 06 17:08:07 raspberrypi1 python[843]: 2025-09-06 17:08:07,075 - INFO - Status updated: {'heartbeat': 1757142487.0753882, >
+Sep 06 17:08:37 raspberrypi1 python[843]: 2025-09-06 17:08:37,075 - INFO - Status updated: {'heartbeat': 1757142517.075803, '>
+Sep 06 17:09:07 raspberrypi1 python[843]: 2025-09-06 17:09:07,076 - INFO - Status updated: {'heartbeat': 1757142547.0762103, >
+Sep 06 17:09:37 raspberrypi1 python[843]: 2025-09-06 17:09:37,076 - INFO - Status updated: {'heartbeat': 1757142577.0766706, >
+Sep 06 17:10:07 raspberrypi1 python[843]: 2025-09-06 17:10:07,077 - INFO - Status updated: {'heartbeat': 1757142607.0770838, >
+Sep 06 17:10:37 raspberrypi1 python[843]: 2025-09-06 17:10:37,078 - INFO - Status updated: {'heartbeat': 1757142637.078022, '>
+Sep 06 17:11:07 raspberrypi1 python[843]: 2025-09-06 17:11:07,078 - INFO - Status updated: {'heartbeat': 1757142667.0784278, >
+Sep 06 17:11:37 raspberrypi1 python[843]: 2025-09-06 17:11:37,079 - INFO - Status updated: {'heartbeat': 1757142697.078843, '>
+Sep 06 17:12:07 raspberrypi1 python[843]: 2025-09-06 17:12:07,079 - INFO - Status updated: {'heartbeat': 1757142727.079249, '>
+lines 1-19/19 (END)
+^c
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+● chatty-ai.service - Chatty AI Web Interface
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2025-09-06 13:41:23 AEST; 3h 32min ago
+   Main PID: 846 (gunicorn)
+     Status: "Gunicorn arbiter booted"
+      Tasks: 7 (limit: 9571)
+        CPU: 8.073s
+     CGroup: /system.slice/chatty-ai.service
+             ├─ 846 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
+             └─1037 /home/nickspi5/Chatty_AI/chatty-venv/bin/python3 /home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --conf>
+
+Sep 06 13:41:21 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Sep 06 13:41:23 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Sep 06 13:41:35 raspberrypi1 gunicorn[1037]: Server initialized for threading.
+Sep 06 13:41:35 raspberrypi1 gunicorn[1037]: 2025-09-06 13:41:35,270 - INFO - Server initialized for threading.
+Sep 06 13:41:35 raspberrypi1 gunicorn[1037]: 2025-09-06 13:41:35,274 - INFO - ChattyAI Web Server initialized
+^c
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ netstat -tuln | grep 5000
+tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN  
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+[2025-09-06 17:16:52] =========================================
+[2025-09-06 17:16:52] Chatty AI Startup Sequence Initiated
+[2025-09-06 17:16:52] =========================================
+[2025-09-06 17:16:52] Starting Chatty AI services...
+[2025-09-06 17:16:52] Playing startup video...
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 80:  3102 Segmentation fault      cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2> /dev/null
+[2025-09-06 17:17:08] VLC attempt 1 failed (exit code: 139)
+[2025-09-06 17:17:25] Video played successfully
+[2025-09-06 17:17:25] Waiting 70 seconds for services...
+^C
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la /dev/video* | head -5
+crw-rw----+ 1 root video 81, 17 Sep  6 13:41 /dev/video0
+crw-rw----+ 1 root video 81, 18 Sep  6 13:41 /dev/video1
+crw-rw----+ 1 root video 81,  7 Sep  6 13:41 /dev/video19
+crw-rw----+ 1 root video 81, 19 Sep  6 13:41 /dev/video2
+crw-rw----+ 1 root video 81,  0 Sep  6 13:41 /dev/video20
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./chatty_ai_startup.sh
+[2025-09-06 17:19:23] =========================================
+[2025-09-06 17:19:23] Chatty AI Startup Sequence Initiated
+[2025-09-06 17:19:23] =========================================
+[2025-09-06 17:19:23] Starting Chatty AI services...
+[2025-09-06 17:19:23] Playing startup video...
+[2025-09-06 17:19:38] Video played successfully
+[2025-09-06 17:19:38] Waiting 70 seconds for services...
+[2025-09-06 17:20:08] Port 5000 is open and ready
+[2025-09-06 17:20:48] Launching Chromium in kiosk mode...
+[2025-09-06 17:20:48] Chromium launched with PID: 3328
+[2025-09-06 17:20:48] Startup sequence complete!
+[2025-09-06 17:20:48] =========================================
+Opening in existing browser session.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+This time the video played with audio once perfectly.
+
+About 70 seconds later, http://localhost:5000 open in my Chromium browser on my Raspberry PI 5.
+
+I clicked on the Initialize button.
+
+The Neural Vision Feed box displayed:
+Waiting for Camera
+
+The Neural Status box displayed:
+Socket: Connected
+Camera: Ready
+Models: Loaded
+Wake Word: Inactive
+Person: None
+
+The System Matrix box displayed:
+17:20:49 🌟 Chatty AI Neural Interface initialized
+17:20:49 🔗 Establishing neural link to server...
+17:20:49 💡 Click "Initialize" to activate AI systems
+17:20:50 📊 Connected to server successfully
+17:20:50 ✅ Connected to Chatty AI server
+17:20:51 🔍 Scanning system components...
+17:23:40 🚀 Initializing Chatty AI neural network...
+17:23:40 [17:23:40] Starting Chatty AI system...
+17:23:40 [17:23:40] 📁 Response files loaded from memory cache
+17:23:40 [17:23:40] Loading AI models...
+17:23:42 [17:23:42] Whisper model loaded successfully
+17:23:42 [17:23:42] LLaMA model loaded successfully
+17:23:42 [17:23:42] ✨ Loaded 37 face encodings from cache
+17:23:42 [17:23:42] Telegram configuration loaded
+17:23:44 [17:23:44] Camera initialized successfully
+17:23:44 [17:23:44] Camera initialized, starting monitoring thread...
+17:23:44 [17:23:44] Camera monitoring thread started
+17:23:44 [17:23:44] Camera monitoring thread started
+17:23:46 [17:23:46] Warning: Camera not capturing frames yet
+17:23:46 [17:23:46] Camera monitoring thread started
+17:23:46 [17:23:46] Wake word detection thread started
+17:23:46 [17:23:46] Chatty AI system started successfully
+17:23:46 📊 Chatty AI system started successfull
+
+
+
+
+
+
+
+
+
+
+5. Alternative: Use rc.local for Boot Launch
+
+If autostart doesn't work, try rc.local:
+
+bashsudo nano /etc/rc.local
+
+Add before exit 0:
+
+bash# Launch Chatty AI after boot
+
+su - nickspi5 -c "sleep 20 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh &" &
+
+Make sure rc.local is executable:
+
+bash sudo chmod +x /etc/rc.local
+sudo systemctl enable rc-local.service
+
+6. Test Everything
+
+bash# Test services are running
+sudo systemctl status chatty-ai-preloader.service
+sudo systemctl status chatty-ai.service
+
+# Check if port 5000 is open
+netstat -tuln | grep 5000
+
+# Test the startup script
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+# Check camera permissions
+ls -la /dev/video* | head -5
+
+
+
+
+
