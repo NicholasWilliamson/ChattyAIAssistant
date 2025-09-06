@@ -1,260 +1,131 @@
-Thank you, Claude,
+# Test audio output first
+cvlc --aout=alsa --alsa-audio-device=hw:0,0 /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
 
-I modified my chatty_ai_startup.sh Shell script to include the following:
+# If no audio, try the other HDMI port
+cvlc --aout=alsa --alsa-audio-device=hw:1,0 /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
 
-    # Play video in fullscreen with audio
-    # Using cvlc (command line VLC) for better control
-    sudo -u "$USER" DISPLAY=:0 cvlc \
-        --fullscreen \
-        --no-video-title-show \
-        --play-and-exit \
-        --no-loop \
-        --no-repeat \
-        --aout=alsa \
-        --alsa-audio-device=hw:0,0 \
-        --intf dummy \
-        "$VIDEO_PATH" 2>/dev/null &
-
-In my chatty_ai.py Python script, I had:
-
-... more code ...
-                    # Setup camera
-                    if not self.setup_camera():
-                        emit('status_update', {
-                            'status': 'error',
-                            'is_running': False,
-                            'message': 'Failed to initialize camera'
-                        })
-                        return
-
-I then added the following code to verify if the camera is working:
-
-    # After setting up camera, verify it's working
-    if self.setup_camera():
-        self.emit_log("Camera initialized, starting monitoring thread...", 'info')
-        
-        # Make sure these are set BEFORE starting threads
-        self.system_running = True
-        self.monitor_running = True
-        
-        # Start camera monitoring thread
-        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-        self.camera_thread.start()
-        self.emit_log("Camera monitoring thread started", 'success')
-        
-        # Give camera time to capture first frame
-        time.sleep(2)
-        
-        # Check if frame is being captured
-        if self.current_frame is not None:
-            self.emit_log("Camera is capturing frames", 'success')
-        else:
-            self.emit_log("Warning: Camera not capturing frames yet", 'warning')
+# Or use default audio
+cvlc /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
 
 
-I then modified my camera_monitoring_loop(self): method in my chatty_ai.py Python script with the following code:
+3. Fix Camera in Main Application
+The issue is that your camera monitoring loop has duplicate camera initialization. When you click "Initialize", it's calling setup_camera() twice:
+python# In your handle_start_system, you have:
+if not self.setup_camera():  # First call
+    # error handling
+    return
 
-    def camera_monitoring_loop(self):
-        """Main camera monitoring loop for web interface"""
-        logger.info("Camera monitoring thread started")
-        self.emit_log("Camera monitoring thread started", 'success')
+# Then later:
+if self.setup_camera():  # Second call - THIS IS THE PROBLEM!
+    self.emit_log("Camera initialized, starting monitoring thread...", 'info')
+Fix it by removing the duplicate:
+python# In handle_start_system, replace the duplicate with:
+# Setup camera
+if not self.setup_camera():
+    emit('status_update', {
+        'status': 'error',
+        'is_running': False,
+        'message': 'Failed to initialize camera'
+    })
+    return
 
-        frame_count = 0
-        while self.system_running and self.monitor_running:
-            try:
-                if not self.picam2:
-                    self.emit_log("Camera not initialized in monitoring loop", 'error')
-                    time.sleep(1)
-                    continue
-                    
-                frame = self.picam2.capture_array()
+# Camera is already set up, just verify and start monitoring
+self.emit_log("Camera initialized, starting monitoring thread...", 'info')
 
-                # Debug log every 30 frames (1 second at 30fps)
-                if frame_count % 30 == 0:
-                    self.emit_log(f"Captured frame {frame_count}, shape: {frame.shape}", 'debug')
+# Make sure these are set BEFORE starting threads
+self.system_running = True
+self.monitor_running = True
 
-                # Convert from RGB to BGR for OpenCV
-                if len(frame.shape) == 3 and frame.shape[2] == 3:
-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                
-                # Process facial recognition
-                name, face_location, confidence = self.detect_faces(frame)
-                
-                current_time = time.time()
-                
-                # Draw face rectangles and labels on frame for web display
-                display_frame = frame.copy()
-                if name and face_location:
-                    top, right, bottom, left = face_location
-                    
-                    # Choose color based on recognition
-                    if name == "Unknown":
-                        color = (0, 0, 255)  # Red for unknown
-                        label = f"Unknown ({confidence:.2f})"
-                    else:
-                        color = (0, 255, 0)  # Green for known
-                        label = f"{name} ({confidence:.2f})"
-                    
-                    # Draw rectangle around face
-                    cv2.rectangle(display_frame, (left, top), (right, bottom), color, 2)
-                    
-                    # Draw label background
-                    cv2.rectangle(display_frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-                    
-                    # Draw label text
-                    cv2.putText(display_frame, label, (left + 6, bottom - 6),
-                               cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
-                
-                # Add status information to frame
-                status_text = "Chatty AI Web Interface Active"
-                cv2.putText(display_frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                
-                # Show current person status
-                if self.current_person:
-                    person_text = f"Current Person: {self.current_person}"
-                    cv2.putText(display_frame, person_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-                
-                # Show wake word status
-                if self.wake_word_active:
-                    wake_word_text = "Wake Word Detection: ACTIVE"
-                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                else:
-                    wake_word_text = "Wake Word Detection: INACTIVE"
-                    cv2.putText(display_frame, wake_word_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                
-                # Show bored response timer
-                if self.last_bored_response_time and self.wake_word_active:
-                    time_since_bored = current_time - self.last_bored_response_time
-                    timer_text = f"Bored Timer: {int(BORED_RESPONSE_INTERVAL - time_since_bored)}s"
-                    cv2.putText(display_frame, timer_text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
-                
-                # Update current frame for web streaming
-                self.current_frame = display_frame
+# Start camera monitoring thread
+self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+self.camera_thread.start()
+self.emit_log("Camera monitoring thread started", 'success')
 
-                frame_count += 1
+# Give camera time to capture first frame
+time.sleep(2)
 
-                # Process facial recognition logic
-
-... more code ...
-
-I then ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/test_camera_stream.py << 'EOF'
-#!/usr/bin/env python3
-from flask import Flask, Response
-import cv2
-from picamera2 import Picamera2
-import time
-
-app = Flask(__name__)
-picam2 = None
-
-def init_camera():
-    global picam2
-    picam2 = Picamera2()
-    picam2.configure(picam2.create_preview_configuration(
-        main={"format": 'XRGB8888', "size": (640, 480)}
-    ))
-    picam2.start()
-    time.sleep(2)
-    print("Camera initialized")
-
-@app.route('/')
-def index():
-    return '<html><body><img src="/video_feed"></body></html>'
-
-@app.route('/video_feed')
-def video_feed():
-    def generate():
-        while True:
-            frame = picam2.capture_array()
-            if len(frame.shape) == 3:
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            ret, buffer = cv2.imencode('.jpg', frame)
-            if ret:
-                yield (b'--frame\r\n'
-                      b'Content-Type: image/jpeg\r\n\r\n' + 
-                      buffer.tobytes() + b'\r\n')
-            time.sleep(0.1)
+# Check if frame is being captured
+if self.current_frame is not None:
+    self.emit_log("Camera is capturing frames", 'success')
+else:
+    self.emit_log("Warning: Camera not capturing frames yet", 'warning')
+4. Fix RGBA to BGR Conversion
+Your camera is outputting RGBA (4 channels) but your code expects RGB (3 channels):
+pythondef camera_monitoring_loop(self):
+    # ... existing code ...
     
-    return Response(generate(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    frame = self.picam2.capture_array()
+    
+    # Debug log
+    if frame_count % 30 == 0:
+        self.emit_log(f"Captured frame {frame_count}, shape: {frame.shape}", 'debug')
+    
+    # Convert based on actual format
+    if len(frame.shape) == 3:
+        if frame.shape[2] == 4:  # RGBA
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+        elif frame.shape[2] == 3:  # RGB
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+5. Complete Auto-Start Setup
+To make everything automatic on boot:
+bash# Enable all services in correct order
+sudo systemctl enable chatty-ai-preloader.service
+sudo systemctl enable chatty-ai.service
+sudo systemctl enable chatty-ai-launcher.service
 
-if __name__ == '__main__':
-    init_camera()
-    app.run(host='0.0.0.0', port=5001, debug=True)
+# Check service order
+systemctl list-dependencies chatty-ai-launcher.service
+6. Quick Fix Script
+Here's a complete fix script to run:
+bashcat > /home/nickspi5/Chatty_AI/fix_camera.sh << 'EOF'
+#!/bin/bash
+echo "Fixing Chatty AI camera issues..."
+
+# Stop all services
+echo "Stopping services..."
+sudo systemctl stop chatty-ai-launcher.service
+sudo systemctl stop chatty-ai.service  
+sudo systemctl stop chatty-ai-preloader.service
+pkill -f chromium
+pkill -f python3
+
+sleep 2
+
+# Restart in correct order
+echo "Starting services..."
+sudo systemctl start chatty-ai-preloader.service
+sleep 5
+sudo systemctl start chatty-ai.service
+sleep 5
+
+echo "Services restarted. Testing camera..."
+
+# Test if port 5000 is open
+if netstat -tuln | grep -q ":5000 "; then
+    echo "Port 5000 is open"
+    
+    # Test video feed
+    curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/video_feed
+    
+    echo "Opening browser..."
+    chromium-browser http://localhost:5000 &
+else
+    echo "Port 5000 is not open - service may not be running"
+fi
 EOF
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x test_camera_stream.py
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_camera_stream.py
-[0:52:28.627261784] [2755]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[0:52:28.634315556] [2761]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[0:52:28.643984172] [2761]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[0:52:28.647546067] [2755]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[0:52:28.647653271] [2761]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-Camera initialized
- * Serving Flask app 'test_camera_stream'
- * Debug mode: on
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5001
- * Running on http://192.168.1.16:5001
-Press CTRL+C to quit
- * Restarting with stat
-[0:52:31.223064821] [2767]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[0:52:31.230105205] [2773]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[0:52:31.230662536] [2773] ERROR V4L2 v4l2_device.cpp:390 'imx219 10-0010': Unable to set controls: Device or resource busy
-[0:52:31.240183708] [2773]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[0:52:31.241236538] [2767]  INFO Camera camera.cpp:1011 Pipeline handler in use by another process
-Camera __init__ sequence did not complete.
-Traceback (most recent call last):
-  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 353, in __init__
-    self._open_camera()
-  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 565, in _open_camera
-    self.camera.acquire()
-RuntimeError: Failed to acquire camera: Device or resource busy
+chmod +x /home/nickspi5/Chatty_AI/fix_camera.sh
+./fix_camera.sh
+After making these changes, reboot and the system should:
 
-During handling of the above exception, another exception occurred:
+Boot up
+Start preloader service
+Start main Chatty AI service
+Play video with audio
+Launch browser in kiosk mode
+Show working camera feed when you click Initialize
 
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/test_camera_stream.py", line 42, in <module>
-    init_camera()
-  File "/home/nickspi5/Chatty_AI/test_camera_stream.py", line 12, in init_camera
-    picam2 = Picamera2()
-             ^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 365, in __init__
-    raise RuntimeError("Camera __init__ sequence did not complete.")
-RuntimeError: Camera __init__ sequence did not complete.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I then opened http://localhost:5001 in my Chromium browser on my Raspberry PI 5.
-
-I got the following error message: This site can’t be reached
-localhost refused to connect.
-Try:
-
-Checking the connection
-Checking the proxy and the firewall
-ERR_CONNECTION_REFUSED
-
-I then rebooted my Raspberry PI 5.
-
-I then ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./chatty_ai_startup.sh dev
-
-The Chatty_AI_starting.mp4 file plays once in full screen mode without any video.
-
-The http:/localhost:5000 opens.
-
-I click on the Initialize button but the video preview window still does not display.
-
-This should all happen automatically when I boot my Raspberry PI 5.
-
-How can I fix this?
-
-
+The main issue was the duplicate setup_camera() call causing the camera to be already in use.
 
 
 
