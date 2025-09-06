@@ -1,155 +1,93 @@
 Thank you, Claude,
 
-I saved the code you generated for test_camera_stream.py as camera_test.py.
+I did not use Autostart as you suggested.
 
-I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl stop chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl stop chatty-ai-preloader.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pkill -f python3
-pkill: killing pid 2119 failed: Operation not permitted
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 camera_test.py
-[0:41:09.812439818] [3167]  INFO Camera camera_manager.cpp:326 libcamera v0.5.1+100-e53bdf1f
-[0:41:09.819531008] [3173]  INFO RPI pisp.cpp:720 libpisp version v1.2.1 981977ff21f3 29-04-2025 (14:13:50)
-[0:41:09.828899257] [3173]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 to CFE device /dev/media2 and ISP device /dev/media0 using PiSP variant BCM2712_C0
-[0:41:09.831898689] [3167]  INFO Camera camera.cpp:1205 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 640x480-BGGR_PISP_COMP1/RAW
-[0:41:09.832027223] [3173]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/imx219@10 - Selected sensor format: 640x480-SBGGR10_1X10 - Selected CFE format: 640x480-PC1B
-Camera initialized successfully
- * Serving Flask app 'camera_test'
- * Debug mode: off
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5001
- * Running on http://10.104.74.205:5001
-Press CTRL+C to quit
-127.0.0.1 - - [06/Sep/2025 09:48:27] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [06/Sep/2025 09:48:27] "GET /video_feed HTTP/1.1" 200 -
-^c
-
-I then opened http://127.0.0.1:5001 in my Chromium browser on my Raspberry PI 5 and the video preview window correctly displayed the live video camera stream.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cvlc --aout=alsa --alsa-audio-device=hw:0,0 /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
-[00005555c08b7e80] main audio output error: module not functional
-[00007ffee8099f60] main decoder error: failed to create audio output
-[00005555c08b7e80] alsa audio output error: cannot open ALSA device "hw:0,0": Unknown error 524
-[00005555c08b7e80] main audio output error: Audio output failed
-[00005555c08b7e80] main audio output error: The audio device "hw:0,0" could not be used:
-Unknown error 524.
-[00005555c08b7e80] main audio output error: module not functional
-[00007ffee8099f60] main decoder error: failed to create audio output
-[00005555c08b7e80] alsa audio output error: cannot open ALSA device "hw:0,0": Unknown error 524
-[00005555c08b7e80] main audio output error: Audio output failed
-[00005555c08b7e80] main audio output error: The audio device "hw:0,0" could not be used:
-Unknown error 524.
-^c
-
-The video played without audio.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cvlc --aout=alsa --alsa-audio-device=hw:1,0 /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
-[00005555c341be80] main audio output error: module not functional
-[00007ffec8112370] main decoder error: failed to create audio output
-[00005555c341be80] alsa audio output error: cannot open ALSA device "hw:1,0": Unknown error 524
-[00005555c341be80] main audio output error: Audio output failed
-[00005555c341be80] main audio output error: The audio device "hw:1,0" could not be used:
-Unknown error 524.
-[00005555c341be80] main audio output error: module not functional
-[00007ffec8112370] main decoder error: failed to create audio output
-[00005555c341be80] alsa audio output error: cannot open ALSA device "hw:1,0": Unknown error 524
-[00005555c341be80] main audio output error: Audio output failed
-[00005555c341be80] main audio output error: The audio device "hw:1,0" could not be used:
-Unknown error 524.
-^c
-
-The video played without audio.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cvlc /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
-VLC media player 3.0.21 Vetinari (revision 3.0.21-0-gdd8bfdbabe8)
-[00005555d48dbd00] dummy interface: using the dummy interface module...
-[h264_v4l2m2m @ 0x7ffebc03cc50] Could not find a valid device
-[h264_v4l2m2m @ 0x7ffebc03cc50] can't configure decoder
-[00007ffebc0139d0] avcodec decoder error: cannot start codec (h264_v4l2m2m)
-[00007ffeb40d1240] wl_xdg_shell window: <<< WL XDG: 1920x1080 fs 0 standalone 0
-[00007ffeb00013f0] wl_dmabuf vout display: <<< Open: I420 1920x1090(1920x1080 @ 0,0 0/0), cfg.display: 1920x1080, source: 1920x1090(1920x1080 @ 0,0 1/1), scale=0/0
-^c
-
-This final time, the video played correctly with audio.
-
-I then made the changes your recommended to my chatty_ai.py Pythons script.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai-preloader.service
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai-launcher.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl disable chatty-ai-launcher.service
+Removed "/etc/systemd/system/graphical.target.wants/chatty-ai-launcher.service".
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai-preloader.service
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai-launcher.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ systemctl list-dependencies chatty-ai-launcher.service
-chatty-ai-launcher.service
-● └─sysinit.target
-○   ├─apparmor.service
-○   ├─dev-hugepages.mount
-●   ├─dev-mqueue.mount
-●   ├─fake-hwclock.service
-●   ├─keyboard-setup.service
-●   ├─kmod-static-nodes.service
-●   ├─plymouth-read-write.service
-●   ├─plymouth-start.service
-●   ├─proc-sys-fs-binfmt_misc.automount
-●   ├─sys-fs-fuse-connections.mount
-●   ├─sys-kernel-config.mount
-●   ├─sys-kernel-debug.mount
-●   ├─sys-kernel-tracing.mount
-○   ├─systemd-ask-password-console.path
-●   ├─systemd-binfmt.service
-○   ├─systemd-firstboot.service
-●   ├─systemd-journal-flush.service
-●   ├─systemd-journald.service
-○   ├─systemd-machine-id-commit.service
-●   ├─systemd-modules-load.service
-○   ├─systemd-pcrphase-sysinit.service
-○   ├─systemd-pcrphase.service
-○   ├─systemd-pstore.service
-●   ├─systemd-random-seed.service
-○   ├─systemd-repart.service
-●   ├─systemd-sysctl.service
-lines 1-28
-^c
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh dev
+[2025-09-06 13:11:35] =========================================
+[2025-09-06 13:11:35] Chatty AI Startup Sequence Initiated
+[2025-09-06 13:11:35] =========================================
+[2025-09-06 13:11:35] Starting Chatty AI services...
+[2025-09-06 13:11:35] Playing startup video...
+[2025-09-06 13:11:35] VLC started with PID: 2764
+[2025-09-06 13:11:35] Waiting 70 seconds for services...
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 75:  2764 Segmentation fault      cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2> /dev/null
+[2025-09-06 13:12:05] Port 5000 is open and ready
+[2025-09-06 13:12:45] Launching Chromium in development mode...
+[2025-09-06 13:12:45] Chromium launched with PID: 2898
+[2025-09-06 13:12:45] Startup sequence complete!
+[2025-09-06 13:12:45] =========================================
+Opening in existing browser session.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/fix_camera.sh << 'EOF'
-#!/bin/bash
-echo "Fixing Chatty AI camera issues..."
+The startup video now played automatically with audio.
 
-# Stop all services
-echo "Stopping services..."
-sudo systemctl stop chatty-ai-launcher.service
-sudo systemctl stop chatty-ai.service  
-sudo systemctl stop chatty-ai-preloader.service
-pkill -f chromium
-pkill -f python3
+http://localhost:5000 opened automatically in my Chromium browser on my Raspberry PI 5.
 
-sleep 2
+I clicked on the Initialize button.
 
-# Restart in correct order
-echo "Starting services..."
-sudo systemctl start chatty-ai-preloader.service
-sleep 5
-sudo systemctl start chatty-ai.service
-sleep 5
+The Neural Vision Feed box displayed: Waiting for Camera
 
-echo "Services restarted. Testing camera..."
+The System Matrix box displayed:
+13:12:45 🌟 Chatty AI Neural Interface initialized
+13:12:45 🔗 Establishing neural link to server...
+13:12:45 💡 Click "Initialize" to activate AI systems
+13:12:46 📊 Connected to server successfully
+13:12:46 ✅ Connected to Chatty AI server
+13:12:47 🔍 Scanning system components...
+13:13:41 🚀 Initializing Chatty AI neural network...
+13:13:41 [13:13:41] Starting Chatty AI system...
+13:13:41 [13:13:41] 📁 Response files loaded from memory cache
+13:13:41 [13:13:41] Loading AI models...
+13:13:43 [13:13:43] Whisper model loaded successfully
+13:13:43 [13:13:43] LLaMA model loaded successfully
+13:13:43 [13:13:43] ✨ Loaded 37 face encodings from cache
+13:13:43 [13:13:43] Telegram configuration loaded
+13:13:45 [13:13:45] Camera initialized successfully
+13:13:45 [13:13:45] Camera initialized, starting monitoring thread...
+13:13:45 [13:13:45] Camera monitoring thread started
+13:13:45 [13:13:45] Camera monitoring thread started
+13:13:47 [13:13:47] Warning: Camera not capturing frames yet
+13:13:47 [13:13:47] Camera monitoring thread started
+13:13:47 [13:13:47] Wake word detection thread started
+13:13:47 [13:13:47] Chatty AI system started successfully
+13:13:47 📊 Chatty AI system started successfully
 
-# Test if port 5000 is open
-if netstat -tuln | grep -q ":5000 "; then
-    echo "Port 5000 is open"
-    
-    # Test video feed
-    curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/video_feed
-EOF echo "Port 5000 is not open - service may not be running"
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/fix_camera.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./fix_camera.sh
-Fixing Chatty AI camera issues...
-Stopping services...
-Failed to stop chatty-ai-launcher.service: Unit chatty-ai-launcher.service not loaded.
-pkill: killing pid 2119 failed: Operation not permitted
-Starting services...
-Services restarted. Testing camera...
-Port 5000 is open
+The Neural Status box displayed:
+Socket: Connected
+Camera: Ready
+Models: Loaded
+Wake Word: Inactive
+Person: None
+
+I then closed my Chrmium browser window on my Raspberry PI 5.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tail -f /home/nickspi5/Chatty_AI/logs/startup.log
+[2025-09-06 13:11:35] =========================================
+[2025-09-06 13:11:35] Starting Chatty AI services...
+[2025-09-06 13:11:35] Playing startup video...
+[2025-09-06 13:11:35] VLC started with PID: 2764
+[2025-09-06 13:11:35] Waiting 70 seconds for services...
+[2025-09-06 13:12:05] Port 5000 is open and ready
+[2025-09-06 13:12:45] Launching Chromium in development mode...
+[2025-09-06 13:12:45] Chromium launched with PID: 2898
+[2025-09-06 13:12:45] Startup sequence complete!
+[2025-09-06 13:12:45] =========================================
 ^C
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+It appears the video preview window is still not displaying the live video stream.
+
+How can I fix this?
+
 
 
 
