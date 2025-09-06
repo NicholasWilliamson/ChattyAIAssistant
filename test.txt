@@ -1,153 +1,161 @@
 
 
-The issue is clear from your logs - the camera is initializing but frames aren't being captured. The test shows the video feed endpoint works, but the camera thread isn't updating self.current_frame. Let's fix this definitively.
-The Root Cause
-
-Looking at your logs, the camera thread starts but shows "Warning: Camera not capturing frames yet". This means self.current_frame is still None after 2 seconds. The problem is likely in how the camera thread is being started or a Python indentation issue.
-
-
-Fix 1: Verify the Camera Thread is Actually Running
-
-Add this debug code to your handle_start_system socket handler in chatty_ai.py:
-
-python# After starting camera thread, add verification
-self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-self.camera_thread.start()
-self.emit_log("Camera monitoring thread started", 'success')
-
-# Add thread verification
-time.sleep(0.5)
-if self.camera_thread.is_alive():
-    self.emit_log(f"✅ Camera thread is alive: {self.camera_thread.is_alive()}", 'success')
-else:
-    self.emit_log("❌ Camera thread failed to start!", 'error')
-
-# Give camera time to capture first frame
-time.sleep(2)
-
-# More detailed checking
-if self.current_frame is not None:
-    self.emit_log(f"✅ Camera is capturing frames - shape: {self.current_frame.shape}", 'success')
-else:
-    self.emit_log("⚠️ Camera not capturing frames yet", 'warning')
-    # Try to diagnose why
-    if not self.picam2:
-        self.emit_log("❌ picam2 is None!", 'error')
-    if not self.system_running:
-        self.emit_log("❌ system_running is False!", 'error')
-    if not self.monitor_running:
-        self.emit_log("❌ monitor_running is False!", 'error')
-
-
-
-Fix 2: Ensure Thread Variables are Set BEFORE Starting Thread
-
-This is critical - make sure in your handle_start_system:
-
-python# These MUST be set BEFORE starting any threads
-self.system_running = True
-self.monitor_running = True
-
-# THEN start the camera thread
-self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-self.camera_thread.start()
-
-
-
-Fix 3: Add Direct Camera Test
-
-Add this test method to your ChattyAIWebServer class:
-
-def test_camera_direct(self):
-    """Test camera capture directly"""
-    try:
-        if self.picam2:
-            frame = self.picam2.capture_array()
-            self.emit_log(f"Direct capture test - frame shape: {frame.shape}", 'info')
-            return True
-        else:
-            self.emit_log("Camera not initialized for direct test", 'error')
-            return False
-    except Exception as e:
-        self.emit_log(f"Direct capture failed: {e}", 'error')
-        return False
-
-
-Then call it after camera setup:
-
-if self.setup_camera():
-    # Test direct capture
-    if self.test_camera_direct():
-        self.emit_log("✅ Direct camera capture works", 'success')
-    else:
-        self.emit_log("❌ Direct camera capture failed", 'error')
-
-
-
-Fix 4: The Nuclear Option - Simplified Camera Loop
-
-If the above doesn't work, replace your camera_monitoring_loop temporarily with this minimal version to isolate the issue:
-
-def camera_monitoring_loop(self):
-    """Minimal camera loop for testing"""
-    self.emit_log("MINIMAL camera loop started", 'success')
+@self.socketio.on('start_system')
+def handle_start_system():
+    """Handle start system request"""
+    client_id = request.sid
+    logger.info(f"Received start system request from client: {client_id}")
     
-    while self.system_running and self.monitor_running:
-        try:
-            if self.picam2:
-                # Just capture and update frame - nothing else
-                frame = self.picam2.capture_array()
-                
-                # Convert RGBA to BGR
-                if len(frame.shape) == 3 and frame.shape[2] == 4:
-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
-                
-                # Update current frame
-                self.current_frame = frame
-                
-                # Log once
-                if not hasattr(self, '_logged_capture'):
-                    self.emit_log(f"✅ Capturing frames: {frame.shape}", 'success')
-                    self._logged_capture = True
-            else:
-                self.emit_log("No camera in loop", 'error')
-                break
-                
-            time.sleep(0.1)  # 10 FPS
+    try:
+        if not self.system_running:
+            self.emit_log("Starting Chatty AI system...", 'info')
             
-        except Exception as e:
-            self.emit_log(f"Minimal loop error: {e}", 'error')
-            time.sleep(1)
-    
-    self.emit_log("MINIMAL camera loop stopped", 'info')
+            # Load response files
+            if not self.load_response_files():
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': False,
+                    'message': 'Failed to load response files'
+                })
+                return
+            
+            # Load AI models
+            if not self.load_models():
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': False,
+                    'message': 'Failed to load AI models'
+                })
+                return
+            
+            # Load face encodings
+            if not self.load_encodings():
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': False,
+                    'message': 'Failed to load face encodings'
+                })
+                return
+            
+            # Load Telegram config
+            self.load_telegram_config()
 
+            # Setup camera
+            if not self.setup_camera():
+                emit('status_update', {
+                    'status': 'error',
+                    'is_running': False,
+                    'message': 'Failed to initialize camera'
+                })
+                return
 
+            # Test direct capture
+            if self.test_camera_direct():
+                self.emit_log("✅ Direct camera capture works", 'success')
+            else:
+                self.emit_log("❌ Direct camera capture failed", 'error')
 
-Fix 5: Check Your Indentation
+            # CRITICAL: Set these flags BEFORE starting any threads
+            self.system_running = True
+            self.monitor_running = True
+            
+            self.emit_log("Starting monitoring threads...", 'info')
 
-The most common Python issue - verify your self.current_frame = display_frame line has NO extra indentation. It should be at the same level as the main try block:
-
-while self.system_running and self.monitor_running:
-    try:
-        # ... code ...
+            # Start system monitoring thread (only if not already running)
+            if not hasattr(self, 'system_monitor_thread') or not self.system_monitor_thread.is_alive():
+                self.system_monitor_thread = threading.Thread(
+                    target=self.system_monitor_loop, daemon=True)
+                self.system_monitor_thread.start()
+                logger.info("System monitoring thread started")
+                self.emit_log("System monitoring thread started", 'success')
+            
+            # Start camera monitoring thread (ONLY ONCE!)
+            self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+            self.camera_thread.start()
+            self.emit_log("Camera monitoring thread started", 'success')
+            
+            # Verify camera thread is running
+            time.sleep(0.5)
+            if self.camera_thread.is_alive():
+                self.emit_log(f"✅ Camera thread is alive", 'success')
+            else:
+                self.emit_log("❌ Camera thread failed to start!", 'error')
+            
+            # Give camera time to capture first frames
+            time.sleep(2)
+            
+            # Detailed diagnostic check
+            if self.current_frame is not None:
+                self.emit_log(f"✅ Camera is capturing frames - shape: {self.current_frame.shape}", 'success')
+            else:
+                self.emit_log("⚠️ Camera not capturing frames yet", 'warning')
+                
+                # Diagnose why frames aren't being captured
+                if not self.picam2:
+                    self.emit_log("❌ picam2 is None!", 'error')
+                if not self.system_running:
+                    self.emit_log("❌ system_running is False!", 'error')
+                if not self.monitor_running:
+                    self.emit_log("❌ monitor_running is False!", 'error')
+                    
+                # Try another direct capture as a test
+                try:
+                    if self.picam2:
+                        test_frame = self.picam2.capture_array()
+                        self.emit_log(f"🔍 Direct test capture: {test_frame.shape}", 'info')
+                        
+                        # Force set a frame if capture works
+                        if len(test_frame.shape) == 3 and test_frame.shape[2] == 4:
+                            test_frame = cv2.cvtColor(test_frame, cv2.COLOR_RGBA2BGR)
+                        self.current_frame = test_frame
+                        self.emit_log("🔧 Forced frame update from direct capture", 'warning')
+                except Exception as e:
+                    self.emit_log(f"❌ Emergency capture failed: {e}", 'error')
+            
+            # Start wake word detection thread
+            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+            self.audio_thread.start()
+            self.emit_log("Wake word detection thread started", 'success')
+            
+            # Final success message
+            self.emit_log("✨ Chatty AI system started successfully", 'success')
+            
+            response_data = {
+                'status': 'running',
+                'is_running': True,
+                'message': 'Chatty AI system started successfully'
+            }
+            
+            # Send to all clients
+            self.socketio.emit('status_update', response_data)
+            logger.info("System started successfully - status sent to all clients")
+            
+        else:
+            emit('status_update', {
+                'status': 'running',
+                'is_running': True,
+                'message': 'System is already running'
+            })
+            logger.info("Start system requested but system already running")
+            self.emit_log("System is already running", 'info')
+            
+    except Exception as e:
+        logger.error(f"Error starting system: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         
-        # This line MUST be here - not indented further!
-        self.current_frame = display_frame
+        # Reset state on error
+        self.system_running = False
+        self.monitor_running = False
         
-        # ... more code ...
+        emit('status_update', {
+            'status': 'error',
+            'is_running': False,
+            'message': f'Error starting system: {e}'
+        })
+        
+        self.emit_log(f"❌ System start failed: {e}", 'error')
 
-
-Run this check command to verify indentation:
-
-bash  python3 -m py_compile chatty_ai.py
-
-If there are indentation errors, it will show them.
-
-After making these changes, restart and test:
-
-bashsudo systemctl restart chatty-ai.service
-
-The camera WILL work after these fixes. The issue is almost certainly that self.current_frame isn't being set due to either the thread not running properly or an indentation issue.
 
 
 
