@@ -1,93 +1,174 @@
-Thank you, Claude,
-
-I did not use Autostart as you suggested.
-
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai-launcher.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl disable chatty-ai-launcher.service
-Removed "/etc/systemd/system/graphical.target.wants/chatty-ai-launcher.service".
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai-preloader.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh dev
-[2025-09-06 13:11:35] =========================================
-[2025-09-06 13:11:35] Chatty AI Startup Sequence Initiated
-[2025-09-06 13:11:35] =========================================
-[2025-09-06 13:11:35] Starting Chatty AI services...
-[2025-09-06 13:11:35] Playing startup video...
-[2025-09-06 13:11:35] VLC started with PID: 2764
-[2025-09-06 13:11:35] Waiting 70 seconds for services...
-/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 75:  2764 Segmentation fault      cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2> /dev/null
-[2025-09-06 13:12:05] Port 5000 is open and ready
-[2025-09-06 13:12:45] Launching Chromium in development mode...
-[2025-09-06 13:12:45] Chromium launched with PID: 2898
-[2025-09-06 13:12:45] Startup sequence complete!
-[2025-09-06 13:12:45] =========================================
-Opening in existing browser session.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-The startup video now played automatically with audio.
-
-http://localhost:5000 opened automatically in my Chromium browser on my Raspberry PI 5.
-
-I clicked on the Initialize button.
-
-The Neural Vision Feed box displayed: Waiting for Camera
-
-The System Matrix box displayed:
-13:12:45 🌟 Chatty AI Neural Interface initialized
-13:12:45 🔗 Establishing neural link to server...
-13:12:45 💡 Click "Initialize" to activate AI systems
-13:12:46 📊 Connected to server successfully
-13:12:46 ✅ Connected to Chatty AI server
-13:12:47 🔍 Scanning system components...
-13:13:41 🚀 Initializing Chatty AI neural network...
-13:13:41 [13:13:41] Starting Chatty AI system...
-13:13:41 [13:13:41] 📁 Response files loaded from memory cache
-13:13:41 [13:13:41] Loading AI models...
-13:13:43 [13:13:43] Whisper model loaded successfully
-13:13:43 [13:13:43] LLaMA model loaded successfully
-13:13:43 [13:13:43] ✨ Loaded 37 face encodings from cache
-13:13:43 [13:13:43] Telegram configuration loaded
-13:13:45 [13:13:45] Camera initialized successfully
-13:13:45 [13:13:45] Camera initialized, starting monitoring thread...
-13:13:45 [13:13:45] Camera monitoring thread started
-13:13:45 [13:13:45] Camera monitoring thread started
-13:13:47 [13:13:47] Warning: Camera not capturing frames yet
-13:13:47 [13:13:47] Camera monitoring thread started
-13:13:47 [13:13:47] Wake word detection thread started
-13:13:47 [13:13:47] Chatty AI system started successfully
-13:13:47 📊 Chatty AI system started successfully
-
-The Neural Status box displayed:
-Socket: Connected
-Camera: Ready
-Models: Loaded
-Wake Word: Inactive
-Person: None
-
-I then closed my Chrmium browser window on my Raspberry PI 5.
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tail -f /home/nickspi5/Chatty_AI/logs/startup.log
-[2025-09-06 13:11:35] =========================================
-[2025-09-06 13:11:35] Starting Chatty AI services...
-[2025-09-06 13:11:35] Playing startup video...
-[2025-09-06 13:11:35] VLC started with PID: 2764
-[2025-09-06 13:11:35] Waiting 70 seconds for services...
-[2025-09-06 13:12:05] Port 5000 is open and ready
-[2025-09-06 13:12:45] Launching Chromium in development mode...
-[2025-09-06 13:12:45] Chromium launched with PID: 2898
-[2025-09-06 13:12:45] Startup sequence complete!
-[2025-09-06 13:12:45] =========================================
-^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-It appears the video preview window is still not displaying the live video stream.
-
-How can I fix this?
 
 
+Looking at your logs, there are two issues to fix:
+
+Camera not capturing frames (warning shown but camera thread is starting)
+Auto-launch not working at boot
+
+1. Fix Camera Display Issue
+
+The camera is initializing but not updating frames. The issue is in your camera_monitoring_loop. You need to ensure self.current_frame is being set properly:
+
+python# In your camera_monitoring_loop method, verify this line exists and is NOT indented under any condition:
+
+def camera_monitoring_loop(self):
+    # ... existing code ...
+    
+    # This line MUST be at the main loop level, not inside any if statement:
+    self.current_frame = display_frame  # Make sure this line executes every loop!
+    
+    # Also add error handling for frame conversion
+    try:
+        frame = self.picam2.capture_array()
+        
+        # Handle RGBA format (4 channels)
+        if len(frame.shape) == 3 and frame.shape[2] == 4:
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+        elif len(frame.shape) == 3 and frame.shape[2] == 3:
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        
+        # ... rest of processing ...
+        
+        # CRITICAL: Update current frame at the end of processing
+        self.current_frame = display_frame
+        
+    except Exception as e:
+        self.emit_log(f"Frame processing error: {e}", 'error')
+
+
+2. Fix Auto-Launch at Boot
+
+Since systemd isn't working, let's use the autostart method which is more reliable for GUI applications:
+
+bash# Create autostart directory
+
+mkdir -p /home/nickspi5/.config/autostart
+
+# Create autostart desktop file
+
+cat > /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash -c "sleep 15 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+EOF
+
+chmod +x /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
+
+3. Fix VLC Segmentation Fault
+
+The VLC segfault might be due to running too early. Update your startup script to handle this:
+
+bash  nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+Replace the video playing section with:
+
+bash# Check if video file exists and play it
+
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Try multiple times if VLC crashes
+    VLC_ATTEMPTS=0
+    VLC_SUCCESS=0
+    
+    while [ $VLC_ATTEMPTS -lt 3 ] && [ $VLC_SUCCESS -eq 0 ]; do
+        cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null
+        VLC_EXIT=$?
+        
+        if [ $VLC_EXIT -eq 0 ]; then
+            VLC_SUCCESS=1
+            log_message "Video played successfully"
+        else
+            VLC_ATTEMPTS=$((VLC_ATTEMPTS + 1))
+            log_message "VLC attempt $VLC_ATTEMPTS failed (exit code: $VLC_EXIT)"
+            sleep 2
+        fi
+    done
+    
+    if [ $VLC_SUCCESS -eq 0 ]; then
+        log_message "Warning: Could not play video after 3 attempts"
+    fi
+else
+    log_message "Warning: Video file not found at $VIDEO_PATH"
+fi
+
+4. Quick Debug Test
+
+Create a test script to verify camera streaming works:
+
+bash  cat > /home/nickspi5/Chatty_AI/test_stream.py << 'EOF'
+#!/usr/bin/env python3
+import requests
+import cv2
+import numpy as np
+
+print("Testing video stream...")
+url = "http://localhost:5000/video_feed"
+
+try:
+    response = requests.get(url, stream=True, timeout=5)
+    print(f"Status: {response.status_code}")
+    
+    bytes_data = b''
+    for chunk in response.iter_content(chunk_size=1024):
+        bytes_data += chunk
+        if len(bytes_data) > 100000:  # After ~100KB
+            print(f"Received {len(bytes_data)} bytes")
+            
+            # Try to find JPEG markers
+            if b'\xff\xd8' in bytes_data and b'\xff\xd9' in bytes_data:
+                print("Found complete JPEG frame!")
+            else:
+                print("No complete JPEG frame found yet")
+            break
+            
+except Exception as e:
+    print(f"Error: {e}")
+EOF
+
+python3 test_stream.py
+
+5. Alternative: Use rc.local for Boot Launch
+
+If autostart doesn't work, try rc.local:
+
+bashsudo nano /etc/rc.local
+
+Add before exit 0:
+
+bash# Launch Chatty AI after boot
+
+su - nickspi5 -c "sleep 20 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh &" &
+
+Make sure rc.local is executable:
+
+bash sudo chmod +x /etc/rc.local
+sudo systemctl enable rc-local.service
+
+6. Test Everything
+
+bash# Test services are running
+sudo systemctl status chatty-ai-preloader.service
+sudo systemctl status chatty-ai.service
+
+# Check if port 5000 is open
+netstat -tuln | grep 5000
+
+# Test the startup script
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+# Check camera permissions
+ls -la /dev/video* | head -5
+
+
+
+The main issue is that self.current_frame isn't being updated properly in your camera loop. Make sure that line is executed every frame, not conditionally. The boot issue should be resolved with the autostart method, which is more appropriate for GUI applications than systemd services.
 
 
