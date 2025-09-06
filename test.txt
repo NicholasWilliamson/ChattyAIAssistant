@@ -1,14 +1,35 @@
-nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+2. Fix the Launcher Service Not Starting
+The service isn't starting because it's waiting for the wrong target. Let's fix it:
 
-Replace the VLC command with the simpler version that works:
+bash sudo nano /etc/systemd/system/chatty-ai-launcher.service
 
-bash    # Play video with default audio settings (which work)
-    sudo -u "$USER" DISPLAY=:0 cvlc \
-        --fullscreen \
-        --no-video-title-show \
-        --play-and-exit \
-        --no-loop \
-        --no-repeat \
-        --intf dummy \
-        "$VIDEO_PATH" 2>/dev/null &
+
+Replace with this corrected version:
+
+ini[Unit]
+Description=Chatty AI Launcher - Video and Browser Startup
+After=multi-user.target graphical-session.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nickspi5
+Group=nickspi5
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/nickspi5/.Xauthority"
+Environment="HOME=/home/nickspi5"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Wait a bit for desktop to be ready
+ExecStartPre=/bin/sleep 10
+
+# Run the startup script
+ExecStart=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+# Restart if it fails
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
 
