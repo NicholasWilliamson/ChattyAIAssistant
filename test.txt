@@ -1,415 +1,153 @@
 
 
-Looking at your logs, there are two issues to fix:
+The issue is clear from your logs - the camera is initializing but frames aren't being captured. The test shows the video feed endpoint works, but the camera thread isn't updating self.current_frame. Let's fix this definitively.
+The Root Cause
 
-Camera not capturing frames (warning shown but camera thread is starting)
-Auto-launch not working at boot
+Looking at your logs, the camera thread starts but shows "Warning: Camera not capturing frames yet". This means self.current_frame is still None after 2 seconds. The problem is likely in how the camera thread is being started or a Python indentation issue.
 
-1. Fix Camera Display Issue
 
-The camera is initializing but not updating frames. The issue is in your camera_monitoring_loop. You need to ensure self.current_frame is being set properly:
+Fix 1: Verify the Camera Thread is Actually Running
 
-python# In your camera_monitoring_loop method, verify this line exists and is NOT indented under any condition:
+Add this debug code to your handle_start_system socket handler in chatty_ai.py:
+
+python# After starting camera thread, add verification
+self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+self.camera_thread.start()
+self.emit_log("Camera monitoring thread started", 'success')
+
+# Add thread verification
+time.sleep(0.5)
+if self.camera_thread.is_alive():
+    self.emit_log(f"✅ Camera thread is alive: {self.camera_thread.is_alive()}", 'success')
+else:
+    self.emit_log("❌ Camera thread failed to start!", 'error')
+
+# Give camera time to capture first frame
+time.sleep(2)
+
+# More detailed checking
+if self.current_frame is not None:
+    self.emit_log(f"✅ Camera is capturing frames - shape: {self.current_frame.shape}", 'success')
+else:
+    self.emit_log("⚠️ Camera not capturing frames yet", 'warning')
+    # Try to diagnose why
+    if not self.picam2:
+        self.emit_log("❌ picam2 is None!", 'error')
+    if not self.system_running:
+        self.emit_log("❌ system_running is False!", 'error')
+    if not self.monitor_running:
+        self.emit_log("❌ monitor_running is False!", 'error')
+
+
+
+Fix 2: Ensure Thread Variables are Set BEFORE Starting Thread
+
+This is critical - make sure in your handle_start_system:
+
+python# These MUST be set BEFORE starting any threads
+self.system_running = True
+self.monitor_running = True
+
+# THEN start the camera thread
+self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+self.camera_thread.start()
+
+
+
+Fix 3: Add Direct Camera Test
+
+Add this test method to your ChattyAIWebServer class:
+
+def test_camera_direct(self):
+    """Test camera capture directly"""
+    try:
+        if self.picam2:
+            frame = self.picam2.capture_array()
+            self.emit_log(f"Direct capture test - frame shape: {frame.shape}", 'info')
+            return True
+        else:
+            self.emit_log("Camera not initialized for direct test", 'error')
+            return False
+    except Exception as e:
+        self.emit_log(f"Direct capture failed: {e}", 'error')
+        return False
+
+
+Then call it after camera setup:
+
+if self.setup_camera():
+    # Test direct capture
+    if self.test_camera_direct():
+        self.emit_log("✅ Direct camera capture works", 'success')
+    else:
+        self.emit_log("❌ Direct camera capture failed", 'error')
+
+
+
+Fix 4: The Nuclear Option - Simplified Camera Loop
+
+If the above doesn't work, replace your camera_monitoring_loop temporarily with this minimal version to isolate the issue:
 
 def camera_monitoring_loop(self):
-    """Main camera monitoring loop for web interface"""
-    logger.info("Camera monitoring thread started - DEBUG INFO")
-    logger.info(f"system_running: {self.system_running}, monitor_running: {self.monitor_running}")
-    self.emit_log("Camera monitoring thread started", 'success')
-    
-    frame_count = 0
-    error_count = 0
-    max_errors = 10
+    """Minimal camera loop for testing"""
+    self.emit_log("MINIMAL camera loop started", 'success')
     
     while self.system_running and self.monitor_running:
         try:
-            # Check camera initialization
-            if not self.picam2:
-                self.emit_log("Camera not initialized in monitoring loop", 'error')
-                time.sleep(1)
-                error_count += 1
-                if error_count > max_errors:
-                    self.emit_log("Too many camera errors, stopping loop", 'error')
-                    break
-                continue
-            
-            # Capture frame from camera
-            frame = self.picam2.capture_array()
-            
-            # Debug logging every 30 frames
-            if frame_count % 30 == 0:
-                self.emit_log(f"Captured frame {frame_count}, shape: {frame.shape}, dtype: {frame.dtype}", 'debug')
-            
-            # Handle frame format conversion
-            if frame is None:
-                self.emit_log("Received None frame from camera", 'error')
-                error_count += 1
-                time.sleep(0.1)
-                continue
-            
-            # Convert frame format based on channels
-            try:
-                if len(frame.shape) == 3:
-                    if frame.shape[2] == 4:  # RGBA/XRGB format
-                        # Check if it's XRGB (common on Pi Camera)
-                        frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
-                        if frame_count % 100 == 0:
-                            self.emit_log("Converting RGBA to BGR", 'debug')
-                    elif frame.shape[2] == 3:  # RGB format
-                        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                        if frame_count % 100 == 0:
-                            self.emit_log("Converting RGB to BGR", 'debug')
-                    else:
-                        self.emit_log(f"Unexpected frame channels: {frame.shape[2]}", 'warning')
-                elif len(frame.shape) == 2:
-                    # Grayscale frame, convert to BGR
-                    frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-                    if frame_count % 100 == 0:
-                        self.emit_log("Converting grayscale to BGR", 'debug')
-            except Exception as e:
-                self.emit_log(f"Frame conversion error: {e}", 'error')
-                error_count += 1
-                time.sleep(0.1)
-                continue
-            
-            # Create display frame
-            display_frame = frame.copy()
-            
-            # Process facial recognition
-            try:
-                name, face_location, confidence = self.detect_faces(frame)
-            except Exception as e:
-                self.emit_log(f"Face detection error: {e}", 'error')
-                name, face_location, confidence = None, None, 0.0
-            
-            current_time = time.time()
-            
-            # Draw face rectangles and labels
-            if name and face_location:
-                try:
-                    top, right, bottom, left = face_location
-                    
-                    # Choose color based on recognition
-                    if name == "Unknown":
-                        color = (0, 0, 255)  # Red for unknown
-                        label = f"Unknown ({confidence:.2f})"
-                    else:
-                        color = (0, 255, 0)  # Green for known
-                        label = f"{name} ({confidence:.2f})"
-                    
-                    # Draw rectangle around face
-                    cv2.rectangle(display_frame, (left, top), (right, bottom), color, 2)
-                    
-                    # Draw label background
-                    cv2.rectangle(display_frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-                    
-                    # Draw label text
-                    cv2.putText(display_frame, label, (left + 6, bottom - 6),
-                               cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
-                except Exception as e:
-                    self.emit_log(f"Error drawing face rectangle: {e}", 'error')
-            
-            # Add status overlay text
-            try:
-                # Main status
-                status_text = "Chatty AI Neural Interface Active"
-                cv2.putText(display_frame, status_text, (10, 30), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            if self.picam2:
+                # Just capture and update frame - nothing else
+                frame = self.picam2.capture_array()
                 
-                # Current person status
-                if self.current_person:
-                    person_text = f"Entity: {self.current_person}"
-                    cv2.putText(display_frame, person_text, (10, 60), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-                else:
-                    person_text = "Entity: None Detected"
-                    cv2.putText(display_frame, person_text, (10, 60), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
+                # Convert RGBA to BGR
+                if len(frame.shape) == 3 and frame.shape[2] == 4:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
                 
-                # Wake word status
-                if self.wake_word_active:
-                    wake_word_text = "Wake Word: ACTIVE"
-                    cv2.putText(display_frame, wake_word_text, (10, 90), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                else:
-                    wake_word_text = "Wake Word: INACTIVE"
-                    cv2.putText(display_frame, wake_word_text, (10, 90), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+                # Update current frame
+                self.current_frame = frame
                 
-                # Bored response timer
-                if self.last_bored_response_time and self.wake_word_active:
-                    time_since_bored = current_time - self.last_bored_response_time
-                    timer_text = f"Idle Timer: {int(BORED_RESPONSE_INTERVAL - time_since_bored)}s"
-                    cv2.putText(display_frame, timer_text, (10, 120), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
-                
-                # Frame counter (for debugging)
-                if frame_count % 10 == 0:  # Update every 10 frames
-                    fps_text = f"Frame: {frame_count}"
-                    cv2.putText(display_frame, fps_text, (10, 450), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
-                
-            except Exception as e:
-                self.emit_log(f"Error adding overlay text: {e}", 'error')
-            
-            # CRITICAL: Always update current_frame regardless of any conditions
-            # This is the most important line for video streaming!
-            self.current_frame = display_frame
-            
-            # Log successful frame update periodically
-            if frame_count % 100 == 0:
-                self.emit_log(f"✅ Frame {frame_count} updated successfully", 'debug')
-                error_count = 0  # Reset error count on success
-            
-            # Increment frame counter
-            frame_count += 1
-            
-            # Process facial recognition logic for interactions
-            if name and face_location:
-                # Person detected
-                if name != self.current_person:
-                    # New person or person changed
-                    self.current_person = name
-                    self.person_absent_since = None
-                    self.wake_word_active = False
-                    
-                    # Create captured person frame
-                    try:
-                        top, right, bottom, left = face_location
-                        margin = 50
-                        crop_top = max(0, top - margin)
-                        crop_bottom = min(frame.shape[0], bottom + margin)
-                        crop_left = max(0, left - margin)
-                        crop_right = min(frame.shape[1], right + margin)
-                        
-                        cropped_face = frame[crop_top:crop_bottom, crop_left:crop_right]
-                        if cropped_face.size > 0:
-                            self.captured_person_frame = cv2.resize(cropped_face, (300, 300))
-                    except Exception as e:
-                        self.emit_log(f"Error cropping face: {e}", 'error')
-                    
-                    # Emit person detection event
-                    person_data = {
-                        'name': name,
-                        'confidence': f"{confidence:.1%}" if name != "Unknown" else "N/A",
-                        'timestamp': datetime.now().strftime('%H:%M:%S')
-                    }
-                    
-                    if self.clients:
-                        try:
-                            self.socketio.emit('person_detected', person_data)
-                        except Exception as e:
-                            self.emit_log(f"Error emitting person detection: {e}", 'error')
-                    
-                    # Handle person interaction
-                    if name == "Unknown":
-                        self.handle_unknown_person(frame, confidence)
-                    else:
-                        # Known person detected
-                        photo_path = self.save_security_photo(frame, name, confidence)
-                        self.send_telegram_alert(name, confidence, photo_path)
-                        self.greet_person(name)
-            
+                # Log once
+                if not hasattr(self, '_logged_capture'):
+                    self.emit_log(f"✅ Capturing frames: {frame.shape}", 'success')
+                    self._logged_capture = True
             else:
-                # No person detected
-                if self.current_person:
-                    if not self.person_absent_since:
-                        self.person_absent_since = current_time
-                    elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
-                        # Person has been absent for cooldown period
-                        old_person = self.current_person
-                        self.current_person = None
-                        self.person_absent_since = None
-                        self.last_interaction_time = None
-                        self.wake_word_active = False
-                        self.last_bored_response_time = None
-                        self.bored_cycle = 0
-                        self.captured_person_frame = None
-                        
-                        # Emit person left event
-                        person_data = {
-                            'name': "No Entity Detected",
-                            'confidence': "--",
-                            'timestamp': datetime.now().strftime('%H:%M:%S')
-                        }
-                        
-                        if self.clients:
-                            try:
-                                self.socketio.emit('person_detected', person_data)
-                            except Exception as e:
-                                self.emit_log(f"Error emitting person left: {e}", 'error')
-                        
-                        self.emit_log(f"{old_person} left - state reset", 'info')
-            
-            # Sleep for the detection interval
-            time.sleep(PERSON_DETECTION_INTERVAL)
+                self.emit_log("No camera in loop", 'error')
+                break
+                
+            time.sleep(0.1)  # 10 FPS
             
         except Exception as e:
-            self.emit_log(f"Camera loop critical error: {e}", 'error')
-            error_count += 1
-            
-            # Set a placeholder frame on error
-            try:
-                placeholder = np.zeros((480, 640, 3), dtype=np.uint8)
-                cv2.putText(placeholder, "Camera Error", (200, 240), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                cv2.putText(placeholder, str(e)[:50], (100, 280), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
-                self.current_frame = placeholder
-            except:
-                pass
-            
-            if error_count > max_errors:
-                self.emit_log(f"Too many errors ({error_count}), stopping camera loop", 'error')
-                break
-            
+            self.emit_log(f"Minimal loop error: {e}", 'error')
             time.sleep(1)
     
-    self.emit_log("Camera monitoring thread stopped", 'info')
-    
-    # Set final placeholder frame
+    self.emit_log("MINIMAL camera loop stopped", 'info')
+
+
+
+Fix 5: Check Your Indentation
+
+The most common Python issue - verify your self.current_frame = display_frame line has NO extra indentation. It should be at the same level as the main try block:
+
+while self.system_running and self.monitor_running:
     try:
-        placeholder = np.zeros((480, 640, 3), dtype=np.uint8)
-        cv2.putText(placeholder, "Camera Stopped", (200, 240), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-        self.current_frame = placeholder
-    except:
-        pass
-
-
-2. Fix Auto-Launch at Boot
-
-Since systemd isn't working, let's use the autostart method which is more reliable for GUI applications:
-
-bash# Create autostart directory
-
-mkdir -p /home/nickspi5/.config/autostart
-
-# Create autostart desktop file
-
-cat > /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Chatty AI Auto Launcher
-Comment=Automatically launch Chatty AI on boot
-Exec=/bin/bash -c "sleep 15 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh"
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Terminal=false
-StartupNotify=false
-EOF
-
-chmod +x /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
-
-3. Fix VLC Segmentation Fault
-
-The VLC segfault might be due to running too early. Update your startup script to handle this:
-
-bash  nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-
-Replace the video playing section with:
-
-bash# Check if video file exists and play it
-
-if [ -f "$VIDEO_PATH" ]; then
-    log_message "Playing startup video..."
-    
-    # Try multiple times if VLC crashes
-    VLC_ATTEMPTS=0
-    VLC_SUCCESS=0
-    
-    while [ $VLC_ATTEMPTS -lt 3 ] && [ $VLC_SUCCESS -eq 0 ]; do
-        cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null
-        VLC_EXIT=$?
+        # ... code ...
         
-        if [ $VLC_EXIT -eq 0 ]; then
-            VLC_SUCCESS=1
-            log_message "Video played successfully"
-        else
-            VLC_ATTEMPTS=$((VLC_ATTEMPTS + 1))
-            log_message "VLC attempt $VLC_ATTEMPTS failed (exit code: $VLC_EXIT)"
-            sleep 2
-        fi
-    done
-    
-    if [ $VLC_SUCCESS -eq 0 ]; then
-        log_message "Warning: Could not play video after 3 attempts"
-    fi
-else
-    log_message "Warning: Video file not found at $VIDEO_PATH"
-fi
-
-4. Quick Debug Test
-
-Create a test script to verify camera streaming works:
-
-bash  cat > /home/nickspi5/Chatty_AI/test_stream.py << 'EOF'
-#!/usr/bin/env python3
-import requests
-import cv2
-import numpy as np
-
-print("Testing video stream...")
-url = "http://localhost:5000/video_feed"
-
-try:
-    response = requests.get(url, stream=True, timeout=5)
-    print(f"Status: {response.status_code}")
-    
-    bytes_data = b''
-    for chunk in response.iter_content(chunk_size=1024):
-        bytes_data += chunk
-        if len(bytes_data) > 100000:  # After ~100KB
-            print(f"Received {len(bytes_data)} bytes")
-            
-            # Try to find JPEG markers
-            if b'\xff\xd8' in bytes_data and b'\xff\xd9' in bytes_data:
-                print("Found complete JPEG frame!")
-            else:
-                print("No complete JPEG frame found yet")
-            break
-            
-except Exception as e:
-    print(f"Error: {e}")
-EOF
-
-python3 test_stream.py
-
-5. Alternative: Use rc.local for Boot Launch
-
-If autostart doesn't work, try rc.local:
-
-bashsudo nano /etc/rc.local
-
-Add before exit 0:
-
-bash# Launch Chatty AI after boot
-
-su - nickspi5 -c "sleep 20 && /home/nickspi5/Chatty_AI/chatty_ai_startup.sh &" &
-
-Make sure rc.local is executable:
-
-bash sudo chmod +x /etc/rc.local
-sudo systemctl enable rc-local.service
-
-6. Test Everything
-
-bash# Test services are running
-sudo systemctl status chatty-ai-preloader.service
-sudo systemctl status chatty-ai.service
-
-# Check if port 5000 is open
-netstat -tuln | grep 5000
-
-# Test the startup script
-/home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-
-# Check camera permissions
-ls -la /dev/video* | head -5
+        # This line MUST be here - not indented further!
+        self.current_frame = display_frame
+        
+        # ... more code ...
 
 
+Run this check command to verify indentation:
 
-The main issue is that self.current_frame isn't being updated properly in your camera loop. Make sure that line is executed every frame, not conditionally. The boot issue should be resolved with the autostart method, which is more appropriate for GUI applications than systemd services.
+bash  python3 -m py_compile chatty_ai.py
+
+If there are indentation errors, it will show them.
+
+After making these changes, restart and test:
+
+bashsudo systemctl restart chatty-ai.service
+
+The camera WILL work after these fixes. The issue is almost certainly that self.current_frame isn't being set due to either the thread not running properly or an indentation issue.
+
 
 
