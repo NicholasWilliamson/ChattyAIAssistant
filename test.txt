@@ -1,43 +1,88 @@
 Thank you, Claude,
 
-I rebooted my Raspberry PI 5 as you recommended.
+I modified my chatty-ai.service systemd service file as you recommended.
 
-The startup video played with audio and after 70 seconds, http://localhost:5000 automatically opened up in my Chromium browser on my Raspberry PI 5.
+My speak_text(self, text): method in my chatty_ai.py Python script is as follows:
 
-I clicked on the Initialize button.
+    def speak_text(self, text):
+        """Enhanced speak_text method using Piper TTS"""
+        if not text:
+            return
+    
+        try:
+            # Store the speaking state
+            self.currently_speaking = True
+            self.speech_start_time = time.time()
+        
+            # Estimate speech duration (rough calculation)
+            # Average speaking rate: ~150 words per minute = 2.5 words per second
+            word_count = len(text.split())
+            estimated_duration = (word_count / 2.5) + 1.0  # Add 1 second buffer
+        
+            self.emit_log(f"🔊 Speaking: '{text[:50]}...'", 'info')
+        
+            # Use Piper TTS instead of gTTS
+            piper_command = [
+                PIPER_EXECUTABLE,
+                "--model", VOICE_PATH,
+                "--config", CONFIG_PATH,
+                "--output_file", RESPONSE_AUDIO
+            ]
+        
+            # Run Piper TTS
+            result = subprocess.run(
+                piper_command,
+                input=text,
+                text=True,
+                capture_output=True,
+                check=True,
+                timeout=30
+            )
+        
+            if result.returncode == 0 and os.path.exists(RESPONSE_AUDIO):
+                # Play the generated audio file
+                with self.audio_recording_lock:
+                    subprocess.run(["aplay", RESPONSE_AUDIO], 
+                                    check=True, 
+                                    capture_output=True,
+                                    timeout=estimated_duration + 5)
+            
+                self.emit_log(f"🎵 Speech completed: '{text[:50]}...'", 'success')
+            
+                # Clean up the audio file
+                try:
+                    os.remove(RESPONSE_AUDIO)
+                except:
+                    pass
+            else:
+                self.emit_log(f"❌ Piper TTS failed to generate audio", 'error')
+        
+            # Mark speaking as complete
+            self.currently_speaking = False
+        
+        except subprocess.TimeoutExpired:
+            self.currently_speaking = False
+            self.emit_log(f"⏰ TTS timeout for: '{text[:50]}...'", 'error')
+        except subprocess.CalledProcessError as e:
+            self.currently_speaking = False
+            self.emit_log(f"🔧 Piper TTS error (exit code {e.returncode}): {e.stderr.decode() if e.stderr else 'Unknown error'}", 'error')
+        except Exception as e:
+            self.currently_speaking = False
+            self.emit_log(f"❌ TTS error: {e}", 'error')
 
-Facial recognition identified me correctly.
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo -u nickspi5 speaker-test -c 2 -t wav
 
-However, I did not hear the greeting message this time. Wake word detection started correctly after facial recognition correctly identified me.
+speaker-test 1.2.8
 
-The TTS was not working correctly.
+Playback device is default
+Stream parameters are 48000Hz, S16_LE, 2 channels
+WAV file(s)
+Playback open error: -524,Unknown error 524
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service -f
-Sep 07 17:48:10 raspberrypi1 python[846]: 2025-09-07 17:48:10,066 - INFO - rVYgKEPFxhAGp_86AAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":32.7,"memory_percent":39.4,"memory_used":2554904576,"memory_total":8453816320,"cpu_temp":62.6,"gpu_temp":63.6,"timestamp":"2025-09-07T17:48:10.066032","camera_initialized":false,"models_loaded":false,"wake_word_active":false,"current_person":"No person detected"}]
-Sep 07 17:48:14 raspberrypi1 python[846]: rVYgKEPFxhAGp_86AAAA: Received packet MESSAGE data 2["get_system_info"]
-Sep 07 17:48:14 raspberrypi1 python[846]: 2025-09-07 17:48:14,059 - INFO - rVYgKEPFxhAGp_86AAAA: Received packet MESSAGE data 2["get_system_info"]
-Sep 07 17:48:14 raspberrypi1 python[846]: received event "get_system_info" from adKNNljrBAXxitR7AAAB [/]
-Sep 07 17:48:14 raspberrypi1 python[846]: 2025-09-07 17:48:14,060 - INFO - received event "get_system_info" from adKNNljrBAXxitR7AAAB [/]
-Sep 07 17:48:15 raspberrypi1 python[846]: emitting event "system_info" to adKNNljrBAXxitR7AAAB [/]
-Sep 07 17:48:15 raspberrypi1 python[846]: 2025-09-07 17:48:15,069 - INFO - emitting event "system_info" to adKNNljrBAXxitR7AAAB [/]
-Sep 07 17:48:15 raspberrypi1 python[846]: rVYgKEPFxhAGp_86AAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":32.2,"memory_percent":39.3,"memory_used":2545860608,"memory_total":8453816320,"cpu_temp":62.6,"gpu_temp":62.5,"timestamp":"2025-09-07T17:48:15.069114","camera_initialized":false,"models_loaded":false,"wake_word_active":false,"current_person":"No person detected"}]
-Sep 07 17:48:15 raspberrypi1 python[846]: 2025-09-07 17:48:15,069 - INFO - rVYgKEPFxhAGp_86AAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":32.2,"memory_percent":39.3,"memory_used":2545860608,"memory_total":8453816320,"cpu_temp":62.6,"gpu_temp":62.5,"timestamp":"2025-09-07T17:48:15.069114","camera_initialized":false,"models_loaded":false,"wake_word_active":false,"current_person":"No person detected"}]
-Sep 07 17:48:15 raspberrypi1 python[846]: 2025-09-07 17:48:15,855 - INFO - Client disconnected: adKNNljrBAXxitR7AAAB. Total clients: 0
-^C
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ tail -f /home/nickspi5/Chatty_AI/logs/startup.log
-[2025-09-07 17:44:28] VLC attempt 1 failed (exit code: 139)
-[2025-09-07 17:44:45] VLC attempt 2 failed (exit code: 139)
-[2025-09-07 17:45:02] VLC attempt 3 failed (exit code: 139)
-[2025-09-07 17:45:04] Warning: Could not play video after 3 attempts
-[2025-09-07 17:45:04] Waiting 70 seconds for services...
-[2025-09-07 17:45:34] Port 5000 is open and ready
-[2025-09-07 17:46:14] Launching Chromium in kiosk mode...
-[2025-09-07 17:46:14] Chromium launched with PID: 2453
-[2025-09-07 17:46:14] Startup sequence complete!
-[2025-09-07 17:46:14] =========================================
-^C
+I do not want to use espeak at all.
+
+
 
 
 
