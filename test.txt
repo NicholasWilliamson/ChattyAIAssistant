@@ -1,113 +1,35 @@
 
 
-The wake word recording error is due to a sample rate mismatch with your audio input device. The video playing multiple times is likely the VLC crash retry mechanism working.
+Thank you, Claude,
 
-Fix 1: Wake Word Recording Sample Rate
+I updated the record_wake_word_check(self): method as you recommended in my chatty_ai.py Python script.
 
-In your record_wake_word_check method, add device info checking:
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install scipy
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting scipy
+  Downloading scipy-1.16.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl.metadata (61 kB)
+Collecting numpy<2.6,>=1.25.2 (from scipy)
+  Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (62 kB)
+Downloading scipy-1.16.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (33.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 33.5/33.5 MB 2.8 MB/s  0:00:12
+Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (14.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.6/14.6 MB 3.1 MB/s  0:00:04
+WARNING: Error parsing dependencies of send2trash: Expected matching RIGHT_PARENTHESIS for LEFT_PARENTHESIS, after version specifier
+    sys-platform (=="darwin") ; extra == 'objc'
+                 ~^
+Installing collected packages: numpy, scipy
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.24.2
+    Not uninstalling numpy at /usr/lib/python3/dist-packages, outside environment /home/nickspi5/Chatty_AI/chatty-venv
+    Can't uninstall 'numpy'. No files were found to uninstall.
+Successfully installed numpy-2.3.2 scipy-1.16.1
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-python def record_wake_word_check(self):
-    """Record short audio clip for wake word detection with improved sensitivity"""
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False
-        
-        try:
-            # Check default device info first
-            device_info = sd.query_devices(None, 'input')
-            default_sr = int(device_info['default_samplerate'])
-            
-            # Use device's native sample rate or fall back to 16000
-            sample_rate = default_sr if default_sr else SAMPLE_RATE
-            
-            # Record 5 seconds of audio
-            audio_data = sd.rec(int(5 * sample_rate), 
-                               samplerate=sample_rate, 
-                               channels=CHANNELS, 
-                               dtype='float32')
-            sd.wait()
-            
-            # Check if audio contains sound above threshold
-            rms = np.sqrt(np.mean(audio_data**2))
-            wake_word_threshold = SILENCE_THRESHOLD * 1.2
-            
-            self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
-            
-            if rms > wake_word_threshold:
-                # Resample to 16000 Hz if needed for Whisper
-                if sample_rate != SAMPLE_RATE:
-                    import scipy.signal
-                    audio_data = scipy.signal.resample(audio_data, int(len(audio_data) * SAMPLE_RATE / sample_rate))
-                
-                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
-                self.emit_log(f"💾 Wake word audio saved", 'info')
-                return True
-            else:
-                return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
-    except Exception as e:
-        self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
-        return False
+I then updated the /home/nickspi5/Chatty_AI/chatty_ai_startup.sh Shell script file as you recommended.
 
-Fix 2: Install Required Library
 
-bash   pip install scipy
 
-Fix 3: Alternative - Set Fixed Audio Device
-
-If the above doesn't work, specify the audio device explicitly:
-
-python def record_wake_word_check(self):
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False
-        
-        try:
-            # List devices and find suitable input
-            devices = sd.query_devices()
-            input_device = None
-            
-            for i, dev in enumerate(devices):
-                if dev['max_input_channels'] > 0:
-                    input_device = i
-                    break
-            
-            # Record with specific device
-            audio_data = sd.rec(int(5 * SAMPLE_RATE), 
-                               samplerate=SAMPLE_RATE, 
-                               channels=CHANNELS, 
-                               dtype='float32',
-                               device=input_device)
-            sd.wait()
-            
-            # Rest of your code...
-
-Fix 4: Video Playing Multiple Times
-
-Update your startup script to prevent VLC retries:
-
-bash    nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-
-Change the VLC section to play only once:
-
-bash    if [ -f "$VIDEO_PATH" ]; then
-    log_message "Playing startup video..."
-    
-    # Play video once without retries
-    cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null || log_message "Video playback ended"
-    
-    log_message "Video sequence complete"
-else
-    log_message "Warning: Video file not found at $VIDEO_PATH"
-fi
-
-After making these changes, restart the service:
-
-bash    sudo systemctl restart chatty-ai.service
-
-The wake word detection should now work properly with the correct sample rate.
 
 
