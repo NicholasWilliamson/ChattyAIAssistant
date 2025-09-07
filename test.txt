@@ -1,55 +1,79 @@
 
 
-Thank you, Claude,
+The service is failing to start after reboot. This is likely because the service is starting before all dependencies are ready. Let's fix this:
 
-I updated the record_wake_word_check(self): method as you recommended in my chatty_ai.py Python script.
+1. Check Service Status
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install scipy
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting scipy
-  Downloading scipy-1.16.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl.metadata (61 kB)
-Collecting numpy<2.6,>=1.25.2 (from scipy)
-  Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (62 kB)
-Downloading scipy-1.16.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (33.5 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 33.5/33.5 MB 2.8 MB/s  0:00:12
-Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (14.6 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.6/14.6 MB 3.1 MB/s  0:00:04
-WARNING: Error parsing dependencies of send2trash: Expected matching RIGHT_PARENTHESIS for LEFT_PARENTHESIS, after version specifier
-    sys-platform (=="darwin") ; extra == 'objc'
-                 ~^
-Installing collected packages: numpy, scipy
-  Attempting uninstall: numpy
-    Found existing installation: numpy 1.24.2
-    Not uninstalling numpy at /usr/lib/python3/dist-packages, outside environment /home/nickspi5/Chatty_AI/chatty-venv
-    Can't uninstall 'numpy'. No files were found to uninstall.
-Successfully installed numpy-2.3.2 scipy-1.16.1
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+bash   sudo systemctl status chatty-ai.service
+sudo journalctl -u chatty-ai.service -n 50
 
-I then updated the /home/nickspi5/Chatty_AI/chatty_ai_startup.sh Shell script file as you recommended.
+2. Fix Service Dependencies
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+Update /etc/systemd/system/chatty-ai.service to wait for network to be fully ready:
 
-I then rebooted my Raspberry PI 5
+bash   sudo nano /etc/systemd/system/chatty-ai.service
 
-This time the startup video played once with audio.
+ini[Unit]
+Description=Chatty AI Web Interface
+After=network-online.target
+Wants=network-online.target
 
-After 70 seconds, http://localhost:5000 tried to open automatically in my Chromiun browser.
+[Service]
+Type=simple
+User=nickspi5
+Group=nickspi5
+SupplementaryGroups=audio
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
+Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
 
-I got a error: This site can’t be reached
-localhost refused to connect.
-Try:
+# Add startup delay
+ExecStartPre=/bin/sleep 10
 
-Checking the connection
-Checking the proxy and the firewall
-ERR_CONNECTION_REFUSED
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
+Restart=always
+RestartSec=10
 
-How can I fix this?
-
-We are so close to finish this now.
+[Install]
+WantedBy=multi-user.target
 
 
+3. Enable Network Wait Service
+bash   sudo systemctl enable systemd-networkd-wait-online.service
+
+4. Update Startup Script Timing
+
+Edit /home/nickspi5/Chatty_AI/chatty_ai_startup.sh to wait longer for services:
 
 
+# After video plays, wait for services to be ready
+log_message "Waiting for services to start..."
+WAITED=0
+MAX_WAIT=90  # Increase from 70 to 90 seconds
+
+while [ $WAITED -lt $MAX_WAIT ]; do
+    if netstat -tuln | grep -q ":5000 "; then
+        log_message "Port 5000 is open and ready"
+        sleep 5  # Extra 5 seconds to ensure fully ready
+        break
+    fi
+    sleep 2
+    WAITED=$((WAITED + 2))
+    
+    if [ $WAITED -eq 30 ] || [ $WAITED -eq 60 ]; then
+        log_message "Still waiting for port 5000... ($WAITED seconds)"
+    fi
+done
+
+5. Reload and Test
+
+bash   sudo systemctl daemon-reload
+sudo systemctl restart chatty-ai.service
+
+# Check if it's running
+
+sleep 15
+netstat -tuln | grep 5000
+
+The issue is timing - the service needs more time to start after boot. The changes above add a delay and better dependency management.
 
