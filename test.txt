@@ -1,60 +1,44 @@
-
-Thank you, Claude,
-
-I successfully edited the /etc/systemd/system/chatty-ai.service file with the following:
-
-[Unit]
-Description=Chatty AI Web Interface
-After=network.target
-
-[Service]
-Type=simple
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-
-I then added this code at the end of my chatty_ai.py Python script:
+2. The Problem
+Looking at your code, you likely have a duplicate if __name__ == '__main__': block. Your chatty_ai.py probably already has a main() function at the bottom. You need to replace the EXISTING main block, not add a new one.
+3. Fix Your chatty_ai.py
+Look for the existing main block at the end of your file (it's probably something like):
+pythondef main():
+    """Main function"""
+    try:
+        # ... some code ...
+    except KeyboardInterrupt:
+        print("\n\nShutdown requested by user")
 
 if __name__ == '__main__':
+    main()
+Replace the ENTIRE existing main section with:
+pythonif __name__ == '__main__':
     # Suppress development server warnings
     suppress_flask_warnings()
-    server = ChattyAIWebServer()
-    server.socketio.run(server.app, host='0.0.0.0', port=5000, debug=False)
+    try:
+        server = ChattyAIWebServer()
+        server.socketio.run(server.app, host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    except KeyboardInterrupt:
+        print("\n\nShutdown requested by user")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
+4. Test Directly First
+Stop the service and test directly to see the actual error:
+bashsudo systemctl stop chatty-ai.service
+cd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
+python3 chatty_ai.py
+This will show you the exact error that's preventing it from starting.
+5. Common Issues
+If you see an error about:
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
-● chatty-ai.service - Chatty AI Web Interface
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Sun 2025-09-07 12:14:49 AEST; 3s ago
-   Main PID: 4711 (python)
-      Tasks: 4 (limit: 9571)
-        CPU: 3.240s
-     CGroup: /system.slice/chatty-ai.service
-             └─4711 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
+"Address already in use": Another process is using port 5000. Run sudo lsof -i :5000 to find it
+Import errors: A module isn't installed in your venv
+Syntax errors: The __name__ should have double underscores on each side: __name__
 
-Sep 07 12:14:49 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I then opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5 but received a This site can’t be reached
-localhost refused to connect.
-Try:
-
-Checking the connection
-Checking the proxy and the firewall
-ERR_CONNECTION_REFUSED error.
-
-I then rebooted my Raspberry PI 5.
-
-
-
-
-
-
-
+After fixing, restart the service:
+bashsudo systemctl restart chatty-ai.service
+sudo systemctl status chatty-ai.service
+The service is starting but the Flask app isn't binding to port 5000. Running it directly will show you the exact error.
