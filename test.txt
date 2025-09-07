@@ -1,92 +1,113 @@
-Thank you, Claude,
 
-I updated my speak_text method in my chatty_ai.py Python script to use the hardware device directly as you recommended:
 
-def speak_text(self, text):
-    """Enhanced speak_text method using Piper TTS"""
-    if not text:
-        return
+The wake word recording error is due to a sample rate mismatch with your audio input device. The video playing multiple times is likely the VLC crash retry mechanism working.
 
+Fix 1: Wake Word Recording Sample Rate
+
+In your record_wake_word_check method, add device info checking:
+
+python def record_wake_word_check(self):
+    """Record short audio clip for wake word detection with improved sensitivity"""
     try:
-        self.currently_speaking = True
-        self.speech_start_time = time.time()
+        if not self.audio_recording_lock.acquire(blocking=False):
+            return False
         
-        word_count = len(text.split())
-        estimated_duration = (word_count / 2.5) + 1.0
-        
-        self.emit_log(f"🔊 Speaking: '{text[:50]}...'", 'info')
-        
-        # Use Piper TTS
-        piper_command = [
-            PIPER_EXECUTABLE,
-            "--model", VOICE_PATH,
-            "--config", CONFIG_PATH,
-            "--output_file", RESPONSE_AUDIO
-        ]
-        
-        # Run Piper TTS
-        result = subprocess.run(
-            piper_command,
-            input=text,
-            text=True,
-            capture_output=True,
-            check=True,
-            timeout=30
-        )
-        
-        if result.returncode == 0 and os.path.exists(RESPONSE_AUDIO):
-            # Try different audio output methods
-            play_commands = [
-                ["aplay", "-D", "hw:0,0", RESPONSE_AUDIO],  # Direct hardware
-                ["aplay", "-D", "plughw:0,0", RESPONSE_AUDIO],  # Plugin hardware
-                ["aplay", RESPONSE_AUDIO]  # Default fallback
-            ]
+        try:
+            # Check default device info first
+            device_info = sd.query_devices(None, 'input')
+            default_sr = int(device_info['default_samplerate'])
             
-            audio_played = False
-            for play_cmd in play_commands:
-                try:
-                    with self.audio_recording_lock:
-                        result = subprocess.run(play_cmd, 
-                                              capture_output=True,
-                                              timeout=estimated_duration + 5)
-                    if result.returncode == 0:
-                        audio_played = True
-                        self.emit_log(f"🎵 Speech completed using: {play_cmd[1] if len(play_cmd) > 2 else 'default'}", 'success')
-                        break
-                except:
-                    continue
+            # Use device's native sample rate or fall back to 16000
+            sample_rate = default_sr if default_sr else SAMPLE_RATE
             
-            if not audio_played:
-                self.emit_log("❌ Could not play audio through any device", 'error')
+            # Record 5 seconds of audio
+            audio_data = sd.rec(int(5 * sample_rate), 
+                               samplerate=sample_rate, 
+                               channels=CHANNELS, 
+                               dtype='float32')
+            sd.wait()
             
-            # Clean up
-            try:
-                os.remove(RESPONSE_AUDIO)
-            except:
-                pass
-        else:
-            self.emit_log("❌ Piper TTS failed to generate audio", 'error')
-        
-        self.currently_speaking = False
-        
-    except subprocess.TimeoutExpired:
-        self.currently_speaking = False
-        self.emit_log(f"⏰ TTS timeout for: '{text[:50]}...'", 'error')
-    except subprocess.CalledProcessError as e:
-        self.currently_speaking = False
-        self.emit_log(f"🔧 Piper TTS error: {e.stderr.decode() if e.stderr else 'Unknown'}", 'error')
+            # Check if audio contains sound above threshold
+            rms = np.sqrt(np.mean(audio_data**2))
+            wake_word_threshold = SILENCE_THRESHOLD * 1.2
+            
+            self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+            
+            if rms > wake_word_threshold:
+                # Resample to 16000 Hz if needed for Whisper
+                if sample_rate != SAMPLE_RATE:
+                    import scipy.signal
+                    audio_data = scipy.signal.resample(audio_data, int(len(audio_data) * SAMPLE_RATE / sample_rate))
+                
+                sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                self.emit_log(f"💾 Wake word audio saved", 'info')
+                return True
+            else:
+                return False
+                
+        finally:
+            self.audio_recording_lock.release()
+            
     except Exception as e:
-        self.currently_speaking = False
-        self.emit_log(f"❌ TTS error: {e}", 'error')
+        self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+        return False
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo usermod -a -G audio nickspi5
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo chmod 666 /dev/snd/*
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+Fix 2: Install Required Library
 
+bash   pip install scipy
 
+Fix 3: Alternative - Set Fixed Audio Device
 
+If the above doesn't work, specify the audio device explicitly:
 
+python def record_wake_word_check(self):
+    try:
+        if not self.audio_recording_lock.acquire(blocking=False):
+            return False
+        
+        try:
+            # List devices and find suitable input
+            devices = sd.query_devices()
+            input_device = None
+            
+            for i, dev in enumerate(devices):
+                if dev['max_input_channels'] > 0:
+                    input_device = i
+                    break
+            
+            # Record with specific device
+            audio_data = sd.rec(int(5 * SAMPLE_RATE), 
+                               samplerate=SAMPLE_RATE, 
+                               channels=CHANNELS, 
+                               dtype='float32',
+                               device=input_device)
+            sd.wait()
+            
+            # Rest of your code...
+
+Fix 4: Video Playing Multiple Times
+
+Update your startup script to prevent VLC retries:
+
+bash    nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+Change the VLC section to play only once:
+
+bash    if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Play video once without retries
+    cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null || log_message "Video playback ended"
+    
+    log_message "Video sequence complete"
+else
+    log_message "Warning: Video file not found at $VIDEO_PATH"
+fi
+
+After making these changes, restart the service:
+
+bash    sudo systemctl restart chatty-ai.service
+
+The wake word detection should now work properly with the correct sample rate.
 
 
