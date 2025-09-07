@@ -29,6 +29,26 @@ Successfully installed numpy-2.3.2 scipy-1.16.1
 
 I then updated the /home/nickspi5/Chatty_AI/chatty_ai_startup.sh Shell script file as you recommended.
 
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+
+I then rebooted my Raspberry PI 5
+
+This time the startup video played once with audio.
+
+After 70 seconds, http://localhost:5000 tried to open automatically in my Chromiun browser.
+
+I got a error: This site can’t be reached
+localhost refused to connect.
+Try:
+
+Checking the connection
+Checking the proxy and the firewall
+ERR_CONNECTION_REFUSED
+
+How can I fix this?
+
+We are so close to finish this now.
+
 
 
 
