@@ -1,19 +1,54 @@
 
+Thank you, Claude,
 
-The service is failing to start after reboot. This is likely because the service is starting before all dependencies are ready. Let's fix this:
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+● chatty-ai.service - Chatty AI Web Interface
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2025-09-08 05:29:26 AEST; 3s ago
+   Main PID: 119889 (python)
+      Tasks: 7 (limit: 9571)
+        CPU: 4.094s
+     CGroup: /system.slice/chatty-ai.service
+             └─119889 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 
-1. Check Service Status
+Sep 08 05:29:26 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service -n 50
+Sep 08 05:29:36 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.432s CPU time.
+Sep 08 05:29:36 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Sep 08 05:29:41 raspberrypi1 python[119929]: Traceback (most recent call last):
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 32, in <module>
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from picamera2 import Picamera2
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/__init__.py", line 11, in <modu>
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from .picamera2 import Picamera2, Preview
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 30, in <mod>
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from picamera2.encoders import Encoder, H264Encoder, MJPEGEncoder, Quality
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/encoders/__init__.py", line 7, >
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from .encoder import Encoder, Quality
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/encoders/encoder.py", line 12, >
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from ..request import _MappedBuffer
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/request.py", line 13, in <modul>
+Sep 08 05:29:41 raspberrypi1 python[119929]:     import simplejpeg
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/simplejpeg/__init__.py", line 1, in <modu>
+Sep 08 05:29:41 raspberrypi1 python[119929]:     from ._jpeg import encode_jpeg, encode_jpeg_yuv_planes
+Sep 08 05:29:41 raspberrypi1 python[119929]:   File "simplejpeg/_jpeg.pyx", line 1, in init simplejpeg._jpeg
+Sep 08 05:29:41 raspberrypi1 python[119929]: ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expec>
+Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
+Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
+Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.474s CPU time.
+Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 6431.
+Sep 08 05:29:42 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
+Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.474s CPU time.
+Sep 08 05:29:42 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Sep 08 05:29:46 raspberrypi1 python[119947]: Traceback (most recent call last):
+Sep 08 05:29:46 raspberrypi1 python[119947]:   File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 32, in <module>
 
-bash   sudo systemctl status chatty-ai.service
-sudo journalctl -u chatty-ai.service -n 50
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai.service
 
-2. Fix Service Dependencies
+I then updated my chatty-ai.services file and saved it with the following content:
 
-Update /etc/systemd/system/chatty-ai.service to wait for network to be fully ready:
-
-bash   sudo nano /etc/systemd/system/chatty-ai.service
-
-ini[Unit]
+[Unit]
 Description=Chatty AI Web Interface
 After=network-online.target
 Wants=network-online.target
@@ -37,14 +72,10 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable systemd-networkd-wait-online.service
+Created symlink /etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service → /lib/systemd/system/systemd-networkd-wait-online.service.
 
-3. Enable Network Wait Service
-bash   sudo systemctl enable systemd-networkd-wait-online.service
-
-4. Update Startup Script Timing
-
-Edit /home/nickspi5/Chatty_AI/chatty_ai_startup.sh to wait longer for services:
-
+I then updated my chatty_ai_startup.sh file and saved it with the following updated content:
 
 # After video plays, wait for services to be ready
 log_message "Waiting for services to start..."
@@ -65,15 +96,12 @@ while [ $WAITED -lt $MAX_WAIT ]; do
     fi
 done
 
-5. Reload and Test
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 15
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ netstat -tuln | grep 5000
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-bash   sudo systemctl daemon-reload
-sudo systemctl restart chatty-ai.service
+I then rebooted my Raspberry PI 5.
 
-# Check if it's running
 
-sleep 15
-netstat -tuln | grep 5000
 
-The issue is timing - the service needs more time to start after boot. The changes above add a delay and better dependency management.
 
