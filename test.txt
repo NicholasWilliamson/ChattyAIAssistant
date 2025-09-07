@@ -1,10 +1,6 @@
+Thank you, Claude,
 
-
-The error 524 indicates PulseAudio issues when running as a service. Since you're getting audio during video playback but not from the service, let's fix the audio routing:
-
-Fix Audio for Piper TTS
-
-Update your speak_text method to use hardware device directly:
+I updated my speak_text method in my chatty_ai.py Python script to use the hardware device directly as you recommended:
 
 def speak_text(self, text):
     """Enhanced speak_text method using Piper TTS"""
@@ -83,22 +79,14 @@ def speak_text(self, text):
         self.currently_speaking = False
         self.emit_log(f"❌ TTS error: {e}", 'error')
 
-Set Audio Permissions
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo usermod -a -G audio nickspi5
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo chmod 666 /dev/snd/*
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-bash# Add your user to audio group
 
-sudo usermod -a -G audio nickspi5
 
-# Set audio device permissions
 
-sudo chmod 666 /dev/snd/*
-
-Restart Service
-
-bash  sudo systemctl daemon-reload
-
-sudo systemctl restart chatty-ai.service
-
-This should resolve the TTS audio issue when running as a service.
 
 
