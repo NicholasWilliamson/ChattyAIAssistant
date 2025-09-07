@@ -1,416 +1,57 @@
 
-Thanky you, Claude,
+Thank you, Claude,
 
-I made a mistake.
-
-Previously, when http://localhost:5000 opened in my Chromium browser on my Raspberry PI 5 and clicked on the Initialize button, the top-right hand side button was green and displayed the text "CONNECTED". The button below this remained red and displayed the text "SYSTEM OFFLINE". 
-
-I checked to ensure WebSocket support is enabled.
-
-My /home/nickspi5/Chatty_AI/gunicorn_config.py file contains the following:
-
-#!/usr/bin/env python3
-"""
-Gunicorn configuration for Chatty AI production deployment
-"""
-
-import multiprocessing
-import os
-
-# Server socket
-bind = "0.0.0.0:5000"
-backlog = 2048
-
-# Worker processes
-workers = 1  # Single worker for Raspberry Pi 5 to avoid resource conflicts
-worker_class = "eventlet"  # Required for Socket.IO
-worker_connections = 1000
-
-# Restart workers after serving this many requests (helps with memory leaks)
-max_requests = 1000
-max_requests_jitter = 100
-
-# Timeout settings
-timeout = 300  # 5 minutes for AI processing
-keepalive = 2
-graceful_timeout = 30
-
-# Logging
-accesslog = "/home/nickspi5/Chatty_AI/logs/access.log"
-errorlog = "/home/nickspi5/Chatty_AI/logs/error.log"
-loglevel = "info"
-access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
-
-# Process naming
-proc_name = 'chatty_ai_server'
-
-# Server mechanics
-daemon = False  # Keep False for systemd service
-pidfile = '/tmp/chatty_ai.pid'
-user = None  # Let systemd handle user switching
-group = None
-tmp_upload_dir = '/tmp'
-
-# SSL (if you want to enable HTTPS later)
-# keyfile = '/path/to/keyfile'
-# certfile = '/path/to/certfile'
-
-# Application specific
-# Preload app for memory efficiency (be careful with this on single worker)
-preload_app = False  # Set to False to avoid issues with camera/audio resources
-
-# Environment variables
-raw_env = [
-    'CHATTY_AI_ENV=production',
-    'PYTHONPATH=/home/nickspi5/Chatty_AI'
-]
-
-# Memory and resource limits
-limit_request_line = 4094
-limit_request_fields = 100
-limit_request_field_size = 8190
-
-# Security
-forwarded_allow_ips = '*'  # Configure based on your reverse proxy setup
-secure_scheme_headers = {
-    'X-FORWARDED-PROTOCOL': 'ssl',
-    'X-FORWARDED-PROTO': 'https',
-    'X-FORWARDED-SSL': 'on'
-}
-
-def post_fork(server, worker):
-    """Called just after a worker has been forked."""
-    server.log.info("Worker spawned (pid: %s)", worker.pid)
-
-def pre_fork(server, worker):
-    """Called just before a worker is forked."""
-    server.log.info("About to fork worker (pid: %s)", worker.pid)
-
-def worker_int(worker):
-    """Called when a worker receives the SIGINT or SIGQUIT signal."""
-    worker.log.info("Worker received SIGINT/SIGQUIT")
-
-def on_starting(server):
-    """Called just before the master process is initialized."""
-    server.log.info("Chatty AI Server starting...")
-
-def on_reload(server):
-    """Called to recycle workers during a reload via SIGHUP."""
-    server.log.info("Reloading Chatty AI Server...")
-
-def when_ready(server):
-    """Called just after the server is started."""
-    server.log.info("Chatty AI Server is ready. PID: %s", os.getpid())
-
-def on_exit(server):
-    """Called just before exiting."""
-    server.log.info("Chatty AI Server shutting down...")
-
-def pre_request(worker, req):
-    """Called just before a worker processes the request."""
-    worker.log.debug("%s %s" % (req.method, req.path))
-
-def post_request(worker, req, environ, resp):
-    """Called after a worker processes the request."""
-    pass
-
-nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install eventlet python-socketio flask-socketio
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: eventlet in ./chatty-venv/lib/python3.11/site-packages (0.40.2)
-Requirement already satisfied: python-socketio in ./chatty-venv/lib/python3.11/site-packages (5.13.0)
-Requirement already satisfied: flask-socketio in ./chatty-venv/lib/python3.11/site-packages (5.5.1)
-Requirement already satisfied: dnspython>=1.15.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (2.7.0)
-Requirement already satisfied: greenlet>=1.0 in ./chatty-venv/lib/python3.11/site-packages (from eventlet) (3.2.3)
-Requirement already satisfied: bidict>=0.21.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio) (0.23.1)
-Requirement already satisfied: python-engineio>=4.11.0 in ./chatty-venv/lib/python3.11/site-packages (from python-socketio) (4.12.2)
-Requirement already satisfied: Flask>=0.9 in /usr/lib/python3/dist-packages (from flask-socketio) (2.2.2)
-Requirement already satisfied: simple-websocket>=0.10.0 in ./chatty-venv/lib/python3.11/site-packages (from python-engineio>=4.11.0->python-socketio) (1.1.0)
-Requirement already satisfied: wsproto in ./chatty-venv/lib/python3.11/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio) (1.2.0)
-Requirement already satisfied: h11<1,>=0.9.0 in ./chatty-venv/lib/python3.11/site-packages (from wsproto->simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio) (0.16.0)
-WARNING: Error parsing dependencies of send2trash: Expected matching RIGHT_PARENTHESIS for LEFT_PARENTHESIS, after version specifier
-    sys-platform (=="darwin") ; extra == 'objc'
-                 ~^
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-My /home/nickspi5/Chatty_AI/wsgi.py file included:
-
-#!/usr/bin/env python3
-"""
-wsgi.py - WSGI Application Entry Point for Chatty AI
-"""
-import os
-import sys
-
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from chatty_ai import ChattyAIWebServer
-
-# Create the server instance
-chatty_server = ChattyAIWebServer()
-
-# The WSGI application should be the Flask app, not the SocketIO object
-# Flask-SocketIO patches the Flask app to handle Socket.IO requests
-app = chatty_server.app
-
-if __name__ == "__main__":
-    chatty_server.run(debug=False)
-
-I changed it to include the following as you recommended:
-
-#!/usr/bin/env python3
-"""
-wsgi.py - WSGI Application Entry Point for Chatty AI
-"""
-from chatty_ai import ChattyAIWebServer
-
-# Create the server instance
-server = ChattyAIWebServer()
-
-# Get the Flask app and SocketIO instance for Gunicorn
-app = server.app
-socketio = server.socketio
-
-if __name__ == "__main__":
-    # For direct running (not through Gunicorn)
-    server.run(host='0.0.0.0', port=5000, debug=False)
-
-My /etc/systemd/system/chatty-ai.service file contained:
+I successfully edited the /etc/systemd/system/chatty-ai.service file with the following:
 
 [Unit]
 Description=Chatty AI Web Interface
-After=chatty-ai-preloader.service
-Wants=chatty-ai-preloader.service
+After=network.target
 
 [Service]
-Type=notify
+Type=simple
 User=nickspi5
 Group=nickspi5
 WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
-Environment=CHATTY_AI_ENV=production
-
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/gunicorn --config gunicorn_config.py wsgi:app
-ExecReload=/bin/kill -s HUP $MAINPID
-
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 Restart=always
-RestartSec=10
-StartLimitInterval=60
-StartLimitBurst=3
-
-NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target
 
-I changed it to include the following as you recommended:
+I then added this code at the end of my chatty_ai.py Python script:
 
-[Service]
-Type=notify
-User=nickspi5
-Group=nickspi5
-WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+if __name__ == '__main__':
+    # Suppress development server warnings
+    suppress_flask_warnings()
+    server = ChattyAIWebServer()
+    server.socketio.run(server.app, host='0.0.0.0', port=5000, debug=False)
 
-# Use Flask-SocketIO's built-in server instead of Gunicorn
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py      
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+● chatty-ai.service - Chatty AI Web Interface
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2025-09-07 12:14:49 AEST; 3s ago
+   Main PID: 4711 (python)
+      Tasks: 4 (limit: 9571)
+        CPU: 3.240s
+     CGroup: /system.slice/chatty-ai.service
+             └─4711 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Restart=always
-RestartSec=10
+Sep 07 12:14:49 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-However, when I tried to save it to /etc/systemd/system/chatty-ai.service, I received an access denied error and the file would not save.
+I then opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5 but received a This site can’t be reached
+localhost refused to connect.
+Try:
 
-I then ran: nickspi5@raspberrypi1:~ $ sudo systemctl stop chatty-ai.service
-nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 wsgi.py
-Server initialized for threading.
-2025-09-07 11:40:50,543 - INFO - Server initialized for threading.
-2025-09-07 11:40:50,546 - INFO - ChattyAI Web Server initialized
+Checking the connection
+Checking the proxy and the firewall
+ERR_CONNECTION_REFUSED error.
 
-============================================================
-🚀 Starting Chatty AI Web Interface
-============================================================
-Web Interface Features:
-• Complete AI Assistant Integration
-• Live Video Feed with Facial Recognition
-• Real-time System Monitoring
-• Wake Word Detection
-• Speech Synthesis & Processing
-• Security Monitoring & Telegram Alerts
-• LLM-Generated Entertainment
-============================================================
-Access the web interface at: http://localhost:5000
-Or from other devices at: http://10.104.74.205:5000
-Press Ctrl+C to stop the server
-============================================================
+I then rebooted my Raspberry PI 5.
 
-DEBUG INFO:
-• Wake words: 42 phrases loaded
-• Bored response interval: 30 seconds
-• Audio sample rate: 16000 Hz
-• Silence threshold: 0.035
-• Daytime visitor hours: 6:00AM - 12:00PM
-• Intruder detection hours: 12:01PM - 5:59AM
-============================================================
-2025-09-07 11:40:50,546 - INFO - Starting Flask-SocketIO server...
- * Serving Flask app 'chatty_ai'
- * Debug mode: off
-2025-09-07 11:40:50,553 - INFO - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://10.104.74.205:5000
-2025-09-07 11:40:50,553 - INFO - Press CTRL+C to quit
-
-I then opened http://localhost:5000 and clicked on the Initialize button.
-
-The second top right-hand button remained red and displayed the text "SYSTEM OFFLINE".
-
-I clicked on the F12 button:
-
-I saw the following Console messages displayed:
-
-(index):1017 Received status_update: Object
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1024 Received system_info: Object
-:5000/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (NOT FOUND)
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1308 Socket event sent: start_system Array(0)
-(index):1024 Received system_info: Object
-(index):1017 Received status_update: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: start_system Array(0)
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1017 Received status_update: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info Array(0)
-(index):1024 Received system_info: Object
-(index):1308 Socket event sent: get_system_info []
-(index):1024 Received system_info: {cpu_percent: 49.1, memory_percent: 38.9, memory_used: 2800041984, memory_total: 8453832704, cpu_temp: 61.5, …}
- Socket event sent: get_system_info []
- Received system_info: {cpu_percent: 55.4, memory_percent: 38.5, memory_used: 2792390656, memory_total: 8453832704, cpu_temp: 63.7, …}
- Socket event sent: get_system_info []
- Received system_info: {cpu_percent: 47.6, memory_percent: 38.3, memory_used: 2772680704, memory_total: 8453832704, cpu_temp: 63.7, …}
- Socket event sent: get_system_info []
- Received system_info: {cpu_percent: 42.9, memory_percent: 38.2, memory_used: 2758311936, memory_total: 8453832704, cpu_temp: 65.3, …}
-
-How can I make a backup copy of my /etc/systemd/system/chatty-ai.service file to /etc/systemd/system/chatty-ai_backup.service?
-
-How can I copy the updated /home/nickspi5/Chatty_AI/chatty-ai.service file to /etc/systemd/system/chatty-ai.service?
 
 
 
