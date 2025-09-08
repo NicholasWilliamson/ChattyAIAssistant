@@ -3,55 +3,139 @@ Thank you, Claude,
 
 I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
 nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip uninstall numpy scipy -y
+Found existing installation: numpy 2.3.2
+Uninstalling numpy-2.3.2:
+  Successfully uninstalled numpy-2.3.2
+Found existing installation: scipy 1.16.1
+Uninstalling scipy-1.16.1:
+  Successfully uninstalled scipy-1.16.1
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ pip install numpy==1.24.4 scipy==1.11.4
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting numpy==1.24.4
+  Downloading numpy-1.24.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (5.6 kB)
+Collecting scipy==1.11.4
+  Downloading scipy-1.11.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (60 kB)
+Downloading numpy-1.24.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (14.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.0/14.0 MB 1.6 MB/s  0:00:08
+Downloading scipy-1.11.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (32.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 32.9/32.9 MB 1.7 MB/s  0:00:19
+WARNING: Error parsing dependencies of send2trash: Expected matching RIGHT_PARENTHESIS for LEFT_PARENTHESIS, after version specifier
+    sys-platform (=="darwin") ; extra == 'objc'
+                 ~^
+Installing collected packages: numpy, scipy
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.24.2
+    Not uninstalling numpy at /usr/lib/python3/dist-packages, outside environment /home/nickspi5/Chatty_AI/chatty-venv
+    Can't uninstall 'numpy'. No files were found to uninstall.
+Successfully installed numpy-1.24.4 scipy-1.11.4
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Server initialized for threading.
+2025-09-08 17:15:58,065 - INFO - Server initialized for threading.
+2025-09-08 17:15:58,068 - INFO - ChattyAI Web Server initialized
+ * Serving Flask app 'chatty_ai'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl stop chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 chatty_ai.py
+Server initialized for threading.
+2025-09-08 17:17:24,298 - INFO - Server initialized for threading.
+2025-09-08 17:17:24,301 - INFO - ChattyAI Web Server initialized
+ * Serving Flask app 'chatty_ai'
+ * Debug mode: off
+YDi9MtvaXwGJDV3wAAAA: Sending packet OPEN data {'sid': 'YDi9MtvaXwGJDV3wAAAA', 'upgrades': ['websocket'], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2025-09-08 17:18:30,492 - INFO - YDi9MtvaXwGJDV3wAAAA: Sending packet OPEN data {'sid': 'YDi9MtvaXwGJDV3wAAAA', 'upgrades': ['websocket'], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+YDi9MtvaXwGJDV3wAAAA: Received packet MESSAGE data 0
+2025-09-08 17:18:30,581 - INFO - YDi9MtvaXwGJDV3wAAAA: Received packet MESSAGE data 0
+2025-09-08 17:18:30,583 - INFO - Client connected: Wz5Jja8e8W3uo-k-AAAB. Total clients: 1
+YDi9MtvaXwGJDV3wAAAA: Received request to upgrade to websocket
+emitting event "status_update" to Wz5Jja8e8W3uo-k-AAAB [/]
+2025-09-08 17:18:30,587 - INFO - emitting event "status_update" to Wz5Jja8e8W3uo-k-AAAB [/]
+YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+2025-09-08 17:18:30,586 - INFO - YDi9MtvaXwGJDV3wAAAA: Received request to upgrade to websocket
+2025-09-08 17:18:30,588 - INFO - YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 2["status_update",{"status":"stopped","is_running":false,"message":"Connected to server successfully"}]
+emitting event "system_info" to Wz5Jja8e8W3uo-k-AAAB [/]
+2025-09-08 17:18:31,599 - INFO - emitting event "system_info" to Wz5Jja8e8W3uo-k-AAAB [/]
+YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":28.1,"memory_percent":30.9,"memory_used":2261745664,"memory_total":8453816320,"cpu_temp":54.9,"gpu_temp":55.9,"timestamp":"2025-09-08T17:18:31.599038","camera_initialized":false,"models_loaded":false,"wake_word_active":false,"current_person":"No person detected"}]
+2025-09-08 17:18:31,599 - INFO - YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 2["system_info",{"cpu_percent":28.1,"memory_percent":30.9,"memory_used":2261745664,"memory_total":8453816320,"cpu_temp":54.9,"gpu_temp":55.9,"timestamp":"2025-09-08T17:18:31.599038","camera_initialized":false,"models_loaded":false,"wake_word_active":false,"current_person":"No person detected"}]
+YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 0{"sid":"Wz5Jja8e8W3uo-k-AAAB"}
+2025-09-08 17:18:31,599 - INFO - YDi9MtvaXwGJDV3wAAAA: Sending packet MESSAGE data 0{"sid":"Wz5Jja8e8W3uo-k-AAAB"}
+YDi9MtvaXwGJDV3wAAAA: Upgrade to websocket successful
+2025-09-08 17:18:31,610 - INFO - YDi9MtvaXwGJDV3wAAAA: Upgrade to websocket successful
+YDi9MtvaXwGJDV3wAAAA: Received packet MESSAGE data 2["get_system_info"]
+2025-09-08 17:18:32,549 - INFO - YDi9MtvaXwGJDV3wAAAA: Received packet MESSAGE data 2["get_system_info"]
+
+
+I then opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5.
+
+I clicked on the Initialize button.
+
+The second right-hand side button remained red displaying the text "SYSTEM OFFLINE".
+
+The System Matrix box dispalyed:
+17:18:30 🌟 Chatty AI Neural Interface initialized
+17:18:30 🔗 Establishing neural link to server...
+17:18:30 💡 Click "Initialize" to activate AI systems
+17:18:31 📊 Connected to server successfully
+17:18:31 ✅ Connected to Chatty AI server
+17:18:32 🔍 Scanning system components...
+17:18:46 🚀 Initializing Chatty AI neural network...
+17:18:46 [17:18:46] Starting Chatty AI system...
+17:18:46 [17:18:46] 📁 Response files loaded from memory cache
+17:18:46 [17:18:46] Loading AI models...
+17:18:47 [17:18:47] Whisper model loaded successfully
+17:18:48 [17:18:48] LLaMA model loaded successfully
+17:18:48 [17:18:48] Failed to load encodings: No module named 'numpy._core'
+17:18:48 📊 Failed to load face encodings
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl status chatty-ai.service
 ● chatty-ai.service - Chatty AI Web Interface
      Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Mon 2025-09-08 05:29:26 AEST; 3s ago
-   Main PID: 119889 (python)
-      Tasks: 7 (limit: 9571)
-        CPU: 4.094s
+     Active: active (running) since Mon 2025-09-08 17:24:32 AEST; 16s ago
+    Process: 3056 ExecStartPre=/bin/sleep 10 (code=exited, status=0/SUCCESS)
+   Main PID: 3057 (python)
+      Tasks: 9 (limit: 9571)
+        CPU: 4.779s
      CGroup: /system.slice/chatty-ai.service
-             └─119889 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
+             └─3057 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Sep 08 05:29:26 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo journalctl -u chatty-ai.service -n 50
-Sep 08 05:29:36 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.432s CPU time.
-Sep 08 05:29:36 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Sep 08 05:29:41 raspberrypi1 python[119929]: Traceback (most recent call last):
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 32, in <module>
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from picamera2 import Picamera2
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/__init__.py", line 11, in <modu>
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from .picamera2 import Picamera2, Preview
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 30, in <mod>
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from picamera2.encoders import Encoder, H264Encoder, MJPEGEncoder, Quality
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/encoders/__init__.py", line 7, >
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from .encoder import Encoder, Quality
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/encoders/encoder.py", line 12, >
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from ..request import _MappedBuffer
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/picamera2/request.py", line 13, in <modul>
-Sep 08 05:29:41 raspberrypi1 python[119929]:     import simplejpeg
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "/usr/lib/python3/dist-packages/simplejpeg/__init__.py", line 1, in <modu>
-Sep 08 05:29:41 raspberrypi1 python[119929]:     from ._jpeg import encode_jpeg, encode_jpeg_yuv_planes
-Sep 08 05:29:41 raspberrypi1 python[119929]:   File "simplejpeg/_jpeg.pyx", line 1, in init simplejpeg._jpeg
-Sep 08 05:29:41 raspberrypi1 python[119929]: ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expec>
-Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
-Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.474s CPU time.
-Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 6431.
-Sep 08 05:29:42 raspberrypi1 systemd[1]: Stopped chatty-ai.service - Chatty AI Web Interface.
-Sep 08 05:29:42 raspberrypi1 systemd[1]: chatty-ai.service: Consumed 5.474s CPU time.
-Sep 08 05:29:42 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
-Sep 08 05:29:46 raspberrypi1 python[119947]: Traceback (most recent call last):
-Sep 08 05:29:46 raspberrypi1 python[119947]:   File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 32, in <module>
+Sep 08 17:24:22 raspberrypi1 systemd[1]: Starting chatty-ai.service - Chatty AI Web Interface...
+Sep 08 17:24:32 raspberrypi1 systemd[1]: Started chatty-ai.service - Chatty AI Web Interface.
+Sep 08 17:24:37 raspberrypi1 python[3057]: Server initialized for threading.
+Sep 08 17:24:37 raspberrypi1 python[3057]: 2025-09-08 17:24:37,255 - INFO - Server initialized for threading.
+Sep 08 17:24:37 raspberrypi1 python[3057]: 2025-09-08 17:24:37,258 - INFO - ChattyAI Web Server initialized
+Sep 08 17:24:37 raspberrypi1 python[3057]:  * Serving Flask app 'chatty_ai'
+Sep 08 17:24:37 raspberrypi1 python[3057]:  * Debug mode: off
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai.service
+I then edited my /home/nickspi5/Chatty_AI/chatty_ai_startup.py file to include the following:
 
-I then updated my chatty-ai.services file and saved it with the following content:
+// More code ...
+
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+STARTUP_DELAY=70
+USER="nickspi5"
+
+// More code ...
+
+# After video plays, wait for services to be ready
+log_message "Waiting $STARTUP_DELAY seconds for services..."
+sleep $STARTUP_DELAY
+
+// More code ...
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo nano /etc/systemd/system/chatty-ai.service
+
+I edited my chatty-ai.service as follows:
 
 [Unit]
 Description=Chatty AI Web Interface
-After=network-online.target
-Wants=network-online.target
+After=network.target
 
 [Service]
 Type=simple
@@ -62,9 +146,6 @@ WorkingDirectory=/home/nickspi5/Chatty_AI
 Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
 Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
 
-# Add startup delay
-ExecStartPre=/bin/sleep 10
-
 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 Restart=always
 RestartSec=10
@@ -72,35 +153,14 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl enable systemd-networkd-wait-online.service
-Created symlink /etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service → /lib/systemd/system/systemd-networkd-wait-online.service.
-
-I then updated my chatty_ai_startup.sh file and saved it with the following updated content:
-
-# After video plays, wait for services to be ready
-log_message "Waiting for services to start..."
-WAITED=0
-MAX_WAIT=90  # Increase from 70 to 90 seconds
-
-while [ $WAITED -lt $MAX_WAIT ]; do
-    if netstat -tuln | grep -q ":5000 "; then
-        log_message "Port 5000 is open and ready"
-        sleep 5  # Extra 5 seconds to ensure fully ready
-        break
-    fi
-    sleep 2
-    WAITED=$((WAITED + 2))
-    
-    if [ $WAITED -eq 30 ] || [ $WAITED -eq 60 ]; then
-        log_message "Still waiting for port 5000... ($WAITED seconds)"
-    fi
-done
-
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sleep 15
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ netstat -tuln | grep 5000
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl daemon-reload
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
 I then rebooted my Raspberry PI 5.
+
+
+
 
 
 
