@@ -1,101 +1,46 @@
-Thank you, Claude,
-
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_enhanced.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_enhanced.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install imagemagick
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  imagemagick-6.q16 libnetpbm11 netpbm
-Suggested packages:
-  imagemagick-doc autotrace cups-bsd | lpr | lprng enscript gimp gnuplot grads graphviz hp2xx html2ps libwmf-bin mplayer
-  povray radiance texlive-base-bin transfig ufraw-batch
-The following NEW packages will be installed:
-  imagemagick imagemagick-6.q16 libnetpbm11 netpbm
-0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.
-Need to get 2,616 kB of archives.
-After this operation, 26.7 MB of additional disk space will be used.
-Do you want to continue? [Y/n] y
-Get:1 http://deb.debian.org/debian bookworm/main arm64 imagemagick-6.q16 arm64 8:6.9.11.60+dfsg-1.6+deb12u3 [340 kB]
-Get:2 http://deb.debian.org/debian bookworm/main arm64 imagemagick arm64 8:6.9.11.60+dfsg-1.6+deb12u3 [123 kB]
-Get:3 http://deb.debian.org/debian bookworm/main arm64 libnetpbm11 arm64 2:11.01.00-2 [167 kB]
-Get:4 http://deb.debian.org/debian bookworm/main arm64 netpbm arm64 2:11.01.00-2 [1,986 kB]
-Fetched 2,616 kB in 2s (1,535 kB/s) 
-Selecting previously unselected package imagemagick-6.q16.
-(Reading database ... 176339 files and directories currently installed.)
-Preparing to unpack .../imagemagick-6.q16_8%3a6.9.11.60+dfsg-1.6+deb12u3_arm64.deb ...
-Unpacking imagemagick-6.q16 (8:6.9.11.60+dfsg-1.6+deb12u3) ...
-Selecting previously unselected package imagemagick.
-Preparing to unpack .../imagemagick_8%3a6.9.11.60+dfsg-1.6+deb12u3_arm64.deb ...
-Unpacking imagemagick (8:6.9.11.60+dfsg-1.6+deb12u3) ...
-Selecting previously unselected package libnetpbm11:arm64.
-Preparing to unpack .../libnetpbm11_2%3a11.01.00-2_arm64.deb ...
-Unpacking libnetpbm11:arm64 (2:11.01.00-2) ...
-Selecting previously unselected package netpbm.
-Preparing to unpack .../netpbm_2%3a11.01.00-2_arm64.deb ...
-Unpacking netpbm (2:11.01.00-2) ...
-Setting up libnetpbm11:arm64 (2:11.01.00-2) ...
-Setting up netpbm (2:11.01.00-2) ...
-Setting up imagemagick-6.q16 (8:6.9.11.60+dfsg-1.6+deb12u3) ...
-update-alternatives: using /usr/bin/compare-im6.q16 to provide /usr/bin/compare (compare) in auto mode
-update-alternatives: using /usr/bin/compare-im6.q16 to provide /usr/bin/compare-im6 (compare-im6) in auto mode
-update-alternatives: using /usr/bin/animate-im6.q16 to provide /usr/bin/animate (animate) in auto mode
-update-alternatives: using /usr/bin/animate-im6.q16 to provide /usr/bin/animate-im6 (animate-im6) in auto mode
-update-alternatives: using /usr/bin/convert-im6.q16 to provide /usr/bin/convert (convert) in auto mode
-update-alternatives: using /usr/bin/convert-im6.q16 to provide /usr/bin/convert-im6 (convert-im6) in auto mode
-update-alternatives: using /usr/bin/composite-im6.q16 to provide /usr/bin/composite (composite) in auto mode
-update-alternatives: using /usr/bin/composite-im6.q16 to provide /usr/bin/composite-im6 (composite-im6) in auto mode
-update-alternatives: using /usr/bin/conjure-im6.q16 to provide /usr/bin/conjure (conjure) in auto mode
-update-alternatives: using /usr/bin/conjure-im6.q16 to provide /usr/bin/conjure-im6 (conjure-im6) in auto mode
-update-alternatives: using /usr/bin/import-im6.q16 to provide /usr/bin/import (import) in auto mode
-update-alternatives: using /usr/bin/import-im6.q16 to provide /usr/bin/import-im6 (import-im6) in auto mode
-update-alternatives: using /usr/bin/identify-im6.q16 to provide /usr/bin/identify (identify) in auto mode
-update-alternatives: using /usr/bin/identify-im6.q16 to provide /usr/bin/identify-im6 (identify-im6) in auto mode
-update-alternatives: using /usr/bin/stream-im6.q16 to provide /usr/bin/stream (stream) in auto mode
-update-alternatives: using /usr/bin/stream-im6.q16 to provide /usr/bin/stream-im6 (stream-im6) in auto mode
-update-alternatives: using /usr/bin/display-im6.q16 to provide /usr/bin/display (display) in auto mode
-update-alternatives: using /usr/bin/display-im6.q16 to provide /usr/bin/display-im6 (display-im6) in auto mode
-update-alternatives: using /usr/bin/montage-im6.q16 to provide /usr/bin/montage (montage) in auto mode
-update-alternatives: using /usr/bin/montage-im6.q16 to provide /usr/bin/montage-im6 (montage-im6) in auto mode
-update-alternatives: using /usr/bin/mogrify-im6.q16 to provide /usr/bin/mogrify (mogrify) in auto mode
-update-alternatives: using /usr/bin/mogrify-im6.q16 to provide /usr/bin/mogrify-im6 (mogrify-im6) in auto mode
-Setting up imagemagick (8:6.9.11.60+dfsg-1.6+deb12u3) ...
-Processing triggers for desktop-file-utils (0.26-1) ...
-Processing triggers for hicolor-icon-theme (0.17-2) ...
-Processing triggers for gnome-menus (3.36.0-1.1) ...
-Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
-Processing triggers for man-db (2.11.2-2) ...
-Processing triggers for mailcap (3.70+nmu1) ...
-Scanning processes...                                                                                                         
-Scanning processor microcode...                                                                                               
-Scanning linux images...                                                                                                      
-
-The processor microcode seems to be up-to-date.
-
-No services need to be restarted.
-
-No containers need to be restarted.
-
-No user sessions are running outdated binaries.
-
-No VM guests are running outdated hypervisor (qemu) binaries on this host.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ convert -size 1920x1080 xc:black /usr/share/pixmaps/black.png
-convert-im6.q16: unable to open image `/usr/share/pixmaps/black.png': Permission denied @ error/blob.c/OpenBlob/2924.
-convert-im6.q16: WriteBlob Failed `/usr/share/pixmaps/black.png' @ error/png.c/MagickPNGErrorHandler/1642.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo cp /home/nickspi5/Chatty_AI/templates/black.png /usr/share/pixmaps/black.png
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
-
-I then modified the following line of code in my /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop file to:
-
-Exec=/bin/bash -c "sleep 10 && /home/nickspi5/Chatty_AI/chatty_ai_startup_enhanced.sh"
-
-I then rebooted my Raspberry PI 5.
 
 
 
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+Create a Simple Black HTML Page (Better than PNG)
+bashcat > /home/nickspi5/Chatty_AI/templates/black.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+            cursor: none;
+        }
+    </style>
+</head>
+<body></body>
+</html>
+EOF
+Then update the script to use black.html instead of black.png:
+bash# In the script, change:
+BLACK_IMAGE="/home/nickspi5/Chatty_AI/templates/black.html"
+How This Works
 
+Desktop loads normally (15 seconds)
+Black screen opens in fullscreen browser (covers desktop)
+Video plays (black screen closes first)
+Loading animation displays for 70 seconds
+Main interface opens automatically
+Alt+F4 will close the browser and return to desktop
+
+This approach keeps your desktop functional while providing the seamless startup experience you want.Retry
 
 
