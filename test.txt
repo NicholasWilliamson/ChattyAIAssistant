@@ -1,4 +1,126 @@
+Thank you, Claude,
 
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install xdotool
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libxdo3
+The following NEW packages will be installed:
+  libxdo3 xdotool
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 86.7 kB of archives.
+After this operation, 207 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://deb.debian.org/debian bookworm/main arm64 libxdo3 arm64 1:3.20160805.1-5 [32.8 kB]
+Get:2 http://deb.debian.org/debian bookworm/main arm64 xdotool arm64 1:3.20160805.1-5 [53.9 kB]
+Fetched 86.7 kB in 1s (106 kB/s)   
+Selecting previously unselected package libxdo3:arm64.
+(Reading database ... 177197 files and directories currently installed.)
+Preparing to unpack .../libxdo3_1%3a3.20160805.1-5_arm64.deb ...
+Unpacking libxdo3:arm64 (1:3.20160805.1-5) ...
+Selecting previously unselected package xdotool.
+Preparing to unpack .../xdotool_1%3a3.20160805.1-5_arm64.deb ...
+Unpacking xdotool (1:3.20160805.1-5) ...
+Setting up libxdo3:arm64 (1:3.20160805.1-5) ...
+Setting up xdotool (1:3.20160805.1-5) ...
+Processing triggers for man-db (2.11.2-2) ...
+Processing triggers for libc-bin (2.36-9+rpt2+deb12u12) ...
+Scanning processes...                                                                                                         
+Scanning processor microcode...                                                                                               
+Scanning linux images...                                                                                                      
+
+The processor microcode seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
+
+I then got a message that a new kernel was available so I need to reboot my Raspberry PI 5 but I want to complete the changes you recommended before I reboot my Raspberry PI 5.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/templates/black.html
+
+I saved the updated black_with_logo.html file as black.html and modified this in the chatty_ai_startup.sh Shell script file as well.
+
+BLACK_FILE="/home/nickspi5?Chatty_AI/templates/black.html"
+
+My /home/nickspi5/Chatty_AI/templates/balck.html file content is as follows:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatty AI Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            overflow: hidden;
+            cursor: none;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .logo-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: fadeIn 2s ease-in-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.8; }
+        }
+        
+        .logo {
+            max-width: 400px;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 204, 0.5));
+        }
+        
+        /* Subtle glow animation */
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 255, 204, 0.5)); }
+            50% { filter: drop-shadow(0 0 50px rgba(0, 255, 204, 0.8)); }
+        }
+        
+        .logo.animated {
+            animation: glow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="Chatty_AI_logo.png" alt="Chatty AI" class="logo animated">
+    </div>
+</body>
+</html>
+
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+
+I updated my chatty_ai_startup_final.sh file with the following content:
 
 #!/bin/bash
 #
@@ -9,7 +131,7 @@
 # Configuration
 VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
 LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black_with_logo.html"
+BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
 CHATTY_URL="http://localhost:5000"
 LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
 USER="nickspi5"
@@ -109,37 +231,13 @@ log_message "========================================="
 # Keep script running
 wait $CHROMIUM_PID
 
+I then saved the chatty_ai_startup_final.sh file.
 
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo rm /home/nickspi5/.config/autostart/chatty-ai-launcher.service
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
 
-3. Install Additional Tools
-
-sudo apt install xdotool
-
-4. Setup Instructions
-
-Save the black screen with logo:
-
-nano /home/nickspi5/Chatty_AI/templates/black_with_logo.html
-
-# Copy the black_with_logo.html content and save
-
-Update the startup script:
-
-nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-# Replace entire content with the new script
-
-chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-Fix the autostart filename (you had .service, should be .desktop):
-
-# Remove the wrong file
-rm /home/nickspi5/.config/autostart/chatty-ai-launcher.service
-
-# Create the correct file
-nano /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
-
-Content should be:
+I then modified my chatty-ai-launcher.desktop file's content to be:
 
 [Desktop Entry]
 Type=Application
@@ -152,14 +250,12 @@ X-GNOME-Autostart-enabled=true
 Terminal=false
 StartupNotify=false
 
-5. Disable Desktop Manager Warning
+I saved my chatty-ai-launcher.desktop file.
 
-To prevent the "Desktop manager is not active" error:
+I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/.config/pcmanfm/LXDE-pi/desktop-items-0.conf
 
-# Edit PCManFM config
-nano /home/nickspi5/.config/pcmanfm/LXDE-pi/desktop-items-0.conf
+I then added the following code to my desktop-items-0.conf file:
 
-Add or modify:
 ini[*]
 desktop_bg=#000000
 desktop_shadow=#000000
@@ -169,20 +265,13 @@ show_trash=0
 show_mounts=0
 Key Improvements
 
-Logo on black screen - Your logo appears with a subtle glow animation
-Better error dialog handling - Uses multiple methods to close the dialog
-Smooth transitions - Video plays on top of black screen, then transitions directly to loading
-No desktop flashing - Careful timing and --app flag for borderless windows
-Extended wait time - 20 seconds initial wait ensures desktop is fully loaded
+I then saved my desktop-items-0.conf file.
 
-After these changes, the sequence should be:
+I then rebooted my Raspberry PI 5.
 
-Black screen with glowing Chatty AI logo (no desktop visible)
-Startup video plays
-Loading animation displays
-Main interface opens
 
-The desktop remains functional but hidden during the entire startup sequence.
+
+
 
 
 
