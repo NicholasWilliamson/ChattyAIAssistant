@@ -307,6 +307,31 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 
 I then rebooted my Rapsberry PI 5.
 
+My Raspberry PI 5 first booted and I could see the Desktop for about 5 to 10 seconds.
+
+The startup video started playing with audio.
+
+But then the black.html web page displayed before the startup video finished playing and I could still hear the audio in the background.
+
+After a few seconds the chatty_loading.html web page displayed and played through.
+
+Then the Chatty_AI_HighTech.html web ui displayed.
+
+I have not yet tested it to ensure the wake word detection method is working correctly.
+
+I was hoping the desktp would not show at all when the Raspberry PI 5 rebooted, but rather I would just see the balck.html web page for a few seconds.
+
+Then next the Startup video would play through.
+
+Then after the Startup video finished playing, the chatty_loading.html web page would display and play through.
+
+Then the Chatty_AI_HighTech.html web ui would be display.
+
+If this is not possible, it is okay but I at least want the black.html web page ti display before the Startup video displays and plays through entirely once with audo, then, so on ....
+
+How can we fix this?
+
+
 
 
 
