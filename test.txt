@@ -1,14 +1,16 @@
+Thank you, Claude,
 
+I had the following code in my /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh Shell script:
 
-The startup sequence is working well except for two issues: the black screen not showing and wake word detection problems. Let's fix both:
+# Wait for desktop to be fully loaded
+log_message "Waiting for desktop to load..."
+sleep 20  # Increased to ensure desktop is fully ready
 
-1. Fix Black Screen Display
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
 
-The black screen needs to wait for the desktop to be ready. Update your startup script:
-
-nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-Change the sleep time and add a desktop wait:
+I changed that code in my /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh Shell script to be:
 
 # Wait for desktop to be fully loaded
 log_message "Waiting for desktop to load..."
@@ -18,47 +20,9 @@ while ! pgrep -x "pcmanfm" > /dev/null; do
 done
 sleep 5  # Additional wait for full initialization
 
-2. Fix Wake Word Detection
+I then saved my /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh Shell script.
 
-The wake word issue after reboot is likely the audio device initialization. In your chatty_ai.py, update the record_wake_word_check method:
-
-def record_wake_word_check(self):
-    """Record short audio clip for wake word detection"""
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False
-        
-        try:
-            # Simple recording without device detection
-            audio_data = sd.rec(int(5 * 16000), 
-                               samplerate=16000, 
-                               channels=1, 
-                               dtype='float32',
-                               blocking=True)  # Use blocking mode
-            
-            # Check if audio contains sound
-            rms = np.sqrt(np.mean(audio_data**2))
-            wake_word_threshold = SILENCE_THRESHOLD * 1.2
-            
-            if rms > wake_word_threshold:
-                sf.write(WAKE_WORD_AUDIO, audio_data, 16000)
-                return True
-            return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
-    except Exception as e:
-        self.emit_log(f"Wake word recording error: {e}", 'error')
-        # Try to reinitialize audio on error
-        sd.default.reset()
-        return False
-
-3. Test Wake Word Manually
-
-Create a test script to debug wake word:
-
-cat > /home/nickspi5/Chatty_AI/test_wake.py << 'EOF'
+Then I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ cat > /home/nickspi5/Chatty_AI/test_wake.py << 'EOF'
 import sounddevice as sd
 import numpy as np
 
@@ -82,7 +46,69 @@ try:
 except Exception as e:
     print(f"Error: {e}")
 EOF
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 test_wake.py
+Testing audio recording...
+Available devices:
+  0 USB PnP Sound Device: Audio (hw:2,0), ALSA (1 in, 0 out)
+  1 pulse, ALSA (32 in, 32 out)
+* 2 default, ALSA (32 in, 32 out)
 
-python3 test_wake.py
+Recording 3 seconds...
+Audio RMS: 0.01189508754760027
+Audio recording works!
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-The system is 99% complete. These minor fixes should resolve the remaining issues.
+My record_wake_word_check(self): in my chatty_ai.py Python script is as follows:
+
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection with improved sensitivity"""
+        try:
+            if not self.audio_recording_lock.acquire(blocking=False):
+                return False
+        
+            try:
+                # Check default device info first
+                device_info = sd.query_devices(None, 'input')
+                default_sr = int(device_info['default_samplerate'])
+            
+                # Use device's native sample rate or fall back to 16000
+                sample_rate = default_sr if default_sr else SAMPLE_RATE
+            
+                # Record 5 seconds of audio
+                audio_data = sd.rec(int(5 * sample_rate), 
+                                    samplerate=sample_rate, 
+                                    channels=CHANNELS, 
+                                    dtype='float32')
+                sd.wait()
+            
+                # Check if audio contains sound above threshold
+                rms = np.sqrt(np.mean(audio_data**2))
+                wake_word_threshold = SILENCE_THRESHOLD * 1.2
+            
+                self.emit_log(f"👂 Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+            
+                if rms > wake_word_threshold:
+                    # Resample to 16000 Hz if needed for Whisper
+                    if sample_rate != SAMPLE_RATE:
+                        import scipy.signal
+                        audio_data = scipy.signal.resample(audio_data, int(len(audio_data) * SAMPLE_RATE / sample_rate))
+                
+                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+                    self.emit_log(f"💾 Wake word audio saved", 'info')
+                    return True
+                else:
+                    return False
+                
+            finally:
+                self.audio_recording_lock.release()
+            
+        except Exception as e:
+            self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+            return False
+
+I have not updated it yet as you previously recommended.
+
+However, when I last rebooted my Raspberry PI 5 and clicked on the Initialize button, the facial recognition accurately detected me and quickly spoke the greeting response but when I said "Hello Chatty", my AI Assistant did not respond. I tried a few more times but then the AI Assistant spoke the bored response and told me a joke.
+
+How can I fix this?
+
