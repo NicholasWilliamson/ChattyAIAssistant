@@ -201,6 +201,7 @@ wait $MAIN_PID
 I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
 (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./chatty_ai_startup/final.sh
 
+Everything appeared to play properly this time, except the chatty_loading.html web page opened up and only played for about 5 to 10 seconds instead of the full required 70 seconds.
 
 I then rebooted my Raspberry PI 5.
 
