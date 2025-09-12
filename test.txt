@@ -1,12 +1,12 @@
 
 
-The issue is that the black screen browser is launching too early and overlapping with the video. Let's fix the timing in your startup script:
+Thank you, Claude,
 
-Fixed Startup Script
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
 
-nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-Replace with this corrected version:
+I then modifed the code for my chatty_ai_startup_final.sh file to be:
 
 #!/bin/bash
 #
@@ -99,3 +99,9 @@ log_message "========================================="
 
 # Keep running
 wait $CHROMIUM_PID
+
+I then rebooted my Raspberry PI 5.
+
+
+
+
