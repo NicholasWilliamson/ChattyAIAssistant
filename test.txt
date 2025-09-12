@@ -1,10 +1,14 @@
 
 
-nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+Thank you, Claude,
 
-Replace with:
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
 
-bash#!/bin/bash
+I modified my chatty_ai_startup_final.sh file to be:
+
+#!/bin/bash
 #
 # Chatty AI Startup Script - Desktop Hidden Version
 #
@@ -81,35 +85,8 @@ log_message "========================================="
 # Keep running
 wait $CHROMIUM_PID
 
-Alternative: Hide Desktop Elements
+I then rebooted my Raspberry PI 5.
 
-If you still see desktop, add this to hide desktop elements temporarily:
 
-nano /home/nickspi5/Chatty_AI/hide_desktop.sh
-
-#!/bin/bash
-# Hide desktop panels
-pkill lxpanel
-# Hide desktop icons
-pcmanfm --desktop-off
-
-chmod +x /home/nickspi5/Chatty_AI/hide_desktop.sh
-
-Then call it at the start of your startup script:
-
-# After waiting for desktop
-/home/nickspi5/Chatty_AI/hide_desktop.sh
-
-To restore desktop when you press Alt+F4, create:
-
-nano /home/nickspi5/Chatty_AI/show_desktop.sh
-
-#!/bin/bash
-# Restore panels
-lxpanel --profile LXDE-pi &
-# Restore desktop
-pcmanfm --desktop --profile LXDE-pi &
-
-The black screen should now appear immediately after boot, covering the desktop completely before the video plays.
 
 
