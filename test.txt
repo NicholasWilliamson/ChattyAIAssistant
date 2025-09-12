@@ -147,6 +147,27 @@ I then saved my show_desktop.sh file.
 
 I then rebooted my Raspberry PI 5.
 
+This time my Raspberry PI 5 rebooted and the Desktop displayed for about 1 second.
+
+The Startup video then started playing with audio.
+
+After a few seconds, the black.html page displayed but again I could hear the Startup video audio playing in the background.
+
+Then the chatty_loading.html web page opened up and played through.
+
+Then, straight after this, the Chatty_AI_HighTech.html web ui page displayed.
+
+Again, I want my Raspberry PI 5 to boot up.
+
+I do not want to see the Desktop.
+
+I want to see the black.html web page displayed first.
+
+Then I want the Startup video to play with audio fully.
+
+Then I want to see the chatty_loading.html web page open up and play through.
+
+Then, straight after this, I want the Chatty_AI_HighTech.html web ui page displayed.
 
 
 
