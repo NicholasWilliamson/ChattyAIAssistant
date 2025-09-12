@@ -1,16 +1,12 @@
 
 
-Thank you, Claude,
+nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+Replace with:
 
-I then modifed the code for my chatty_ai_startup_final.sh file to be:
-
-#!/bin/bash
+bash#!/bin/bash
 #
-# Chatty AI Startup Script - Fixed Timing
+# Chatty AI Startup Script - Desktop Hidden Version
 #
 
 # Configuration
@@ -19,7 +15,6 @@ LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
 BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
 CHATTY_URL="http://localhost:5000"
 LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
-USER="nickspi5"
 
 # Create log directory
 mkdir -p /home/nickspi5/Chatty_AI/logs
@@ -38,70 +33,83 @@ log_message "========================================="
 export DISPLAY=:0
 export XAUTHORITY=/home/nickspi5/.Xauthority
 
-# Wait for desktop
+# Wait for desktop to be ready
 log_message "Waiting for desktop..."
 while ! pgrep -x "pcmanfm" > /dev/null; do
     sleep 1
 done
-sleep 3
 
-# Kill any error dialogs
-pkill -f "Desktop manager" 2>/dev/null
-wmctrl -F -c "Desktop manager is not active" 2>/dev/null || true
-xdotool search --name "Desktop manager" windowclose 2>/dev/null || true
-
-# Display black screen IMMEDIATELY
-log_message "Displaying black screen..."
+# IMMEDIATELY cover desktop with black screen
+log_message "Covering desktop with black screen..."
 chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
     --start-fullscreen \
-    --disable-session-crashed-bubble \
-    --check-for-update-interval=31536000 \
+    --window-position=0,0 \
+    --window-size=1920,1080 \
     "file://$BLACK_PAGE" 2>/dev/null &
 
 BLACK_PID=$!
-sleep 2  # Let black screen fully load
+sleep 1  # Quick pause for black screen to render
 
-# Play video
+# Play video directly (black screen stays underneath)
 if [ -f "$VIDEO_PATH" ]; then
     log_message "Playing startup video..."
-    
-    # Kill black screen BEFORE playing video
-    kill $BLACK_PID 2>/dev/null
-    pkill -f "black.html" 2>/dev/null
-    sleep 0.5
-    
-    # Play video
     cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null
     log_message "Video complete"
 else
     log_message "Video not found"
-    kill $BLACK_PID 2>/dev/null
 fi
 
-# Launch loading screen
-log_message "Launching loading screen..."
+# Kill black screen
+kill $BLACK_PID 2>/dev/null
 
+# Immediately launch loading screen (no gap)
+log_message "Launching loading screen..."
 chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
     --start-fullscreen \
-    --check-for-update-interval=31536000 \
     "file://$LOADING_PAGE" 2>/dev/null &
 
 CHROMIUM_PID=$!
-log_message "Loading screen PID: $CHROMIUM_PID"
-
+log_message "Loading complete"
 log_message "========================================="
 
 # Keep running
 wait $CHROMIUM_PID
 
-I then rebooted my Raspberry PI 5.
+Alternative: Hide Desktop Elements
 
+If you still see desktop, add this to hide desktop elements temporarily:
 
+nano /home/nickspi5/Chatty_AI/hide_desktop.sh
+
+#!/bin/bash
+# Hide desktop panels
+pkill lxpanel
+# Hide desktop icons
+pcmanfm --desktop-off
+
+chmod +x /home/nickspi5/Chatty_AI/hide_desktop.sh
+
+Then call it at the start of your startup script:
+
+# After waiting for desktop
+/home/nickspi5/Chatty_AI/hide_desktop.sh
+
+To restore desktop when you press Alt+F4, create:
+
+nano /home/nickspi5/Chatty_AI/show_desktop.sh
+
+#!/bin/bash
+# Restore panels
+lxpanel --profile LXDE-pi &
+# Restore desktop
+pcmanfm --desktop --profile LXDE-pi &
+
+The black screen should now appear immediately after boot, covering the desktop completely before the video plays.
 
 
