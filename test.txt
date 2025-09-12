@@ -3,7 +3,7 @@
 I see the issue! The problem is that your video (VLC) is playing on top of the black screen, but when the video finishes, there's a brief moment where the desktop shows before the loading page appears. Also, the video audio continues playing because VLC might not be closing properly.
 Let's fix this with a better approach:Fixed Startup Script - Proper SequencingCode #!/bin/bash
 #
-# Chatty AI Startup Script - Proper Sequencing
+# Chatty AI Startup Script - Proper Sequencing 
 #
 
 # Configuration
