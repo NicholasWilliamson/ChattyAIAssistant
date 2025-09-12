@@ -1,16 +1,8 @@
 
 
-Thank you, Claude,
-
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-I modified my chatty_ai_startup_final.sh file to be:
-
 #!/bin/bash
 #
-# Chatty AI Startup Script - Proper Sequencing
+# Chatty AI Startup Script - Final Fix
 #
 
 # Configuration
@@ -37,45 +29,77 @@ log_message "========================================="
 export DISPLAY=:0
 export XAUTHORITY=/home/nickspi5/.Xauthority
 
-# Wait for desktop to be ready
-log_message "Waiting for desktop..."
-while ! pgrep -x "pcmanfm" > /dev/null; do
-    sleep 1
+# Wait for X server to be ready
+log_message "Waiting for X server..."
+while ! xset q &>/dev/null; do
+    sleep 0.5
 done
 
-# Hide desktop elements first
+# Hide desktop elements IMMEDIATELY
 log_message "Hiding desktop elements..."
-/home/nickspi5/Chatty_AI/hide_desktop.sh
-sleep 0.5
+pkill lxpanel 2>/dev/null
+sleep 0.2
 
-# STEP 1: Show black screen FIRST
+# STEP 1: Show black screen FIRST (before desktop fully loads)
 log_message "Displaying black screen..."
 chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
     --start-fullscreen \
     --window-position=0,0 \
     --window-size=1920,1080 \
     "file://$BLACK_PAGE" 2>/dev/null &
 
 BLACK_PID=$!
-sleep 2  # Give black screen time to fully render
+sleep 3  # Longer wait for black screen to fully render
 
-# STEP 2: Play video (this will appear ON TOP of black screen)
+# Now safely turn off desktop icons
+pcmanfm --desktop-off 2>/dev/null
+
+# STEP 2: Play video with better VLC options
 if [ -f "$VIDEO_PATH" ]; then
     log_message "Playing startup video..."
-    # Use timeout to ensure video doesn't hang
-    timeout 30 cvlc --fullscreen --play-and-exit --intf dummy "$VIDEO_PATH" 2>/dev/null
+    
+    # Get video duration first
+    DURATION=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$VIDEO_PATH" 2>/dev/null | cut -d. -f1)
+    if [ -z "$DURATION" ]; then
+        DURATION=10  # Default if can't detect
+    fi
+    log_message "Video duration: ${DURATION} seconds"
+    
+    # Play video with better options
+    cvlc \
+        --fullscreen \
+        --no-video-title-show \
+        --quiet \
+        --intf dummy \
+        --play-and-exit \
+        "$VIDEO_PATH" 2>/dev/null &
+    
+    VLC_PID=$!
+    
+    # Wait for actual video duration plus buffer
+    sleep $((DURATION + 2))
+    
+    # Ensure VLC is really finished
+    if ps -p $VLC_PID > /dev/null; then
+        kill $VLC_PID 2>/dev/null
+        sleep 1
+    fi
+    
     log_message "Video playback complete"
 else
     log_message "Video not found at $VIDEO_PATH"
     sleep 5  # Show black screen for 5 seconds if no video
 fi
 
-# Kill any remaining VLC processes to stop audio
+# Kill any remaining VLC processes
 pkill vlc 2>/dev/null
-sleep 0.5
+pkill cvlc 2>/dev/null
+sleep 1
 
 # Kill black screen
 log_message "Closing black screen..."
@@ -88,14 +112,16 @@ chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
     --start-fullscreen \
     "file://$LOADING_PAGE" 2>/dev/null &
 
 LOADING_PID=$!
 
-# Wait for loading screen to complete (adjust time as needed)
+# Wait for loading screen to complete
 log_message "Loading screen running..."
-sleep 8  # Adjust this to match your loading screen duration
+sleep 12  # Increased time for full loading screen
 
 # Kill loading screen
 kill $LOADING_PID 2>/dev/null
@@ -107,6 +133,8 @@ chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
     --start-fullscreen \
     "$CHATTY_URL" 2>/dev/null &
 
@@ -116,81 +144,5 @@ log_message "========================================="
 
 # Keep the main interface running
 wait $MAIN_PID
-
-Then I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo ./chatty_ai_startup_final.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo ./chatty_ai_startup_final.sh
-[2025-09-13 08:13:20] =========================================
-[2025-09-13 08:13:20] Chatty AI Startup Sequence Initiated
-[2025-09-13 08:13:20] =========================================
-[2025-09-13 08:13:20] Waiting for desktop...
-[2025-09-13 08:13:20] Hiding desktop elements...
-
-** (pcmanfm:4157): WARNING **: 08:13:20.985: The directory '/home/nickspi5/Templates' doesn't exist, ignoring it
-[2025-09-13 08:13:21] Displaying black screen...
-[2025-09-13 08:13:23] Playing startup video...
-[2025-09-13 08:13:23] Video playback complete
-[2025-09-13 08:13:24] Closing black screen...
-[2025-09-13 08:13:24] Launching loading screen...
-[2025-09-13 08:13:24] Loading screen running...
-[2025-09-13 08:13:33] Launching Chatty AI interface...
-[2025-09-13 08:13:33] Chatty AI interface launched successfully
-[2025-09-13 08:13:33] =========================================
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I noted the WARNING message: ** (pcmanfm:4157): WARNING **: 08:13:20.985: The directory '/home/nickspi5/Templates' doesn't exist, ignoring it
-
-I could not find any incorrect paths in my chatty_ai_startup_final.sh file!
-
-I then rebooted my Raspberry PI 5.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-I then rebooted my Raspberry PI 5.
-
-This time my Raspberry PI 5 rebooted and the Desktop displayed for about 1 second.
-
-The Startup video then started playing with audio.
-
-After a few seconds, the black.html page displayed but again I could hear the Startup video audio playing in the background.
-
-Then the chatty_loading.html web page opened up and played through.
-
-Then, straight after this, the Chatty_AI_HighTech.html web ui page displayed.
-
-Again, I want my Raspberry PI 5 to boot up.
-
-I do not want to see the Desktop.
-
-I want to see the black.html web page displayed first.
-
-Then I want the Startup video to play with audio fully.
-
-Then I want to see the chatty_loading.html web page open up and play through.
-
-Then, straight after this, I want the Chatty_AI_HighTech.html web ui page displayed.
-
-
-
 
 
