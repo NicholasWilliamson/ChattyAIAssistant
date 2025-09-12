@@ -1,61 +1,8 @@
 
 
-Thank you, Claude,
-
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ls -la /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
--rwxr-xr-x 1 nickspi5 nickspi5 4295927 Jul 13 08:09 /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ffprobe /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4
-ffprobe version 5.1.7-0+deb12u1+rpt1 Copyright (c) 2007-2025 the FFmpeg developers
-  built with gcc 12 (Debian 12.2.0-14+deb12u1)
-  configuration: --prefix=/usr --extra-version=0+deb12u1+rpt1 --toolchain=hardened --incdir=/usr/include/aarch64-linux-gnu --enable-gpl --disable-stripping --disable-mmal --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librabbitmq --enable-librist --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sand --enable-sdl2 --disable-sndio --enable-libjxl --enable-neon --enable-v4l2-request --enable-libudev --enable-epoxy --libdir=/usr/lib/aarch64-linux-gnu --arch=arm64 --enable-pocketsphinx --enable-librsvg --enable-libdc1394 --enable-libdrm --enable-vout-drm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-libx264 --enable-libplacebo --enable-librav1e --enable-shared
-  libavutil      57. 28.100 / 57. 28.100
-  libavcodec     59. 37.100 / 59. 37.100
-  libavformat    59. 27.100 / 59. 27.100
-  libavdevice    59.  7.100 / 59.  7.100
-  libavfilter     8. 44.100 /  8. 44.100
-  libswscale      6.  7.100 /  6.  7.100
-  libswresample   4.  7.100 /  4.  7.100
-  libpostproc    56.  6.100 / 56.  6.100
-Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4':
-  Metadata:
-    major_brand     : isom
-    minor_version   : 512
-    compatible_brands: isomiso2avc1mp41
-    encoder         : Lavf58.29.100
-  Duration: 00:00:15.02, start: 0.000000, bitrate: 2287 kb/s
-  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080, 2162 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
-    Metadata:
-      handler_name    : VideoHandler
-      vendor_id       : [0][0][0][0]
-  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 128 kb/s (default)
-    Metadata:
-      handler_name    : SoundHandler
-      vendor_id       : [0][0][0][0]
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt update
-Hit:1 http://deb.debian.org/debian bookworm InRelease
-Hit:2 http://deb.debian.org/debian-security bookworm-security InRelease       
-Hit:3 http://deb.debian.org/debian bookworm-updates InRelease                 
-Hit:4 https://download.docker.com/linux/debian bookworm InRelease                             
-Hit:5 http://archive.raspberrypi.com/debian bookworm InRelease                  
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ sudo apt install ffmpeg
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-ffmpeg is already the newest version (8:5.1.7-0+deb12u1+rpt1).
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-
-I modified my chatty_ai_startup_final.sh file to be:
-
 #!/bin/bash
 #
-# Chatty AI Startup Script - Final Fix
+# Chatty AI Startup Script - Perfect Fix
 #
 
 # Configuration
@@ -88,12 +35,13 @@ while ! xset q &>/dev/null; do
     sleep 0.5
 done
 
-# Hide desktop elements IMMEDIATELY
+# Hide desktop elements IMMEDIATELY and AGGRESSIVELY
 log_message "Hiding desktop elements..."
 pkill lxpanel 2>/dev/null
+pkill pcmanfm 2>/dev/null
 sleep 0.2
 
-# STEP 1: Show black screen FIRST (before desktop fully loads)
+# STEP 1: Show black screen FIRST and IMMEDIATELY
 log_message "Displaying black screen..."
 chromium-browser \
     --kiosk \
@@ -101,32 +49,34 @@ chromium-browser \
     --disable-infobars \
     --disable-session-crashed-bubble \
     --disable-restore-session-state \
+    --disable-web-security \
     --start-fullscreen \
     --window-position=0,0 \
     --window-size=1920,1080 \
     "file://$BLACK_PAGE" 2>/dev/null &
 
 BLACK_PID=$!
-sleep 3  # Longer wait for black screen to fully render
+sleep 2  # Wait for black screen to render
 
-# Now safely turn off desktop icons
+# Ensure desktop is completely hidden
 pcmanfm --desktop-off 2>/dev/null
 
-# STEP 2: Play video with better VLC options
+# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
+log_message "Closing black screen before video..."
+kill $BLACK_PID 2>/dev/null
+sleep 0.5
+
 if [ -f "$VIDEO_PATH" ]; then
     log_message "Playing startup video..."
     
-    # Get video duration first
-    DURATION=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$VIDEO_PATH" 2>/dev/null | cut -d. -f1)
-    if [ -z "$DURATION" ]; then
-        DURATION=10  # Default if can't detect
-    fi
-    log_message "Video duration: ${DURATION} seconds"
+    # Video is 15.02 seconds, so we know exact duration
+    log_message "Video duration: 15 seconds"
     
-    # Play video with better options
+    # Play video with optimal settings
     cvlc \
         --fullscreen \
         --no-video-title-show \
+        --no-osd \
         --quiet \
         --intf dummy \
         --play-and-exit \
@@ -134,10 +84,10 @@ if [ -f "$VIDEO_PATH" ]; then
     
     VLC_PID=$!
     
-    # Wait for actual video duration plus buffer
-    sleep $((DURATION + 2))
+    # Wait for exact video duration (15 seconds + 1 second buffer)
+    sleep 16
     
-    # Ensure VLC is really finished
+    # Force kill VLC if still running
     if ps -p $VLC_PID > /dev/null; then
         kill $VLC_PID 2>/dev/null
         sleep 1
@@ -146,7 +96,7 @@ if [ -f "$VIDEO_PATH" ]; then
     log_message "Video playback complete"
 else
     log_message "Video not found at $VIDEO_PATH"
-    sleep 5  # Show black screen for 5 seconds if no video
+    sleep 15  # Show black screen for 15 seconds if no video
 fi
 
 # Kill any remaining VLC processes
@@ -154,29 +104,26 @@ pkill vlc 2>/dev/null
 pkill cvlc 2>/dev/null
 sleep 1
 
-# Kill black screen
-log_message "Closing black screen..."
-kill $BLACK_PID 2>/dev/null
-sleep 0.5
-
-# STEP 3: Show loading screen immediately
-log_message "Launching loading screen..."
+# STEP 3: Show loading screen for FULL 70 seconds
+log_message "Launching loading screen for 70 seconds..."
 chromium-browser \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \
     --disable-session-crashed-bubble \
     --disable-restore-session-state \
+    --disable-web-security \
     --start-fullscreen \
     "file://$LOADING_PAGE" 2>/dev/null &
 
 LOADING_PID=$!
 
-# Wait for loading screen to complete
-log_message "Loading screen running..."
-sleep 12  # Increased time for full loading screen
+# Wait for FULL loading screen duration (70 seconds)
+log_message "Loading screen running for 70 seconds..."
+sleep 70
 
 # Kill loading screen
+log_message "Loading screen complete, closing..."
 kill $LOADING_PID 2>/dev/null
 sleep 0.5
 
@@ -188,6 +135,7 @@ chromium-browser \
     --disable-infobars \
     --disable-session-crashed-bubble \
     --disable-restore-session-state \
+    --disable-web-security \
     --start-fullscreen \
     "$CHATTY_URL" 2>/dev/null &
 
@@ -198,58 +146,168 @@ log_message "========================================="
 # Keep the main interface running
 wait $MAIN_PID
 
-I then ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ ./chatty_ai_startup/final.sh
-
-Everything appeared to play properly this time, except the chatty_loading.html web page opened up and only played for about 5 to 10 seconds instead of the full required 70 seconds.
-
-I then rebooted my Raspberry PI 5.
 
 
 
 
+Safe version
 
+#!/bin/bash
+#
+# Chatty AI Startup Script - Flask Safe Version
+#
 
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
 
+# Create log directory
+mkdir -p /home/nickspi5/Chatty_AI/logs
 
+# Function to log messages
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
 
+# Start logging
+log_message "========================================="
+log_message "Chatty AI Startup Sequence Initiated"
+log_message "========================================="
 
+# Set display
+export DISPLAY=:0
+export XAUTHORITY=/home/nickspi5/.Xauthority
 
+# Wait for X server to be ready
+log_message "Waiting for X server..."
+while ! xset q &>/dev/null; do
+    sleep 0.5
+done
 
+# Stop any existing Flask apps that might interfere
+log_message "Stopping existing Flask processes..."
+pkill -f "python.*chatty" 2>/dev/null
+pkill -f "flask" 2>/dev/null
+sleep 1
 
+# Hide desktop elements IMMEDIATELY and AGGRESSIVELY
+log_message "Hiding desktop elements..."
+pkill lxpanel 2>/dev/null
+pkill pcmanfm 2>/dev/null
+sleep 0.2
 
+# STEP 1: Show black screen FIRST
+log_message "Displaying black screen..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --window-position=0,0 \
+    --window-size=1920,1080 \
+    "file://$BLACK_PAGE" 2>/dev/null &
 
+BLACK_PID=$!
+sleep 2
 
+# Ensure desktop is hidden
+pcmanfm --desktop-off 2>/dev/null
 
+# STEP 2: Close black screen, then play video
+log_message "Closing black screen before video..."
+kill $BLACK_PID 2>/dev/null
+sleep 0.5
 
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video (15 seconds)..."
+    
+    cvlc \
+        --fullscreen \
+        --no-video-title-show \
+        --no-osd \
+        --quiet \
+        --intf dummy \
+        --play-and-exit \
+        "$VIDEO_PATH" 2>/dev/null &
+    
+    VLC_PID=$!
+    sleep 16  # 15 seconds + buffer
+    
+    if ps -p $VLC_PID > /dev/null; then
+        kill $VLC_PID 2>/dev/null
+        sleep 1
+    fi
+    
+    log_message "Video playback complete"
+else
+    log_message "Video not found, waiting 15 seconds..."
+    sleep 15
+fi
 
+# Clean up VLC
+pkill vlc 2>/dev/null
+pkill cvlc 2>/dev/null
+sleep 1
 
+# STEP 3: Show loading screen for FULL 70 seconds
+log_message "Launching loading screen for 70 seconds..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "file://$LOADING_PAGE" 2>/dev/null &
 
+LOADING_PID=$!
 
+# Wait FULL 70 seconds
+log_message "Loading screen running... (70 seconds)"
+for i in {1..7}; do
+    sleep 10
+    log_message "Loading progress: $((i*10))/70 seconds"
+done
 
-I then rebooted my Raspberry PI 5.
+log_message "Loading screen complete"
+kill $LOADING_PID 2>/dev/null
+sleep 1
 
-This time my Raspberry PI 5 rebooted and the Desktop displayed for about 1 second.
+# STEP 4: Start Flask app and main interface
+log_message "Starting Flask application..."
+cd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
+python app.py &
+FLASK_PID=$!
 
-The Startup video then started playing with audio.
+# Wait for Flask to start
+sleep 3
 
-After a few seconds, the black.html page displayed but again I could hear the Startup video audio playing in the background.
+log_message "Launching Chatty AI interface..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "$CHATTY_URL" 2>/dev/null &
 
-Then the chatty_loading.html web page opened up and played through.
+MAIN_PID=$!
+log_message "Chatty AI interface launched successfully"
+log_message "========================================="
 
-Then, straight after this, the Chatty_AI_HighTech.html web ui page displayed.
+# Keep running
+wait $MAIN_PID
 
-Again, I want my Raspberry PI 5 to boot up.
-
-I do not want to see the Desktop.
-
-I want to see the black.html web page displayed first.
-
-Then I want the Startup video to play with audio fully.
-
-Then I want to see the chatty_loading.html web page open up and play through.
-
-Then, straight after this, I want the Chatty_AI_HighTech.html web ui page displayed.
 
 
 
