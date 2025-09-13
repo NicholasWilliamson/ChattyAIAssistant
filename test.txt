@@ -1,5 +1,13 @@
 
 
+Thank you, Claude,
+
+I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
+nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+
+I then modified my chatty_ai_startup_final.sh file and saved the following code:
+
 #!/bin/bash
 #
 # Chatty AI Startup Script - Perfect Fix
@@ -105,7 +113,7 @@ pkill cvlc 2>/dev/null
 sleep 1
 
 # STEP 3: Show loading screen for FULL 75 seconds
-log_message "Launching loading screen for 75 seconds..."
+log_message "Launching loading screen for 75 seconds ..."
 chromium-browser \
     --kiosk \
     --noerrdialogs \
@@ -118,9 +126,9 @@ chromium-browser \
 
 LOADING_PID=$!
 
-# Wait for FULL loading screen duration (70 seconds)
-log_message "Loading screen running for 70 seconds..."
-sleep 70
+# Wait for FULL loading screen duration (75 seconds)
+log_message "Loading screen running for 75 seconds ..."
+sleep 75
 
 # Kill loading screen
 log_message "Loading screen complete, closing..."
@@ -145,5 +153,55 @@ log_message "========================================="
 
 # Keep the main interface running
 wait $MAIN_PID
+
+I then rebooted my Raspberry PI 5.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I then rebooted my Raspberry PI 5.
+
+This time my Raspberry PI 5 rebooted and the Desktop displayed for about 1 second.
+
+The Startup video then started playing with audio.
+
+After a few seconds, the black.html page displayed but again I could hear the Startup video audio playing in the background.
+
+Then the chatty_loading.html web page opened up and played through.
+
+Then, straight after this, the Chatty_AI_HighTech.html web ui page displayed.
+
+Again, I want my Raspberry PI 5 to boot up.
+
+I do not want to see the Desktop.
+
+I want to see the black.html web page displayed first.
+
+Then I want the Startup video to play with audio fully.
+
+Then I want to see the chatty_loading.html web page open up and play through.
+
+Then, straight after this, I want the Chatty_AI_HighTech.html web ui page displayed.
+
+
+
 
 
