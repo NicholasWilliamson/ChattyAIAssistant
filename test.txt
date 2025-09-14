@@ -1,127 +1,92 @@
 
 
-Thank you, Claude,
+Fix 3 - Optimize wake word detection speed:
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ python3 -c "
-import sounddevice as sd
-print('Testing sample rates for your system:')
-for rate in [44100, 48000, 22050, 16000, 11025, 8000]:
+Find the listen_for_wake_word method and look for this section:
+
+# Transcribe and check for wake word
+
+transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+
+if transcript and self.detect_wake_word(transcript):
+    self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+    self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
+    
+    # Handle the wake word detection
+    self.handle_wake_word_detected()
+
+Replace it with this faster version:
+
+# Transcribe and check for wake word
+self.emit_log("Transcribing wake word audio...", 'debug')
+transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+
+if transcript and self.detect_wake_word(transcript):
+    self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+    # Play beep immediately for faster response
+    self.play_beep()
+    self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
+    
+    # Handle the wake word detection (but skip the beep since we already played it)
+    self.handle_wake_word_detected_no_beep()
+
+Fix 4 - Create the no-beep handler:
+
+Add this new method to handle wake word without duplicate beep:
+
+def handle_wake_word_detected_no_beep(self):
+    """Handle wake word detection without playing beep (beep already played)"""
     try:
-        sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-        print(f'{rate} Hz: SUPPORTED ✓')
-    except Exception as e:
-        print(f'{rate} Hz: NOT SUPPORTED - {e}')
-"
-Testing sample rates for your system:
-44100 Hz: SUPPORTED ✓
-48000 Hz: SUPPORTED ✓
-22050 Hz: SUPPORTED ✓
-16000 Hz: SUPPORTED ✓
-11025 Hz: SUPPORTED ✓
-8000 Hz: SUPPORTED ✓
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
-
-I then edited my chatty_ai.py Python script.
-
-I replaced the record_with_silence_detection method with the following code:
-
-    def record_with_silence_detection(self):
-        """Record audio until silence is detected with compatible sample rate"""
-    
-        # Auto-detect working sample rate
-        working_sample_rate = None
-        for rate in [44100, 48000, 22050, 16000]:
-            try:
-                sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-                working_sample_rate = rate
-                break
-            except:
-                continue
-    
-        if not working_sample_rate:
-            self.emit_log("No compatible sample rate found", 'error')
-            return False
-    
-        self.emit_log(f"Recording with sample rate: {working_sample_rate} Hz", 'debug')
-    
-        audio_data = []
-        silence_duration = 0
-        recording_duration = 0
-        check_interval = 0.1
-        samples_per_check = int(working_sample_rate * check_interval)
-    
-        def audio_callback(indata, frames, time, status):
-            if status:
-                self.emit_log(f"Audio status: {status}", 'warning')
-            audio_data.extend(indata[:, 0])
-    
-        try:
-            with sd.InputStream(callback=audio_callback, 
-                                samplerate=working_sample_rate, 
-                                channels=1,
-                                dtype='float32'):
-            
-                while recording_duration < 30:  # Max 30 seconds
-                    time.sleep(check_interval)
-                    recording_duration += check_interval
-                
-                    if len(audio_data) >= samples_per_check:
-                        recent_audio = np.array(audio_data[-samples_per_check:])
-                        rms = np.sqrt(np.mean(recent_audio**2))
-                    
-                        # Debug every second
-                        if int(recording_duration * 10) % 10 == 0:
-                            self.emit_log(f"Recording: {recording_duration:.1f}s | Audio: {rms:.4f} | Silence: {silence_duration:.1f}s", 'debug')
-                    
-                        if rms < SILENCE_THRESHOLD:
-                            silence_duration += check_interval
-                            if silence_duration >= MIN_SILENCE_DURATION:
-                                self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'info')
-                                break
-                        else:
-                            silence_duration = 0
+        # Disable wake word detection temporarily
+        self.wake_word_active = False
         
-            # Save audio (convert to 16kHz for Whisper if needed)
-            if len(audio_data) > 0:
-                audio_array = np.array(audio_data)
+        # Speak the ready message
+        ready_responses = [
+            "Hi Nick, I am ready and waiting for your question!",
+            "Hello Nick, what can I help you with?",
+            "Hi there Nick, I'm listening!",
+            "Yes Nick, what would you like to know?",
+            "Hi Nick, I am here and ready to help you out!"
+        ]
+        response = random.choice(ready_responses)
+        self.speak_text(response)
+        
+        # Record user input
+        self.emit_log("Please speak your request...", 'info')
+        self.emit_conversation("🎤 Listening for user input...", 'info')
+        
+        if self.record_with_silence_detection():
+            # Transcribe user input
+            user_transcript = self.transcribe_audio(USER_AUDIO_FILE)
             
-                # Convert to 16kHz for Whisper if we recorded at different rate
-                if working_sample_rate != 16000:
-                    from scipy import signal
-                    target_length = int(len(audio_array) * 16000 / working_sample_rate)
-                    audio_array = signal.resample(audio_array, target_length)
-                    save_sample_rate = 16000
-                else:
-                    save_sample_rate = working_sample_rate
-                
-                sf.write(USER_AUDIO_FILE, audio_array, save_sample_rate)
-                self.emit_log(f"Audio saved: {len(audio_array)/save_sample_rate:.1f}s", 'info')
-                return True
+            if user_transcript and user_transcript.strip():
+                self.emit_conversation(f"👤 User said: {user_transcript}", 'user_input')
+                self.process_user_request(user_transcript)
             else:
-                return False
+                self.speak_text("I didn't catch that. Could you repeat your request?")
+                self.emit_conversation("❓ No clear speech detected", 'info')
+        else:
+            self.emit_log("Failed to record user request", 'error')
+            self.speak_text("I'm having trouble hearing you. Please try again.")
+            self.emit_conversation("🚫 Failed to record audio", 'info')
             
-        except Exception as e:
-            self.emit_log(f"Recording error: {e}", 'error')
-            return False
-
-I then rebooted my Raspberry PI 5.
-
-Everything booted up as required.
-
-The http://localhost:5000 web ui opened up in my Chromium browser in kiosk mode on my Raspberry PI 5.
-
-I clicked on the Initialize button.
-
-The facial recognition function identified me correctly and the AI Assistant spoke the greeting message correctly.
+    except Exception as e:
+        self.emit_log(f"Error handling wake word: {e}", 'error')
+    finally:
+        # Re-enable wake word detection after a short delay
+        def re_enable_wake_word():
+            time.sleep(2)
+            self.wake_word_active = True
+            self.emit_log("Wake word detection re-enabled", 'debug')
+        
+        threading.Thread(target=re_enable_wake_word, daemon=True).start()
 
 
+Apply these fixes and the issues should be resolved:
 
+The recording error will be fixed
+The beep will play immediately when wake word is detected
+The overall response time will be faster
 
-
-
-
-
-
+The most critical fix is correcting USER_AUDIO_File to USER_AUDIO_FILE - that typo is causing the recording to fail.
 
