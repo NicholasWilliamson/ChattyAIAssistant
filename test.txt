@@ -1,51 +1,107 @@
 
 
-Thank you, Claude,
+Perfect! The wake word detection is working correctly now. The issue is just with the user input recording after the wake word is detected - it's still using an unsupported sample rate.
+Looking at your logs, the error occurs in the user input recording phase:
 
-I do not want one function to record 4s of audio to try to detect the wake word, then another function to record the user input if the wake word is detected.
+Wake word detection: ✅ Working
+User input recording: ❌ Sample rate error
 
-I want the script to function as it did previously.
+Let's fix just the user input recording function. First, let's check what sample rates your system supports:
 
-Prior to making the previous changes you recommended, I made a backup of my chatty_ai.py Python script file as chatty_ai_backup.py
+bashcd /home/nickspi5/Chatty_AI
+python3 -c "
+import sounddevice as sd
+print('Testing sample rates for your system:')
+for rate in [44100, 48000, 22050, 16000, 11025, 8000]:
+    try:
+        sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
+        print(f'{rate} Hz: SUPPORTED ✓')
+    except Exception as e:
+        print(f'{rate} Hz: NOT SUPPORTED - {e}')
+"
 
-I renamed the chatty_ai.py Python script that I made the previous changes to as chatty_ai_error_wake_word.py
+Once we know what rates work, we need to update just the record_with_silence_detection method in your chatty_ai.py. The error is happening because this method is trying to use SAMPLE_RATE = 16000 which your audio system doesn't support.
 
-I then saved chatty_ai_backup.py as chatty_ai.py
+Here's the targeted fix - find the record_with_silence_detection method in your chatty_ai.py and replace it with this version that auto-detects the sample rate:
 
-I changed the following lines of code in the chatty_ai.py Python script:
-
-SILENCE_THRESHOLD = 0.035
-MIN_SILENCE_DURATION = 1.5
-
-                        if self.current_frame is not None and self.system_running:
-                            # Log every 100th frame for debugging
-                            if frame_count % 100 == 0:
-                                # self.emit_log(f"Streaming frame {frame_count}", 'debug')
+def record_with_silence_detection(self):
+    """Record audio until silence is detected with compatible sample rate"""
+    
+    # Auto-detect working sample rate
+    working_sample_rate = None
+    for rate in [44100, 48000, 22050, 16000]:
+        try:
+            sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
+            working_sample_rate = rate
+            break
+        except:
+            continue
+    
+    if not working_sample_rate:
+        self.emit_log("No compatible sample rate found", 'error')
+        return False
+    
+    self.emit_log(f"Recording with sample rate: {working_sample_rate} Hz", 'debug')
+    
+    audio_data = []
+    silence_duration = 0
+    recording_duration = 0
+    check_interval = 0.1
+    samples_per_check = int(working_sample_rate * check_interval)
+    
+    def audio_callback(indata, frames, time, status):
+        if status:
+            self.emit_log(f"Audio status: {status}", 'warning')
+        audio_data.extend(indata[:, 0])
+    
+    try:
+        with sd.InputStream(callback=audio_callback, 
+                          samplerate=working_sample_rate, 
+                          channels=1,
+                          dtype='float32'):
+            
+            while recording_duration < 30:  # Max 30 seconds
+                time.sleep(check_interval)
+                recording_duration += check_interval
+                
+                if len(audio_data) >= samples_per_check:
+                    recent_audio = np.array(audio_data[-samples_per_check:])
+                    rms = np.sqrt(np.mean(recent_audio**2))
                     
-                                is_success, buffer = cv2.imencode(".jpg", self.current_frame)
-                            if is_success:
-                                frame_bytes = buffer.tobytes()
-                                yield (b'--frame\r\n'
-                                        b'Content-Type: image/jpeg\r\n\r\n' + 
-                                        frame_bytes + b'\r\n')
-                            frame_count += 1
-
-I then rebooted my Raspberry PI 5.
-
-Everything booted up as required.
-
-The http://localhost:5000 web ui opened up in my Chromium browser in kiosk mode on my Raspberry PI 5.
-
-I clicked on the Initialize button.
-
-The facial recognition function identified me correctly and the AI Assistant spoke the greeting message correctly.
-
-
-
-
-
-
-
+                    # Debug every second
+                    if int(recording_duration * 10) % 10 == 0:
+                        self.emit_log(f"Recording: {recording_duration:.1f}s | Audio: {rms:.4f} | Silence: {silence_duration:.1f}s", 'debug')
+                    
+                    if rms < SILENCE_THRESHOLD:
+                        silence_duration += check_interval
+                        if silence_duration >= MIN_SILENCE_DURATION:
+                            self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'info')
+                            break
+                    else:
+                        silence_duration = 0
+        
+        # Save audio (convert to 16kHz for Whisper if needed)
+        if len(audio_data) > 0:
+            audio_array = np.array(audio_data)
+            
+            # Convert to 16kHz for Whisper if we recorded at different rate
+            if working_sample_rate != 16000:
+                from scipy import signal
+                target_length = int(len(audio_array) * 16000 / working_sample_rate)
+                audio_array = signal.resample(audio_array, target_length)
+                save_sample_rate = 16000
+            else:
+                save_sample_rate = working_sample_rate
+                
+            sf.write(USER_AUDIO_FILE, audio_array, save_sample_rate)
+            self.emit_log(f"Audio saved: {len(audio_array)/save_sample_rate:.1f}s", 'info')
+            return True
+        else:
+            return False
+            
+    except Exception as e:
+        self.emit_log(f"Recording error: {e}", 'error')
+        return False
 
 
 
