@@ -2,204 +2,302 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi1:~ $ cd Chatty_AI
-nickspi5@raspberrypi1:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+I ran: (chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "Streaming frame\|print.*frame\|logging" chatty_ai.py
+10:import logging
+112:# Configure logging
+113:logging.basicConfig(
+114:    level=logging.INFO,
+117:        logging.StreamHandler(sys.stdout),
+118:        logging.FileHandler('chatty_ai_web.log')
+121:logger = logging.getLogger(__name__)
+125:    import logging
+128:    # Suppress Werkzeug (Flask's development server) logging
+129:    log = logging.getLogger('werkzeug')
+130:    log.setLevel(logging.ERROR)
+204:        # Initialize directories and logging
+206:        self.setup_ai_logging()
+234:    def setup_ai_logging(self):
+235:        """Setup logging for AI detections"""
+237:        self.ai_logger = logging.getLogger('chatty_ai')
+238:        self.ai_logger.setLevel(logging.INFO)
+244:        file_handler = logging.FileHandler(log_file)
+245:        file_handler.setLevel(logging.INFO)
+246:        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+772:                                self.emit_log(f"Streaming frame {frame_count}", 'debug')
+1872:                # Debug logging every 30 frames
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n -A 10 -B 5 "Wake.*word\|record.*audio" chatty_ai.py
+66-WARNING_RESPONSES_FILE = "warning_responses.txt"
+67-GREETING_RESPONSES_FILE = "greeting_responses.txt"
+68-BORED_RESPONSES_FILE = "bored_responses.txt"
+69-VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+70-
+71:# Wake word phrases
+72-WAKE_WORDS = [
+73-    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+74-    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+75-    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+76-    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+77-    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+78-    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+79-    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+80-    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+81-    "hi cherry", "yo cherry"
+--
+585-                self.telegram_chat_id = config.get('chat_id')
+586-            self.emit_log("Telegram configuration loaded", 'success')
+587-            return True
+588-        except FileNotFoundError:
+589-            self.emit_log("Telegram config not found - alerts disabled", 'warning')
+590:            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+591-            return False
+592-        except Exception as e:
+593-            self.emit_log(f"Failed to load Telegram config: {e}", 'error')
+594:            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+595-            return False
+596-
+597-    def setup_camera(self):
+598-        """Initialize camera with proper state management"""
+599-        try:
+600-            # Clean up any existing camera first
+601-            if self.picam2:
+602-                try:
+603-                    self.picam2.stop()
+604-                    self.picam2.close()
+--
+618-            self.emit_log("Camera initialized successfully", 'success')
+619-            return True
+620-        except Exception as e:
+621-            self.emit_log(f"Failed to initialize camera: {e}", 'error')
+622-            self.camera_initialized = False
+623:            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+624-            return False
+625-
+626-    def get_system_info(self):
+627-        """Get current system performance information"""
+628-        try:
+629-            # Get CPU and memory info
+630-            cpu_percent = psutil.cpu_percent(interval=1)
+631-            memory = psutil.virtual_memory()
+632-            memory_percent = memory.percent
+633-            memory_used = memory.used
+--
+986-                            self.emit_log(f"❌ Emergency capture failed: {e}", 'error')
+987-            
+988-                    # Start wake word detection thread
+989-                    self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+990-                    self.audio_thread.start()
+991:                    self.emit_log("Wake word detection thread started", 'success')
+992-            
+993-                    # Final success message
+994-                    self.emit_log("✨ Chatty AI system started successfully", 'success')
+995-            
+996-                    response_data = {
+997-                        'status': 'running',
+998-                        'is_running': True,
+999-                        'message': 'Chatty AI system started successfully'
+1000-                    }
+1001-            
+--
+1296-        return filepath
+1297-
+1298-    def send_telegram_alert(self, person_name, confidence, photo_path):
+1299-        """Send Telegram alert"""
+1300-        if not self.telegram_token or not self.telegram_chat_id:
+1301:            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+1302-            return False
+1303-        
+1304-        try:
+1305-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+1306-            
+1307-            if person_name == "Unknown":
+1308-                message = f"**UNKNOWN PERSON DETECTED**\n\n**Time:** {timestamp}\n**Status:** Unregistered Person\n**Action:** Photo captured for review"
+1309-            else:
+1310-                message = f"**AUTHORIZED ACCESS**\n\n**Person:** {person_name}\n**Time:** {timestamp}\n**Confidence:** {confidence:.1%}\n**Status:** Registered User"
+1311-            
+--
+1319-                }
+1320-                response = requests.post(url, data=data, files=files, timeout=30)
+1321-                return response.status_code == 200
+1322-        except Exception as e:
+1323-            self.emit_log(f"Telegram alert failed: {e}", 'error')
+1324:            self.emit_log(f"Wake word audio too quiet - RMS {rms:.4f} below threshold", 'debug')
+1325-            return False
+1326-
+1327-    def greet_person(self, name):
+1328-        """Greet a detected person using responses from greeting_responses.txt file"""
+1329-        current_time = time.time()
+1330-    
+1331-        # Check if we should greet this person (cooldown check)
+1332-        if name in self.last_greeting_time:
+1333-            time_since_last = current_time - self.last_greeting_time[name]
+1334-            if time_since_last < GREETING_COOLDOWN:
+--
+1353-        # Enable wake word detection after greeting
+1354-        self.wake_word_active = True
+1355-        self.last_bored_response_time = current_time  # Reset bored response timer
+1356-        self.bored_cycle = 0  # Reset bored cycle
+1357-    
+1358:        self.emit_log(f"✅ Greeted {name} - Wake word detection now active", 'success')
+1359-        return True
+1360-
+1361-    def handle_unknown_person(self, frame, confidence):
+1362-        """Handle unknown person detection with time-based responses using file-based responses"""
+1363-        if self.is_daytime_hours():
+1364-            # 6:00AM - 12:00PM: Assume visitor, be friendly
+1365-            if self.visitor_greeting_responses:
+1366-                visitor_greeting = random.choice(self.visitor_greeting_responses)
+1367-                self.emit_log(f"🌅 Selected daytime visitor greeting from file", 'debug')
+1368-            else:
+--
+1532-        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+1533-    
+1534-        for wake_word in WAKE_WORDS:
+1535-            wake_word_cleaned = wake_word.lower().strip()
+1536-            if wake_word_cleaned in text_cleaned:
+1537:                self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
+1538-                return True
+1539-    
+1540-        # Log that no wake word was found (for debugging)
+1541-        self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
+1542-        return False
+1543-
+1544-    def record_wake_word_check(self):
+1545-        """Record short audio clip for wake word detection with improved sensitivity"""
+1546-        try:
+1547-            if not self.audio_recording_lock.acquire(blocking=False):
+--
+1564-            
+1565-                # Check if audio contains sound above threshold
+1566-                rms = np.sqrt(np.mean(audio_data**2))
+1567-                wake_word_threshold = SILENCE_THRESHOLD * 1.2
+1568-            
+1569:                self.emit_log(f"Wake word audio RMS: {rms:.4f} (threshold: {wake_word_threshold:.4f})", 'debug')
+1570-            
+1571-                if rms > wake_word_threshold:
+1572-                    # Resample to 16000 Hz if needed for Whisper
+1573-                    if sample_rate != SAMPLE_RATE:
+1574-                        import scipy.signal
+1575-                        audio_data = scipy.signal.resample(audio_data, int(len(audio_data) * SAMPLE_RATE / sample_rate))
+1576-                
+1577-                    sf.write(WAKE_WORD_AUDIO, audio_data, SAMPLE_RATE)
+1578:                    self.emit_log(f"Wake word audio saved", 'info')
+1579-                    return True
+1580-                else:
+1581-                    return False
+1582-                
+1583-            finally:
+1584-                self.audio_recording_lock.release()
+1585-            
+1586-        except Exception as e:
+1587:            self.emit_log(f"🔴 Wake word recording error: {e}", 'error')
+1588-            return False
+1589-
+1590-    def is_command(self, text):
+1591-        """Check if text is a command"""
+1592-        text_lower = text.lower().strip()
+1593-        for command in COMMANDS.keys():
+1594-            if command in text_lower:
+1595-                return command
+1596-        return None
+1597-
+--
+1787-                self.speak_text("I didn't catch that. Could you repeat your request?")
+1788-                self.emit_conversation("❓ No clear speech detected", 'info')
+1789-        else:
+1790-            self.emit_log("Failed to record user request", 'error')
+1791-            self.speak_text("I'm having trouble hearing you. Please try again.")
+1792:            self.emit_conversation("🚫 Failed to record audio", 'info')
+1793-
+1794-    def listen_for_wake_word(self):
+1795-        """Listen for wake words in background"""
+1796:        self.emit_log("Wake word detection thread started", 'success')
+1797-        
+1798-        while self.system_running and self.monitor_running:
+1799-            try:
+1800-                # Only listen if someone is present and wake word detection is active
+1801-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+1802-                    # Check for bored response first
+1803-                    if self.check_for_bored_response(self.current_person):
+1804-                        # Bored response was given, continue to next iteration
+1805-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1806-                        continue
+--
+1810-                        # Transcribe and check for wake word
+1811-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+1812-                        
+1813-                        if transcript and self.detect_wake_word(transcript):
+1814-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+1815:                            self.emit_conversation(f"🌟 Wake word detected: {transcript}", 'wake_word')
+1816-                            
+1817-                            # Handle the wake word detection
+1818-                            self.handle_wake_word_detected()
+1819-                    
+1820-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+1821-                else:
+1822-                    # No one present or wake word not active, sleep longer
+1823-                    time.sleep(2.0)
+1824-                
+1825-            except Exception as e:
+1826:                self.emit_log(f"Wake word detection error: {e}", 'error')
+1827-                time.sleep(2.0)
+1828-        
+1829:        self.emit_log("Wake word detection thread stopped", 'info')
+1830-
+1831-    def update_audio_settings(self, silence_threshold=None, min_silence_duration=None, max_tokens=None):
+1832-        """Update audio and LLM settings dynamically"""
+1833-        global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
+1834-    
+1835-        if silence_threshold is not None:
+1836-            SILENCE_THRESHOLD = silence_threshold
+1837-            self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
+1838-    
+1839-        if min_silence_duration is not None:
+--
+1957-                    else:
+1958-                        person_text = "Entity: None Detected"
+1959-                        cv2.putText(display_frame, person_text, (10, 60), 
+1960-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (128, 128, 128), 2)
+1961-                
+1962:                    # Wake word status
+1963-                    if self.wake_word_active:
+1964-                        wake_word_text = "Wake Word: ACTIVE"
+1965-                        cv2.putText(display_frame, wake_word_text, (10, 90), 
+1966-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+1967-                    else:
+1968-                        wake_word_text = "Wake Word: INACTIVE"
+1969-                        cv2.putText(display_frame, wake_word_text, (10, 90), 
+1970-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+1971-                
+1972-                    # Bored response timer
+--
+2173-            print(f"Access the web interface at: http://localhost:{port}")
+2174-            print(f"Or from other devices at: http://{self.get_local_ip()}:{port}")
+2175-            print("Press Ctrl+C to stop the server")
+2176-            print("="*60)
+2177-            print("\nDEBUG INFO:")
+2178:            print(f"• Wake words: {len(WAKE_WORDS)} phrases loaded")
+2179-            print(f"• Bored response interval: {BORED_RESPONSE_INTERVAL} seconds")
+2180-            print(f"• Audio sample rate: {SAMPLE_RATE} Hz")
+2181-            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+2182-            print(f"• Daytime visitor hours: 6:00AM - 12:00PM")
+2183-            print(f"• Intruder detection hours: 12:01PM - 5:59AM")
+2184-            print("="*60)
+2185-            
+2186-            # Start the server with better error handling
+2187-            logger.info("Starting Flask-SocketIO server...")
+2188-            self.socketio.run(self.app, 
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ grep -n "SILENCE_THRESHOLD\|MIN_SILNCE_DURATION" chatty_ai.py
+101:SILENCE_THRESHOLD = 0.35
+1567:                wake_word_threshold = SILENCE_THRESHOLD * 1.2
+1735:                                self.emit_log(f"🔊 Audio level: {rms:.4f} (avg: {avg_level:.4f}, threshold: {SILENCE_THRESHOLD:.4f})", 'debug')
+1737:                            if rms < SILENCE_THRESHOLD:
+1740:                                    self.emit_log(f"🤫 Silence detected after {recording_duration:.1f}s (RMS: {rms:.4f} < {SILENCE_THRESHOLD:.4f})", 'info')
+1833:        global SILENCE_THRESHOLD, MIN_SILENCE_DURATION, LLM_MAX_TOKENS
+1836:            SILENCE_THRESHOLD = silence_threshold
+1837:            self.emit_log(f"⚙️ Updated silence threshold to {SILENCE_THRESHOLD:.3f}", 'info')
+2181:            print(f"• Silence threshold: {SILENCE_THRESHOLD}")
+(chatty-venv) nickspi5@raspberrypi1:~/Chatty_AI $ 
 
-I then modified my chatty_ai_startup_final.sh file and saved the following code:
-
-#!/bin/bash
-#
-# Chatty AI Startup Script - Perfect Fix
-#
-
-# Configuration
-VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
-LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
-CHATTY_URL="http://localhost:5000"
-LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
-
-# Create log directory
-mkdir -p /home/nickspi5/Chatty_AI/logs
-
-# Function to log messages
-log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
-
-# Start logging
-log_message "========================================="
-log_message "Chatty AI Startup Sequence Initiated"
-log_message "========================================="
-
-# Set display
-export DISPLAY=:0
-export XAUTHORITY=/home/nickspi5/.Xauthority
-
-# Wait for X server to be ready
-log_message "Waiting for X server..."
-while ! xset q &>/dev/null; do
-    sleep 0.5
-done
-
-# Hide desktop elements IMMEDIATELY and AGGRESSIVELY
-log_message "Hiding desktop elements..."
-pkill lxpanel 2>/dev/null
-pkill pcmanfm 2>/dev/null
-sleep 0.2
-
-# STEP 1: Show black screen FIRST and IMMEDIATELY
-log_message "Displaying black screen..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    --window-position=0,0 \
-    --window-size=1920,1080 \
-    "file://$BLACK_PAGE" 2>/dev/null &
-
-BLACK_PID=$!
-sleep 2  # Wait for black screen to render
-
-# Ensure desktop is completely hidden
-pcmanfm --desktop-off 2>/dev/null
-
-# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
-log_message "Closing black screen before video..."
-kill $BLACK_PID 2>/dev/null
-sleep 0.5
-
-if [ -f "$VIDEO_PATH" ]; then
-    log_message "Playing startup video..."
-    
-    # Video is 15.02 seconds, so we know exact duration
-    log_message "Video duration: 15 seconds"
-    
-    # Play video with optimal settings
-    cvlc \
-        --fullscreen \
-        --no-video-title-show \
-        --no-osd \
-        --quiet \
-        --intf dummy \
-        --play-and-exit \
-        "$VIDEO_PATH" 2>/dev/null &
-    
-    VLC_PID=$!
-    
-    # Wait for exact video duration (15 seconds + 1 second buffer)
-    sleep 16
-    
-    # Force kill VLC if still running
-    if ps -p $VLC_PID > /dev/null; then
-        kill $VLC_PID 2>/dev/null
-        sleep 1
-    fi
-    
-    log_message "Video playback complete"
-else
-    log_message "Video not found at $VIDEO_PATH"
-    sleep 15  # Show black screen for 15 seconds if no video
-fi
-
-# Kill any remaining VLC processes
-pkill vlc 2>/dev/null
-pkill cvlc 2>/dev/null
-sleep 1
-
-# STEP 3: Show loading screen for FULL 75 seconds
-log_message "Launching loading screen for 75 seconds ..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    "file://$LOADING_PAGE" 2>/dev/null &
-
-LOADING_PID=$!
-
-# Wait for FULL loading screen duration (75 seconds)
-log_message "Loading screen running for 75 seconds ..."
-sleep 75
-
-# Kill loading screen
-log_message "Loading screen complete, closing..."
-kill $LOADING_PID 2>/dev/null
-sleep 0.5
-
-# STEP 4: Launch main Chatty AI interface
-log_message "Launching Chatty AI interface..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    "$CHATTY_URL" 2>/dev/null &
-
-MAIN_PID=$!
-log_message "Chatty AI interface launched successfully"
-log_message "========================================="
-
-# Keep the main interface running
-wait $MAIN_PID
-
-I then rebooted my Raspberry PI 5.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-I then rebooted my Raspberry PI 5.
-
-This time my Raspberry PI 5 rebooted and the Desktop displayed for about 1 second.
-
-The Startup video then started playing with audio.
-
-After a few seconds, the black.html page displayed but again I could hear the Startup video audio playing in the background.
-
-Then the chatty_loading.html web page opened up and played through.
-
-Then, straight after this, the Chatty_AI_HighTech.html web ui page displayed.
-
-Again, I want my Raspberry PI 5 to boot up.
-
-I do not want to see the Desktop.
-
-I want to see the black.html web page displayed first.
-
-Then I want the Startup video to play with audio fully.
-
-Then I want to see the chatty_loading.html web page open up and play through.
-
-Then, straight after this, I want the Chatty_AI_HighTech.html web ui page displayed.
 
 
 
