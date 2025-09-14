@@ -17,7 +17,18 @@ I changed the following lines of code in the chatty_ai.py Python script:
 SILENCE_THRESHOLD = 0.035
 MIN_SILENCE_DURATION = 1.5
 
-# self.emit_log(f"Streaming frame {frame_count}", 'debug')
+                        if self.current_frame is not None and self.system_running:
+                            # Log every 100th frame for debugging
+                            if frame_count % 100 == 0:
+                                # self.emit_log(f"Streaming frame {frame_count}", 'debug')
+                    
+                                is_success, buffer = cv2.imencode(".jpg", self.current_frame)
+                            if is_success:
+                                frame_bytes = buffer.tobytes()
+                                yield (b'--frame\r\n'
+                                        b'Content-Type: image/jpeg\r\n\r\n' + 
+                                        frame_bytes + b'\r\n')
+                            frame_count += 1
 
 I then rebooted my Raspberry PI 5.
 
