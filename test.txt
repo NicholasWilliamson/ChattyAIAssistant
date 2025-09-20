@@ -1,168 +1,163 @@
 
 
+Fix 1 - Modify the start_system() method to not start wake word detection immediately:
 
-I can see two issues to fix:
-
-Issue 1: Status Display Before System Start
-
-The system status should only show "Ready" and "Loaded" after the system starts. The problem is in the get_system_info() method - it's always returning the actual status instead of checking if the system is running.
-
-Issue 2: Sample Rate Error + Time Format
-
-The wake word recording is failing with the same sample rate error we fixed earlier, and the time is showing in 24-hour format instead of 12-hour.
-
-Here are the fixes:
-
-Fix 1 - Update the get_system_info() method:
-
-def get_system_info(self):
-    """Get current system performance information"""
-    try:
-        cpu_percent = psutil.cpu_percent(interval=0.1)
-        memory = psutil.virtual_memory()
-        
-        # Try to get CPU temperature
-        try:
-            with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
-                cpu_temp = int(f.read()) / 1000.0
-        except:
-            cpu_temp = 0
-        
-        # GPU temp (if available)
-        try:
-            result = subprocess.run(['vcgencmd', 'measure_temp'], capture_output=True, text=True)
-            if result.returncode == 0:
-                gpu_temp = float(result.stdout.split('=')[1].split("'")[0])
-            else:
-                gpu_temp = 0
-        except:
-            gpu_temp = 0
-        
-        # Only show as ready/loaded if system is actually running
-        if self.is_running:
-            camera_status = self.picam2 is not None
-            models_status = self.whisper_model is not None and self.llama_model is not None
-            wake_word_status = self.wake_word_active
-            current_person = self.current_person if self.current_person else "No Entity Detected"
-        else:
-            camera_status = False
-            models_status = False
-            wake_word_status = False
-            current_person = "System Offline"
-        
-        self.system_info = {
-            'cpu_percent': cpu_percent,
-            'memory_percent': memory.percent,
-            'cpu_temp': cpu_temp,
-            'gpu_temp': gpu_temp,
-            'camera_initialized': camera_status,
-            'models_loaded': models_status,
-            'wake_word_active': wake_word_status,
-            'current_person': current_person
-        }
-        
-        return self.system_info
-        
-    except Exception as e:
-        self.emit_log(f"Error getting system info: {e}", 'error')
-        return self.system_info
-
-
-Fix 2 - Update the record_wake_word_check() method with auto-detection:
-
-def record_wake_word_check(self):
-    """Record short audio clip for wake word detection with auto sample rate"""
-    try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False
-        
-        try:
-            # Auto-detect working sample rate (same as user input recording)
-            working_sample_rate = None
-            for rate in [44100, 48000, 22050, 16000]:
-                try:
-                    sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-                    working_sample_rate = rate
-                    break
-                except:
-                    continue
-            
-            if not working_sample_rate:
-                self.emit_log("No compatible sample rate found for wake word", 'error')
-                return False
-            
-            # Record 5 seconds for wake word detection
-            audio_data = sd.rec(int(5 * working_sample_rate), 
-                              samplerate=working_sample_rate, 
-                              channels=CHANNELS, 
-                              dtype='float32')
-            sd.wait()
-            
-            # Check if audio contains sound above threshold
-            rms = np.sqrt(np.mean(audio_data**2))
-            if rms > SILENCE_THRESHOLD * 2:
-                # Convert to 16kHz for Whisper if needed
-                if working_sample_rate != 16000:
-                    from scipy import signal
-                    target_length = int(len(audio_data) * 16000 / working_sample_rate)
-                    audio_data = signal.resample(audio_data, target_length)
-                    save_sample_rate = 16000
-                else:
-                    save_sample_rate = working_sample_rate
-                
-                sf.write(WAKE_WORD_AUDIO, audio_data, save_sample_rate)
-                self.emit_log(f"Wake word audio saved, RMS: {rms:.4f}", 'debug')
-                return True
-            else:
-                self.emit_log(f"Audio too quiet for wake word, RMS: {rms:.4f}", 'debug')
-                return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
-    except Exception as e:
-        self.emit_log(f"Wake word recording error: {e}", 'error')
+def start_system(self):
+    """Start the AI system"""
+    if self.is_running:
         return False
-
-
-Fix 3 - Update the time format in emit_log() and emit_conversation():
-
-def emit_log(self, message, level='info'):
-    """Emit log message to web interface"""
-    timestamp = datetime.now().strftime("%I:%M:%S %p")  # 12-hour format with AM/PM
-    socketio.emit('log_update', {
-        'message': message,
-        'type': level,
-        'timestamp': timestamp
-    })
     
-    # Also log to console for debugging
-    print(f"[{timestamp}] {message}")
+    self.emit_log("Starting Chatty AI system...", 'info')
+    
+    # Verify models are loaded
+    if not self.whisper_model or not self.llama_model:
+        self.emit_log("Models not loaded - attempting to reload...", 'warning')
+        if not self.preload_models():
+            self.emit_log("Failed to load models - cannot start system", 'error')
+            return False
+    
+    # Verify camera is ready
+    if not self.picam2:
+        self.emit_log("Camera not initialized - attempting to setup...", 'warning')
+        if not self.setup_camera():
+            self.emit_log("Failed to setup camera - cannot start system", 'error')
+            return False
+    
+    self.is_running = True
+    
+    # Start ONLY camera monitoring thread - wake word thread starts after person detection
+    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
+    self.camera_thread.start()
+    
+    # Note: wake word thread will be started by greet_person() method after facial recognition
+    
+    self.emit_log("Chatty AI system started successfully", 'success')
+    return True
 
-def emit_conversation(self, message, level='info'):
-    """Emit conversation message to web interface"""
-    timestamp = datetime.now().strftime("%I:%M:%S %p")  # 12-hour format with AM/PM
-    socketio.emit('conversation_update', {
-        'message': message,
-        'type': level,
-        'timestamp': timestamp
+
+Fix 2 - Modify the greet_person() method to start wake word thread:
+
+def greet_person(self, name):
+    """Greet a detected person - Same as original"""
+    current_time = time.time()
+    
+    # Check if we should greet this person (cooldown check)
+    if name in self.last_greeting_time:
+        time_since_last = current_time - self.last_greeting_time[name]
+        if time_since_last < GREETING_COOLDOWN:
+            return False
+    
+    # Use generic greeting with person's name
+    if self.greeting_responses:
+        greeting_template = random.choice(self.greeting_responses)
+        greeting = greeting_template.replace("{name}", name)
+    else:
+        greeting = f"Hey {name}! Good to see you, buddy! What's up?"
+    
+    self.speak_text(greeting)
+    self.last_greeting_time[name] = current_time
+    self.last_interaction_time = current_time
+    
+    # Enable wake word detection after greeting
+    self.wake_word_active = True
+    self.last_bored_response_time = current_time
+    self.bored_cycle = 0
+    
+    # Start wake word thread if not already running
+    if not self.audio_thread or not self.audio_thread.is_alive():
+        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+        self.audio_thread.start()
+        self.emit_log("Wake word detection thread started after greeting", 'success')
+    
+    self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
+    return True
+
+
+Fix 3 - Add a route to check web page loading and serve static files:
+
+# Add these routes after your existing routes
+
+@app.route('/templates/<path:filename>')
+def serve_template_files(filename):
+    """Serve template files like logos"""
+    try:
+        return app.send_static_file(f'templates/{filename}')
+    except:
+        return '', 404
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint to verify server is fully loaded"""
+    return jsonify({
+        'status': 'ok',
+        'server_loaded': True,
+        'models_preloaded': chatty_ai.whisper_model is not None and chatty_ai.llama_model is not None,
+        'camera_ready': chatty_ai.picam2 is not None,
+        'timestamp': datetime.now().strftime("%I:%M:%S %p")
     })
 
-
-Apply these three fixes and the issues should be resolved:
-
-Status will only show "Ready/Loaded" after clicking START SYSTEM
-Wake word recording will use compatible sample rate
-Time will display in 12-hour format (8:47:43 AM instead of 18:07:43)
-
-The wake word detection should now work without the sample rate error.
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    return app.send_static_file(filename)
 
 
+Fix 4 - Check your HTML template logo paths:
+
+In your Chatty_AI_HighTech.html, make sure the logo paths are correct:
+
+<!-- Change from: -->
+<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo">
+<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo">
+
+<!-- To: -->
+<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onload="console.log('Logo loaded')" onerror="console.log('Logo failed to load')">
+<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onload="console.log('Company logo loaded')" onerror="console.log('Company logo failed to load')">
 
 
+Fix 5 - Add JavaScript to check page load status in your HTML:
+
+Add this to the bottom of your HTML template:
+
+// Add this to your HTML template at the bottom, just before closing </body>
+window.addEventListener('load', function() {
+    console.log('Page fully loaded');
+    // Check if images loaded
+    const images = document.querySelectorAll('img');
+    let loadedCount = 0;
+    images.forEach(img => {
+        if (img.complete) {
+            loadedCount++;
+        }
+    });
+    console.log(`${loadedCount} of ${images.length} images loaded`);
+});
+
+// Check server health after page load
+setTimeout(() => {
+    fetch('/health')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server health check:', data);
+        })
+        .catch(error => {
+            console.log('Server health check failed:', error);
+        });
+}, 2000);
 
 
+To test the fixes:
 
+Apply the code changes
 
+Restart your Raspberry Pi
+
+Open browser developer tools (F12) and check the Console tab
+
+Look for any error messages about missing files
+
+Visit http://localhost:5000/health to check server status
+
+This should fix both issues: wake word detection will only start after facial recognition, and you can debug why the logos aren't loading.
 
 
