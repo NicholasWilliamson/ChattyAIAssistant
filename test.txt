@@ -1,127 +1,228 @@
 
 
-Thank you, Claude,
+I can see two issues to fix:
 
-I made the changes you recommended.
+Issue 1: Missing Bored Response Functionality
 
-I rebooted my Raspberry PI 5. Everything booted up as normal.
+The bored response system from your original terminal version isn't implemented in the web version. Let me add it back.
 
-The web ui page loaded.
+Issue 2: Logo Display Problem
 
-I clicked on the START SYSTEM button.
+The logos aren't displaying because the Flask static file routing needs to be configured properly.
 
-Facial recognition detected my correctly and the wake word detection thread started.
+Here are the fixes:
 
-Wake word detection accurately detected my wake worh phrase.
 
-I then asked the AI Assistant "how is the weather today?".
+Fix 1 - Add the missing bored response methods:
 
-The AI Assistant responded by speaking "I understand you want me to how is the weather today, but I dont have that capability yet."".
+Add these methods to your FastChattyAI class:
 
-I then clicked on the STOP SYSTEM button and pressed Alt F4 to go back to the desktop.
-
-I then modified my chatty_ai.py Python script to include the commands I had in my previous version of my chatty_ai.py Python script:
-
-    def execute_command(self, command):
-        """Execute system command"""
-        if command == "flush the toilet":
-            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
-        elif command == "turn on the lights":
-            response = "I would turn on the lights if I was connected to a smart home system."
-        elif command == "turn off the lights":
-            response = "I would turn off the lights if I was connected to a smart home system."
-        elif command == "play music":
-            response = "I would start playing music if I had access to a music system."
-        elif command == "stop music":
-            response = "I would stop the music if any music was playing."
-        elif command == "who is sponsoring this video":
-            self.play_laughing()
-            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
-        elif command == "how is the weather today":
-            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
-        elif command == "what time is it":
-            import datetime
-            current_time = datetime.datetime.now().strftime("%I:%M %p")
-            response = f"The current time is {current_time}"
-        elif command == "shutdown system":
-            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
-        elif command == "reboot system":
-            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+def get_llm_joke(self):
+    """Ask the local LLM for a joke"""
+    try:
+        prompt = "Tell me a short, clean joke. Just the joke, nothing else."
+        formatted_prompt = f"You are a comedian. Tell a brief, funny joke.\nUser: {prompt}\nAssistant: "
+        
+        result = self.llama_model(formatted_prompt, max_tokens=80)
+        if "choices" in result and result["choices"]:
+            joke = result["choices"][0]["text"].strip()
+            # Clean up the response
+            joke = re.sub(r"\(.*?\)", "", joke)
+            joke = re.sub(r"(User:|Assistant:)", "", joke)
+            joke = joke.strip()
+            
+            # Take only the first few sentences
+            sentences = joke.split('.')
+            if len(sentences) > 2:
+                joke = '. '.join(sentences[:2]) + '.'
+            
+            return joke if joke else "Why did the computer go to therapy? Because it had too many bytes!"
         else:
-            response = f"I understand you want me to {command}, but I dont have that capability yet."
+            return "Why did the computer go to therapy? Because it had too many bytes!"
+    except Exception as e:
+        self.emit_log(f"LLM joke error: {e}", 'error')
+        return "Why did the computer go to therapy? Because it had too many bytes!"
+
+def get_llm_fun_fact(self):
+    """Ask the local LLM for a fun fact"""
+    try:
+        prompt = "Tell me an interesting fun fact. Keep it brief and fascinating."
+        formatted_prompt = f"You are a knowledgeable teacher. Share one interesting fact.\nUser: {prompt}\nAssistant: "
         
-        return response
+        result = self.llama_model(formatted_prompt, max_tokens=100)
+        if "choices" in result and result["choices"]:
+            fact = result["choices"][0]["text"].strip()
+            # Clean up the response
+            fact = re.sub(r"\(.*?\)", "", fact)
+            fact = re.sub(r"(User:|Assistant:)", "", fact)
+            fact = fact.strip()
+            
+            # Take only the first few sentences
+            sentences = fact.split('.')
+            if len(sentences) > 3:
+                fact = '. '.join(sentences[:3]) + '.'
+            
+            return fact if fact else "Did you know that octopuses have three hearts and blue blood?"
+        else:
+            return "Did you know that octopuses have three hearts and blue blood?"
+    except Exception as e:
+        self.emit_log(f"LLM fun fact error: {e}", 'error')
+        return "Did you know that octopuses have three hearts and blue blood?"
+
+def check_for_bored_response(self, name):
+    """Check if it's time to give a bored response with joke or fun fact from LLM"""
+    if not self.wake_word_active or not self.last_bored_response_time:
+        return False
     
-    def query_llama(self, prompt):
-        """Generate LLM response"""
-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-        
-        try:
-            result = self.llama_model(formatted_prompt, max_tokens=100)
-            if "choices" in result and result["choices"]:
-                reply_text = result["choices"][0]["text"].strip()
-                reply_text = re.sub(r"\(.*?\)", "", reply_text)
-                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
-                reply_text = reply_text.strip()
-                
-                sentences = reply_text.split('.')
-                if len(sentences) > 3:
-                    reply_text = '. '.join(sentences[:3]) + '.'
-                
-                return reply_text
+    current_time = time.time()
+    time_since_bored = current_time - self.last_bored_response_time
+    
+    if time_since_bored >= BORED_RESPONSE_INTERVAL:
+        if self.bored_cycle == 0:
+            # Give bored response + joke from LLM
+            if self.bored_responses:
+                bored_template = random.choice(self.bored_responses)
+                bored_msg = bored_template.replace("{name}", name)
             else:
-                return "I'm not sure how to answer that."
-        except Exception as e:
-            print(f"LLM error: {e}")
-            return "Sorry, I had trouble processing that question."
+                bored_msg = f"Yo {name}, still hanging around here waiting for you, dude!"
+            
+            joke = self.get_llm_joke()
+            # Create complete message with 2-second pause represented as spoken text
+            full_message = f"{bored_msg} Let me tell you a joke! ... ... {joke}"
+            self.speak_text(full_message)
+            self.emit_conversation(f"Bored response with joke: {joke}", 'info')
+            self.bored_cycle = 1
+            self.emit_log(f"Gave {name} a bored response with LLM joke", 'info')
+        else:
+            # Give waiting response + fun fact from LLM
+            if self.waiting_responses:
+                waiting_template = random.choice(self.waiting_responses)
+                waiting_msg = waiting_template.replace("{name}", name)
+            else:
+                waiting_msg = f"I am still around if you need me, {name}"
+            
+            fun_fact = self.get_llm_fun_fact()
+            # Create complete message with 2-second pause represented as spoken text
+            full_message = f"{waiting_msg} Let me tell you a fun fact! ... ... {fun_fact}"
+            self.speak_text(full_message)
+            self.emit_conversation(f"Waiting response with fun fact: {fun_fact}", 'info')
+            self.bored_cycle = 0
+            self.emit_log(f"Gave {name} a waiting response with LLM fun fact", 'info')
+        
+        self.last_bored_response_time = current_time
+        return True
+    
+    return False
 
-    def play_laughing(self):
-        """Play laughing sound"""
+
+Fix 2 - Update the listen_for_wake_word method to include bored response check:
+
+Replace your current listen_for_wake_word method with:
+
+def listen_for_wake_word(self):
+    """Listen for wake words in background - Same as original"""
+    self.emit_log("Wake word detection thread started", 'success')
+    
+    while self.is_running:
         try:
-            with self.audio_recording_lock:
-                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            pass
+            # Only listen if someone is present and wake word detection is active
+            if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                # Check for bored response first
+                if self.check_for_bored_response(self.current_person):
+                    # Bored response was given, continue to next iteration
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                    continue
+                
+                # Record audio for wake word detection
+                if self.record_wake_word_check():
+                    # Transcribe and check for wake word
+                    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                    
+                    if transcript and self.detect_wake_word(transcript):
+                        self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+                        self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
+                        self.play_beep()
+                        
+                        # Speak listening response
+                        if self.listening_responses:
+                            listening_template = random.choice(self.listening_responses)
+                            listening_response = listening_template.replace("{name}", self.current_person)
+                        else:
+                            listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
+                        
+                        self.speak_text(listening_response)
+                        
+                        # Record full request
+                        self.emit_log("Please speak your request...", 'info')
+                        if self.record_with_silence_detection():
+                            user_text = self.transcribe_audio(WAV_FILENAME)
+                            if user_text and len(user_text.strip()) > 2:
+                                self.emit_log(f"User said: '{user_text}'", 'info')
+                                self.emit_conversation(f"User said: {user_text}", 'user_input')
+                                response = self.process_user_input(user_text)
+                                self.emit_log(f"Response: '{response}'", 'info')
+                                self.emit_conversation(f"Response: {response}", 'response')
+                                self.speak_text(response)
+                                self.last_interaction_time = time.time()
+                                # Reset bored response timer only after successful interaction
+                                self.last_bored_response_time = time.time()
+                            else:
+                                self.speak_text("I didn't catch that. Could you repeat your request?")
+                                self.emit_conversation("No clear speech detected", 'info')
+                        else:
+                            self.speak_text("I'm having trouble hearing you. Please try again.")
+                            self.emit_conversation("Failed to record audio", 'info')
+                
+                time.sleep(WAKE_WORD_CHECK_INTERVAL)
+            else:
+                # No one present or wake word not active, sleep longer
+                time.sleep(2.0)
+                
+        except Exception as e:
+            self.emit_log(f"Wake word detection error: {e}", 'error')
+            time.sleep(2.0)
+    
+    self.emit_log("Wake word detection thread stopped", 'info')
 
-I then rebooted my Raspberry PI 5. Everything booted up as normal.
 
-The web ui page loaded.
+Fix 3 - Fix the logo display issue by updating Flask configuration:
 
-I clicked on the START SYSTEM button.
+Add this configuration at the top of your script, right after creating the Flask app:
 
-Facial recognition detected my correctly and the wake word detection thread started.
-
-Wake word detection accurately detected my wake worh phrase.
-
-I then asked the AI Assistant "who is sponsoring this video?".
-
-This time the AI Assistant played the laughing sound and spoke the words, "You are very funny Nick. You know you dont have any sponsors for your videos".
-
-I then asked a few more commands and asked a few questions for the LLM and the LLM responded with it's response promptly.
-
-However, when I did not speak at all for over 30 seconds, the AI Assistant did not speak the bored response and tell me a joke like it used to do. I waited another 30 seconds and the AI Assistant did not speak the response and tell me a fun fact like it used to do.
-
-Please show me how to add this functionality back into chatty_ai.py
-
-Also, when the web ui page loaded, again the logo's did not display but this time it displayed the icons like it could not load the images.
-
-I pressed the F12 key but it did not open the developer tools. I think perhaps because the web ui page opens in kiosk mode.
-
-I pressed the Alt F4 keys to go back to the desktop.
-
-I opened my Chromium browser again and type in http://localhost:5000/health
-
-The page displayed the following text:
-
-{"camera_ready":true,"models_preloaded":true,"server_loaded":true,"status":"ok","timestamp":"02:20:23 PM"}
-
-Please also help me to fix the logos not displaying on the web ui page.
-
-Then everything should be working okay.
+# Update the Flask app configuration
+app = Flask(__name__, 
+           template_folder='/home/nickspi5/Chatty_AI/templates',
+           static_folder='/home/nickspi5/Chatty_AI/templates')  # Add this line
+app.config['SECRET_KEY'] = 'chatty_ai_secret_key'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 
+Fix 4 - Update your HTML template logo paths:
+
+In your Chatty_AI_HighTech.html, change the logo paths from:
+
+<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo">
+<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo">
+
+To:
+
+<img src="/static/Chatty_AI_logo.png" alt="Chatty AI Logo">
+<img src="/static/diamond_coding_logo.png" alt="Diamond Coding Logo">
 
 
+Alternative Fix for Logos (if above doesn't work):
 
+Add this route to serve the logo files directly:
+
+@app.route('/static/<filename>')
+def uploaded_file(filename):
+    """Serve logo files"""
+    return send_from_folder('/home/nickspi5/Chatty_AI/templates', filename)
+
+# You'll need to add this import at the top
+
+from flask import send_from_folder
+
+These fixes should restore the bored response functionality (jokes and fun facts every 30 seconds) and fix the logo display issue. The bored responses will now work exactly like your original terminal version.
 
 
