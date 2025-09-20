@@ -1,163 +1,127 @@
 
 
-Fix 1 - Modify the start_system() method to not start wake word detection immediately:
+Thank you, Claude,
 
-def start_system(self):
-    """Start the AI system"""
-    if self.is_running:
-        return False
+I made the changes you recommended.
+
+I rebooted my Raspberry PI 5. Everything booted up as normal.
+
+The web ui page loaded.
+
+I clicked on the START SYSTEM button.
+
+Facial recognition detected my correctly and the wake word detection thread started.
+
+Wake word detection accurately detected my wake worh phrase.
+
+I then asked the AI Assistant "how is the weather today?".
+
+The AI Assistant responded by speaking "I understand you want me to how is the weather today, but I dont have that capability yet."".
+
+I then clicked on the STOP SYSTEM button and pressed Alt F4 to go back to the desktop.
+
+I then modified my chatty_ai.py Python script to include the commands I had in my previous version of my chatty_ai.py Python script:
+
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
     
-    self.emit_log("Starting Chatty AI system...", 'info')
-    
-    # Verify models are loaded
-    if not self.whisper_model or not self.llama_model:
-        self.emit_log("Models not loaded - attempting to reload...", 'warning')
-        if not self.preload_models():
-            self.emit_log("Failed to load models - cannot start system", 'error')
-            return False
-    
-    # Verify camera is ready
-    if not self.picam2:
-        self.emit_log("Camera not initialized - attempting to setup...", 'warning')
-        if not self.setup_camera():
-            self.emit_log("Failed to setup camera - cannot start system", 'error')
-            return False
-    
-    self.is_running = True
-    
-    # Start ONLY camera monitoring thread - wake word thread starts after person detection
-    self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-    self.camera_thread.start()
-    
-    # Note: wake word thread will be started by greet_person() method after facial recognition
-    
-    self.emit_log("Chatty AI system started successfully", 'success')
-    return True
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
+
+    def play_laughing(self):
+        """Play laughing sound"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass
+
+I then rebooted my Raspberry PI 5. Everything booted up as normal.
+
+The web ui page loaded.
+
+I clicked on the START SYSTEM button.
+
+Facial recognition detected my correctly and the wake word detection thread started.
+
+Wake word detection accurately detected my wake worh phrase.
+
+I then asked the AI Assistant "who is sponsoring this video?".
+
+This time the AI Assistant played the laughing sound and spoke the words, "You are very funny Nick. You know you dont have any sponsors for your videos".
+
+I then asked a few more commands and asked a few questions for the LLM and the LLM responded with it's response promptly.
+
+However, when I did not speak at all for over 30 seconds, the AI Assistant did not speak the bored response and tell me a joke like it used to do. I waited another 30 seconds and the AI Assistant did not speak the response and tell me a fun fact like it used to do.
+
+Please show me how to add this functionality back into chatty_ai.py
+
+Also, when the web ui page loaded, again the logo's did not display but this time it displayed the icons like it could not load the images.
+
+I pressed the F12 key but it did not open the developer tools. I think perhaps because the web ui page opens in kiosk mode.
+
+I pressed the Alt F4 keys to go back to the desktop.
+
+I opened my Chromium browser again and type in http://localhost:5000/health
+
+The page displayed the following text:
+
+{"camera_ready":true,"models_preloaded":true,"server_loaded":true,"status":"ok","timestamp":"02:20:23 PM"}
+
+Please also help me to fix the logos not displaying on the web ui page.
+
+Then everything should be working okay.
 
 
-Fix 2 - Modify the greet_person() method to start wake word thread:
-
-def greet_person(self, name):
-    """Greet a detected person - Same as original"""
-    current_time = time.time()
-    
-    # Check if we should greet this person (cooldown check)
-    if name in self.last_greeting_time:
-        time_since_last = current_time - self.last_greeting_time[name]
-        if time_since_last < GREETING_COOLDOWN:
-            return False
-    
-    # Use generic greeting with person's name
-    if self.greeting_responses:
-        greeting_template = random.choice(self.greeting_responses)
-        greeting = greeting_template.replace("{name}", name)
-    else:
-        greeting = f"Hey {name}! Good to see you, buddy! What's up?"
-    
-    self.speak_text(greeting)
-    self.last_greeting_time[name] = current_time
-    self.last_interaction_time = current_time
-    
-    # Enable wake word detection after greeting
-    self.wake_word_active = True
-    self.last_bored_response_time = current_time
-    self.bored_cycle = 0
-    
-    # Start wake word thread if not already running
-    if not self.audio_thread or not self.audio_thread.is_alive():
-        self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
-        self.audio_thread.start()
-        self.emit_log("Wake word detection thread started after greeting", 'success')
-    
-    self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
-    return True
 
 
-Fix 3 - Add a route to check web page loading and serve static files:
 
-# Add these routes after your existing routes
-
-@app.route('/templates/<path:filename>')
-def serve_template_files(filename):
-    """Serve template files like logos"""
-    try:
-        return app.send_static_file(f'templates/{filename}')
-    except:
-        return '', 404
-
-@app.route('/health')
-def health_check():
-    """Health check endpoint to verify server is fully loaded"""
-    return jsonify({
-        'status': 'ok',
-        'server_loaded': True,
-        'models_preloaded': chatty_ai.whisper_model is not None and chatty_ai.llama_model is not None,
-        'camera_ready': chatty_ai.picam2 is not None,
-        'timestamp': datetime.now().strftime("%I:%M:%S %p")
-    })
-
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    """Serve static files"""
-    return app.send_static_file(filename)
-
-
-Fix 4 - Check your HTML template logo paths:
-
-In your Chatty_AI_HighTech.html, make sure the logo paths are correct:
-
-<!-- Change from: -->
-<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo">
-<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo">
-
-<!-- To: -->
-<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo" onload="console.log('Logo loaded')" onerror="console.log('Logo failed to load')">
-<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo" onload="console.log('Company logo loaded')" onerror="console.log('Company logo failed to load')">
-
-
-Fix 5 - Add JavaScript to check page load status in your HTML:
-
-Add this to the bottom of your HTML template:
-
-// Add this to your HTML template at the bottom, just before closing </body>
-window.addEventListener('load', function() {
-    console.log('Page fully loaded');
-    // Check if images loaded
-    const images = document.querySelectorAll('img');
-    let loadedCount = 0;
-    images.forEach(img => {
-        if (img.complete) {
-            loadedCount++;
-        }
-    });
-    console.log(`${loadedCount} of ${images.length} images loaded`);
-});
-
-// Check server health after page load
-setTimeout(() => {
-    fetch('/health')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Server health check:', data);
-        })
-        .catch(error => {
-            console.log('Server health check failed:', error);
-        });
-}, 2000);
-
-
-To test the fixes:
-
-Apply the code changes
-
-Restart your Raspberry Pi
-
-Open browser developer tools (F12) and check the Console tab
-
-Look for any error messages about missing files
-
-Visit http://localhost:5000/health to check server status
-
-This should fix both issues: wake word detection will only start after facial recognition, and you can debug why the logos aren't loading.
 
 
