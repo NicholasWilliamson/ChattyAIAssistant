@@ -1,76 +1,132 @@
 
 
-I can see two issues to fix:
-
-Issue 1: Missing Bored Response Functionality
-
-The bored response system from your original terminal version isn't implemented in the web version. Let me add it back.
-
-Issue 2: Logo Display Problem
-
-The logos aren't displaying because the Flask static file routing needs to be configured properly.
-
-Here are the fixes:
+You're right! The jokes and fun facts should come from the text files, not the LLM. Let me fix this to match your original terminal version.
 
 
-Fix 1 - Add the missing bored response methods:
+Fix 1 - Add fun_facts.txt to the file loading:
 
-Add these methods to your FastChattyAI class:
+First, add the fun facts file constant at the top with your other file constants:
 
-def get_llm_joke(self):
-    """Ask the local LLM for a joke"""
+# Response files
+JOKES_FILE = "jokes.txt"
+FUN_FACTS_FILE = "fun_facts.txt"  # Add this line
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
+WAITING_RESPONSES_FILE = "waiting_responses.txt"
+WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
+BORED_RESPONSES_FILE = "bored_responses.txt"
+VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+
+
+Fix 2 - Add fun_facts list to the __init__ method:
+
+In your __init__ method, add this line with your other response lists:
+
+# Response lists
+self.jokes = []
+self.fun_facts = []  # Add this line
+self.listening_responses = []
+self.waiting_responses = []
+self.warning_responses = []
+self.greeting_responses = []
+self.bored_responses = []
+self.visitor_greeting_responses = []
+
+
+Fix 3 - Update the load_response_files method:
+
+Add fun facts loading to your load_response_files method:
+
+def load_response_files(self):
+    """Load response text files - Same as original"""
     try:
-        prompt = "Tell me a short, clean joke. Just the joke, nothing else."
-        formatted_prompt = f"You are a comedian. Tell a brief, funny joke.\nUser: {prompt}\nAssistant: "
+        with open(JOKES_FILE, 'r') as f:
+            self.jokes = [line.strip() for line in f if line.strip()]
         
-        result = self.llama_model(formatted_prompt, max_tokens=80)
-        if "choices" in result and result["choices"]:
-            joke = result["choices"][0]["text"].strip()
-            # Clean up the response
-            joke = re.sub(r"\(.*?\)", "", joke)
-            joke = re.sub(r"(User:|Assistant:)", "", joke)
-            joke = joke.strip()
+        # Add fun facts loading
+        try:
+            with open(FUN_FACTS_FILE, 'r') as f:
+                self.fun_facts = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            # Create default fun facts if file doesn't exist
+            self.fun_facts = [
+                "Did you know that octopuses have three hearts and blue blood?",
+                "A group of flamingos is called a flamboyance!",
+                "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
+                "Bananas are berries, but strawberries aren't!",
+                "A shrimp's heart is in its head!"
+            ]
+            self.emit_log("Created default fun facts", 'info')
+        
+        with open(LISTENING_RESPONSES_FILE, 'r') as f:
+            self.listening_responses = [line.strip() for line in f if line.strip()]
             
-            # Take only the first few sentences
-            sentences = joke.split('.')
-            if len(sentences) > 2:
-                joke = '. '.join(sentences[:2]) + '.'
+        with open(GREETING_RESPONSES_FILE, 'r') as f:
+            self.greeting_responses = [line.strip() for line in f if line.strip()]
             
-            return joke if joke else "Why did the computer go to therapy? Because it had too many bytes!"
+        with open(WAITING_RESPONSES_FILE, 'r') as f:
+            self.waiting_responses = [line.strip() for line in f if line.strip()]
+        
+        with open(WARNING_RESPONSES_FILE, 'r') as f:
+            self.warning_responses = [line.strip() for line in f if line.strip()]
+        
+        # Load bored responses
+        try:
+            with open(BORED_RESPONSES_FILE, 'r') as f:
+                self.bored_responses = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_bored_responses()
+        
+        # Load visitor greeting responses
+        try:
+            with open(VISITOR_GREETING_RESPONSES_FILE, 'r') as f:
+                self.visitor_greeting_responses = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_visitor_responses()
+            
+        self.emit_log("Response files loaded successfully", 'success')
+    except FileNotFoundError as e:
+        self.emit_log(f"Response file not found: {e}", 'error')
+        self.create_default_responses()
+
+
+Fix 4 - Replace the LLM-based joke and fun fact methods with file-based ones:
+
+Replace your get_llm_joke() and get_llm_fun_fact() methods with these:
+
+def get_joke_from_file(self):
+    """Get a random joke from jokes.txt file"""
+    try:
+        if self.jokes:
+            joke = random.choice(self.jokes)
+            self.emit_log(f"Selected joke from file: {joke[:30]}...", 'debug')
+            return joke
         else:
-            return "Why did the computer go to therapy? Because it had too many bytes!"
+            return "Why don't scientists trust atoms? Because they make up everything!"
     except Exception as e:
-        self.emit_log(f"LLM joke error: {e}", 'error')
-        return "Why did the computer go to therapy? Because it had too many bytes!"
+        self.emit_log(f"Error getting joke from file: {e}", 'error')
+        return "Why don't scientists trust atoms? Because they make up everything!"
 
-def get_llm_fun_fact(self):
-    """Ask the local LLM for a fun fact"""
+def get_fun_fact_from_file(self):
+    """Get a random fun fact from fun_facts.txt file"""
     try:
-        prompt = "Tell me an interesting fun fact. Keep it brief and fascinating."
-        formatted_prompt = f"You are a knowledgeable teacher. Share one interesting fact.\nUser: {prompt}\nAssistant: "
-        
-        result = self.llama_model(formatted_prompt, max_tokens=100)
-        if "choices" in result and result["choices"]:
-            fact = result["choices"][0]["text"].strip()
-            # Clean up the response
-            fact = re.sub(r"\(.*?\)", "", fact)
-            fact = re.sub(r"(User:|Assistant:)", "", fact)
-            fact = fact.strip()
-            
-            # Take only the first few sentences
-            sentences = fact.split('.')
-            if len(sentences) > 3:
-                fact = '. '.join(sentences[:3]) + '.'
-            
-            return fact if fact else "Did you know that octopuses have three hearts and blue blood?"
+        if self.fun_facts:
+            fact = random.choice(self.fun_facts)
+            self.emit_log(f"Selected fun fact from file: {fact[:30]}...", 'debug')
+            return fact
         else:
             return "Did you know that octopuses have three hearts and blue blood?"
     except Exception as e:
-        self.emit_log(f"LLM fun fact error: {e}", 'error')
+        self.emit_log(f"Error getting fun fact from file: {e}", 'error')
         return "Did you know that octopuses have three hearts and blue blood?"
 
+
+Fix 5 - Update the check_for_bored_response method to use file-based content:
+
+Replace your current check_for_bored_response method with:
+
 def check_for_bored_response(self, name):
-    """Check if it's time to give a bored response with joke or fun fact from LLM"""
+    """Check if it's time to give a bored response with joke or fun fact from files"""
     if not self.wake_word_active or not self.last_bored_response_time:
         return False
     
@@ -79,35 +135,35 @@ def check_for_bored_response(self, name):
     
     if time_since_bored >= BORED_RESPONSE_INTERVAL:
         if self.bored_cycle == 0:
-            # Give bored response + joke from LLM
+            # Give bored response + joke from file
             if self.bored_responses:
                 bored_template = random.choice(self.bored_responses)
                 bored_msg = bored_template.replace("{name}", name)
             else:
                 bored_msg = f"Yo {name}, still hanging around here waiting for you, dude!"
             
-            joke = self.get_llm_joke()
+            joke = self.get_joke_from_file()
             # Create complete message with 2-second pause represented as spoken text
             full_message = f"{bored_msg} Let me tell you a joke! ... ... {joke}"
             self.speak_text(full_message)
             self.emit_conversation(f"Bored response with joke: {joke}", 'info')
             self.bored_cycle = 1
-            self.emit_log(f"Gave {name} a bored response with LLM joke", 'info')
+            self.emit_log(f"Gave {name} a bored response with joke from file", 'info')
         else:
-            # Give waiting response + fun fact from LLM
+            # Give waiting response + fun fact from file
             if self.waiting_responses:
                 waiting_template = random.choice(self.waiting_responses)
                 waiting_msg = waiting_template.replace("{name}", name)
             else:
                 waiting_msg = f"I am still around if you need me, {name}"
             
-            fun_fact = self.get_llm_fun_fact()
+            fun_fact = self.get_fun_fact_from_file()
             # Create complete message with 2-second pause represented as spoken text
             full_message = f"{waiting_msg} Let me tell you a fun fact! ... ... {fun_fact}"
             self.speak_text(full_message)
             self.emit_conversation(f"Waiting response with fun fact: {fun_fact}", 'info')
             self.bored_cycle = 0
-            self.emit_log(f"Gave {name} a waiting response with LLM fun fact", 'info')
+            self.emit_log(f"Gave {name} a waiting response with fun fact from file", 'info')
         
         self.last_bored_response_time = current_time
         return True
@@ -115,114 +171,19 @@ def check_for_bored_response(self, name):
     return False
 
 
-Fix 2 - Update the listen_for_wake_word method to include bored response check:
+Fix 6 - Update the create_default_responses method to include fun facts:
 
-Replace your current listen_for_wake_word method with:
+def create_default_responses(self):
+    """Create default responses if files are missing"""
+    self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+    self.fun_facts = ["Did you know that octopuses have three hearts and blue blood?"]  # Add this line
+    self.greeting_responses = ["Hey {name}! Good to see you, buddy! What's up?"]
+    self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+    self.waiting_responses = ["I am still around if you need me, {name}"]
+    self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately."]
+    self.bored_responses = ["I'm getting a bit bored waiting here"]
+    self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
 
-def listen_for_wake_word(self):
-    """Listen for wake words in background - Same as original"""
-    self.emit_log("Wake word detection thread started", 'success')
-    
-    while self.is_running:
-        try:
-            # Only listen if someone is present and wake word detection is active
-            if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
-                # Check for bored response first
-                if self.check_for_bored_response(self.current_person):
-                    # Bored response was given, continue to next iteration
-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                    continue
-                
-                # Record audio for wake word detection
-                if self.record_wake_word_check():
-                    # Transcribe and check for wake word
-                    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                    
-                    if transcript and self.detect_wake_word(transcript):
-                        self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
-                        self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
-                        self.play_beep()
-                        
-                        # Speak listening response
-                        if self.listening_responses:
-                            listening_template = random.choice(self.listening_responses)
-                            listening_response = listening_template.replace("{name}", self.current_person)
-                        else:
-                            listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
-                        
-                        self.speak_text(listening_response)
-                        
-                        # Record full request
-                        self.emit_log("Please speak your request...", 'info')
-                        if self.record_with_silence_detection():
-                            user_text = self.transcribe_audio(WAV_FILENAME)
-                            if user_text and len(user_text.strip()) > 2:
-                                self.emit_log(f"User said: '{user_text}'", 'info')
-                                self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                response = self.process_user_input(user_text)
-                                self.emit_log(f"Response: '{response}'", 'info')
-                                self.emit_conversation(f"Response: {response}", 'response')
-                                self.speak_text(response)
-                                self.last_interaction_time = time.time()
-                                # Reset bored response timer only after successful interaction
-                                self.last_bored_response_time = time.time()
-                            else:
-                                self.speak_text("I didn't catch that. Could you repeat your request?")
-                                self.emit_conversation("No clear speech detected", 'info')
-                        else:
-                            self.speak_text("I'm having trouble hearing you. Please try again.")
-                            self.emit_conversation("Failed to record audio", 'info')
-                
-                time.sleep(WAKE_WORD_CHECK_INTERVAL)
-            else:
-                # No one present or wake word not active, sleep longer
-                time.sleep(2.0)
-                
-        except Exception as e:
-            self.emit_log(f"Wake word detection error: {e}", 'error')
-            time.sleep(2.0)
-    
-    self.emit_log("Wake word detection thread stopped", 'info')
-
-
-Fix 3 - Fix the logo display issue by updating Flask configuration:
-
-Add this configuration at the top of your script, right after creating the Flask app:
-
-# Update the Flask app configuration
-app = Flask(__name__, 
-           template_folder='/home/nickspi5/Chatty_AI/templates',
-           static_folder='/home/nickspi5/Chatty_AI/templates')  # Add this line
-app.config['SECRET_KEY'] = 'chatty_ai_secret_key'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-
-
-Fix 4 - Update your HTML template logo paths:
-
-In your Chatty_AI_HighTech.html, change the logo paths from:
-
-<img src="/templates/Chatty_AI_logo.png" alt="Chatty AI Logo">
-<img src="/templates/diamond_coding_logo.png" alt="Diamond Coding Logo">
-
-To:
-
-<img src="/static/Chatty_AI_logo.png" alt="Chatty AI Logo">
-<img src="/static/diamond_coding_logo.png" alt="Diamond Coding Logo">
-
-
-Alternative Fix for Logos (if above doesn't work):
-
-Add this route to serve the logo files directly:
-
-@app.route('/static/<filename>')
-def uploaded_file(filename):
-    """Serve logo files"""
-    return send_from_folder('/home/nickspi5/Chatty_AI/templates', filename)
-
-# You'll need to add this import at the top
-
-from flask import send_from_folder
-
-These fixes should restore the bored response functionality (jokes and fun facts every 30 seconds) and fix the logo display issue. The bored responses will now work exactly like your original terminal version.
+Now the jokes and fun facts will come from your jokes.txt and fun_facts.txt files exactly like your original terminal version, rather than being generated by the LLM. Make sure you have a fun_facts.txt file in your Chatty_AI directory with your fun facts, one per line.
 
 
