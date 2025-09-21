@@ -1,30 +1,6 @@
 
 
-Thank you, Claude,
-
-I made the changes you recommended.
-
-I rebooted my Raspberry PI 5. Everything booted up as normal.
-
-The web ui page loaded.
-
-I clicked on the START SYSTEM button.
-
-Facial recognition detected my correctly and the wake word detection thread started.
-
-Wake word detection accurately detected my wake worh phrase.
-
-I could then interact with the AI Assistant.
-
-When the AI Assistant did not detect any wake word phrase for 30 seconds, it the spoke the bored response and told me a joke from the jokes.text file.
-
-The same thing happened when the AI Assistant did not detect any wake word phrase for another 30 seconds, it spoke the response and then told me a fun fact from the fun_facts.txt file.
-
-However, I would like to include a 0.5 second pause between when the AI Assistant speaks the bored response or waiting response and when it speaks "let me tell you a joke", or "let me tell you a fun fact".
-
-I would also like to include a 0.5 second pause between when the AI Assistant says "let me tell you a joke" or "let me tell you a fun fact" and when it speaks the joke or the fun fact. This will sound more like natural speech.
-
-Furthermore, in my previous terminal version of chatty_ai.py, if the AI Assistant could not identify a person using facial recognition, it would speak the bored response, listening response or waiting response from the bored_responses_generic.txt, listening_responses_generic.txt or waiting_responses_generic.txt files respectfully. I had the following response files listed in my previous version of chatty_ai.py:
+Fix 1 - Add the generic response file constants:
 
 # Response files
 JOKES_FILE = "jokes.txt"
@@ -32,23 +8,322 @@ FUN_FACTS_FILE = "fun_facts.txt"
 BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
 WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
 LISTENING_RESPONSES_GENERIC_FILE = "listening_responses_generic.txt"
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
 WAITING_RESPONSES_FILE = "waiting_responses.txt"
 WARNING_RESPONSES_FILE = "warning_responses.txt"
 GREETING_RESPONSES_FILE = "greeting_responses.txt"
 BORED_RESPONSES_FILE = "bored_responses.txt"
 VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
 
-Please amend my chatty_ai.py Python script to include the generic responses for visitors.
 
-Furthermore, if a person has not been detected for 5 minutes after initially detecting a person, please also clear the peron's image from being displayed as well.
+Fix 2 - Add generic response lists to __init__ method:
 
-Please amend my chatty_ai.py Python script to include the requested changes.
+# Response lists
+self.jokes = []
+self.fun_facts = []
+self.bored_responses_generic = []  # Add this
+self.waiting_responses_generic = []  # Add this
+self.listening_responses_generic = []  # Add this
+self.listening_responses = []
+self.waiting_responses = []
+self.warning_responses = []
+self.greeting_responses = []
+self.bored_responses = []
+self.visitor_greeting_responses = []
 
 
+Fix 3 - Update load_response_files method to load generic responses:
+
+def load_response_files(self):
+    """Load response text files including generic responses"""
+    try:
+        with open(JOKES_FILE, 'r') as f:
+            self.jokes = [line.strip() for line in f if line.strip()]
+        
+        # Load fun facts
+        try:
+            with open(FUN_FACTS_FILE, 'r') as f:
+                self.fun_facts = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.fun_facts = [
+                "Did you know that octopuses have three hearts and blue blood?",
+                "A group of flamingos is called a flamboyance!",
+                "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
+                "Bananas are berries, but strawberries aren't!",
+                "A shrimp's heart is in its head!"
+            ]
+            self.emit_log("Created default fun facts", 'info')
+        
+        # Load generic responses for visitors
+        try:
+            with open(BORED_RESPONSES_GENERIC_FILE, 'r') as f:
+                self.bored_responses_generic = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.bored_responses_generic = [
+                "I'm getting a bit bored waiting here",
+                "Still waiting around here",
+                "I'm patiently waiting",
+                "I am feeling restless waiting here"
+            ]
+            self.emit_log("Created default generic bored responses", 'info')
+        
+        try:
+            with open(WAITING_RESPONSES_GENERIC_FILE, 'r') as f:
+                self.waiting_responses_generic = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.waiting_responses_generic = [
+                "I am still around if you need me",
+                "I'm here waiting to help",
+                "Still here if you need assistance",
+                "I remain available for questions"
+            ]
+            self.emit_log("Created default generic waiting responses", 'info')
+        
+        try:
+            with open(LISTENING_RESPONSES_GENERIC_FILE, 'r') as f:
+                self.listening_responses_generic = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.listening_responses_generic = [
+                "Yes, I'm listening. What would you like to know?",
+                "I'm ready to help. What can I do for you?",
+                "How can I assist you today?",
+                "What would you like to ask me?"
+            ]
+            self.emit_log("Created default generic listening responses", 'info')
+        
+        with open(LISTENING_RESPONSES_FILE, 'r') as f:
+            self.listening_responses = [line.strip() for line in f if line.strip()]
+            
+        with open(GREETING_RESPONSES_FILE, 'r') as f:
+            self.greeting_responses = [line.strip() for line in f if line.strip()]
+            
+        with open(WAITING_RESPONSES_FILE, 'r') as f:
+            self.waiting_responses = [line.strip() for line in f if line.strip()]
+        
+        with open(WARNING_RESPONSES_FILE, 'r') as f:
+            self.warning_responses = [line.strip() for line in f if line.strip()]
+        
+        # Load bored responses
+        try:
+            with open(BORED_RESPONSES_FILE, 'r') as f:
+                self.bored_responses = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_bored_responses()
+        
+        # Load visitor greeting responses
+        try:
+            with open(VISITOR_GREETING_RESPONSES_FILE, 'r') as f:
+                self.visitor_greeting_responses = [line.strip() for line in f if line.strip()]
+        except FileNotFoundError:
+            self.create_default_visitor_responses()
+            
+        self.emit_log("Response files loaded successfully", 'success')
+    except FileNotFoundError as e:
+        self.emit_log(f"Response file not found: {e}", 'error')
+        self.create_default_responses()
 
 
+Fix 4 - Add method to play pauses in speech:
+
+def speak_text_with_pauses(self, parts, pause_duration=0.5):
+    """Speak text with pauses between parts"""
+    try:
+        with self.audio_recording_lock:
+            for i, part in enumerate(parts):
+                if part.strip():  # Only speak non-empty parts
+                    command = [
+                        PIPER_EXECUTABLE,
+                        "--model", VOICE_PATH,
+                        "--config", CONFIG_PATH,
+                        "--output_file", RESPONSE_AUDIO
+                    ]
+                    subprocess.run(command, input=part.encode("utf-8"), check=True, capture_output=True)
+                    subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+                    
+                    # Add pause between parts (except after the last part)
+                    if i < len(parts) - 1:
+                        time.sleep(pause_duration)
+                        
+        self.emit_log(f"Speaking with pauses: '{' | '.join(parts)}'", 'info')
+    except subprocess.CalledProcessError as e:
+        self.emit_log(f"TTS with pauses failed: {e}", 'error')
 
 
+Fix 5 - Update check_for_bored_response method with pauses and generic responses:
+
+def check_for_bored_response(self, name):
+    """Check if it's time to give a bored response with natural pauses and generic responses for visitors"""
+    if not self.wake_word_active or not self.last_bored_response_time:
+        return False
+    
+    current_time = time.time()
+    time_since_bored = current_time - self.last_bored_response_time
+    
+    if time_since_bored >= BORED_RESPONSE_INTERVAL:
+        # Determine if this is a known person or visitor/unknown
+        is_known_person = name and name != "Unknown" and name != "No Entity Detected"
+        
+        if self.bored_cycle == 0:
+            # Give bored response + joke from file
+            if is_known_person and self.bored_responses:
+                bored_template = random.choice(self.bored_responses)
+                bored_msg = bored_template.replace("{name}", name)
+            elif self.bored_responses_generic:
+                bored_msg = random.choice(self.bored_responses_generic)
+            else:
+                bored_msg = "I'm getting a bit bored waiting here"
+            
+            joke = self.get_joke_from_file()
+            
+            # Speak with natural pauses
+            speech_parts = [
+                bored_msg,
+                "Let me tell you a joke!",
+                joke
+            ]
+            self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
+            
+            self.emit_conversation(f"Bored response with joke: {joke}", 'info')
+            self.bored_cycle = 1
+            self.emit_log(f"Gave {'visitor' if not is_known_person else name} a bored response with joke from file", 'info')
+        else:
+            # Give waiting response + fun fact from file
+            if is_known_person and self.waiting_responses:
+                waiting_template = random.choice(self.waiting_responses)
+                waiting_msg = waiting_template.replace("{name}", name)
+            elif self.waiting_responses_generic:
+                waiting_msg = random.choice(self.waiting_responses_generic)
+            else:
+                waiting_msg = "I am still around if you need assistance"
+            
+            fun_fact = self.get_fun_fact_from_file()
+            
+            # Speak with natural pauses
+            speech_parts = [
+                waiting_msg,
+                "Let me tell you a fun fact!",
+                fun_fact
+            ]
+            self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
+            
+            self.emit_conversation(f"Waiting response with fun fact: {fun_fact}", 'info')
+            self.bored_cycle = 0
+            self.emit_log(f"Gave {'visitor' if not is_known_person else name} a waiting response with fun fact from file", 'info')
+        
+        self.last_bored_response_time = current_time
+        return True
+    
+    return False
 
 
+Fix 6 - Update camera_monitoring_loop to clear person image after 5 minutes:
+
+def camera_monitoring_loop(self):
+    """Main camera monitoring loop - optimized for web"""
+    while self.is_running:
+        try:
+            frame = self.picam2.capture_array()
+            
+            # Convert from RGB to BGR for OpenCV if needed
+            if len(frame.shape) == 3 and frame.shape[2] == 4:
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+            elif len(frame.shape) == 3 and frame.shape[2] == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            
+            # Store latest frame for web interface
+            with self.frame_lock:
+                self.latest_frame = frame.copy()
+            
+            # Process facial recognition
+            name, face_location, confidence = self.detect_faces(frame)
+            current_time = time.time()
+            
+            # Process facial recognition logic
+            if name and face_location:
+                # Person detected
+                if name != self.current_person:
+                    # New person or person changed
+                    self.current_person = name
+                    self.person_absent_since = None
+                    self.wake_word_active = False  # Reset wake word state
+                    
+                    # Update web interface
+                    socketio.emit('person_detected', {
+                        'name': name,
+                        'confidence': f"{confidence:.1%}"
+                    })
+                    
+                    if name == "Unknown":
+                        self.handle_unknown_person(frame, confidence)
+                    else:
+                        # Save photo and send telegram alert for known person
+                        photo_path = self.save_security_photo(frame, name, confidence)
+                        self.send_telegram_alert(name, confidence, photo_path)
+                        
+                        # Store person image for web interface
+                        with self.frame_lock:
+                            self.latest_person_image = frame.copy()
+                        
+                        # Greet known person (this will activate wake word detection)
+                        self.greet_person(name)
+            else:
+                # No person detected
+                if self.current_person:
+                    if not self.person_absent_since:
+                        self.person_absent_since = current_time
+                    elif current_time - self.person_absent_since >= GREETING_COOLDOWN:
+                        # Person has been absent for 5+ minutes, reset everything
+                        self.current_person = None
+                        self.person_absent_since = None
+                        self.last_interaction_time = None
+                        self.wake_word_active = False
+                        self.last_bored_response_time = None
+                        self.bored_cycle = 0
+                        
+                        # Clear person image from web interface
+                        with self.frame_lock:
+                            self.latest_person_image = None
+                        
+                        # Update web interface
+                        socketio.emit('person_detected', {
+                            'name': 'No person detected',
+                            'confidence': '--'
+                        })
+                        
+                        self.emit_log("Person left - resetting state and clearing image", 'info')
+            
+            time.sleep(PERSON_DETECTION_INTERVAL)
+            
+        except Exception as e:
+            self.emit_log(f"Camera loop error: {e}", 'error')
+            time.sleep(1)
+
+
+Fix 7 - Update create_default_responses to include generic responses:
+
+def create_default_responses(self):
+    """Create default responses if files are missing"""
+    self.jokes = ["Why don't scientists trust atoms? Because they make up everything!"]
+    self.fun_facts = ["Did you know that octopuses have three hearts and blue blood?"]
+    self.bored_responses_generic = ["I'm getting a bit bored waiting here"]
+    self.waiting_responses_generic = ["I am still around if you need assistance"]
+    self.listening_responses_generic = ["Yes, I'm listening. What would you like to know?"]
+    self.greeting_responses = ["Hey {name}! Good to see you, buddy! What's up?"]
+    self.listening_responses = ["Yes {name}, I'm listening. What would you like to know?"]
+    self.waiting_responses = ["I am still around if you need me, {name}"]
+    self.warning_responses = ["Attention unauthorized person, you are not authorized to access this property. Leave immediately."]
+    self.bored_responses = ["I'm getting a bit bored waiting here"]
+    self.visitor_greeting_responses = ["Hello. I do not recognize you. Can I be of assistance?"]
+
+These changes will:
+
+Add natural 0.5-second pauses in speech for bored/waiting responses
+
+Use generic responses for visitors/unknown people
+
+Clear the person's image after 5 minutes of absence
+
+Load the generic response files you mentioned from your previous version
+
+Make sure you have the generic response text files (bored_responses_generic.txt, waiting_responses_generic.txt, listening_responses_generic.txt) in your Chatty_AI directory.
 
