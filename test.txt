@@ -1,40 +1,78 @@
 
 
-# Record audio for wake word detection
-if self.record_wake_word_check():
-    # Transcribe and check for wake word
-    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+def listen_for_wake_word(self):
+    """Listen for wake words in background - Optimized version"""
+    self.emit_log("Wake word detection thread started", 'success')
     
-    if transcript and self.detect_wake_word(transcript):
-
-Change to add volume pre-check:
-
-# Record audio for wake word detection
-if self.record_wake_word_check():
-    # Pre-check audio volume before transcription (optimization)
-    try:
-        audio_data, sample_rate = sf.read(WAKE_WORD_AUDIO)
-        rms = np.sqrt(np.mean(audio_data**2))
-        
-        # Only transcribe if audio is loud enough (above 2x silence threshold)
-        if rms > SILENCE_THRESHOLD * 2:
-            # Transcribe and check for wake word
-            transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-            
-            if transcript and self.detect_wake_word(transcript):
-        else:
-            self.emit_log(f"Audio too quiet (RMS: {rms:.4f}), skipping transcription", 'debug')
-    except Exception as e:
-        self.emit_log(f"Error pre-checking audio volume: {e}", 'error')
-
-Additional Optimization (Optional)
-
-You might also want to add a minimum volume threshold constant at the top of your file for easier tuning:
-
-# Add this with other constants
-WAKE_WORD_VOLUME_THRESHOLD = SILENCE_THRESHOLD * 2  # Minimum volume for wake word detection
-
-Then use it in the pre-filter:
-
-pythonif rms > WAKE_WORD_VOLUME_THRESHOLD:
+    while self.is_running:
+        try:
+            # Only listen if someone is present and wake word detection is active
+            if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                # Check for bored response first
+                if self.check_for_bored_response(self.current_person):
+                    # Bored response was given, continue to next iteration
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                    continue
+                
+                # Record audio for wake word detection
+                if self.record_wake_word_check():
+                    # Pre-check audio volume before transcription (optimization)
+                    try:
+                        audio_data, sample_rate = sf.read(WAKE_WORD_AUDIO)
+                        rms = np.sqrt(np.mean(audio_data**2))
+                        
+                        # Only transcribe if audio is loud enough (above 2x silence threshold)
+                        if rms > SILENCE_THRESHOLD * 2:
+                            # Transcribe and check for wake word
+                            transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+                            
+                            if transcript and self.detect_wake_word(transcript):
+                                self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
+                                self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
+                                self.play_beep()
+                                
+                                # Speak listening response
+                                if self.listening_responses:
+                                    listening_template = random.choice(self.listening_responses)
+                                    listening_response = listening_template.replace("{name}", self.current_person)
+                                else:
+                                    listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
+                                
+                                self.speak_text(listening_response)
+                                
+                                # Record full request
+                                self.emit_log("Please speak your request...", 'info')
+                                if self.record_with_silence_detection():
+                                    user_text = self.transcribe_audio(WAV_FILENAME)
+                                    if user_text and len(user_text.strip()) > 2:
+                                        self.emit_log(f"User said: '{user_text}'", 'info')
+                                        self.emit_conversation(f"User said: {user_text}", 'user_input')
+                                        response = self.process_user_input(user_text)
+                                        self.emit_log(f"Response: '{response}'", 'info')
+                                        self.emit_conversation(f"Response: {response}", 'response')
+                                        self.speak_text(response)
+                                        self.last_interaction_time = time.time()
+                                        # Reset bored response timer only after successful interaction
+                                        self.last_bored_response_time = time.time()
+                                    else:
+                                        self.speak_text("I didn't catch that. Could you repeat your request?")
+                                        self.emit_conversation("No clear speech detected", 'info')
+                                else:
+                                    self.speak_text("I'm having trouble hearing you. Please try again.")
+                                    self.emit_conversation("Failed to record audio", 'info')
+                        else:
+                            self.emit_log(f"Audio too quiet (RMS: {rms:.4f}), skipping transcription", 'debug')
+                    except Exception as e:
+                        self.emit_log(f"Error pre-checking audio volume: {e}", 'error')
+                
+                time.sleep(WAKE_WORD_CHECK_INTERVAL)
+            else:
+                # No one present or wake word not active, sleep longer
+                time.sleep(2.0)
+                
+        except Exception as e:
+            self.emit_log(f"Wake word detection error: {e}", 'error')
+            time.sleep(2.0)
+    
+    self.emit_log("Wake word detection thread stopped", 'info')
 
