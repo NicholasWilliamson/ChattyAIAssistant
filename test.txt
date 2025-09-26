@@ -1,172 +1,40 @@
 
 
+# Record audio for wake word detection
+if self.record_wake_word_check():
+    # Transcribe and check for wake word
+    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+    
+    if transcript and self.detect_wake_word(transcript):
 
-Looking at your code and the issue you've described, I can see the problem. Your current implementation uses a fixed 2-second recording for wake word detection, but you want to be able to say longer phrases like "Hello my little friend, are you alive?" The solution is to revert back to the silence detection approach you had in the terminal version, but optimize it for better performance.
+Change to add volume pre-check:
 
-Here are the specific code sections that need updating:
-
-
-1. Replace the record_wake_word_check method entirely:
-
-def record_wake_word_check(self):
-    """Record audio with silence detection for wake word - optimized version"""
+# Record audio for wake word detection
+if self.record_wake_word_check():
+    # Pre-check audio volume before transcription (optimization)
     try:
-        if not self.audio_recording_lock.acquire(blocking=False):
-            return False
+        audio_data, sample_rate = sf.read(WAKE_WORD_AUDIO)
+        rms = np.sqrt(np.mean(audio_data**2))
         
-        try:
-            # Auto-detect working sample rate
-            working_sample_rate = None
-            for rate in [44100, 48000, 22050, 16000]:
-                try:
-                    sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-                    working_sample_rate = rate
-                    break
-                except:
-                    continue
+        # Only transcribe if audio is loud enough (above 2x silence threshold)
+        if rms > SILENCE_THRESHOLD * 2:
+            # Transcribe and check for wake word
+            transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
             
-            if not working_sample_rate:
-                self.emit_log("No compatible sample rate found for wake word", 'error')
-                return False
-            
-            # Optimized silence detection parameters for wake word
-            audio_data = []
-            silence_duration = 0
-            recording_duration = 0
-            check_interval = 0.05  # Check every 50ms for faster response
-            samples_per_check = int(working_sample_rate * check_interval)
-            min_silence_for_wake_word = 0.8  # Shorter silence threshold for wake words
-            max_wake_word_duration = 10  # Max 10 seconds for wake word phrases
-            
-            def audio_callback(indata, frames, time, status):
-                if status:
-                    self.emit_log(f"Audio status: {status}", 'warning')
-                audio_data.extend(indata[:, 0])
-            
-            with sd.InputStream(callback=audio_callback, 
-                              samplerate=working_sample_rate, 
-                              channels=1,
-                              dtype='float32'):
-                
-                while recording_duration < max_wake_word_duration:
-                    time.sleep(check_interval)
-                    recording_duration += check_interval
-                    
-                    if len(audio_data) >= samples_per_check:
-                        recent_audio = np.array(audio_data[-samples_per_check:])
-                        rms = np.sqrt(np.mean(recent_audio**2))
-                        
-                        if rms < SILENCE_THRESHOLD:
-                            silence_duration += check_interval
-                            if silence_duration >= min_silence_for_wake_word:
-                                self.emit_log(f"Wake word silence detected! Recorded {recording_duration:.1f}s", 'debug')
-                                break
-                        else:
-                            silence_duration = 0
-            
-            # Only process if we have meaningful audio
-            if len(audio_data) > 0 and recording_duration > 0.5:  # At least 0.5 seconds
-                audio_array = np.array(audio_data)
-                
-                # Convert to 16kHz for Whisper if needed
-                if working_sample_rate != 16000:
-                    from scipy import signal
-                    target_length = int(len(audio_array) * 16000 / working_sample_rate)
-                    audio_array = signal.resample(audio_array, target_length)
-                    save_sample_rate = 16000
-                else:
-                    save_sample_rate = working_sample_rate
-                
-                sf.write(WAKE_WORD_AUDIO, audio_array, save_sample_rate)
-                self.emit_log(f"Wake word audio saved: {len(audio_array)/save_sample_rate:.1f}s", 'debug')
-                return True
-            else:
-                return False
-                
-        finally:
-            self.audio_recording_lock.release()
-            
+            if transcript and self.detect_wake_word(transcript):
+        else:
+            self.emit_log(f"Audio too quiet (RMS: {rms:.4f}), skipping transcription", 'debug')
     except Exception as e:
-        self.emit_log(f"Wake word recording error: {e}", 'error')
-        return False
+        self.emit_log(f"Error pre-checking audio volume: {e}", 'error')
 
+Additional Optimization (Optional)
 
-2. Update the listen_for_wake_word method to optimize the flow:
+You might also want to add a minimum volume threshold constant at the top of your file for easier tuning:
 
-Replace the wake word detection section (starting from # Record audio for wake word detection) with:
+# Add this with other constants
+WAKE_WORD_VOLUME_THRESHOLD = SILENCE_THRESHOLD * 2  # Minimum volume for wake word detection
 
-                # Record audio for wake word detection
-                if self.record_wake_word_check():
-                    # Transcribe and check for wake word
-                    transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                    
-                    if transcript and self.detect_wake_word(transcript):
-                        self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
-                        self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
-                        self.play_beep()
-                        
-                        # Speak listening response
-                        if self.listening_responses:
-                            listening_template = random.choice(self.listening_responses)
-                            listening_response = listening_template.replace("{name}", self.current_person)
-                        else:
-                            listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
-                        
-                        self.speak_text(listening_response)
-                        
-                        # Record full request with optimized silence detection
-                        self.emit_log("Please speak your request...", 'info')
-                        if self.record_with_silence_detection():
-                            user_text = self.transcribe_audio(WAV_FILENAME)
-                            if user_text and len(user_text.strip()) > 2:
-                                self.emit_log(f"User said: '{user_text}'", 'info')
-                                self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                
-                                response = self.process_user_input(user_text)
-                                self.emit_log(f"Response: '{response}'", 'info')
-                                self.emit_conversation(f"Response: {response}", 'response')
-                                self.speak_text(response)
-                                self.last_interaction_time = time.time()
-                                # Reset bored response timer only after successful interaction
-                                self.last_bored_response_time = time.time()
-                            else:
-                                self.speak_text("I didn't catch that. Could you repeat your request?")
-                                self.emit_conversation("No clear speech detected", 'info')
-                        else:
-                            self.speak_text("I'm having trouble hearing you. Please try again.")
-                            self.emit_conversation("Failed to record audio", 'info')
-                
-                time.sleep(0.1)  # Reduced sleep time for faster wake word checking
+Then use it in the pre-filter:
 
-
-3. Optimize the record_with_silence_detection method by updating the check interval:
-
-Change this line in the method:
-
-check_interval = 0.1
-
-to:
-
-check_interval = 0.05  # Faster checking for better responsiveness
-
-
-4. Add this constant at the top with your other audio parameters:
-
-# Wake word specific parameters
-WAKE_WORD_SILENCE_THRESHOLD = 0.8  # Shorter silence for wake words
-WAKE_WORD_MAX_DURATION = 10  # Max 10 seconds for wake word phrases
-
-These changes will:
-
-Use silence detection for wake words - Like your terminal version, it will record until it detects silence, allowing longer phrases like "Hello my little friend, are you alive?"
-
-Optimize for speed - Faster check intervals (50ms vs 100ms) and shorter silence thresholds for wake words
-
-Maintain the same flow - Keeps the exact same logic flow as your terminal version: detect wake word → beep → listen for request → process
-
-Better responsiveness - Reduced sleep times and more frequent audio checks
-
-The key improvement is that wake word detection now records until silence is detected (with a shorter silence threshold of 0.8 seconds instead of 1.5), allowing you to say longer phrases while still being responsive for shorter wake words.
-
-
+pythonif rms > WAKE_WORD_VOLUME_THRESHOLD:
 
