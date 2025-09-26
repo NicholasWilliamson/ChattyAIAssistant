@@ -1,78 +1,114 @@
 
 
-def listen_for_wake_word(self):
-    """Listen for wake words in background - Optimized version"""
-    self.emit_log("Wake word detection thread started", 'success')
+Thank you, Claude,
+
+I have my chatty_ai_startup_enhanced.sh Shell Script as follows:
+
+chatty_ai_startup_enhanced.sh
+#!/bin/bash
+#
+# Enhanced Chatty AI Startup Script with Loading Screen
+# Black screen -> Video -> Loading animation -> Main interface
+#
+
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+USER="nickspi5"
+
+# Create log directory if it doesn't exist
+mkdir -p /home/nickspi5/Chatty_AI/logs
+
+# Function to log messages
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to hide desktop and show black screen
+hide_desktop() {
+    # Kill desktop panels and file manager
+    pkill lxpanel 2>/dev/null
+    pkill pcmanfm 2>/dev/null
     
-    while self.is_running:
-        try:
-            # Only listen if someone is present and wake word detection is active
-            if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
-                # Check for bored response first
-                if self.check_for_bored_response(self.current_person):
-                    # Bored response was given, continue to next iteration
-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                    continue
-                
-                # Record audio for wake word detection
-                if self.record_wake_word_check():
-                    # Pre-check audio volume before transcription (optimization)
-                    try:
-                        audio_data, sample_rate = sf.read(WAKE_WORD_AUDIO)
-                        rms = np.sqrt(np.mean(audio_data**2))
-                        
-                        # Only transcribe if audio is loud enough (above 2x silence threshold)
-                        if rms > SILENCE_THRESHOLD * 2:
-                            # Transcribe and check for wake word
-                            transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                            
-                            if transcript and self.detect_wake_word(transcript):
-                                self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
-                                self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
-                                self.play_beep()
-                                
-                                # Speak listening response
-                                if self.listening_responses:
-                                    listening_template = random.choice(self.listening_responses)
-                                    listening_response = listening_template.replace("{name}", self.current_person)
-                                else:
-                                    listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
-                                
-                                self.speak_text(listening_response)
-                                
-                                # Record full request
-                                self.emit_log("Please speak your request...", 'info')
-                                if self.record_with_silence_detection():
-                                    user_text = self.transcribe_audio(WAV_FILENAME)
-                                    if user_text and len(user_text.strip()) > 2:
-                                        self.emit_log(f"User said: '{user_text}'", 'info')
-                                        self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                        response = self.process_user_input(user_text)
-                                        self.emit_log(f"Response: '{response}'", 'info')
-                                        self.emit_conversation(f"Response: {response}", 'response')
-                                        self.speak_text(response)
-                                        self.last_interaction_time = time.time()
-                                        # Reset bored response timer only after successful interaction
-                                        self.last_bored_response_time = time.time()
-                                    else:
-                                        self.speak_text("I didn't catch that. Could you repeat your request?")
-                                        self.emit_conversation("No clear speech detected", 'info')
-                                else:
-                                    self.speak_text("I'm having trouble hearing you. Please try again.")
-                                    self.emit_conversation("Failed to record audio", 'info')
-                        else:
-                            self.emit_log(f"Audio too quiet (RMS: {rms:.4f}), skipping transcription", 'debug')
-                    except Exception as e:
-                        self.emit_log(f"Error pre-checking audio volume: {e}", 'error')
-                
-                time.sleep(WAKE_WORD_CHECK_INTERVAL)
-            else:
-                # No one present or wake word not active, sleep longer
-                time.sleep(2.0)
-                
-        except Exception as e:
-            self.emit_log(f"Wake word detection error: {e}", 'error')
-            time.sleep(2.0)
+    # Set black wallpaper
+    pcmanfm --set-wallpaper=/usr/share/pixmaps/black.png 2>/dev/null || \
+    feh --bg-fill /usr/share/pixmaps/black.png 2>/dev/null || \
+    xsetroot -solid black 2>/dev/null
     
-    self.emit_log("Wake word detection thread stopped", 'info')
+    # Hide mouse cursor
+    unclutter -idle 0 &
+}
+
+# Start logging
+log_message "========================================="
+log_message "Enhanced Chatty AI Startup Sequence"
+log_message "========================================="
+
+# Set display
+export DISPLAY=:0
+export XAUTHORITY=/home/nickspi5/.Xauthority
+
+# Wait for X to be ready
+sleep 5
+
+# Hide desktop and show black screen
+log_message "Hiding desktop..."
+hide_desktop
+
+# Wait a moment for black screen
+sleep 2
+
+# Check if video file exists and play it
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Play video in fullscreen
+    cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null || log_message "Video playback ended"
+    
+    log_message "Video sequence complete"
+else
+    log_message "Warning: Video file not found at $VIDEO_PATH"
+fi
+
+# Launch loading screen in Chromium
+log_message "Launching loading screen..."
+
+# Kill any existing Chromium
+pkill -f chromium 2>/dev/null
+sleep 1
+
+# Launch loading screen in fullscreen
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --start-fullscreen \
+    --disable-translate \
+    --disable-features=TranslateUI \
+    --disable-component-update \
+    --disable-session-crashed-bubble \
+    --check-for-update-interval=31536000 \
+    "file://$LOADING_PAGE" 2>/dev/null &
+
+CHROMIUM_PID=$!
+log_message "Loading screen launched with PID: $CHROMIUM_PID"
+
+# The loading page will automatically redirect to localhost:5000 after 70 seconds
+# Just keep the script running
+log_message "System loading sequence in progress..."
+
+# Keep script running
+wait $CHROMIUM_PID
+
+The black.png image is not being displayed at all before the startup.mp4 video plays.
+
+Also, the chatty_loading.html web page only displays to about 95%.
+
+I want to extend the delay from 70 seconds to 75 seconds to allow it to play through to 100%.
+
+How can I make these modifications?
+
+
 
