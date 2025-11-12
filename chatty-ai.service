@@ -1,0 +1,13 @@
+[Service]
+Type=notify
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+
+# Use Flask-SocketIO's built-in server instead of Gunicorn
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py      
+
+Restart=always
+RestartSec=10
