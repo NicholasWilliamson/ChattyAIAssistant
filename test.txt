@@ -1,0 +1,34 @@
+
+I am having trouble transferring the backup from my old Raspberry PI 5 to my new 16GB Raspberry PI 5.
+
+I ran:
+
+nickspi5@raspberrypi1:~ $ cd /home/nickspi5
+nickspi5@raspberrypi1:~ $ tar -czf chatty_ai_backup.tar.gz Chatty_AI/
+nickspi5@raspberrypi1:~ $ scp chatty_ai_backup.tar.gz nickspi5@192.168.1.18:/home/nickspi5/
+The authenticity of host '192.168.1.18 (192.168.1.18)' can't be established.
+ED25519 key fingerprint is SHA256:b1N8F3DOfqSUIwuUtgUPd2aBqgzRgjt8yj2jyU3oSxU.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? y
+Please type 'yes', 'no' or the fingerprint: yes
+Warning: Permanently added '192.168.1.18' (ED25519) to the list of known hosts.
+nickspi5@192.168.1.18's password: 
+Connection closed by 192.168.1.18 port 22
+scp: Connection closed
+nickspi5@raspberrypi1:~ $ scp chatty_ai_backup.tar.gz nickspi5@192.168.1.18:/home/nickspi5/
+nickspi5@192.168.1.18's password: 
+Permission denied, please try again.
+nickspi5@192.168.1.18's password: 
+Connection closed by 192.168.1.18 port 22
+scp: Connection closed
+nickspi5@raspberrypi1:~ $ 
+
+I am not able to type in the password above.
+
+How can I fix this?
+
+
+
+
+H
+I am not able to type in the Password
