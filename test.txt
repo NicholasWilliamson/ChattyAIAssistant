@@ -1,167 +1,31 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip uninstall opencv-python -y
-Found existing installation: opencv-python 4.8.1.78
-Uninstalling opencv-python-4.8.1.78:
-  Successfully uninstalled opencv-python-4.8.1.78
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install opencv-python
-Collecting opencv-python
-  Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl.metadata (19 kB)
-Requirement already satisfied: numpy<2.3.0,>=2 in /usr/lib/python3/dist-packages (from opencv-python) (2.2.4)
-Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (45.9 MB)
-   ---------------------------------------- 45.9/45.9 MB 4.5 MB/s  0:00:10
-Installing collected packages: opencv-python
-Successfully installed opencv-python-4.12.0.88
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -c "import cv2; print('OpenCV version:', cv2.__version__)"
-OpenCV version: 4.12.0
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-Job for chatty-ai.service failed because the control process exited with error code.
-See "systemctl status chatty-ai.service" and "journalctl -xeu chatty-ai.service" for details.
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ journalctl -xeu chatty-ai.service
-Nov 16 19:39:01 raspberrypi systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
--- Subject: Unit process exited
--- Defined-By: systemd
--- Support: https://www.debian.org/support
--- 
--- An ExecStart= process belonging to unit chatty-ai.service has exited.
--- 
--- The process' exit code is 'exited' and its exit status is 1.
-Nov 16 19:39:01 raspberrypi systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
--- Subject: Unit failed
--- Defined-By: systemd
--- Support: https://www.debian.org/support
--- 
--- The unit chatty-ai.service has entered the 'failed' state with result 'exit-code'.
-Nov 16 19:39:01 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
--- Subject: A start job for unit chatty-ai.service has failed
--- Defined-By: systemd
--- Support: https://www.debian.org/support
--- 
--- A start job for unit chatty-ai.service has finished with a failure.
--- 
--- The job identifier is 19542 and the job result is failed.
-Nov 16 19:39:01 raspberrypi systemd[1]: chatty-ai.service: Consumed 3.983s CPU time.
--- Subject: Resources consumed by unit runtime
--- Defined-By: systemd
--- Support: https://www.debian.org/support
--- 
--- The unit chatty-ai.service completed and consumed the indicated resources.
-
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (start) since Sun 2025-11-16 19:39:33 AEDT; 10s ago
-        Job: 19899
- Invocation: 1ff870cc8b844ea18c79bbc2cd016b9f
-   Main PID: 293465 (python)
-      Tasks: 4 (limit: 19361)
-        CPU: 576ms
-     CGroup: /system.slice/chatty-ai.service
-             `-293465 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
-
-Nov 16 19:39:44 raspberrypi systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 6.
-Nov 16 19:39:44 raspberrypi systemd[1]: Starting chatty-ai.service - Chatty AI Web Server...
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ journalctl -u chatty-ai.service -f
-Nov 16 19:40:06 raspberrypi python[293722]: [07:40:06 PM] LLaMA model loaded successfully
-Nov 16 19:40:06 raspberrypi python[293722]: Chatty AI initialised successfully!
-Nov 16 19:40:06 raspberrypi python[293722]: Traceback (most recent call last):
-Nov 16 19:40:06 raspberrypi python[293722]:   File "/home/nickspi5/Chatty_AI/wsgi.py", line 5, in <module>
-Nov 16 19:40:06 raspberrypi python[293722]:     from chatty_ai import ChattyAIWebServer
-Nov 16 19:40:06 raspberrypi python[293722]: ImportError: cannot import name 'ChattyAIWebServer' from 'chatty_ai' (/home/nickspi5/Chatty_AI/chatty_ai.py)
-Nov 16 19:40:06 raspberrypi systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
-Nov 16 19:40:06 raspberrypi systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Nov 16 19:40:06 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
-Nov 16 19:40:06 raspberrypi systemd[1]: chatty-ai.service: Consumed 3.838s CPU time.
-Nov 16 19:40:16 raspberrypi systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 8.
-Nov 16 19:40:16 raspberrypi systemd[1]: Starting chatty-ai.service - Chatty AI Web Server...
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.118298770] [293975]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.126914154] [294030]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.129665435] [294030]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.136788674] [294030]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.136807155] [294030]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_D0
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.139847554] [293975]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 1536x864-BGGR_PISP_COMP1/RAW
-Nov 16 19:40:19 raspberrypi python[293975]: [5:42:39.139937624] [294030]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 1536x864-SBGGR10_1X10/RAW - Selected CFE format: 1536x864-PC1B/RAW
-^C
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ tail -f /home/nickspi5/Chatty_AI/logs/*.log
-==> /home/nickspi5/Chatty_AI/logs/access.log <==
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /video_feed HTTP/1.1" 200 3346110 "http://localhost:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 9604684
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /captured_image HTTP/1.1" 200 6703 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 1671
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /templates/diamond_coding_logo.png HTTP/1.1" 200 0 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 3213
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /socket.io/?EIO=4&transport=polling&t=PaXpH9U HTTP/1.1" 200 118 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 852
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /socket.io/?EIO=4&transport=polling&t=PaXpHAH&sid=-JQVX8xh_n5XASMjAAAG HTTP/1.1" 200 1 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 381
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /favicon.ico HTTP/1.1" 404 207 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 1090
-127.0.0.1 - - [07/Sep/2025:11:31:51 +1000] "GET /socket.io/?EIO=4&transport=polling&t=PaXpHAm&sid=-JQVX8xh_n5XASMjAAAG HTTP/1.1" 200 1 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 533
-127.0.0.1 - - [07/Sep/2025:11:31:52 +1000] "POST /socket.io/?EIO=4&transport=polling&t=PaXpHAA&sid=-JQVX8xh_n5XASMjAAAG HTTP/1.1" 200 2 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 1021344
-127.0.0.1 - - [07/Sep/2025:11:32:03 +1000] "GET /socket.io/?EIO=4&transport=polling&t=PaXpGLS&sid=xNlN8FBd32ipijgvAAAE HTTP/1.1" 200 309 "http://localhost:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 14704720
-127.0.0.1 - - [07/Sep/2025:11:32:22 +1000] "GET /video_feed HTTP/1.1" 200 10484478 "http://0.0.0.0:5000/" "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" 31297051
-
-==> /home/nickspi5/Chatty_AI/logs/error.log <==
-[2025-09-06 22:11:25 +1000] [847] [INFO] Listening at: http://0.0.0.0:5000 (847)
-[2025-09-06 22:11:25 +1000] [847] [INFO] Using worker: eventlet
-[2025-09-06 22:11:25 +1000] [847] [INFO] Chatty AI Server is ready. PID: 847
-[2025-09-06 22:11:25 +1000] [847] [INFO] About to fork worker (pid: [booting])
-[2025-09-06 22:11:25 +1000] [1035] [INFO] Booting worker with pid: 1035
-[2025-09-06 22:11:25 +1000] [1035] [INFO] Worker spawned (pid: 1035)
-[2025-09-07 11:38:15 +1000] [847] [INFO] Handling signal: term
-[2025-09-07 11:38:16 +1000] [1035] [INFO] Worker exiting (pid: 1035)
-[2025-09-07 11:38:45 +1000] [847] [INFO] Shutting down: Master
-[2025-09-07 11:38:45 +1000] [847] [INFO] Chatty AI Server shutting down...
-
-==> /home/nickspi5/Chatty_AI/logs/preloader.log <==
-2025-11-16 19:36:58,472 - INFO - Status updated: {'heartbeat': 1763282218.4720774, 'status': 'running'}
-2025-11-16 19:37:28,472 - INFO - Status updated: {'heartbeat': 1763282248.472474, 'status': 'running'}
-2025-11-16 19:37:58,473 - INFO - Status updated: {'heartbeat': 1763282278.4732053, 'status': 'running'}
-2025-11-16 19:38:28,473 - INFO - Status updated: {'heartbeat': 1763282308.473582, 'status': 'running'}
-2025-11-16 19:38:58,474 - INFO - Status updated: {'heartbeat': 1763282338.4738963, 'status': 'running'}
-2025-11-16 19:39:28,474 - INFO - Status updated: {'heartbeat': 1763282368.4742272, 'status': 'running'}
-2025-11-16 19:39:58,474 - INFO - Status updated: {'heartbeat': 1763282398.474607, 'status': 'running'}
-2025-11-16 19:40:28,475 - INFO - Status updated: {'heartbeat': 1763282428.4750257, 'status': 'running'}
-2025-11-16 19:40:58,475 - INFO - Status updated: {'heartbeat': 1763282458.475521, 'status': 'running'}
-2025-11-16 19:41:28,476 - INFO - Status updated: {'heartbeat': 1763282488.4758587, 'status': 'running'}
-
-==> /home/nickspi5/Chatty_AI/logs/startup.log <==
-[2025-11-12 20:52:20] Closing black screen before video...
-[2025-11-12 20:52:21] Playing startup video...
-[2025-11-12 20:52:21] Video duration: 15 seconds
-[2025-11-12 20:52:38] Video playback complete
-[2025-11-12 20:52:39] Launching loading screen for 74 seconds ...
-[2025-11-12 20:52:39] Loading screen running for 74 seconds ...
-[2025-11-15 15:35:07] Loading screen complete, closing...
-[2025-11-15 15:35:07] Launching Chatty AI interface...
-[2025-11-15 15:35:07] Chatty AI interface launched successfully
-[2025-11-15 15:35:07] =========================================
-
-==> /home/nickspi5/Chatty_AI/logs/preloader.log <==
-2025-11-16 19:41:58,476 - INFO - Status updated: {'heartbeat': 1763282518.4762206, 'status': 'running'}
-^C
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 wsgi.py
-Initialising Chatty AI...
-[07:42:27 PM] Response files loaded successfully
-[07:42:27 PM] Loaded 37 face encodings
-[07:42:27 PM] Telegram configuration loaded
-[5:44:47.128167833] [296004]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-[5:44:47.139057417] [296061]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-[5:44:47.141864388] [296061]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-[5:44:47.149081125] [296061]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-[5:44:47.149104550] [296061]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_D0
-[5:44:47.152124791] [296004]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 1536x864-BGGR_PISP_COMP1/RAW
-[5:44:47.152235843] [296061]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 1536x864-SBGGR10_1X10/RAW - Selected CFE format: 1536x864-PC1B/RAW
-[07:42:29 PM] Camera initialised successfully
-Preloading AI models for optimal performance...
-[07:42:29 PM] Loading Whisper model...
-[07:42:30 PM] Whisper model loaded successfully
-[07:42:30 PM] Loading LLaMA model...
-[07:42:30 PM] LLaMA model loaded successfully
-Chatty AI initialised successfully!
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/wsgi.py", line 5, in <module>
-    from chatty_ai import ChattyAIWebServer
-ImportError: cannot import name 'ChattyAIWebServer' from 'chatty_ai' (/home/nickspi5/Chatty_AI/chatty_ai.py)
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "class.*:" /home/nickspi5/Chatty_AI/chatty_ai.py | head -5
+114:class FastChattyAI:
+1116:                with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-Do I need to fix anything?
+The contents of my wsgi.py Python script are as follows:
+
+wsgi.py
+#!/usr/bin/env python3
+"""
+wsgi.py - WSGI Application Entry Point for Chatty AI
+"""
+from chatty_ai import ChattyAIWebServer
+
+# Create the server instance
+server = ChattyAIWebServer()
+
+# Get the Flask app and SocketIO instance for Gunicorn
+app = server.app
+socketio = server.socketio
+
+if __name__ == "__main__":
+    # For direct running (not through Gunicorn)
+    server.run(host='0.0.0.0', port=5000, debug=False)
+
 
 
 
