@@ -1,68 +1,129 @@
 
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A 20 "class FastChattyAI:" /home/nickspi5/Chatty_AI/chatty_ai.py
-class FastChattyAI:
-    def __init__(self):
-        """Initialise with optimised approach - preload everything"""
-        print("Initialising Chatty AI...")
+I made the changes you recommended.
 
-        # Core state - Same as original
-        self.is_running = False
-        self.current_person = None
-        self.last_greeting_time = {}
-        self.last_interaction_time = None
-        self.person_absent_since = None
-        self.last_bored_response_time = None
-        self.bored_cycle = 0
-        self.audio_recording_lock = threading.Lock()
-        self.wake_word_active = False
-        
-        # Response lists
-        self.jokes = []
-        self.fun_facts = []
-        self.bored_responses_generic = []
-        self.waiting_responses_generic = []
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "^app = " /home/nickspi5/Chatty_AI/chatty_ai.py
-108:app = Flask(__name__, 
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "^socketio = " /home/nickspi5/Chatty_AI/chatty_ai.py
-112:socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A 30 "def __init__" /home/nickspi5/Chatty_AI/chatty_ai.py | head -35
-    def __init__(self):
-        """Initialise with optimised approach - preload everything"""
-        print("Initialising Chatty AI...")
+I then ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 wsgi.py
+Initialising Chatty AI...
+[09:00:21 PM] Response files loaded successfully
+[09:00:21 PM] Loaded 37 face encodings
+[09:00:21 PM] Telegram configuration loaded
+[7:02:41.571994753] [370168]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[7:02:41.581657650] [370211]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
+[7:02:41.582213400] [370211] ERROR V4L2 v4l2_device.cpp:390 'imx708': Unable to set controls: Device or resource busy
+[7:02:41.584532363] [370211]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
+[7:02:41.591661534] [370211]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
+[7:02:41.591698516] [370211]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_D0
+[7:02:41.592576049] [370168]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
+Camera __init__ sequence did not complete.
+[09:00:21 PM] Failed to initialise camera: Camera __init__ sequence did not complete.
+Preloading AI models for optimal performance...
+[09:00:21 PM] Loading Whisper model...
+[09:00:22 PM] Whisper model loaded successfully
+[09:00:22 PM] Loading LLaMA model...
+[09:00:22 PM] LLaMA model loaded successfully
+Chatty AI initialised successfully!
+Initialising Chatty AI...
+[09:00:22 PM] Response files loaded successfully
+[09:00:22 PM] Loaded 37 face encodings
+[09:00:22 PM] Telegram configuration loaded
+[7:02:42.655329693] [370168]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
+Camera __init__ sequence did not complete.
+[09:00:22 PM] Failed to initialise camera: Camera __init__ sequence did not complete.
+Preloading AI models for optimal performance...
+[09:00:22 PM] Loading Whisper model...
+[09:00:23 PM] Whisper model loaded successfully
+[09:00:23 PM] Loading LLaMA model...
+[09:00:23 PM] LLaMA model loaded successfully
+Chatty AI initialised successfully!
+ * Serving Flask app 'chatty_ai'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+Job for chatty-ai.service failed because a timeout was exceeded.
+See "systemctl status chatty-ai.service" and "journalctl -xeu chatty-ai.service" for details.
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+* chatty-ai.service - Chatty AI Web Server
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: activating (start) since Sun 2025-11-16 21:02:35 AEDT; 36s ago
+        Job: 55196
+ Invocation: 1d4350326213497cb32cf11672d00491
+   Main PID: 372283 (python)
+      Tasks: 17 (limit: 19361)
+        CPU: 4.167s
+     CGroup: /system.slice/chatty-ai.service
+             `-372283 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
 
-        # Core state - Same as original
-        self.is_running = False
-        self.current_person = None
-        self.last_greeting_time = {}
-        self.last_interaction_time = None
-        self.person_absent_since = None
-        self.last_bored_response_time = None
-        self.bored_cycle = 0
-        self.audio_recording_lock = threading.Lock()
-        self.wake_word_active = False
-        
-        # Response lists
-        self.jokes = []
-        self.fun_facts = []
-        self.bored_responses_generic = []
-        self.waiting_responses_generic = []
-        self.listening_responses_generic = []
-        self.listening_responses = []
-        self.waiting_responses = []
-        self.warning_responses = []
-        self.greeting_responses = []
-        self.bored_responses = []
-        self.visitor_greeting_responses = []
-        
-        # Telegram
-        self.telegram_token = None
-        self.telegram_chat_id = None
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "self.app" /home/nickspi5/Chatty_AI/chatty_ai.py | head -5
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "self.socketio" /home/nickspi5/Chatty_AI/chatty_ai.py | head -5
+Nov 16 21:02:52 raspberrypi python[372283]: [09:02:52 PM] Loading LLaMA model...
+Nov 16 21:02:52 raspberrypi python[372283]: [09:02:52 PM] LLaMA model loaded successfully
+Nov 16 21:02:52 raspberrypi python[372283]: Chatty AI initialised successfully!
+Nov 16 21:02:52 raspberrypi python[372283]:  * Serving Flask app 'chatty_ai'
+Nov 16 21:02:52 raspberrypi python[372283]:  * Debug mode: off
+Nov 16 21:02:52 raspberrypi python[372283]: WARNING: This is a development server. Do not use it in a production deployment. >
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on all addresses (0.0.0.0)
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on http://127.0.0.1:5000
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on http://10.251.0.39:5000
+Nov 16 21:02:52 raspberrypi python[372283]: Press CTRL+C to quit
+
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ journalctl -u chatty-ai.service -f
+Nov 16 21:02:52 raspberrypi python[372283]: [09:02:52 PM] Loading LLaMA model...
+Nov 16 21:02:52 raspberrypi python[372283]: [09:02:52 PM] LLaMA model loaded successfully
+Nov 16 21:02:52 raspberrypi python[372283]: Chatty AI initialised successfully!
+Nov 16 21:02:52 raspberrypi python[372283]:  * Serving Flask app 'chatty_ai'
+Nov 16 21:02:52 raspberrypi python[372283]:  * Debug mode: off
+Nov 16 21:02:52 raspberrypi python[372283]: WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on all addresses (0.0.0.0)
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on http://127.0.0.1:5000
+Nov 16 21:02:52 raspberrypi python[372283]:  * Running on http://10.251.0.39:5000
+Nov 16 21:02:52 raspberrypi python[372283]: Press CTRL+C to quit
+^C
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai-preloader.service
+* chatty-ai-preloader.service - Chatty AI Model Preloader Service
+     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2025-11-16 19:16:36 AEDT; 1h 48min ago
+ Invocation: 7761392c3a8942a986a25e9ac1ce8e7e
+   Main PID: 272101 (python)
+      Tasks: 19 (limit: 19361)
+        CPU: 1min 1.595s
+     CGroup: /system.slice/chatty-ai-preloader.service
+             `-272101 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+
+Nov 16 20:59:58 raspberrypi python[272101]: 2025-11-16 20:59:58,538 - INFO - Status updated: {'heartbeat': 1763287198.5382738>
+Nov 16 21:00:28 raspberrypi python[272101]: 2025-11-16 21:00:28,538 - INFO - Status updated: {'heartbeat': 1763287228.5386436>
+Nov 16 21:00:58 raspberrypi python[272101]: 2025-11-16 21:00:58,539 - INFO - Status updated: {'heartbeat': 1763287258.5389624>
+Nov 16 21:01:28 raspberrypi python[272101]: 2025-11-16 21:01:28,539 - INFO - Status updated: {'heartbeat': 1763287288.5393584>
+Nov 16 21:01:58 raspberrypi python[272101]: 2025-11-16 21:01:58,539 - INFO - Status updated: {'heartbeat': 1763287318.5397544>
+Nov 16 21:02:28 raspberrypi python[272101]: 2025-11-16 21:02:28,540 - INFO - Status updated: {'heartbeat': 1763287348.5401483>
+Nov 16 21:02:58 raspberrypi python[272101]: 2025-11-16 21:02:58,540 - INFO - Status updated: {'heartbeat': 1763287378.540816,>
+Nov 16 21:03:28 raspberrypi python[272101]: 2025-11-16 21:03:28,541 - INFO - Status updated: {'heartbeat': 1763287408.5412278>
+Nov 16 21:03:58 raspberrypi python[272101]: 2025-11-16 21:03:58,541 - INFO - Status updated: {'heartbeat': 1763287438.5416205>
+Nov 16 21:04:28 raspberrypi python[272101]: 2025-11-16 21:04:28,542 - INFO - Status updated: {'heartbeat': 1763287468.5420275>
+
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+* chatty-ai.service - Chatty AI Web Server
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: activating (start) since Sun 2025-11-16 21:04:15 AEDT; 49s ago
+        Job: 55315
+ Invocation: b1da0e47632446309177bb5970bafd1b
+   Main PID: 373725 (python)
+      Tasks: 17 (limit: 19361)
+        CPU: 4.148s
+     CGroup: /system.slice/chatty-ai.service
+             `-373725 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
+
+Nov 16 21:04:32 raspberrypi python[373725]: [09:04:32 PM] Loading LLaMA model...
+Nov 16 21:04:32 raspberrypi python[373725]: [09:04:32 PM] LLaMA model loaded successfully
+Nov 16 21:04:32 raspberrypi python[373725]: Chatty AI initialised successfully!
+Nov 16 21:04:32 raspberrypi python[373725]:  * Serving Flask app 'chatty_ai'
+Nov 16 21:04:32 raspberrypi python[373725]:  * Debug mode: off
+Nov 16 21:04:32 raspberrypi python[373725]: WARNING: This is a development server. Do not use it in a production deployment. >
+Nov 16 21:04:32 raspberrypi python[373725]:  * Running on all addresses (0.0.0.0)
+Nov 16 21:04:32 raspberrypi python[373725]:  * Running on http://127.0.0.1:5000
+Nov 16 21:04:32 raspberrypi python[373725]:  * Running on http://10.251.0.39:5000
+Nov 16 21:04:32 raspberrypi python[373725]: Press CTRL+C to quit
+
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
 
 
 
