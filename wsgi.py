@@ -8,14 +8,11 @@ import sys
 # Add current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from chatty_ai import FastChattyAI
+# Import app and socketio (defined at module level in chatty_ai.py)
+from chatty_ai import app, socketio, FastChattyAI
 
-# Create the server instance
+# Create the FastChattyAI instance to initialize everything
 chatty = FastChattyAI()
-
-# Get the Flask app and SocketIO instance
-app = chatty.app
-socketio = chatty.socketio
 
 if __name__ == "__main__":
     # Run with Flask-SocketIO's built-in server
