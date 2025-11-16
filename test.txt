@@ -2,10 +2,14 @@
 
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install numpy==1.24.3
-Collecting numpy==1.24.3
-  Downloading numpy-1.24.3.tar.gz (10.9 MB)
-     ---------------------------------------- 10.9/10.9 MB 4.3 MB/s  0:00:02
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install numpy
+Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (2.2.4)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install faster-whisper==0.10.0
+Collecting faster-whisper==0.10.0
+  Downloading faster_whisper-0.10.0-py3-none-any.whl.metadata (14 kB)
+Collecting av==11.* (from faster-whisper==0.10.0)
+  Downloading av-11.0.0.tar.gz (3.7 MB)
+     ---------------------------------------- 3.7/3.7 MB 5.5 MB/s  0:00:00
   Installing build dependencies ... done
   Getting requirements to build wheel ... error
   error: subprocess-exited-with-error
@@ -13,43 +17,17 @@ Collecting numpy==1.24.3
   Getting requirements to build wheel did not run successfully.
   exit code: 1
   
-  [32 lines of output]
-  Traceback (most recent call last):
-    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
-      main()
-      ~~~~^^
-    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
-      json_out["return_val"] = hook(**hook_input["kwargs"])
-                               ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 137, in get_requires_for_build_wheel
-      backend = _build_backend()
-    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 70, in _build_backend
-      obj = import_module(mod_path)
-    File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
-      return _bootstrap._gcd_import(name[level:], package, level)
-             ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
-    File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-    File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
-    File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-    File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
-    File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-    File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
-    File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
-    File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
-    File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-    File "/tmp/pip-build-env-b45a1f86/overlay/lib/python3.13/site-packages/setuptools/__init__.py", line 16, in <module>
-      import setuptools.version
-    File "/tmp/pip-build-env-b45a1f86/overlay/lib/python3.13/site-packages/setuptools/version.py", line 1, in <module>
-      import pkg_resources
-    File "/tmp/pip-build-env-b45a1f86/overlay/lib/python3.13/site-packages/pkg_resources/__init__.py", line 2172, in <module>
-      register_finder(pkgutil.ImpImporter, find_on_path)
-                      ^^^^^^^^^^^^^^^^^^^
-  AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'?
+  [6 lines of output]
+  Package libavdevice was not found in the pkg-config search path.
+  Perhaps you should add the directory containing `libavdevice.pc'
+  to the PKG_CONFIG_PATH environment variable
+  Package 'libavdevice', required by 'virtual:world', not found
+  Package 'libavfilter', required by 'virtual:world', not found
+  pkg-config could not find libraries ['avformat', 'avcodec', 'avdevice', 'avutil', 'avfilter', 'swscale', 'swresample']
   [end of output]
   
   note: This error originates from a subprocess, and is likely not a problem with pip.
-ERROR: Failed to build 'numpy' when getting requirements to build wheel
+ERROR: Failed to build 'av' when getting requirements to build wheel
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
 How can I fix this error?
