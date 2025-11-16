@@ -1,157 +1,66 @@
 
 Thank you, Claude,
 
-I made the changes you recommended to my wsgi.py file.
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A 20 "class FastChattyAI:" /home/nickspi5/Chatty_AI/chatty_ai.py
+class FastChattyAI:
+    def __init__(self):
+        """Initialise with optimised approach - preload everything"""
+        print("Initialising Chatty AI...")
 
-I then ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 wsgi.py
-Initialising Chatty AI...
-[08:27:53 PM] Response files loaded successfully
-[08:27:53 PM] Loaded 37 face encodings
-[08:27:53 PM] Telegram configuration loaded
-[6:30:13.548976024] [339227]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-[6:30:13.559521411] [339276]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-[6:30:13.562587346] [339276]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-[6:30:13.569744287] [339276]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-[6:30:13.569766954] [339276]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_D0
-[6:30:13.574355588] [339227]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 1536x864-BGGR_PISP_COMP1/RAW
-[6:30:13.574542002] [339276]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 1536x864-SBGGR10_1X10/RAW - Selected CFE format: 1536x864-PC1B/RAW
-[08:27:55 PM] Camera initialised successfully
-Preloading AI models for optimal performance...
-[08:27:55 PM] Loading Whisper model...
-[08:27:57 PM] Whisper model loaded successfully
-[08:27:57 PM] Loading LLaMA model...
-[08:27:57 PM] LLaMA model loaded successfully
-Chatty AI initialised successfully!
-Initialising Chatty AI...
-[08:27:57 PM] Response files loaded successfully
-[08:27:57 PM] Loaded 37 face encodings
-[08:27:57 PM] Telegram configuration loaded
-[6:30:16.900130826] [339227] ERROR Camera camera.cpp:702 Camera in Running state trying acquire() requiring state Available
-Camera __init__ sequence did not complete.
-[08:27:57 PM] Failed to initialise camera: Camera __init__ sequence did not complete.
-Preloading AI models for optimal performance...
-[08:27:57 PM] Loading Whisper model...
-Exception in thread Thread-1 (listen):
-Traceback (most recent call last):
-  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
-    self.run()
-    ~~~~~~~~^^
-  File "/usr/lib/python3.13/threading.py", line 994, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 125, in listen
-    callback()
-    ~~~~~~~~^^
-  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 142, in handle_request
-    self.cameras[req.cookie]._requests += [CompletedRequest(req, self.cameras[req.cookie])]
-                                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/picamera2/request.py", line 93, in __init__
-    self.syncs = [picam2.allocator.sync(self.picam2.allocator, buffer, False)
-                  ^^^^^^^^^^^^^^^^
-AttributeError: 'Picamera2' object has no attribute 'allocator'
-[08:27:57 PM] Whisper model loaded successfully
-[08:27:57 PM] Loading LLaMA model...
-[08:27:57 PM] LLaMA model loaded successfully
-Chatty AI initialised successfully!
-Traceback (most recent call last):
-  File "/home/nickspi5/Chatty_AI/wsgi.py", line 17, in <module>
-    app = chatty.app
-          ^^^^^^^^^^
-AttributeError: 'FastChattyAI' object has no attribute 'app'
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-Job for chatty-ai.service failed because the control process exited with error code.
-See "systemctl status chatty-ai.service" and "journalctl -xeu chatty-ai.service" for details.
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (auto-restart) (Result: exit-code) since Sun 2025-11-16 20:29:34 AEDT; 7s ago
- Invocation: f7d1b1e318204e36a74350cab60ee03d
-    Process: 340777 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py (code=exited, >
-   Main PID: 340777 (code=exited, status=1/FAILURE)
-        CPU: 4.574s
+        # Core state - Same as original
+        self.is_running = False
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.last_bored_response_time = None
+        self.bored_cycle = 0
+        self.audio_recording_lock = threading.Lock()
+        self.wake_word_active = False
+        
+        # Response lists
+        self.jokes = []
+        self.fun_facts = []
+        self.bored_responses_generic = []
+        self.waiting_responses_generic = []
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "^app = " /home/nickspi5/Chatty_AI/chatty_ai.py
+108:app = Flask(__name__, 
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "^socketio = " /home/nickspi5/Chatty_AI/chatty_ai.py
+112:socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A 30 "def __init__" /home/nickspi5/Chatty_AI/chatty_ai.py | head -35
+    def __init__(self):
+        """Initialise with optimised approach - preload everything"""
+        print("Initialising Chatty AI...")
 
-Nov 16 20:29:34 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
-Nov 16 20:29:34 raspberrypi systemd[1]: chatty-ai.service: Consumed 4.574s CPU time.
-...skipping...
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (auto-restart) (Result: exit-code) since Sun 2025-11-16 20:29:34 AEDT; 7s ago
- Invocation: f7d1b1e318204e36a74350cab60ee03d
-    Process: 340777 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py (code=exited, >
-   Main PID: 340777 (code=exited, status=1/FAILURE)
-        CPU: 4.574s
-
-Nov 16 20:29:34 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
-Nov 16 20:29:34 raspberrypi systemd[1]: chatty-ai.service: Consumed 4.574s CPU time.
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-...skipping...
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (auto-restart) (Result: exit-code) since Sun 2025-11-16 20:29:34 AEDT; 7s ago
- Invocation: f7d1b1e318204e36a74350cab60ee03d
-    Process: 340777 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py (code=exited, >
-   Main PID: 340777 (code=exited, status=1/FAILURE)
-        CPU: 4.574s
-
-Nov 16 20:29:34 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
-Nov 16 20:29:34 raspberrypi systemd[1]: chatty-ai.service: Consumed 4.574s CPU time.
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ journalctl -u chatty-ai.service -f
-Nov 16 20:30:26 raspberrypi python[341613]: Chatty AI initialised successfully!
-Nov 16 20:30:26 raspberrypi python[341613]: Traceback (most recent call last):
-Nov 16 20:30:26 raspberrypi python[341613]:   File "/home/nickspi5/Chatty_AI/wsgi.py", line 17, in <module>
-Nov 16 20:30:26 raspberrypi python[341613]:     app = chatty.app
-Nov 16 20:30:26 raspberrypi python[341613]:           ^^^^^^^^^^
-Nov 16 20:30:26 raspberrypi python[341613]: AttributeError: 'FastChattyAI' object has no attribute 'app'
-Nov 16 20:30:26 raspberrypi systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
-Nov 16 20:30:26 raspberrypi systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Nov 16 20:30:26 raspberrypi systemd[1]: Failed to start chatty-ai.service - Chatty AI Web Server.
-Nov 16 20:30:26 raspberrypi systemd[1]: chatty-ai.service: Consumed 4.493s CPU time.
-Nov 16 20:30:36 raspberrypi systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 5.
-Nov 16 20:30:36 raspberrypi systemd[1]: Starting chatty-ai.service - Chatty AI Web Server...
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.892251142] [341885]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.900852723] [341940]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.903566054] [341940]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.910713892] [341940]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.910733763] [341940]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media1 using PiSP variant BCM2712_D0
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.913792122] [341885]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-XRGB8888/sRGB (1) 1536x864-BGGR_PISP_COMP1/RAW
-Nov 16 20:30:39 raspberrypi python[341885]: [6:32:58.913882495] [341940]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 1536x864-SBGGR10_1X10/RAW - Selected CFE format: 1536x864-PC1B/RAW
-^C
+        # Core state - Same as original
+        self.is_running = False
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.last_bored_response_time = None
+        self.bored_cycle = 0
+        self.audio_recording_lock = threading.Lock()
+        self.wake_word_active = False
+        
+        # Response lists
+        self.jokes = []
+        self.fun_facts = []
+        self.bored_responses_generic = []
+        self.waiting_responses_generic = []
+        self.listening_responses_generic = []
+        self.listening_responses = []
+        self.waiting_responses = []
+        self.warning_responses = []
+        self.greeting_responses = []
+        self.bored_responses = []
+        self.visitor_greeting_responses = []
+        
+        # Telegram
+        self.telegram_token = None
+        self.telegram_chat_id = None
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "self.app" /home/nickspi5/Chatty_AI/chatty_ai.py | head -5
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "self.socketio" /home/nickspi5/Chatty_AI/chatty_ai.py | head -5
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
 
