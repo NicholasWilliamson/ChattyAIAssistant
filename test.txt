@@ -2,72 +2,26 @@
 
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ deactivate
-nickspi5@raspberrypi:~/Chatty_AI $ sudo apt-get install -y libavdevice-dev libavfilter-dev
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  libpostproc-dev
-The following NEW packages will be installed:
-  libavdevice-dev libavfilter-dev libpostproc-dev
-0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
-Need to get 3,227 kB of archives.
-After this operation, 9,515 kB of additional disk space will be used.
-Get:1 http://archive.raspberrypi.com/debian trixie/main arm64 libpostproc-dev arm64 8:7.1.2-0+deb13u1+rpt2 [87.0 kB]
-Get:2 http://archive.raspberrypi.com/debian trixie/main arm64 libavfilter-dev arm64 8:7.1.2-0+deb13u1+rpt2 [2,969 kB]
-Get:3 http://archive.raspberrypi.com/debian trixie/main arm64 libavdevice-dev arm64 8:7.1.2-0+deb13u1+rpt2 [171 kB]
-Fetched 3,227 kB in 5s (624 kB/s)        
-Selecting previously unselected package libpostproc-dev:arm64.
-(Reading database ... 145825 files and directories currently installed.)
-Preparing to unpack .../libpostproc-dev_8%3a7.1.2-0+deb13u1+rpt2_arm64.deb ...
-Unpacking libpostproc-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-Selecting previously unselected package libavfilter-dev:arm64.
-Preparing to unpack .../libavfilter-dev_8%3a7.1.2-0+deb13u1+rpt2_arm64.deb ...
-Unpacking libavfilter-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-Selecting previously unselected package libavdevice-dev:arm64.
-Preparing to unpack .../libavdevice-dev_8%3a7.1.2-0+deb13u1+rpt2_arm64.deb ...
-Unpacking libavdevice-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-Setting up libpostproc-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-Setting up libavfilter-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-Setting up libavdevice-dev:arm64 (8:7.1.2-0+deb13u1+rpt2) ...
-nickspi5@raspberrypi:~/Chatty_AI $ cd /home/nickspi5/Chatty_AI
-nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install faster-whisper
-Requirement already satisfied: faster-whisper in ./chatty-venv/lib/python3.13/site-packages (1.2.1)
-Requirement already satisfied: ctranslate2<5,>=4.0 in ./chatty-venv/lib/python3.13/site-packages (from faster-whisper) (4.6.1)
-Requirement already satisfied: huggingface-hub>=0.21 in ./chatty-venv/lib/python3.13/site-packages (from faster-whisper) (1.1.4)
-Requirement already satisfied: tokenizers<1,>=0.13 in ./chatty-venv/lib/python3.13/site-packages (from faster-whisper) (0.22.1)
-Requirement already satisfied: onnxruntime<2,>=1.14 in ./chatty-venv/lib/python3.13/site-packages (from faster-whisper) (1.23.2)
-Requirement already satisfied: av>=11 in /usr/lib/python3/dist-packages (from faster-whisper) (14.2.0)
-Requirement already satisfied: tqdm in /usr/lib/python3/dist-packages (from faster-whisper) (4.67.1)
-Requirement already satisfied: setuptools in /usr/lib/python3/dist-packages (from ctranslate2<5,>=4.0->faster-whisper) (78.1.1)
-Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (from ctranslate2<5,>=4.0->faster-whisper) (2.2.4)
-Requirement already satisfied: pyyaml<7,>=5.3 in /usr/lib/python3/dist-packages (from ctranslate2<5,>=4.0->faster-whisper) (6.0.2)
-Requirement already satisfied: coloredlogs in ./chatty-venv/lib/python3.13/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (15.0.1)
-Requirement already satisfied: flatbuffers in ./chatty-venv/lib/python3.13/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (25.9.23)
-Requirement already satisfied: packaging in /usr/lib/python3/dist-packages (from onnxruntime<2,>=1.14->faster-whisper) (25.0)
-Requirement already satisfied: protobuf in ./chatty-venv/lib/python3.13/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (6.33.1)
-Requirement already satisfied: sympy in ./chatty-venv/lib/python3.13/site-packages (from onnxruntime<2,>=1.14->faster-whisper) (1.14.0)
-Requirement already satisfied: filelock in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (3.20.0)
-Requirement already satisfied: fsspec>=2023.5.0 in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (2025.10.0)
-Requirement already satisfied: hf-xet<2.0.0,>=1.2.0 in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (1.2.0)
-Requirement already satisfied: httpx<1,>=0.23.0 in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (0.28.1)
-Requirement already satisfied: shellingham in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (1.5.4)
-Requirement already satisfied: typer-slim in ./chatty-venv/lib/python3.13/site-packages (from huggingface-hub>=0.21->faster-whisper) (0.20.0)
-Requirement already satisfied: typing-extensions>=3.7.4.3 in /usr/lib/python3/dist-packages (from huggingface-hub>=0.21->faster-whisper) (4.13.2)
-Requirement already satisfied: anyio in ./chatty-venv/lib/python3.13/site-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (4.11.0)
-Requirement already satisfied: certifi in /usr/lib/python3/dist-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (2025.1.31)
-Requirement already satisfied: httpcore==1.* in ./chatty-venv/lib/python3.13/site-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (1.0.9)
-Requirement already satisfied: idna in /usr/lib/python3/dist-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (3.10)
-Requirement already satisfied: h11>=0.16 in ./chatty-venv/lib/python3.13/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (0.16.0)
-Requirement already satisfied: sniffio>=1.1 in ./chatty-venv/lib/python3.13/site-packages (from anyio->httpx<1,>=0.23.0->huggingface-hub>=0.21->faster-whisper) (1.3.1)
-Requirement already satisfied: humanfriendly>=9.1 in ./chatty-venv/lib/python3.13/site-packages (from coloredlogs->onnxruntime<2,>=1.14->faster-whisper) (10.0)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./chatty-venv/lib/python3.13/site-packages (from sympy->onnxruntime<2,>=1.14->faster-whisper) (1.3.0)
-Requirement already satisfied: click>=8.0.0 in /usr/lib/python3/dist-packages (from typer-slim->huggingface-hub>=0.21->faster-whisper) (8.1.8)
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
-
+I also ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ dpkg -l | grep libav
+ii  gstreamer1.0-libav:arm64               1.26.2-1                             arm64        ffmpeg plugin for GStreamer
+ii  libavahi-client3:arm64                 0.8-16                               arm64        Avahi client library
+ii  libavahi-common-data:arm64             0.8-16                               arm64        Avahi common data files
+ii  libavahi-common3:arm64                 0.8-16                               arm64        Avahi common library
+ii  libavahi-core7:arm64                   0.8-16                               arm64        Avahi's embeddable mDNS/DNS-SD library
+ii  libavahi-glib1:arm64                   0.8-16                               arm64        Avahi GLib integration library
+ii  libavc1394-0:arm64                     0.5.4-5+b2                           arm64        control IEEE 1394 audio/video devices
+ii  libavcodec-dev:arm64                   8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with de/encoders for audio/video codecs - development files
+ii  libavcodec61:arm64                     8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with de/encoders for audio/video codecs - runtime files
+ii  libavdevice-dev:arm64                  8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library for handling input and output devices - development files
+ii  libavdevice61:arm64                    8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library for handling input and output devices - runtime files
+ii  libavfilter-dev:arm64                  8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library containing media filters - development files
+ii  libavfilter10:arm64                    8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library containing media filters - runtime files
+ii  libavformat-dev:arm64                  8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with (de)muxers for multimedia containers - development files
+ii  libavformat61:arm64                    8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with (de)muxers for multimedia containers - runtime files
+ii  libavif16:arm64                        1.2.1-1.2                            arm64        Library for handling .avif files
+ii  libavtp0:arm64                         0.2.0-2                              arm64        Audio Video Transport Protocol (shared library)
+ii  libavutil-dev:arm64                    8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with functions for simplifying programming - development files
+ii  libavutil59:arm64                      8:7.1.2-0+deb13u1+rpt2               arm64        FFmpeg library with functions for simplifying programming - runtime files
 
 
 
