@@ -2,17 +2,77 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install dlib --no-cache-dir
-Requirement already satisfied: dlib in ./chatty-venv/lib/python3.13/site-packages (20.0.0)
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install face-recognition
-Requirement already satisfied: face-recognition in ./chatty-venv/lib/python3.13/site-packages (1.3.0)
-Requirement already satisfied: face-recognition-models>=0.3.0 in ./chatty-venv/lib/python3.13/site-packages (from face-recognition) (0.3.0)
-Requirement already satisfied: Click>=6.0 in /usr/lib/python3/dist-packages (from face-recognition) (8.1.8)
-Requirement already satisfied: dlib>=19.7 in ./chatty-venv/lib/python3.13/site-packages (from face-recognition) (20.0.0)
-Requirement already satisfied: numpy in /usr/lib/python3/dist-packages (from face-recognition) (2.2.4)
-Requirement already satisfied: Pillow in /usr/lib/python3/dist-packages (from face-recognition) (11.1.0)
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install psutil==5.9.6
+Collecting psutil==5.9.6
+  Downloading psutil-5.9.6.tar.gz (496 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Building wheels for collected packages: psutil
+  Building wheel for psutil (pyproject.toml) ... done
+  Created wheel for psutil: filename=psutil-5.9.6-cp313-abi3-linux_aarch64.whl size=282858 sha256=da25318115df5731fe2951f0860ee618cdadf2dba328fafb1f67937dd3b03b06
+  Stored in directory: /home/nickspi5/.cache/pip/wheels/7a/81/cc/7bea14ed95e46a53d2b8d7bbb232a3b56d97a0f3fba06439bb
+Successfully built psutil
+Installing collected packages: psutil
+  Attempting uninstall: psutil
+    Found existing installation: psutil 7.0.0
+    Not uninstalling psutil at /usr/lib/python3/dist-packages, outside environment /home/nickspi5/Chatty_AI/chatty-venv
+    Can't uninstall 'psutil'. No files were found to uninstall.
+Successfully installed psutil-5.9.6
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install requests==2.31.0
+Collecting requests==2.31.0
+  Downloading requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/lib/python3/dist-packages (from requests==2.31.0) (3.4.2)
+Requirement already satisfied: idna<4,>=2.5 in /usr/lib/python3/dist-packages (from requests==2.31.0) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/lib/python3/dist-packages (from requests==2.31.0) (2.3.0)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/lib/python3/dist-packages (from requests==2.31.0) (2025.1.31)
+Downloading requests-2.31.0-py3-none-any.whl (62 kB)
+Installing collected packages: requests
+  Attempting uninstall: requests
+    Found existing installation: requests 2.32.3
+    Not uninstalling requests at /usr/lib/python3/dist-packages, outside environment /home/nickspi5/Chatty_AI/chatty-venv
+    Can't uninstall 'requests'. No files were found to uninstall.
+Successfully installed requests-2.31.0
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install Pillow==10.1.0
+Collecting Pillow==10.1.0
+  Downloading Pillow-10.1.0.tar.gz (50.8 MB)
+     ---------------------------------------- 50.8/50.8 MB 4.3 MB/s  0:00:11
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... error
+  error: subprocess-exited-with-error
+  
+  Getting requirements to build wheel did not run successfully.
+  exit code: 1
+  
+  [21 lines of output]
+  Traceback (most recent call last):
+    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
+      main()
+      ~~~~^^
+    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
+      json_out["return_val"] = hook(**hook_input["kwargs"])
+                               ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 143, in get_requires_for_build_wheel
+      return hook(config_settings)
+    File "/tmp/pip-build-env-icddzrv1/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 331, in get_requires_for_build_wheel
+      return self._get_build_requires(config_settings, requirements=[])
+             ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/tmp/pip-build-env-icddzrv1/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 301, in _get_build_requires
+      self.run_setup()
+      ~~~~~~~~~~~~~~^^
+    File "/tmp/pip-build-env-icddzrv1/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 317, in run_setup
+      exec(code, locals())
+      ~~~~^^^^^^^^^^^^^^^^
+    File "<string>", line 30, in <module>
+    File "<string>", line 27, in get_version
+  KeyError: '__version__'
+  [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+ERROR: Failed to build 'Pillow' when getting requirements to build wheel
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+How can I fix this error?
 
 
 
