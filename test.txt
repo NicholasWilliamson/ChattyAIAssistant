@@ -1,86 +1,122 @@
 
 Thank you, Claude,
 
-I made the changes you recommended to my chatty-ai.service file.
+I opened http://localhost:5000 in my Chromium browser on my Raspberry PI 5 board.
 
-I then ran: nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai.service
-nickspi5@raspberrypi:~ $ sudo systemctl daemon-reload
-nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Mon 2025-11-17 20:10:17 AEDT; 23s ago
- Invocation: 939e7181e5ae4b3fbbf6d23808e2e64b
-   Main PID: 1563766 (python)
-      Tasks: 17 (limit: 19361)
-        CPU: 4.175s
-     CGroup: /system.slice/chatty-ai.service
-             `-1563766 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
+I clicked on the START SYSTEM button.
 
-Nov 17 20:10:24 raspberrypi python[1563766]: [08:10:24 PM] Loading LLaMA model...
-Nov 17 20:10:24 raspberrypi python[1563766]: [08:10:24 PM] LLaMA model loaded successfully
-Nov 17 20:10:24 raspberrypi python[1563766]: Chatty AI initialised successfully!
-Nov 17 20:10:24 raspberrypi python[1563766]:  * Serving Flask app 'chatty_ai'
-Nov 17 20:10:24 raspberrypi python[1563766]:  * Debug mode: off
-Nov 17 20:10:24 raspberrypi python[1563766]: WARNING: This is a development server. Do not use it in a production deployment.>
-Nov 17 20:10:24 raspberrypi python[1563766]:  * Running on all addresses (0.0.0.0)
-Nov 17 20:10:24 raspberrypi python[1563766]:  * Running on http://127.0.0.1:5000
-Nov 17 20:10:24 raspberrypi python[1563766]:  * Running on http://10.251.0.39:5000
-Nov 17 20:10:24 raspberrypi python[1563766]: Press CTRL+C to quit
+I clicked on F12 to open the browser's development tools.
 
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai-preloader.service
-* chatty-ai-preloader.service - Chatty AI Model Preloader Service
-     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
-     Active: active (running) since Sun 2025-11-16 19:16:36 AEDT; 24h ago
- Invocation: 7761392c3a8942a986a25e9ac1ce8e7e
-   Main PID: 272101 (python)
-      Tasks: 19 (limit: 19361)
-        CPU: 1min 4.129s
-     CGroup: /system.slice/chatty-ai-preloader.service
-             `-272101 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+I clicked on the Console tab.
 
-Nov 17 20:09:59 raspberrypi python[272101]: 2025-11-17 20:09:59,609 - INFO - Status updated: {'heartbeat': 1763370599.6091988>
-Nov 17 20:10:29 raspberrypi python[272101]: 2025-11-17 20:10:29,609 - INFO - Status updated: {'heartbeat': 1763370629.6095397>
-Nov 17 20:10:59 raspberrypi python[272101]: 2025-11-17 20:10:59,610 - INFO - Status updated: {'heartbeat': 1763370659.6099327>
-Nov 17 20:11:29 raspberrypi python[272101]: 2025-11-17 20:11:29,610 - INFO - Status updated: {'heartbeat': 1763370689.6102576>
-Nov 17 20:11:59 raspberrypi python[272101]: 2025-11-17 20:11:59,610 - INFO - Status updated: {'heartbeat': 1763370719.610653,>
-Nov 17 20:12:29 raspberrypi python[272101]: 2025-11-17 20:12:29,611 - INFO - Status updated: {'heartbeat': 1763370749.6110857>
-Nov 17 20:12:59 raspberrypi python[272101]: 2025-11-17 20:12:59,612 - INFO - Status updated: {'heartbeat': 1763370779.6119583>
-Nov 17 20:13:29 raspberrypi python[272101]: 2025-11-17 20:13:29,612 - INFO - Status updated: {'heartbeat': 1763370809.6124144>
-Nov 17 20:13:59 raspberrypi python[272101]: 2025-11-17 20:13:59,613 - INFO - Status updated: {'heartbeat': 1763370839.6132402>
-Nov 17 20:14:29 raspberrypi python[272101]: 2025-11-17 20:14:29,613 - INFO - Status updated: {'heartbeat': 1763370869.6136336>
+I saw the following messages:
 
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Mon 2025-11-17 20:10:17 AEDT; 5min ago
- Invocation: 939e7181e5ae4b3fbbf6d23808e2e64b
-   Main PID: 1563766 (python)
-      Tasks: 22 (limit: 19361)
-        CPU: 7.407s
-     CGroup: /system.slice/chatty-ai.service
-             `-1563766 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
+Logo loaded
+(index):829 Company logo loaded
+(index):1328 Page fully loaded
+(index):1337 4 of 4 images loaded
+(index):1018 Received status_update: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1345 Server health check: Object
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: start_system Array(0)
+(index):1018 Received status_update: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info Array(0)
+(index):1025 Received system_info: Object
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 74.4, memory_percent: 19.6, cpu_temp: 54, gpu_temp: 54.3, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 66.7, memory_percent: 19.4, cpu_temp: 53.45, gpu_temp: 53.8, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 65, memory_percent: 19.3, cpu_temp: 53.45, gpu_temp: 53.8, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 61, memory_percent: 18.9, cpu_temp: 52.35, gpu_temp: 52.7, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 41.7, memory_percent: 19.1, cpu_temp: 52.35, gpu_temp: 53.8, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 37.8, memory_percent: 19.3, cpu_temp: 54.55, gpu_temp: 53.8, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 63.4, memory_percent: 19.1, cpu_temp: 53.45, gpu_temp: 52.7, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 46.3, memory_percent: 19.1, cpu_temp: 54, gpu_temp: 54.9, camera_initialized: true, …}
+(index):1309 Socket event sent: get_system_info []
+(index):1025 Received system_info: {cpu_percent: 57.9, memory_percent: 19.1, cpu_temp: 53.45, gpu_temp: 53.2, camera_initialized: true, …}
 
-Nov 17 20:12:52 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:12:52] "GET /captured_image?t=1763370772108 HTTP/1>
-Nov 17 20:12:57 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:12:57] "GET /captured_image?t=1763370777109 HTTP/1>
-Nov 17 20:13:02 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:02] "GET /video_feed?t=1763370782098 HTTP/1.1" >
-Nov 17 20:13:02 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:02] "GET /captured_image?t=1763370782115 HTTP/1>
-Nov 17 20:13:07 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:07] "GET /captured_image?t=1763370787111 HTTP/1>
-Nov 17 20:13:12 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:12] "GET /captured_image?t=1763370792114 HTTP/1>
-Nov 17 20:13:17 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:17] "GET /captured_image?t=1763370797119 HTTP/1>
-Nov 17 20:13:22 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:22] "GET /captured_image?t=1763370802120 HTTP/1>
-Nov 17 20:13:27 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:27] "GET /captured_image?t=1763370807115 HTTP/1>
-Nov 17 20:13:35 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:13:35] "GET /socket.io/?EIO=4&transport=websocket&>
+I opened the terminal window.
 
-nickspi5@raspberrypi:~ $ sudo systemctl is-enabled chatty-ai-preloader.service
-enabled
-nickspi5@raspberrypi:~ $ sudo systemctl is-enabled chatty-ai.service
-enabled
+I then ran: nickspi5@raspberrypi:~ $ sudo journalctl -u chatty-ai.service -f
+Nov 17 20:50:03 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:03] "GET /captured_image?t=1763373003248 HTTP/1.1" 200 -
+Nov 17 20:50:08 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:08] "GET /video_feed?t=1763373008189 HTTP/1.1" 200 -
+Nov 17 20:50:08 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:08] "GET /captured_image?t=1763373008249 HTTP/1.1" 200 -
+Nov 17 20:50:13 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:13] "GET /captured_image?t=1763373013250 HTTP/1.1" 200 -
+Nov 17 20:50:18 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:18] "GET /captured_image?t=1763373018251 HTTP/1.1" 200 -
+Nov 17 20:50:23 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:23] "GET /captured_image?t=1763373023252 HTTP/1.1" 200 -
+Nov 17 20:50:28 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:28] "GET /captured_image?t=1763373028253 HTTP/1.1" 200 -
+Nov 17 20:50:33 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:33] "GET /captured_image?t=1763373033254 HTTP/1.1" 200 -
+Nov 17 20:50:38 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:38] "GET /video_feed?t=1763373038189 HTTP/1.1" 200 -
+Nov 17 20:50:38 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:38] "GET /captured_image?t=1763373038255 HTTP/1.1" 200 -
+Nov 17 20:50:43 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:43] "GET /captured_image?t=1763373043256 HTTP/1.1" 200 -
+Nov 17 20:50:48 raspberrypi python[1563766]: 127.0.0.1 - - [17/Nov/2025 20:50:48] "GET /captured_image?t=1763373048257 HTTP/1.1" 200 -
+^C
+nickspi5@raspberrypi:~ $ lsof /dev/video* 2>/dev/null
+COMMAND       PID     USER FD   TYPE DEVICE SIZE/OFF NODE NAME
+pipewire     1200 nickspi5 68u   CHR  81,21      0t0  810 /dev/video4
+pipewire     1200 nickspi5 69u   CHR  81,24      0t0  813 /dev/video7
+pipewire     1200 nickspi5 70u   CHR  81,23      0t0  812 /dev/video6
+pipewire     1200 nickspi5 71u   CHR  81,18      0t0  807 /dev/video1
+pipewire     1200 nickspi5 72u   CHR   81,0      0t0  613 /dev/video20
+pipewire     1200 nickspi5 73u   CHR   81,3      0t0  617 /dev/video23
+pipewire     1200 nickspi5 74u   CHR   81,4      0t0  619 /dev/video24
+pipewire     1200 nickspi5 75u   CHR   81,8      0t0  634 /dev/video27
+pipewire     1200 nickspi5 76u   CHR   81,1      0t0  614 /dev/video21
+pipewire     1200 nickspi5 77u   CHR   81,5      0t0  629 /dev/video25
+pipewire     1200 nickspi5 78u   CHR   81,2      0t0  615 /dev/video22
+pipewire     1200 nickspi5 79u   CHR   81,6      0t0  631 /dev/video26
+wireplumb    1205 nickspi5 57u   CHR  81,21      0t0  810 /dev/video4
+wireplumb    1205 nickspi5 58u   CHR  81,24      0t0  813 /dev/video7
+wireplumb    1205 nickspi5 59u   CHR  81,23      0t0  812 /dev/video6
+wireplumb    1205 nickspi5 60u   CHR  81,18      0t0  807 /dev/video1
+wireplumb    1205 nickspi5 61u   CHR   81,0      0t0  613 /dev/video20
+wireplumb    1205 nickspi5 62u   CHR   81,3      0t0  617 /dev/video23
+wireplumb    1205 nickspi5 63u   CHR   81,4      0t0  619 /dev/video24
+wireplumb    1205 nickspi5 64u   CHR   81,8      0t0  634 /dev/video27
+wireplumb    1205 nickspi5 65u   CHR   81,1      0t0  614 /dev/video21
+wireplumb    1205 nickspi5 66u   CHR   81,5      0t0  629 /dev/video25
+wireplumb    1205 nickspi5 67u   CHR   81,2      0t0  615 /dev/video22
+wireplumb    1205 nickspi5 68u   CHR   81,6      0t0  631 /dev/video26
+python    1563766 nickspi5 19u   CHR  81,21      0t0  810 /dev/video4
+python    1563766 nickspi5 20u   CHR  81,24      0t0  813 /dev/video7
+python    1563766 nickspi5 21u   CHR  81,23      0t0  812 /dev/video6
+python    1563766 nickspi5 22u   CHR  81,18      0t0  807 /dev/video1
+python    1563766 nickspi5 23u   CHR   81,0      0t0  613 /dev/video20
+python    1563766 nickspi5 24u   CHR   81,3      0t0  617 /dev/video23
+python    1563766 nickspi5 25u   CHR   81,4      0t0  619 /dev/video24
+python    1563766 nickspi5 26u   CHR   81,8      0t0  634 /dev/video27
+python    1563766 nickspi5 27u   CHR   81,1      0t0  614 /dev/video21
+python    1563766 nickspi5 28u   CHR   81,5      0t0  629 /dev/video25
+python    1563766 nickspi5 29u   CHR   81,2      0t0  615 /dev/video22
+python    1563766 nickspi5 30u   CHR   81,6      0t0  631 /dev/video26
+nickspi5@raspberrypi:~ $ ps aux | grep -E "camera|picamera2|libcamera"
+nickspi5 1601966  0.0  0.0   4128  2048 pts/1    S+   20:54   0:00 grep --color=auto -E camera|picamera2|libcamera
 nickspi5@raspberrypi:~ $ 
-
-However, when I opened up my Chromium browser with http://localhost:5000 and clicked on the START SYSTEM button, the CAMERA FEED STREAM box shows a still image, not the camera live video preview to perform the facial recognition process.
-
-How can I fix this?
 
 
 
