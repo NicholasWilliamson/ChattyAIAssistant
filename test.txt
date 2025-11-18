@@ -1,43 +1,154 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ rpicam-hello --list-cameras
-Available cameras
------------------
-0 : imx708 [4608x2592 10-bit] (/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a)
-    Modes: 'SBGGR10_CSI2P' : 1536x864 [30.00 fps - (65535, 65535)/65535x65535 crop]
-                             2304x1296 [30.00 fps - (65535, 65535)/65535x65535 crop]
-                             4608x2592 [30.00 fps - (65535, 65535)/65535x65535 crop]
+First, I copied the Chatty_AI_HighTech.html.backup file as Chatty_AI_HighTech.html because I do not think the html template file is causing the problem.
 
-nickspi5@raspberrypi:~ $ rpicam-still -o /tmp/test_camera.jpg -t 5000
-[0:11:57.223262304] [12307]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-[0:11:57.235649643] [12310]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-[0:11:57.236414104] [12310] ERROR V4L2 v4l2_device.cpp:390 'imx708': Unable to set controls: Device or resource busy
-[0:11:57.239332917] [12310]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-[0:11:57.249439503] [12310]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-[0:11:57.249516880] [12310]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_D0
+I then ran: nickspi5@raspberrypi:~ $ sudo fuser -v /dev/video0 /dev/video1
+                     USER        PID ACCESS COMMAND
+/dev/video1:         nickspi5   1217 F.... pipewire
+                     nickspi5   1219 F.... wireplumber
+nickspi5@raspberrypi:~ $ sudo lsof | grep video
+lsof: WARNING: can't stat() fuse.gvfsd-fuse file system /run/user/1000/gvfs
+      Output information may be incomplete.
+lsof: WARNING: can't stat() fuse.portal file system /run/user/1000/doc
+      Output information may be incomplete.
+python      1107                          nickspi5 mem       REG              259,2    137096   13135556 /usr/lib/python3/dist-packages/av/video/codeccontext.cpython-313-aarch64-linux-gnu.so
+python      1107                          nickspi5 mem       REG              259,2    136472   13135576 /usr/lib/python3/dist-packages/av/video/stream.cpython-313-aarch64-linux-gnu.so
+python      1107                          nickspi5 mem       REG              259,2     70776   13135568 /usr/lib/python3/dist-packages/av/video/plane.cpython-313-aarch64-linux-gnu.so
+python      1107                          nickspi5 mem       REG              259,2    136352   13135572 /usr/lib/python3/dist-packages/av/video/reformatter.cpython-313-aarch64-linux-gnu.so
+python      1107                          nickspi5 mem       REG              259,2    139848   13135560 /usr/lib/python3/dist-packages/av/video/format.cpython-313-aarch64-linux-gnu.so
+python      1107                          nickspi5 mem       REG              259,2    402984   13135564 /usr/lib/python3/dist-packages/av/video/frame.cpython-313-aarch64-linux-gnu.so
+python      1107   1198 python            nickspi5 mem       REG              259,2    137096   13135556 /usr/lib/python3/dist-packages/av/video/codeccontext.cpython-313-aarch64-linux-gnu.so
+python      1107   1198 python            nickspi5 mem       REG              259,2    136472   13135576
+...
+wireplumb   1219   1324 wireplumb         nickspi5  66u      CHR               81,6       0t0        622 /dev/video25
+wireplumb   1219   1324 wireplumb         nickspi5  67u      CHR               81,3       0t0        619 /dev/video22
+wireplumb   1219   1324 wireplumb         nickspi5  68u      CHR               81,7       0t0        623 /dev/video26
+wireplumb   1219   1325 wireplumb         nickspi5  57u      CHR              81,21       0t0        814 /dev/video4
+wireplumb   1219   1325 wireplumb         nickspi5  58u      CHR              81,24       0t0        817 /dev/video7
+wireplumb   1219   1325 wireplumb         nickspi5  59u      CHR              81,23       0t0        816 /dev/video6
+wireplumb   1219   1325 wireplumb         nickspi5  60u      CHR              81,18       0t0        807 /dev/video1
+wireplumb   1219   1325 wireplumb         nickspi5  61u      CHR               81,1       0t0        617 /dev/video20
+wireplumb   1219   1325 wireplumb         nickspi5  62u      CHR               81,4       0t0        620 /dev/video23
+wireplumb   1219   1325 wireplumb         nickspi5  63u      CHR               81,5       0t0        621 /dev/video24
+wireplumb   1219   1325 wireplumb         nickspi5  64u      CHR               81,8       0t0        624 /dev/video27
+wireplumb   1219   1325 wireplumb         nickspi5  65u      CHR               81,2       0t0        618 /dev/video21
+wireplumb   1219   1325 wireplumb         nickspi5  66u      CHR               81,6       0t0        622 /dev/video25
+wireplumb   1219   1325 wireplumb         nickspi5  67u      CHR               81,3       0t0        619 /dev/video22
+wireplumb   1219   1325 wireplumb         nickspi5  68u      CHR               81,7       0t0        623 /dev/video26
+nickspi5@raspberrypi:~ $ ps aux | grep -i libcamera
+nickspi5  513041  0.0  0.0   4128  2096 pts/0    S+   06:28   0:00 grep --color=auto -i libcamera
+nickspi5@raspberrypi:~ $ sudo systemctl stop chatty-ai.service
+nickspi5@raspberrypi:~ $ sleep 2
+nickspi5@raspberrypi:~ $ rpicam-still -o /tmp/test_camera.jpg -t 2000
+[10:03:02.917159638] [510056]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[10:03:02.932846224] [510059]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
+[10:03:02.937120044] [510059]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
+[10:03:02.948584570] [510059]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
+[10:03:02.948624719] [510059]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_D0
 WARNING: Capture will not make use of temporal denoise
          Consider using the --zsl option for best results, for example:
          rpicam-still --zsl -o /tmp/test_camera.jpg
 Made X/EGL preview window
-[0:11:57.496860629] [12307]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
-ERROR: *** failed to acquire camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a ***
+Mode selection for 2304:1296:12:P
+    SRGGB10_CSI2P,1536x864/0 - Score: 3400
+    SRGGB10_CSI2P,2304x1296/0 - Score: 1000
+    SRGGB10_CSI2P,4608x2592/0 - Score: 1900
+Stream configuration adjusted
+[10:03:03.047156708] [510056]  INFO Camera camera.cpp:1215 configuring streams: (0) 2304x1296-YUV420/sYCC (1) 2304x1296-BGGR_PISP_COMP1/RAW
+[10:03:03.048126528] [510059]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 2304x1296-SBGGR10_1X10/RAW - Selected CFE format: 2304x1296-PC1B/RAW
+Mode selection for 4608:2592:12:P
+    SRGGB10_CSI2P,1536x864/0 - Score: 10600
+    SRGGB10_CSI2P,2304x1296/0 - Score: 8200
+    SRGGB10_CSI2P,4608x2592/0 - Score: 1000
+Stream configuration adjusted
+[10:03:05.076528067] [510056]  INFO Camera camera.cpp:1215 configuring streams: (0) 4608x2592-YUV420/sYCC (1) 4608x2592-BGGR_PISP_COMP1/RAW
+[10:03:05.081899430] [510059]  INFO RPI pisp.cpp:1483 Sensor: /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a - Selected sensor format: 4608x2592-SBGGR10_1X10/RAW - Selected CFE format: 4608x2592-PC1B/RAW
 nickspi5@raspberrypi:~ $ ls -lh /tmp/test_camera.jpg
-ls: cannot access '/tmp/test_camera.jpg': No such file or directory
-nickspi5@raspberrypi:~ $ gpicview /tmp/test_camera.jpg
-bash: gpicview: command not found
-nickspi5@raspberrypi:~ $ rpicam-vid -t 10000 --nopreview -o /tmp/test_video.h264
-[0:14:15.207022985] [14259]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
-[0:14:15.215554220] [14262]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-[0:14:15.216124504] [14262] ERROR V4L2 v4l2_device.cpp:390 'imx708': Unable to set controls: Device or resource busy
-[0:14:15.218899277] [14262]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-[0:14:15.226916300] [14262]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-[0:14:15.226955001] [14262]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_D0
-[0:14:15.241287288] [14259]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
-ERROR: *** failed to acquire camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a ***
-nickspi5@raspberrypi:~ $ ls -lh /tmp/test_video.h264
-ls: cannot access '/tmp/test_video.h264': No such file or directory
-nickspi5@raspberrypi:~ $ 
+-rw-rw-r-- 1 nickspi5 nickspi5 1.2M Nov 19 06:16 /tmp/test_camera.jpg
+nickspi5@raspberrypi:~ $ grep -B 5 -A 30 "class.*Camera\|edf.*camera\|Picamera2()" /home/nickspi5/Chatty_AI/chatty_ai.py | head -60
+            self.emit_log(f"Failed to load Telegram config: {e}", 'error')
+    
+    def setup_camera(self):
+        """Initialise camera"""
+        try:
+            self.picam2 = Picamera2()
+            self.picam2.configure(self.picam2.create_preview_configuration(
+                main={"format": 'XRGB8888', "size": (640, 480)}
+            ))
+            self.picam2.start()
+            time.sleep(2)  # Camera warm-up
+            self.emit_log("Camera initialised successfully", 'success')
+            return True
+        except Exception as e:
+            self.emit_log(f"Failed to initialise camera: {e}", 'error')
+            return False
+    
+    def speak_text(self, text):
+        """Convert text to speech using Piper - Same as original"""
+        try:
+            with self.audio_recording_lock:
+                command = [
+                    PIPER_EXECUTABLE,
+                    "--model", VOICE_PATH,
+                    "--config", CONFIG_PATH,
+                    "--output_file", RESPONSE_AUDIO
+                ]
+                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+                self.emit_log(f"Speaking: '{text[:50]}...'", 'info')
+        except subprocess.CalledProcessError as e:
+            self.emit_log(f"TTS failed: {e}", 'error')
+    
+    def play_beep(self):
+        """Play beep sound - Same as original"""
+        try:
+nickspi5@raspberrypi:~ $ grep -B 5 -A 40 "@app.route('/video_feed')" /home/nickspi5/Chatty_AI/chatty_ai.py
+@app.route('/')
+def index():
+    """Main page"""
+    return render_template('Chatty_AI_HighTech.html')
 
-It appears the PI Camera Module 3 Camera is not working at all.
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route"""
+    def generate():
+        while True:
+            try:
+                with chatty_ai.frame_lock:
+                    if chatty_ai.latest_frame is not None:
+                        frame = chatty_ai.latest_frame.copy()
+                    else:
+                        # Create a black frame if no camera data
+                        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                
+                # Encode frame as JPEG
+                ret, buffer = cv2.imencode('.jpg', frame)
+                if ret:
+                    frame_bytes = buffer.tobytes()
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                
+                time.sleep(0.1)  # 10 FPS
+                
+            except Exception as e:
+                print(f"Video feed error: {e}")
+                time.sleep(1)
+    
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/captured_image')
+def captured_image():
+    """Captured person image route"""
+    try:
+        with chatty_ai.frame_lock:
+            if chatty_ai.latest_person_image is not None:
+                frame = chatty_ai.latest_person_image.copy()
+            else:
+                # Create a placeholder frame
+                frame = np.zeros((300, 300, 3), dtype=np.uint8)
+                cv2.putText(frame, "No Person", (80, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        
+        # Encode frame as JPEG
+nickspi5@raspberrypi:~ $ 
 
