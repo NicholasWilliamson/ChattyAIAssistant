@@ -1,52 +1,6 @@
 
-Thank you, Claude,
-
-The correct HTML template file used for my Chatty AI Web UI application is: /home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html
-
-I ran: nickspi5@raspberrypi:~ $ find /home/nickspi5/Chatty_AI -name "*.html" -type f
-/home/nickspi5/Chatty_AI/chatty-venv/lib/python3.11/site-packages/torch/utils/model_dump/skeleton.html
-/home/nickspi5/Chatty_AI/templates/image_analyse.html
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html
-/home/nickspi5/Chatty_AI/templates/chatty_loading.html
-/home/nickspi5/Chatty_AI/templates/black_backup.html
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html
-/home/nickspi5/Chatty_AI/templates/black.html
-nickspi5@raspberrypi:~ $ grep -n "captured_image\|video_feed" /home/nickspi5/Chatty_AI/templates/*.html
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:589:                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:593:                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:783:            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:964:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:972:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_backup.html:984:                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:756:                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:760:                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:1074:            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:1255:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:1263:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html:1275:                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:589:                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:593:                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:783:            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:964:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:972:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI.html:984:                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:485:                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:489:                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:631:            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:811:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:819:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-/home/nickspi5/Chatty_AI/templates/Chatty_AI_working.html:831:                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-nickspi5@raspberrypi:~ $ grep -n "captured_image\|video_feed" /home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html
-756:                <img id="videoFeed" class="video-feed" src="/video_feed" alt="Video Feed">
-760:                <img id="capturedImage" class="captured-image" src="/captured_image" alt="Captured Person">
-1074:            capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-1255:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-1263:                videoFeed.src = `/video_feed?t=${new Date().getTime()}`;
-1275:                capturedImage.src = `/captured_image?t=${new Date().getTime()}`;
-nickspi5@raspberrypi:~ $ 
-
-
-
+cd /home/nickspi5/Chatty_AI/templates
+cp Chatty_AI_HighTech.html Chatty_AI_HighTech.html.backup
+sed -i '1252,1260s|videoFeed.src = `/video_feed?t=${new Date().getTime()}`;|// Video feed is continuous stream - no refresh needed|g' Chatty_AI_HighTech.html
+sed -i 's|videoFeed.src = `/video_feed?t=${new Date().getTime()}`;|videoFeed.src = `/video_feed`;|g' Chatty_AI_HighTech.html
 
