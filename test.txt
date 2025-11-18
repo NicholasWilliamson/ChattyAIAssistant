@@ -1,6 +1,43 @@
 
-cd /home/nickspi5/Chatty_AI/templates
-cp Chatty_AI_HighTech.html Chatty_AI_HighTech.html.backup
-sed -i '1252,1260s|videoFeed.src = `/video_feed?t=${new Date().getTime()}`;|// Video feed is continuous stream - no refresh needed|g' Chatty_AI_HighTech.html
-sed -i 's|videoFeed.src = `/video_feed?t=${new Date().getTime()}`;|videoFeed.src = `/video_feed`;|g' Chatty_AI_HighTech.html
+Thank you, Claude,
+
+I ran: nickspi5@raspberrypi:~ $ rpicam-hello --list-cameras
+Available cameras
+-----------------
+0 : imx708 [4608x2592 10-bit] (/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a)
+    Modes: 'SBGGR10_CSI2P' : 1536x864 [30.00 fps - (65535, 65535)/65535x65535 crop]
+                             2304x1296 [30.00 fps - (65535, 65535)/65535x65535 crop]
+                             4608x2592 [30.00 fps - (65535, 65535)/65535x65535 crop]
+
+nickspi5@raspberrypi:~ $ rpicam-still -o /tmp/test_camera.jpg -t 5000
+[0:11:57.223262304] [12307]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[0:11:57.235649643] [12310]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
+[0:11:57.236414104] [12310] ERROR V4L2 v4l2_device.cpp:390 'imx708': Unable to set controls: Device or resource busy
+[0:11:57.239332917] [12310]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
+[0:11:57.249439503] [12310]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
+[0:11:57.249516880] [12310]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_D0
+WARNING: Capture will not make use of temporal denoise
+         Consider using the --zsl option for best results, for example:
+         rpicam-still --zsl -o /tmp/test_camera.jpg
+Made X/EGL preview window
+[0:11:57.496860629] [12307]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
+ERROR: *** failed to acquire camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a ***
+nickspi5@raspberrypi:~ $ ls -lh /tmp/test_camera.jpg
+ls: cannot access '/tmp/test_camera.jpg': No such file or directory
+nickspi5@raspberrypi:~ $ gpicview /tmp/test_camera.jpg
+bash: gpicview: command not found
+nickspi5@raspberrypi:~ $ rpicam-vid -t 10000 --nopreview -o /tmp/test_video.h264
+[0:14:15.207022985] [14259]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[0:14:15.215554220] [14262]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
+[0:14:15.216124504] [14262] ERROR V4L2 v4l2_device.cpp:390 'imx708': Unable to set controls: Device or resource busy
+[0:14:15.218899277] [14262]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
+[0:14:15.226916300] [14262]  INFO Camera camera_manager.cpp:220 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
+[0:14:15.226955001] [14262]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_D0
+[0:14:15.241287288] [14259]  INFO Camera camera.cpp:1020 Pipeline handler in use by another process
+ERROR: *** failed to acquire camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a ***
+nickspi5@raspberrypi:~ $ ls -lh /tmp/test_video.h264
+ls: cannot access '/tmp/test_video.h264': No such file or directory
+nickspi5@raspberrypi:~ $ 
+
+It appears the PI Camera Module 3 Camera is not working at all.
 
