@@ -83,6 +83,8 @@ def captured_image():
 
 I rebooted my Raspberry PI 5 16GB board in my Pironman 5 MAX PC Case and the Chatty_AI_starting.mp4 video played without audio but the chatty_loading.html file did not play and the Chatty_AI_HighTech.html did not play.
 
+
+
  
 
 
