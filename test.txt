@@ -1,90 +1,681 @@
 
-Thank you, Claude,
+The list of .service files used on my Raspberry PI 5 8GB Chatty AI Web UI application is as follows:
 
-I ran: nickspi5@raspberrypi:~ $ sudo cp /home/nickspi5/Chatty_AI/chatty-ai-launcher.service /etc/systemd/system/
-nickspi5@raspberrypi:~ $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-nickspi5@raspberrypi:~ $ sudo systemctl daemon-reload
-nickspi5@raspberrypi:~ $ sudo systemctl enable chatty-ai.service
-nickspi5@raspberrypi:~ $ sudo systemctl enable chatty-ai-launcher.service
-Created symlink '/etc/systemd/system/graphical.target.wants/chatty-ai-launcher.service' -> '/etc/systemd/system/chatty-ai-launcher.service'.
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Wed 2025-11-19 19:36:37 AEDT; 47min ago
- Invocation: e57afbfc6a2648c7bede490aef90a327
-   Main PID: 1110 (python)
-      Tasks: 17 (limit: 19361)
-        CPU: 6.382s
-     CGroup: /system.slice/chatty-ai.service
-             `-1110 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
+nickspi5@raspberrypi1:~ $ systemctl list-unit-files | grep enabled
+cups.path                                                                     enabled         enabled
+accounts-daemon.service                                                       enabled         enabled
+alsa-utils.service                                                            masked          enabled
+apparmor.service                                                              enabled         enabled
+avahi-daemon.service                                                          enabled         enabled
+bluetooth.service                                                             enabled         enabled
+cgroupfs-mount.service                                                        masked          enabled
+chatty-ai-launcer.service                                                     disabled        enabled
+chatty-ai-launcher.service                                                    disabled        enabled
+chatty-ai-preloader.service                                                   enabled         enabled
+chatty-ai.service                                                             enabled         enabled
+chatty-ai_backup.service                                                      disabled        enabled
+console-setup.service                                                         enabled         enabled
+containerd.service                                                            enabled         enabled
+cron.service                                                                  enabled         enabled
+cryptdisks-early.service                                                      masked          enabled
+cryptdisks.service                                                            masked          enabled
+cups-browsed.service                                                          enabled         enabled
+cups.service                                                                  enabled         enabled
+docker.service                                                                enabled         enabled
+dphys-swapfile.service                                                        enabled         enabled
+e2scrub_reap.service                                                          enabled         enabled
+fake-hwclock.service                                                          enabled         enabled
+fio.service                                                                   disabled        enabled
+getty@.service                                                                enabled         enabled
+glamor-test.service                                                           enabled         enabled
+hailort.service                                                               enabled         enabled
+hciuart.service                                                               enabled         enabled
+hwclock.service                                                               masked          enabled
+keyboard-setup.service                                                        enabled         enabled
+lightdm.service                                                               enabled         enabled
+ModemManager.service                                                          enabled         enabled
+NetworkManager-dispatcher.service                                             enabled         enabled
+NetworkManager-wait-online.service                                            enabled         enabled
+NetworkManager.service                                                        enabled         enabled
+nfs-common.service                                                            masked          enabled
+nftables.service                                                              disabled        enabled
+pigpiod.service                                                               disabled        enabled
+pulseaudio-enable-autospawn.service                                           masked          enabled
+rc.service                                                                    masked          enabled
+rcS.service                                                                   masked          enabled
+regenerate_ssh_host_keys.service                                              disabled        enabled
+rp1-test.service                                                              enabled         enabled
+rpcbind.service                                                               disabled        enabled
+rpi-display-backlight.service                                                 enabled         enabled
+rpi-eeprom-update.service                                                     enabled         enabled
+rsync.service                                                                 disabled        enabled
+rtkit-daemon.service                                                          disabled        enabled
+saned.service                                                                 masked          enabled
+saned@.service                                                                indirect        enabled
+serial-getty@.service                                                         indirect        enabled
+ssh.service                                                                   enabled         enabled
+sshswitch.service                                                             enabled         enabled
+sudo.service                                                                  masked          enabled
+systemd-fsck-root.service                                                     enabled-runtime enabled
+systemd-network-generator.service                                             disabled        enabled
+systemd-networkd-wait-online.service                                          enabled         disabled
+systemd-networkd-wait-online@.service                                         disabled        enabled
+systemd-networkd.service                                                      disabled        enabled
+systemd-pstore.service                                                        enabled         enabled
+systemd-remount-fs.service                                                    enabled-runtime enabled
+systemd-sysext.service                                                        disabled        enabled
+systemd-timesyncd.service                                                     enabled         enabled
+triggerhappy.service                                                          enabled         enabled
+udisks2.service                                                               enabled         enabled
+upower.service                                                                disabled        enabled
+userconfig.service                                                            disabled        enabled
+vncserver-virtuald.service                                                    disabled        enabled
+vncserver-x11-serviced.service                                                disabled        enabled
+wayvnc-control.service                                                        enabled         enabled
+wayvnc.service                                                                disabled        enabled
+wpa_supplicant-nl80211@.service                                               disabled        enabled
+wpa_supplicant-wired@.service                                                 disabled        enabled
+wpa_supplicant.service                                                        enabled         enabled
+wpa_supplicant@.service                                                       disabled        enabled
+x11-common.service                                                            masked          enabled
+avahi-daemon.socket                                                           enabled         enabled
+cups.socket                                                                   enabled         enabled
+docker.socket                                                                 enabled         enabled
+rpcbind.socket                                                                disabled        enabled
+saned.socket                                                                  disabled        enabled
+ssh.socket                                                                    disabled        enabled
+systemd-networkd.socket                                                       disabled        enabled
+triggerhappy.socket                                                           enabled         enabled
+graphical.target                                                              indirect        enabled
+nfs-client.target                                                             enabled         enabled
+reboot.target                                                                 disabled        enabled
+remote-cryptsetup.target                                                      disabled        enabled
+remote-fs.target                                                              enabled         enabled
+remote-veritysetup.target                                                     disabled        enabled
+apt-daily-upgrade.timer                                                       enabled         enabled
+apt-daily.timer                                                               enabled         enabled
+dpkg-db-backup.timer                                                          enabled         enabled
+e2scrub_all.timer                                                             enabled         enabled
+fstrim.timer                                                                  enabled         enabled
+logrotate.timer                                                               enabled         enabled
+man-db.timer                                                                  enabled         enabled
+plocate-updatedb.timer                                                        enabled         enabled
+nickspi5@raspberrypi1:~ $ 
 
-Nov 19 19:36:52 raspberrypi python[1110]: [07:36:52 PM] Loading LLaMA model...
-Nov 19 19:36:52 raspberrypi python[1110]: [07:36:52 PM] LLaMA model loaded successfully
-Nov 19 19:36:52 raspberrypi python[1110]: Chatty AI initialised successfully!
-Nov 19 19:36:52 raspberrypi python[1110]:  * Serving Flask app 'chatty_ai'
-Nov 19 19:36:52 raspberrypi python[1110]:  * Debug mode: off
-Nov 19 19:36:52 raspberrypi python[1110]: WARNING: This is a development server. Do not use it in a production deployment. Us>
-Nov 19 19:36:52 raspberrypi python[1110]:  * Running on all addresses (0.0.0.0)
-Nov 19 19:36:52 raspberrypi python[1110]:  * Running on http://127.0.0.1:5000
-Nov 19 19:36:52 raspberrypi python[1110]:  * Running on http://192.168.1.18:5000
-Nov 19 19:36:52 raspberrypi python[1110]: Press CTRL+C to quit
+The service files we need to interogate is:
 
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai-launcher.service
-* chatty-ai-launcher.service
-     Loaded: loaded (/etc/systemd/system/chatty-ai-launcher.service; enabled; preset: enabled)
-     Active: inactive (dead)
-nickspi5@raspberrypi:~ $ grep -n "latest_frame" /home/nickspi5/Chatty_AI/chatty_ai.py
-163:        self.latest_frame = None
-966:                    self.latest_frame = frame.copy()
-1246:                    if chatty_ai.latest_frame is not None:
-1247:                        frame = chatty_ai.latest_frame.copy()
-nickspi5@raspberrypi:~ $ grep -n "while*True/|threading/|Thread" /home/nickspi5/Chatty_AI/chatty_ai.py
-nickspi5@raspberrypi:~ $ grep -n "while.*True\|threading\|Thread" /home/nickspi5/Chatty_AI/chatty_ai.py
-12:import threading
-112:socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-127:        self.audio_recording_lock = threading.Lock()
-147:        # Threading
-165:        self.frame_lock = threading.Lock()
-880:            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
-1184:        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-1243:        while True:
-nickspi5@raspberrypi:~ $ grep -B 10 -A 20 "def.*capture\|def.*camera.*thread\|def.*update.*frame" /home/nickspi5/Chatty_AI/chatty_ai.py
+chatty-ai-launcer.service
+chatty-ai-launcher.service
+chatty-ai-preloader.service
+chatty-ai.service
+chatty-ai_backup.service
+
+The only .service files that are enabled are:
+
+chatty-ai-preloader.service                                                   enabled         enabled
+chatty-ai.service                                                             enabled         enabled
+
+
+chatty-ai.service file:
+[Unit]
+Description=Chatty AI Web Interface
+After=network.target
+
+[Service]
+Type=simple
+User=nickspi5
+Group=nickspi5
+SupplementaryGroups=audio
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
+Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
+
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+chatty-ai-preloader.service file:
+[Unit]
+Description=Chatty AI Model Preloader Service
+After=network.target
+Before=chatty-ai.service
+Wants=network-online.target
+
+/home/nickspi5/Chatty_AI/chatty_ai.py file:
+** BIG FILE**
+
+[Service]
+Type=simple
+User=nickspi5
+Group=nickspi5
+WorkingDirectory=/home/nickspi5/Chatty_AI
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
+Environment=PYTHONUNBUFFERED=1
+Environment=OMP_NUM_THREADS=4
+Environment=MKL_NUM_THREADS=4
+
+# Run the preloader script
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Resource limits for better performance
+LimitNOFILE=4096
+Nice=-10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=0
+
+# Memory settings
+MemoryMax=2G
+MemorySwapMax=0
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=false
+
+[Install]
+WantedBy=multi-user.target
+
+chatty_ai_preloader.py file:
+#!/usr/bin/env python3
+"""
+chatty_ai_preloader.py - Preload AI models and keep them in memory
+This service runs at boot to preload all AI models for faster response times
+"""
+
+import os
+import sys
+import time
+import logging
+import signal
+import mmap
+import pickle
+import threading
+import subprocess
+from pathlib import Path
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+
+# Configuration
+WHISPER_MODEL_SIZE = "base"
+LLAMA_MODEL_PATH = "/home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
+CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
+PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+ENCODINGS_FILE = "/home/nickspi5/Chatty_AI/encodings.pickle"
+
+# Shared memory paths for model state
+SHARED_MEM_DIR = "/dev/shm/chatty_ai"
+PRELOAD_STATUS_FILE = f"{SHARED_MEM_DIR}/preload_status"
+MODEL_CACHE_DIR = f"{SHARED_MEM_DIR}/model_cache"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('/home/nickspi5/Chatty_AI/logs/preloader.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+class ChattyAIPreloader:
+    def __init__(self):
+        self.running = True
+        self.whisper_model = None
+        self.llama_model = None
+        self.face_encodings = None
+        self.voice_model_loaded = False
+        
+        # Create shared memory directories
+        os.makedirs(SHARED_MEM_DIR, exist_ok=True)
+        os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
+        os.makedirs('/home/nickspi5/Chatty_AI/logs', exist_ok=True)
+        
+        # Signal handling
+        signal.signal(signal.SIGTERM, self.signal_handler)
+        signal.signal(signal.SIGINT, self.signal_handler)
+        
+    def signal_handler(self, sig, frame):
+        """Handle shutdown signals"""
+        logger.info("Received shutdown signal")
+        self.running = False
+        self.cleanup()
+        sys.exit(0)
+        
+    def update_status(self, status_dict):
+        """Update preload status in shared memory"""
+        try:
+            with open(PRELOAD_STATUS_FILE, 'w') as f:
+                f.write(str(status_dict))
+            logger.info(f"Status updated: {status_dict}")
+        except Exception as e:
+            logger.error(f"Failed to update status: {e}")
+            
+    def preload_whisper(self):
+        """Preload Whisper model into memory"""
+        try:
+            logger.info(f"Loading Whisper model: {WHISPER_MODEL_SIZE}")
+            start_time = time.time()
+            
+            self.whisper_model = WhisperModel(
+                WHISPER_MODEL_SIZE, 
+                device="cpu", 
+                compute_type="int8",
+                download_root="/home/nickspi5/Chatty_AI/.cache/whisper"
+            )
+            
+            # Warm up the model with a dummy transcription
+            logger.info("Warming up Whisper model...")
+            dummy_audio = "/home/nickspi5/Chatty_AI/audio_files/beep.wav"
+            if os.path.exists(dummy_audio):
+                segments, _ = self.whisper_model.transcribe(dummy_audio)
+                _ = list(segments)  # Force evaluation
+            
+            load_time = time.time() - start_time
+            logger.info(f"✅ Whisper model loaded and warmed up in {load_time:.2f} seconds")
+            
+            self.update_status({'whisper': 'loaded', 'whisper_time': load_time})
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to load Whisper model: {e}")
+            self.update_status({'whisper': 'failed', 'whisper_error': str(e)})
+            return False
+            
+    def preload_llama(self):
+        """Preload LLaMA model into memory"""
+        try:
+            logger.info(f"Loading LLaMA model: {LLAMA_MODEL_PATH}")
+            start_time = time.time()
+            
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                n_batch=512,
+                n_threads=4,  # Use all 4 cores on RPi5
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False,
+                mlock=True,  # Lock model in RAM
+                use_mmap=True  # Use memory mapping for faster loading
+            )
+            
+            # Warm up the model with a dummy query
+            logger.info("Warming up LLaMA model...")
+            warmup_prompt = "Hello, this is a test. Please respond briefly."
+            response = self.llama_model(warmup_prompt, max_tokens=10)
+            
+            load_time = time.time() - start_time
+            logger.info(f"✅ LLaMA model loaded and warmed up in {load_time:.2f} seconds")
+            
+            self.update_status({'llama': 'loaded', 'llama_time': load_time})
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to load LLaMA model: {e}")
+            self.update_status({'llama': 'failed', 'llama_error': str(e)})
+            return False
+            
+    def preload_piper(self):
+        """Preload Piper TTS voice model"""
+        try:
+            logger.info(f"Preloading Piper voice model: {VOICE_PATH}")
+            start_time = time.time()
+            
+            # Load the voice model file into memory
+            if os.path.exists(VOICE_PATH):
+                with open(VOICE_PATH, 'rb') as f:
+                    voice_data = f.read()
+                    
+                # Cache the voice model in shared memory
+                cache_path = f"{MODEL_CACHE_DIR}/voice_model.onnx"
+                with open(cache_path, 'wb') as f:
+                    f.write(voice_data)
+                    
+                # Test Piper with the cached model
+                test_text = "System initialized"
+                test_output = "/tmp/test_piper.wav"
                 
-                time.sleep(0.1)  # 10 FPS
+                piper_command = [
+                    PIPER_EXECUTABLE,
+                    "--model", cache_path,
+                    "--config", CONFIG_PATH,
+                    "--output_file", test_output
+                ]
+                
+                result = subprocess.run(
+                    piper_command,
+                    input=test_text,
+                    text=True,
+                    capture_output=True,
+                    timeout=10
+                )
+                
+                if result.returncode == 0:
+                    self.voice_model_loaded = True
+                    load_time = time.time() - start_time
+                    logger.info(f"✅ Piper voice model loaded and tested in {load_time:.2f} seconds")
+                    
+                    # Clean up test file
+                    if os.path.exists(test_output):
+                        os.remove(test_output)
+                        
+                    self.update_status({'piper': 'loaded', 'piper_time': load_time})
+                    return True
+                else:
+                    raise Exception(f"Piper test failed: {result.stderr}")
+                    
+            else:
+                raise FileNotFoundError(f"Voice model not found: {VOICE_PATH}")
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to load Piper voice model: {e}")
+            self.update_status({'piper': 'failed', 'piper_error': str(e)})
+            return False
+            
+    def preload_face_encodings(self):
+        """Preload face recognition encodings"""
+        try:
+            logger.info(f"Loading face encodings from: {ENCODINGS_FILE}")
+            start_time = time.time()
+            
+            if os.path.exists(ENCODINGS_FILE):
+                with open(ENCODINGS_FILE, "rb") as f:
+                    self.face_encodings = pickle.loads(f.read())
+                    
+                # Cache in shared memory for faster access
+                cache_path = f"{MODEL_CACHE_DIR}/face_encodings.pkl"
+                with open(cache_path, "wb") as f:
+                    pickle.dump(self.face_encodings, f)
+                    
+                num_faces = len(self.face_encodings.get("encodings", []))
+                load_time = time.time() - start_time
+                logger.info(f"✅ Loaded {num_faces} face encodings in {load_time:.2f} seconds")
+                
+                self.update_status({'face_encodings': 'loaded', 'faces': num_faces, 'face_time': load_time})
+                return True
+            else:
+                logger.warning("Face encodings file not found")
+                self.update_status({'face_encodings': 'not_found'})
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to load face encodings: {e}")
+            self.update_status({'face_encodings': 'failed', 'face_error': str(e)})
+            return False
+            
+    def preload_response_files(self):
+        """Preload and cache response text files"""
+        try:
+            logger.info("Caching response files...")
+            start_time = time.time()
+            
+            response_files = [
+                "jokes.txt", "fun_facts.txt", "greeting_responses.txt",
+                "listening_responses.txt", "waiting_responses.txt",
+                "warning_responses.txt", "bored_responses.txt",
+                "visitor_greeting_responses.txt", "bored_responses_generic.txt",
+                "waiting_responses_generic.txt"
+            ]
+            
+            cached_count = 0
+            for filename in response_files:
+                filepath = f"/home/nickspi5/Chatty_AI/{filename}"
+                if os.path.exists(filepath):
+                    with open(filepath, 'r') as f:
+                        content = f.read()
+                    
+                    # Cache in shared memory
+                    cache_path = f"{MODEL_CACHE_DIR}/{filename}"
+                    with open(cache_path, 'w') as f:
+                        f.write(content)
+                    cached_count += 1
+                    
+            load_time = time.time() - start_time
+            logger.info(f"✅ Cached {cached_count} response files in {load_time:.2f} seconds")
+            
+            self.update_status({'response_files': 'cached', 'files': cached_count, 'cache_time': load_time})
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to cache response files: {e}")
+            self.update_status({'response_files': 'failed', 'cache_error': str(e)})
+            return False
+            
+    def optimize_system(self):
+        """Apply system optimizations for better performance"""
+        try:
+            logger.info("Applying system optimizations...")
+            
+            # Set CPU governor to performance mode
+            try:
+                subprocess.run(['sudo', 'cpufreq-set', '-g', 'performance'], 
+                             capture_output=True, timeout=5)
+                logger.info("✅ CPU governor set to performance mode")
+            except:
+                logger.warning("Could not set CPU governor (requires sudo)")
+                
+            # Increase file descriptor limits
+            try:
+                import resource
+                resource.setrlimit(resource.RLIMIT_NOFILE, (4096, 4096))
+                logger.info("✅ File descriptor limit increased")
+            except:
+                logger.warning("Could not increase file descriptor limit")
+                
+            # Clear system caches to make room for models
+            try:
+                subprocess.run(['sync'], capture_output=True, timeout=5)
+                logger.info("✅ System caches synchronized")
+            except:
+                pass
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"System optimization failed: {e}")
+            return False
+            
+    def keep_alive_loop(self):
+        """Keep models in memory and prevent them from being paged out"""
+        logger.info("Starting keep-alive loop...")
+        
+        while self.running:
+            try:
+                # Touch each model periodically to keep in RAM
+                if self.whisper_model:
+                    # Access model attributes to keep in memory
+                    _ = self.whisper_model.model
+                    
+                if self.llama_model:
+                    # Access model context to keep in memory
+                    _ = self.llama_model.n_ctx
+                    
+                # Update heartbeat
+                self.update_status({'heartbeat': time.time(), 'status': 'running'})
+                
+                # Sleep for 30 seconds
+                time.sleep(30)
                 
             except Exception as e:
-                print(f"Video feed error: {e}")
-                time.sleep(1)
-    
-    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/captured_image')
-def captured_image():
-    """Captured person image route"""
-    try:
-        with chatty_ai.frame_lock:
-            if chatty_ai.latest_person_image is not None:
-                frame = chatty_ai.latest_person_image.copy()
-            else:
-                # Create a placeholder frame
-                frame = np.zeros((300, 300, 3), dtype=np.uint8)
-                cv2.putText(frame, "No Person", (80, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                logger.error(f"Keep-alive error: {e}")
+                time.sleep(30)
+                
+    def run(self):
+        """Main preloader process"""
+        logger.info("="*60)
+        logger.info("🚀 Chatty AI Model Preloader Starting...")
+        logger.info("="*60)
         
-        # Encode frame as JPEG
-        ret, buffer = cv2.imencode('.jpg', frame)
-        if ret:
-            frame_bytes = buffer.tobytes()
-            return Response(frame_bytes, mimetype='image/jpeg')
-        else:
-            # Return empty image if encoding fails
-            return Response(b'', mimetype='image/jpeg')
-            
+        # Apply system optimizations
+        self.optimize_system()
+        
+        # Preload all models
+        total_start = time.time()
+        
+        self.preload_whisper()
+        self.preload_llama()
+        self.preload_piper()
+        self.preload_face_encodings()
+        self.preload_response_files()
+        
+        total_time = time.time() - total_start
+        
+        logger.info("="*60)
+        logger.info(f"✨ All models preloaded in {total_time:.2f} seconds")
+        logger.info("Models will remain in memory for fast access")
+        logger.info("="*60)
+        
+        # Update final status
+        self.update_status({
+            'status': 'ready',
+            'total_load_time': total_time,
+            'timestamp': time.time()
+        })
+        
+        # Keep models in memory
+        self.keep_alive_loop()
+        
+    def cleanup(self):
+        """Clean up resources"""
+        logger.info("Cleaning up preloader resources...")
+        self.running = False
+        
+        # Update status
+        self.update_status({'status': 'stopped'})
+        
+        # Models will be garbage collected
+        self.whisper_model = None
+        self.llama_model = None
+        self.face_encodings = None
+
+
+def main():
+    """Main entry point"""
+    try:
+        preloader = ChattyAIPreloader()
+        preloader.run()
+    except KeyboardInterrupt:
+        logger.info("Preloader interrupted by user")
     except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        sys.exit(1)
 
-I rebooted my Raspberry PI 5 16GB board in my Pironman 5 MAX PC Case and the Chatty_AI_starting.mp4 video played without audio but the chatty_loading.html file did not play and the Chatty_AI_HighTech.html did not play.
+
+if __name__ == '__main__':
+    main()
+
+Somewhere we also need to run the chatty_ai_startup_enhanced.sh file:
+
+chatty_ai_startup_enhanced.sh
+#!/bin/bash
+#
+# Enhanced Chatty AI Startup Script with Loading Screen
+# Black screen -> Video -> Loading animation -> Main interface
+#
+
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+USER="nickspi5"
+
+# Create log directory if it doesn't exist
+mkdir -p /home/nickspi5/Chatty_AI/logs
+
+# Function to log messages
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to hide desktop and show black screen
+hide_desktop() {
+    # Kill desktop panels and file manager
+    pkill lxpanel 2>/dev/null
+    pkill pcmanfm 2>/dev/null
+    
+    # Set black wallpaper
+    pcmanfm --set-wallpaper=/usr/share/pixmaps/black.png 2>/dev/null || \
+    feh --bg-fill /usr/share/pixmaps/black.png 2>/dev/null || \
+    xsetroot -solid black 2>/dev/null
+    
+    # Hide mouse cursor
+    unclutter -idle 0 &
+}
+
+# Start logging
+log_message "========================================="
+log_message "Enhanced Chatty AI Startup Sequence"
+log_message "========================================="
+
+# Set display
+export DISPLAY=:0
+export XAUTHORITY=/home/nickspi5/.Xauthority
+
+# Wait for X to be ready
+sleep 5
+
+# Hide desktop and show black screen
+log_message "Hiding desktop..."
+hide_desktop
+
+# Wait a moment for black screen
+sleep 2
+
+# Check if video file exists and play it
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Play video in fullscreen
+    cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null || log_message "Video playback ended"
+    
+    log_message "Video sequence complete"
+else
+    log_message "Warning: Video file not found at $VIDEO_PATH"
+fi
+
+# Launch loading screen in Chromium
+log_message "Launching loading screen..."
+
+# Kill any existing Chromium
+pkill -f chromium 2>/dev/null
+sleep 1
+
+# Launch loading screen in fullscreen
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --start-fullscreen \
+    --disable-translate \
+    --disable-features=TranslateUI \
+    --disable-component-update \
+    --disable-session-crashed-bubble \
+    --check-for-update-interval=31536000 \
+    "file://$LOADING_PAGE" 2>/dev/null &
+
+CHROMIUM_PID=$!
+log_message "Loading screen launched with PID: $CHROMIUM_PID"
+
+# The loading page will automatically redirect to localhost:5000 after 70 seconds
+# Just keep the script running
+log_message "System loading sequence in progress..."
+
+# Keep script running
+wait $CHROMIUM_PID
 
 
-
- 
 
 
