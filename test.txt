@@ -1,97 +1,199 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi1:~ $ ls -la /home/nickspi5/.config/
-total 120
-drwxr-xr-x 26 nickspi5 nickspi5 4096 Sep 27 15:37 .
-drwx------ 24 nickspi5 nickspi5 4096 Nov 20 21:39 ..
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Sep 10 20:51 autostart
-drwx------ 37 nickspi5 nickspi5 4096 Nov 22 13:28 chromium
-drwx------ 20 nickspi5 nickspi5 4096 Jul 17 06:17 Code
-drwx------  2 nickspi5 nickspi5 4096 Nov 20 21:33 dconf
-drwx------  2 nickspi5 nickspi5 4096 Sep 27 15:37 galculator
-drwx------  5 nickspi5 nickspi5 4096 Nov 20 21:33 geany
-drwxr-xr-x  3 nickspi5 nickspi5 4096 Jul 19 07:30 go
-drwx------  2 nickspi5 nickspi5 4096 May 13  2025 gtk-3.0
-drwx------  2 nickspi5 nickspi5 4096 Jul  4 17:55 htop
-drwxr-xr-x  2 nickspi5 nickspi5 4096 May 13  2025 kanshi
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Sep 27 15:37 labwc
-drwx------  2 nickspi5 nickspi5 4096 Oct  3 18:20 libfm
-drwx------  3 nickspi5 nickspi5 4096 Sep 27 12:05 libreoffice
--rw-r--r--  1 nickspi5 nickspi5  164 Jul  2 20:25 lxtask.conf
-drwx------  2 nickspi5 nickspi5 4096 Sep 27 15:37 lxterminal
-drwx------  3 nickspi5 nickspi5 4096 Jul  4 07:58 mate
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Jul  4 07:58 matplotlib
-drwx------  2 nickspi5 nickspi5 4096 Jul  3 17:59 Mousepad
-drwx------  4 nickspi5 nickspi5 4096 Sep  9 06:24 pcmanfm
-drwx------  2 nickspi5 nickspi5 4096 Sep  7 17:43 pulse
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Sep 27 15:37 qt5ct
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Jul 13 08:50 Ultralytics
--rw-------  1 nickspi5 nickspi5  624 Aug 12 20:32 user-dirs.dirs
--rw-r--r--  1 nickspi5 nickspi5    5 May 13  2025 user-dirs.locale
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Aug 25 19:44 vlc
--rw-r--r--  1 nickspi5 nickspi5  187 Sep 27 15:37 wf-panel-pi.ini
-drwx------  2 nickspi5 nickspi5 4096 Jul 18 13:58 xarchiver
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Sep 27 15:37 xsettingsd
-nickspi5@raspberrypi1:~ $ ls -la /ho.me/nickspi5/.config/autostart/
-ls: cannot access '/ho.me/nickspi5/.config/autostart/': No such file or directory
-nickspi5@raspberrypi1:~ $ ls -la /home/nickspi5/.config/autostart/
-total 12
-drwxr-xr-x  2 nickspi5 nickspi5 4096 Sep 10 20:51 .
-drwxr-xr-x 26 nickspi5 nickspi5 4096 Sep 27 15:37 ..
--rwxr-xr-x  1 nickspi5 nickspi5  271 Sep 10 20:51 chatty-ai-launcher.desktop
-nickspi5@raspberrypi1:~ $ find /home/nickspi5/.config -name "*.desktop" -type f
-/home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
-nickspi5@raspberrypi1:~ $ ls -la /etc/xdg/autostart/
-total 88
-drwxr-xr-x  2 root root 4096 Sep  4 20:21 .
-drwxr-xr-x 15 root root 4096 May 13  2025 ..
--rw-r--r--  1 root root  167 Nov  6  2024 autotouch.desktop
--rw-r--r--  1 root root  204 Apr 30  2025 env-display.desktop
--rw-r--r--  1 root root 8530 Mar 23  2023 gnome-keyring-pkcs11.desktop
--rw-r--r--  1 root root 8057 Mar 23  2023 gnome-keyring-secrets.desktop
--rw-r--r--  1 root root 6596 Mar 23  2023 gnome-keyring-ssh.desktop
--rw-r--r--  1 root root 2370 Jan 12  2024 lxpolkit.desktop
--rw-r--r--  1 root root 7784 Jan 12  2024 polkit-mate-authentication-agent-1.desktop
--rw-r--r--  1 root root  172 Apr 11  2025 pprompt.desktop
--rw-r--r--  1 root root 5315 Feb 10  2023 pulseaudio.desktop
--rw-r--r--  1 root root  188 Apr 30  2025 pwrkey.desktop
--rw-r--r--  1 root root  134 May 13  2025 xcompmgr.desktop
--rw-r--r--  1 root root  212 Sep 27  2022 xdg-user-dirs.desktop
--rw-r--r--  1 root root  173 Jul 12  2023 xdg-user-dirs-kde.desktop
--rw-r--r--  1 root root  185 Apr 30  2025 xwayauth.desktop
-nickspi5@raspberrypi1:~ $ find /home/nickspi5 -name "*chatty*.desktop" -type f 2>/dev/null
-/home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
-nickspi5@raspberrypi1:~ $ systemctl list-unti-files --state=enabled | grep chatty
-Unknown command verb list-unti-files.
-nickspi5@raspberrypi1:~ $ systemctl list-unit-files --state=enabled | grep chatty
-chatty-ai-preloader.service          enabled enabled
-chatty-ai.service                    enabled enabled
-nickspi5@raspberrypi1:~ $ systemctl --user list-unit-files --state=enabled | grep chatty
-nickspi5@raspberrypi1:~ $ ls -la /etc/systemd/system/multi-user.target.wants/ | grep chatty
-lrwxrwxrwx  1 root root   47 Aug 25 20:19 chatty-ai-preloader.service -> /etc/systemd/system/chatty-ai-preloader.service
-lrwxrwxrwx  1 root root   37 Aug 16 18:31 chatty-ai.service -> /etc/systemd/system/chatty-ai.service
-nickspi5@raspberrypi1:~ $ ls -la /etc/systems/system/graphical.target.wants/ | grep chatty
-ls: cannot access '/etc/systems/system/graphical.target.wants/': No such file or directory
-nickspi5@raspberrypi1:~ $ ls -la /etc/systemd/system/graphical.target.wants/ | grep chatty
-nickspi5@raspberrypi1:~ $ systemctl list-units --all | grep chatty
-  chatty-ai-preloader.service                                                                                                                           loaded    active   running   Chatty AI Model Preloader Service
-  chatty-ai.service                                                                                                                                     loaded    active   running   Chatty AI Web Interface
-nickspi5@raspberrypi1:~ $ cat /home/nickspi5/.config/autostart/*.desktop 2>/dev/null
+I ran: nickspi5@raspberrypi:~ $ mkdir -p /home/nickspi5/.config/autostart
+nickspi5@raspberrypi:~ $ cat > /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Chatty AI Auto Launcher
 Comment=Automatically launch Chatty AI on boot
-Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Terminal=false
 StartupNotify=false
-nickspi5@raspberrypi1:~ $ ls -lh /home/nickspi5/.config/autostart/
-total 4.0K
--rwxr-xr-x 1 nickspi5 nickspi5 271 Sep 10 20:51 chatty-ai-launcher.desktop
-nickspi5@raspberrypi1:~ $ cat /etc/systemd/system/chatty-ai-preloader.service 2>/dev/null
+EOF
+nickspi5@raspberrypi:~ $ chmod +x /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
+nickspi5@raspberrypi:~ $ sudo systemctl disable chatty-ai-launcher.service
+Removed '/etc/systemd/system/graphical.target.wants/chatty-ai-launcher.service'.
+nickspi5@raspberrypi:~ $ sudo systemctl stop chatty-ai-launcher.service
+nickspi5@raspberrypi:~ $ sudo systemctl disable chatty-ai.service
+Removed '/etc/systemd/system/multi-user.target.wants/chatty-ai.service'.
+nickspi5@raspberrypi:~ $ sudo systemctl stop chatty-ai.service
+
+I then renamed my /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh file as /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+I then ran: nickspi5@raspberrypi:~ $ chmod +x /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+nickspi5@raspberrypi:~ $ sudo nano /etc/sysytemd/system/chatty-ai.service
+nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai.service  
+nickspi5@raspberrypi:~ $ sudo systemctl disable chatty-ai-preloader.service
+Removed '/etc/systemd/system/multi-user.target.wants/chatty-ai-preloader.service'.
+nickspi5@raspberrypi:~ $ sudo systemctl stop chatty-ai-preloader.service
+nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai-preloader.service
+
+My files are now as follows:
+
+/home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+#!/bin/bash
+#
+# Chatty AI Startup Script
+#
+
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+
+# Create log directory
+mkdir -p /home/nickspi5/Chatty_AI/logs
+
+# Function to log messages
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Start logging
+log_message "========================================="
+log_message "Chatty AI Startup Sequence Initiated"
+log_message "========================================="
+
+# Set display
+export DISPLAY=:0
+export XAUTHORITY=/home/nickspi5/.Xauthority
+
+# Wait for X server to be ready
+log_message "Waiting for X server..."
+while ! xset q &>/dev/null; do
+    sleep 0.5
+done
+
+# Hide desktop elements
+log_message "Hiding desktop elements..."
+pkill lxpanel 2>/dev/null
+pkill pcmanfm 2>/dev/null
+sleep 0.2
+
+# STEP 1: Show black screen
+log_message "Displaying black screen..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --window-position=0,0 \
+    --window-size=1920,1080 \
+    "file://$BLACK_PAGE" 2>/dev/null &
+
+BLACK_PID=$!
+sleep 2  # Wait for black screen to render
+
+# Ensure desktop is completely hidden
+pcmanfm --desktop-off 2>/dev/null
+
+# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
+log_message "Closing black screen before video..."
+kill $BLACK_PID 2>/dev/null
+sleep 0.5
+
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Video is 15.02 seconds, so we know exact duration
+    log_message "Video duration: 15 seconds"
+    
+    # Play video with optimal settings
+    cvlc \
+        --fullscreen \
+        --no-video-title-show \
+        --no-osd \
+        --quiet \
+        --intf dummy \
+        --play-and-exit \
+        "$VIDEO_PATH" 2>/dev/null &
+    
+    VLC_PID=$!
+    
+    # Wait for exact video duration (15 seconds + 1 second buffer)
+    sleep 16
+    
+    # Force kill VLC if still running
+    if ps -p $VLC_PID > /dev/null; then
+        kill $VLC_PID 2>/dev/null
+        sleep 1
+    fi
+    
+    log_message "Video playback complete"
+else
+    log_message "Video not found at $VIDEO_PATH"
+    sleep 15  # Show black screen for 15 seconds if no video
+fi
+
+# Kill any remaining VLC processes
+pkill vlc 2>/dev/null
+pkill cvlc 2>/dev/null
+sleep 1
+
+# STEP 3: Show loading screen for FULL 74 seconds
+log_message "Launching loading screen for 74 seconds ..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "file://$LOADING_PAGE" 2>/dev/null &
+
+LOADING_PID=$!
+
+# Wait for FULL loading screen duration (74 seconds)
+log_message "Loading screen running for 74 seconds ..."
+sleep 74
+
+# Kill loading screen
+log_message "Loading screen complete, closing..."
+kill $LOADING_PID 2>/dev/null
+sleep 0.5
+
+# STEP 4: Launch main Chatty AI interface
+log_message "Launching Chatty AI interface..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "$CHATTY_URL" 2>/dev/null &
+
+MAIN_PID=$!
+log_message "Chatty AI interface launched successfully"
+log_message "========================================="
+
+# Keep the main interface running
+wait $MAIN_PID
+
+/etc/systemd/system/chatty-ai-preloader.service
 [Unit]
 Description=Chatty AI Model Preloader Service
 After=network.target
@@ -125,7 +227,7 @@ IOSchedulingClass=best-effort
 IOSchedulingPriority=0
 
 # Memory settings
-MemoryMax=2G
+MemoryMax=4G
 MemorySwapMax=0
 
 # Security settings
@@ -134,7 +236,8 @@ PrivateTmp=false
 
 [Install]
 WantedBy=multi-user.target
-nickspi5@raspberrypi1:~ $ cat /home/nickspi5/Chatty_AI/chatty_ai_preloader.py 2>/dev/null
+
+/home/nickspi5/Chatty_AI/chatty_ai_preloader.py
 #!/usr/bin/env python3
 """
 chatty_ai_preloader.py - Preload AI models and keep them in memory
@@ -333,7 +436,7 @@ class ChattyAIPreloader:
             logger.error(f"❌ Failed to load Piper voice model: {e}")
             self.update_status({'piper': 'failed', 'piper_error': str(e)})
             return False
-            
+
     def preload_face_encodings(self):
         """Preload face recognition encodings"""
         try:
@@ -524,10 +627,14 @@ def main():
 
 
 if __name__ == '__main__':
-nickspi5@raspberrypi1:~ $ cat /etc/systemd/system/chatty-ai.service 2>/dev/null
+    main()
+
+/etc/systemd/system/chatty-ai.service
 [Unit]
-Description=Chatty AI Web Interface
-After=network.target
+Description=Chatty AI Web Server
+After=network.target chatty-ai-preloader.service
+Before=pironman5.service
+Wants=chatty-ai-preloader.service
 
 [Service]
 Type=simple
@@ -537,6 +644,7 @@ SupplementaryGroups=audio
 WorkingDirectory=/home/nickspi5/Chatty_AI
 Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
 Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
+Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
 
 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 Restart=always
@@ -545,167 +653,7 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 
+How can I restart my chatty-ai.service and chatty-ai-preloader.service services, so that I can reboot my Raspberry PI 5 and check if it is all working properly?
 
 
-
-
-chatty-ai-launcher.desktop
-[Desktop Entry]
-Type=Application
-Name=Chatty AI Auto Launcher
-Comment=Automatically launch Chatty AI on boot
-Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Terminal=false
-StartupNotify=false
-
-
-chatty_ai_startup_final.sh
-#!/bin/bash
-#
-# Chatty AI Startup Script - Perfect Fix
-#
-
-# Configuration
-VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
-LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
-CHATTY_URL="http://localhost:5000"
-LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
-
-# Create log directory
-mkdir -p /home/nickspi5/Chatty_AI/logs
-
-# Function to log messages
-log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
-
-# Start logging
-log_message "========================================="
-log_message "Chatty AI Startup Sequence Initiated"
-log_message "========================================="
-
-# Set display
-export DISPLAY=:0
-export XAUTHORITY=/home/nickspi5/.Xauthority
-
-# Wait for X server to be ready
-log_message "Waiting for X server..."
-while ! xset q &>/dev/null; do
-    sleep 0.5
-done
-
-# Hide desktop elements IMMEDIATELY and AGGRESSIVELY
-log_message "Hiding desktop elements..."
-pkill lxpanel 2>/dev/null
-pkill pcmanfm 2>/dev/null
-sleep 0.2
-
-# STEP 1: Show black screen FIRST and IMMEDIATELY
-log_message "Displaying black screen..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    --window-position=0,0 \
-    --window-size=1920,1080 \
-    "file://$BLACK_PAGE" 2>/dev/null &
-
-BLACK_PID=$!
-sleep 2  # Wait for black screen to render
-
-# Ensure desktop is completely hidden
-pcmanfm --desktop-off 2>/dev/null
-
-# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
-log_message "Closing black screen before video..."
-kill $BLACK_PID 2>/dev/null
-sleep 0.5
-
-if [ -f "$VIDEO_PATH" ]; then
-    log_message "Playing startup video..."
-    
-    # Video is 15.02 seconds, so we know exact duration
-    log_message "Video duration: 15 seconds"
-    
-    # Play video with optimal settings
-    cvlc \
-        --fullscreen \
-        --no-video-title-show \
-        --no-osd \
-        --quiet \
-        --intf dummy \
-        --play-and-exit \
-        "$VIDEO_PATH" 2>/dev/null &
-    
-    VLC_PID=$!
-    
-    # Wait for exact video duration (15 seconds + 1 second buffer)
-    sleep 16
-    
-    # Force kill VLC if still running
-    if ps -p $VLC_PID > /dev/null; then
-        kill $VLC_PID 2>/dev/null
-        sleep 1
-    fi
-    
-    log_message "Video playback complete"
-else
-    log_message "Video not found at $VIDEO_PATH"
-    sleep 15  # Show black screen for 15 seconds if no video
-fi
-
-# Kill any remaining VLC processes
-pkill vlc 2>/dev/null
-pkill cvlc 2>/dev/null
-sleep 1
-
-# STEP 3: Show loading screen for FULL 74 seconds
-log_message "Launching loading screen for 74 seconds ..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    "file://$LOADING_PAGE" 2>/dev/null &
-
-LOADING_PID=$!
-
-# Wait for FULL loading screen duration (74 seconds)
-log_message "Loading screen running for 74 seconds ..."
-sleep 74
-
-# Kill loading screen
-log_message "Loading screen complete, closing..."
-kill $LOADING_PID 2>/dev/null
-sleep 0.5
-
-# STEP 4: Launch main Chatty AI interface
-log_message "Launching Chatty AI interface..."
-chromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    "$CHATTY_URL" 2>/dev/null &
-
-MAIN_PID=$!
-log_message "Chatty AI interface launched successfully"
-log_message "========================================="
-
-# Keep the main interface running
-wait $MAIN_PID
 
