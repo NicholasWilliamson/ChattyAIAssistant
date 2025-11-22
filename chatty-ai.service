@@ -8,12 +8,13 @@ Wants=chatty-ai-preloader.service
 Type=simple
 User=nickspi5
 Group=nickspi5
+SupplementaryGroups=audio
 WorkingDirectory=/home/nickspi5/Chatty_AI
-Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PATH=/home/nickspi5/Chatty_AI/chatty-venv/bin:/usr/bin:/bin
+Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
 Environment=PYTHONPATH=/home/nickspi5/Chatty_AI
 
-ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/wsgi.py
-
+ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 Restart=always
 RestartSec=10
 
