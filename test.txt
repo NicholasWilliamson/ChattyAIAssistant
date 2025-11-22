@@ -55,6 +55,28 @@ Nov 22 18:02:43 raspberrypi python[58818]: 2025-11-22 18:02:43,605 - INFO - Stat
 
 nickspi5@raspberrypi:~ $ 
 
+I then rebooted my Raspberry PI 5.
+
+The Chatty_AI_starting.mp4 video played through properly with audio once.
+
+However, again the chatty_loading.html and Chatty_AI_HighTech.html web pages did not open up and play in my Chromium browser in kiosk mode.
+
+This time when I manually opened up my Chromium browser using http://localhost:5000 the Chatty AI Web UI html page displayed correctly.
+
+I clicked on the Start Service button.
+
+The video stream activated in the Camera Feed Stream box and facial detection recognition recognized me correctly and Chatty AI spoke the greeting to me correctly.
+
+Unfortunately, wake word detection failed but Chatty AI did speak the bored response after 30 seconds and told me a joke.
+
+I saw the following error in my System Log Stream box:
+18:22:47 [06:22:47 PM] Wake word recording error: No module named 'scipy'.
+
+I am not sure why this error occured as I have not changed anything in my Chatty_ai.py Python script and it was working perfectly on my Raspberry PI 5 8GB board when I tested it earlier.
+
+How can I fix these two issues?
+
+
 
 
 
