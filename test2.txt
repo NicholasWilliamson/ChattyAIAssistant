@@ -1,0 +1,13 @@
+
+cat > /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup_final.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+EOF
