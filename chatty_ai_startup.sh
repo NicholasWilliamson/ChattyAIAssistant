@@ -1,17 +1,16 @@
 #!/bin/bash
 #
 # Chatty AI Startup Script
-# Plays intro video and launches the web interface
 #
 
 # Configuration
 VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
 CHATTY_URL="http://localhost:5000"
 LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
-STARTUP_DELAY=75
-USER="nickspi5"
 
-# Create log directory if it doesn't exist
+# Create log directory
 mkdir -p /home/nickspi5/Chatty_AI/logs
 
 # Function to log messages
@@ -24,94 +23,123 @@ log_message "========================================="
 log_message "Chatty AI Startup Sequence Initiated"
 log_message "========================================="
 
-# Wait for display to be ready
+# Set display
 export DISPLAY=:0
 export XAUTHORITY=/home/nickspi5/.Xauthority
 
-# Check for development mode
-DEV_MODE="${1:-production}"
+# Wait for X server to be ready
+log_message "Waiting for X server..."
+while ! xset q &>/dev/null; do
+    sleep 0.5
+done
 
-# Ensure services are running
-log_message "Starting Chatty AI services..."
+# Hide desktop elements
+log_message "Hiding desktop elements..."
+pkill lxpanel 2>/dev/null
+pkill pcmanfm 2>/dev/null
+sleep 0.2
 
-# Start preloader if not running
-if ! systemctl is-active --quiet chatty-ai-preloader.service; then
-    log_message "Starting preloader service..."
-    systemctl --user start chatty-ai-preloader.service 2>/dev/null || \
-    sudo systemctl start chatty-ai-preloader.service
-    sleep 5
-fi
+# STEP 1: Show black screen
+log_message "Displaying black screen..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --window-position=0,0 \
+    --window-size=1920,1080 \
+    "file://$BLACK_PAGE" 2>/dev/null &
 
-# Start main service if not running
-if ! systemctl is-active --quiet chatty-ai.service; then
-    log_message "Starting Chatty AI service..."
-    systemctl --user start chatty-ai.service 2>/dev/null || \
-    sudo systemctl start chatty-ai.service
-    sleep 5
-fi
+BLACK_PID=$!
+sleep 2  # Wait for black screen to render
 
-# Check if video file exists and play it
+# Ensure desktop is completely hidden
+pcmanfm --desktop-off 2>/dev/null
+
+# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
+log_message "Closing black screen before video..."
+kill $BLACK_PID 2>/dev/null
+sleep 0.5
+
 if [ -f "$VIDEO_PATH" ]; then
     log_message "Playing startup video..."
     
-    #  Play video once without retries
-    cvlc --fullscreen --play-and-exit "$VIDEO_PATH" 2>/dev/null || log_message "Video playback ended"
-
-    log_message "Video sequence complete"
-else
-    log_message "Warning: Video file not found at $VIDEO_PATH"
-fi
-
-# After video plays, wait for services to be ready
-log_message "Waiting $STARTUP_DELAY seconds for services..."
-sleep $STARTUP_DELAY
-
-while [ $WAITED -lt $MAX_WAIT ]; do
-    if netstat -tuln | grep -q ":5000 "; then
-        log_message "Port 5000 is open and ready"
-        sleep 5  # Wait to ensure fully ready
-        break
-    fi
-    sleep 2
-    WAITED=$((WAITED + 2))
+    # Video is 15.02 seconds, so we know exact duration
+    log_message "Video duration: 15 seconds"
     
-    if [ $WAITED -eq 30 ] || [ $WAITED -eq 60 ]; then
-        log_message "Still waiting for port 5000... ($WAITED seconds)"
+    # Play video with optimal settings
+    cvlc \
+        --fullscreen \
+        --no-video-title-show \
+        --no-osd \
+        --quiet \
+        --intf dummy \
+        --play-and-exit \
+        "$VIDEO_PATH" 2>/dev/null &
+    
+    VLC_PID=$!
+    
+    # Wait for exact video duration (15 seconds + 1 second buffer)
+    sleep 16
+    
+    # Force kill VLC if still running
+    if ps -p $VLC_PID > /dev/null; then
+        kill $VLC_PID 2>/dev/null
+        sleep 1
     fi
-done
-
-# Kill VLC if still running
-if [ -n "$VLC_PID" ] && ps -p $VLC_PID > /dev/null 2>&1; then
-    kill $VLC_PID 2>/dev/null
-fi
-
-# Launch Chromium
-if [ "$DEV_MODE" = "dev" ]; then
-    log_message "Launching Chromium in development mode..."
-    chromium-browser --start-maximized "$CHATTY_URL" 2>/dev/null &
+    
+    log_message "Video playback complete"
 else
-    log_message "Launching Chromium in kiosk mode..."
-    chromium-browser \
-        --kiosk \
-        --noerrdialogs \
-        --disable-infobars \
-        --start-maximized \
-        --disable-translate \
-        --disable-features=TranslateUI \
-        --disable-component-update \
-        "$CHATTY_URL" 2>/dev/null &
+    log_message "Video not found at $VIDEO_PATH"
+    sleep 15  # Show black screen for 15 seconds if no video
 fi
 
-CHROMIUM_PID=$!
-log_message "Chromium launched with PID: $CHROMIUM_PID"
+# Kill any remaining VLC processes
+pkill vlc 2>/dev/null
+pkill cvlc 2>/dev/null
+sleep 1
 
-# Hide mouse cursor
-if command -v unclutter &> /dev/null; then
-    unclutter -idle 1 -root &
-fi
+# STEP 3: Show loading screen for FULL 74 seconds
+log_message "Launching loading screen for 74 seconds ..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "file://$LOADING_PAGE" 2>/dev/null &
 
-log_message "Startup sequence complete!"
+LOADING_PID=$!
+
+# Wait for FULL loading screen duration (74 seconds)
+log_message "Loading screen running for 74 seconds ..."
+sleep 74
+
+# Kill loading screen
+log_message "Loading screen complete, closing..."
+kill $LOADING_PID 2>/dev/null
+sleep 0.5
+
+# STEP 4: Launch main Chatty AI interface
+log_message "Launching Chatty AI interface..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "$CHATTY_URL" 2>/dev/null &
+
+MAIN_PID=$!
+log_message "Chatty AI interface launched successfully"
 log_message "========================================="
 
-# Keep script running
-wait $CHROMIUM_PID
+# Keep the main interface running
+wait $MAIN_PID
