@@ -1,280 +1,60 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai-preloader.service
-* chatty-ai-preloader.service - Chatty AI Model Preloader Service
-     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
-     Active: active (running) since Sat 2025-11-22 17:02:15 AEDT; 10min ago
- Invocation: 39ead1e9b9a24d49856d96dcd3326fc2
-   Main PID: 1104 (python)
-      Tasks: 18 (limit: 19361)
-        CPU: 1min 13.588s
-     CGroup: /system.slice/chatty-ai-preloader.service
-             `-1104 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+I made the changes you recommended to the chatty-ai.service and chatty-ai-preloader.service service files.
 
-Nov 22 17:07:47 raspberrypi python[1104]: 2025-11-22 17:07:47,136 - INFO - Status updated: {'heartbeat': 1763791667.1364803, >
-Nov 22 17:08:17 raspberrypi python[1104]: 2025-11-22 17:08:17,136 - INFO - Status updated: {'heartbeat': 1763791697.1368382, >
-Nov 22 17:08:47 raspberrypi python[1104]: 2025-11-22 17:08:47,137 - INFO - Status updated: {'heartbeat': 1763791727.1372192, >
-Nov 22 17:09:17 raspberrypi python[1104]: 2025-11-22 17:09:17,137 - INFO - Status updated: {'heartbeat': 1763791757.137604, '>
-Nov 22 17:09:47 raspberrypi python[1104]: 2025-11-22 17:09:47,138 - INFO - Status updated: {'heartbeat': 1763791787.137943, '>
-Nov 22 17:10:17 raspberrypi python[1104]: 2025-11-22 17:10:17,138 - INFO - Status updated: {'heartbeat': 1763791817.1382706, >
-Nov 22 17:10:47 raspberrypi python[1104]: 2025-11-22 17:10:47,138 - INFO - Status updated: {'heartbeat': 1763791847.13868, 's>
-Nov 22 17:11:17 raspberrypi python[1104]: 2025-11-22 17:11:17,139 - INFO - Status updated: {'heartbeat': 1763791877.139094, '>
-Nov 22 17:11:47 raspberrypi python[1104]: 2025-11-22 17:11:47,139 - INFO - Status updated: {'heartbeat': 1763791907.1395223, >
-Nov 22 17:12:17 raspberrypi python[1104]: 2025-11-22 17:12:17,140 - INFO - Status updated: {'heartbeat': 1763791937.1399324, >
-
+I ran: nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chaaty-ai.service
+nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai.service
+nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai-preloader.service
+nickspi5@raspberrypi:~ $ sudo systemctl daemon-reload
+nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai-preloader.service
+nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
 nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
 * chatty-ai.service - Chatty AI Web Server
      Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (auto-restart) (Result: exit-code) since Sat 2025-11-22 17:12:49 AEDT; 4s ago
- Invocation: c44d232ce25c4ae8bda0684da8cae64e
-    Process: 12058 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py (code=exit>
-   Main PID: 12058 (code=exited, status=1/FAILURE)
-        CPU: 3.860s
+     Active: active (running) since Sat 2025-11-22 18:01:38 AEDT; 24s ago
+ Invocation: 0b80e001f1eb4a55bf171624e90e7979
+   Main PID: 59087 (python)
+      Tasks: 17 (limit: 19361)
+        CPU: 4.364s
+     CGroup: /system.slice/chatty-ai.service
+             `-59087 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 
-nickspi5@raspberrypi:~ $ sudo systemctl status pironman5.service
-* pironman5.service - pironman5 service
-     Loaded: loaded (/etc/systemd/system/pironman5.service; enabled; preset: enabled)
-     Active: active (running) since Sat 2025-11-22 17:02:25 AEDT; 10min ago
- Invocation: f51ee072f2ea406f843bf0cc04d07c58
-    Process: 1928 ExecStart=/usr/local/bin/pironman5 start --background (code=exited, status=0/SUCCESS)
-   Main PID: 1932 (pironman5-servi)
-      Tasks: 8 (limit: 19361)
-        CPU: 36.660s
-     CGroup: /system.slice/pironman5.service
-             `-1932 /opt/pironman5/venv/bin/python3 /opt/pironman5/venv/bin/pironman5-service start
-
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.238 [INFO] PMAuto started
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.284 [INFO] Connected to wlan0: 192.168.1.18
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.321 [INFO] Influxdb is ready
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.328 [INFO] PmDashboard started
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.328 [INFO] Dashboard Server start
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.346 [DEBUG] Waiting for InfluxDB to be ready
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.428 [INFO] Influxdb is ready
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.431 [INFO] Data Logger Start
-Nov 22 17:02:33 raspberrypi pironman5[1932]: 25/11/22 17:02:33.437 [INFO] PWM Fan is supported, sync all other fan with pwm f>
-Nov 22 17:02:36 raspberrypi pironman5[1932]: 25/11/22 17:02:36.834 [INFO] OLED sleep timeout, sleeping
-
-nickspi5@raspberrypi:~ $ sudo journalctl -u chatty-ai-preloader.service -n 50
-Nov 22 17:02:47 raspberrypi python[1104]:     main()
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/home/nickspi5/Chatty_AI/chatty_ai_preloader.py", line 381, in main
-Nov 22 17:02:47 raspberrypi python[1104]:     preloader.run()
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/home/nickspi5/Chatty_AI/chatty_ai_preloader.py", line 349, in run
-Nov 22 17:02:47 raspberrypi python[1104]:     logger.info(f"\u2728 All models preloaded in {total_time:.2f} seconds")
-Nov 22 17:02:47 raspberrypi python[1104]: Message: '\u2728 All models preloaded in 30.56 seconds'
-Nov 22 17:02:47 raspberrypi python[1104]: Arguments: ()
-Nov 22 17:02:47 raspberrypi python[1104]: --- Logging error ---
-Nov 22 17:02:47 raspberrypi python[1104]: Traceback (most recent call last):
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/usr/lib/python3.13/logging/__init__.py", line 1154, in emit
-Nov 22 17:02:47 raspberrypi python[1104]:     stream.write(msg + self.terminator)
-Nov 22 17:02:47 raspberrypi python[1104]:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-Nov 22 17:02:47 raspberrypi python[1104]: UnicodeEncodeError: 'latin-1' codec can't encode character '\u2728' in position 33:>
-Nov 22 17:02:47 raspberrypi python[1104]: Call stack:
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/home/nickspi5/Chatty_AI/chatty_ai_preloader.py", line 390, in <module>
-Nov 22 17:02:47 raspberrypi python[1104]:     main()
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/home/nickspi5/Chatty_AI/chatty_ai_preloader.py", line 381, in main
-Nov 22 17:02:47 raspberrypi python[1104]:     preloader.run()
-Nov 22 17:02:47 raspberrypi python[1104]:   File "/home/nickspi5/Chatty_AI/chatty_ai_preloader.py", line 349, in run
-Nov 22 17:02:47 raspberrypi python[1104]:     logger.info(f"\u2728 All models preloaded in {total_time:.2f} seconds")
-Nov 22 17:02:47 raspberrypi python[1104]: Message: '\u2728 All models preloaded in 30.56 seconds'
-Nov 22 17:02:47 raspberrypi python[1104]: Arguments: ()
-Nov 22 17:02:47 raspberrypi python[1104]: 2025-11-22 17:02:47,132 - INFO - Models will remain in memory for fast access
-Nov 22 17:02:47 raspberrypi python[1104]: 2025-11-22 17:02:47,132 - INFO - ==================================================>
-Nov 22 17:02:47 raspberrypi python[1104]: 2025-11-22 17:02:47,132 - INFO - Status updated: {'status': 'ready', 'total_load_ti>
-Nov 22 17:02:47 raspberrypi python[1104]: 2025-11-22 17:02:47,132 - INFO - Starting keep-alive loop...
-Nov 22 17:02:47 raspberrypi python[1104]: 2025-11-22 17:02:47,133 - INFO - Status updated: {'heartbeat': 1763791367.1329894, >
-Nov 22 17:03:17 raspberrypi python[1104]: 2025-11-22 17:03:17,133 - INFO - Status updated: {'heartbeat': 1763791397.1331239, >
-
-nickspi5@raspberrypi:~ $ sudo journalctl -u chatty-ai.service -n 50
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:10 PM] Response files loaded successfully
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:10 PM] Loaded 37 face encodings
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:10 PM] Telegram configuration loaded
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:12 PM] Camera initialised successfully
-Nov 22 17:15:13 raspberrypi python[14382]: Preloading AI models for optimal performance...
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:12 PM] Loading Whisper model...
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:13 PM] Whisper model loaded successfully
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:13 PM] Loading LLaMA model...
-Nov 22 17:15:13 raspberrypi python[14382]: [05:15:13 PM] LLaMA model loaded successfully
-Nov 22 17:15:13 raspberrypi python[14382]: Chatty AI initialised successfully!
-Nov 22 17:15:13 raspberrypi python[14382]: Chatty AI Web Server Starting...
-Nov 22 17:15:13 raspberrypi python[14382]: ============================================================
-Nov 22 17:15:13 raspberrypi python[14382]: Traceback (most recent call last):
-Nov 22 17:15:13 raspberrypi python[14382]:   File "/home/nickspi5/Chatty_AI/chatty_ai.py", line 1361, in <module>
-Nov 22 17:15:13 raspberrypi python[14382]:     print("\u2728 Optimised for maximum speed and performance")
-Nov 22 17:15:13 raspberrypi python[14382]:     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Nov 22 17:15:13 raspberrypi python[14382]: UnicodeEncodeError: 'latin-1' codec can't encode character '\u2728' in position 0:>
-Nov 22 17:15:14 raspberrypi systemd[1]: chatty-ai.service: Main process exited, code=exited, status=1/FAILURE
-Nov 22 17:15:14 raspberrypi systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
-Nov 22 17:15:14 raspberrypi systemd[1]: chatty-ai.service: Consumed 3.822s CPU time.
-Nov 22 17:15:24 raspberrypi systemd[1]: chatty-ai.service: Scheduled restart job, restart counter is at 47.
-Nov 22 17:15:24 raspberrypi systemd[1]: Started chatty-ai.service - Chatty AI Web Server.
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.431355912] [14636]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+9>
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.439972494] [14679]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.442691455] [14679]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /us>
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.449847489] [14679]  INFO Camera camera_manager.cpp:220 Adding camera '/ba>
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.449867360] [14679]  INFO RPI pisp.cpp:1179 Registered camera /base/axi/pc>
-Nov 22 17:15:27 raspberrypi python[14636]: [0:13:16.452904608] [14636]  INFO Camera camera.cpp:1215 configuring streams: (0) >
-
-nickspi5@raspberrypi:~ $ sudo journalctl -u pironman5.service -n 50
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.412 [INFO]
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.413 [INFO] ###################################################>
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.413 [DEBUG] Config path: /opt/pironman5/venv/lib/python3.13/si>
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.413 [DEBUG] Pironman5 version: 1.2.19
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.414 [DEBUG] Variant: Pironman 5 Max
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.414 [DEBUG] Config: {'system': {'data_interval': 1, 'rgb_color>
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.414 [DEBUG] Device info: {'name': 'Pironman 5 Max', 'id': 'pir>
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.416 [DEBUG] PM_Auto version: 1.2.12
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.416 [DEBUG] PM_Dashboard version: 1.2.10
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.526 [DEBUG] Initializing OLED
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.617 [DEBUG] Update temperature_unit to C
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update oled_rotation to 0
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update oled_disk to total
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update oled_network_interface to all
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update oled_sleep_timeout to 10
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update oled_enable to True
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] OLED wake up
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] OLED initialized
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update LED count: 4
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update RGB enable: True
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update RGB color: [255, 85, 13]
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update RGB brightness: 75
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update RGB speed: 50
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.618 [DEBUG] Update RGB style: rainbow
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.636 [DEBUG] WS2812 initialized
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.647 [DEBUG] Initializing FanControl
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.647 [DEBUG] Update gpio_fan_pin to 6
-Nov 22 17:02:26 raspberrypi pironman5[1932]: 25/11/22 17:02:26.647 [DEBUG] Update gpio_fan_mode to 3
-
-nickspi5@raspberrypi:~ $ cat /home/nickspi5/Chatty_AI/logs/startup.log
-[2025-11-22 14:31:25] =========================================
-[2025-11-22 14:31:25] Chatty AI Startup Sequence Initiated
-[2025-11-22 14:31:25] =========================================
-[2025-11-22 14:31:25] Starting Chatty AI services...
-[2025-11-22 14:31:26] Playing startup video...
-[2025-11-22 14:31:42] Video sequence complete
-[2025-11-22 14:31:42] Waiting 75 seconds for services...
-[2025-11-22 14:33:02] Port 5000 is open and ready
-[2025-11-22 14:33:07] Launching Chromium in kiosk mode...
-[2025-11-22 14:33:07] Chromium launched with PID: 3430
-[2025-11-22 14:33:07] Startup sequence complete!
-[2025-11-22 14:33:07] =========================================
-[2025-11-22 14:34:47] =========================================
-[2025-11-22 14:34:47] Chatty AI Startup Sequence Initiated
-[2025-11-22 14:34:47] =========================================
-[2025-11-22 14:34:47] Starting Chatty AI services...
-[2025-11-22 14:34:47] Playing startup video...
-[2025-11-22 14:35:03] Video sequence complete
-[2025-11-22 14:35:03] Waiting 75 seconds for services...
-[2025-11-22 14:36:18] Port 5000 is open and ready
-[2025-11-22 14:36:23] Launching Chromium in kiosk mode...
-[2025-11-22 14:36:23] Chromium launched with PID: 6244
-[2025-11-22 14:36:23] Startup sequence complete!
-[2025-11-22 14:36:23] =========================================
-[2025-11-22 14:38:03] =========================================
-[2025-11-22 14:38:03] Chatty AI Startup Sequence Initiated
-[2025-11-22 14:38:03] =========================================
-[2025-11-22 14:38:03] Starting Chatty AI services...
-[2025-11-22 14:38:03] Playing startup video...
-[2025-11-22 14:38:18] Video sequence complete
-[2025-11-22 14:38:18] Waiting 75 seconds for services...
-[2025-11-22 14:39:33] Port 5000 is open and ready
-[2025-11-22 14:39:38] Launching Chromium in kiosk mode...
-[2025-11-22 14:39:38] Chromium launched with PID: 9357
-[2025-11-22 14:39:38] Startup sequence complete!
-[2025-11-22 14:39:38] =========================================
-[2025-11-22 14:41:19] =========================================
-[2025-11-22 14:41:19] Chatty AI Startup Sequence Initiated
-[2025-11-22 14:41:19] =========================================
-[2025-11-22 14:41:19] Starting Chatty AI services...
-[2025-11-22 14:41:19] Playing startup video...
-[2025-11-22 14:41:34] Video sequence complete
-[2025-11-22 14:41:34] Waiting 75 seconds for services...
-[2025-11-22 14:42:49] Port 5000 is open and ready
-[2025-11-22 14:42:54] Launching Chromium in kiosk mode...
-[2025-11-22 14:42:54] Chromium launched with PID: 12209
-[2025-11-22 14:42:54] Startup sequence complete!
-[2025-11-22 14:42:54] =========================================
-[2025-11-22 14:44:35] =========================================
-[2025-11-22 14:44:35] Chatty AI Startup Sequence Initiated
-[2025-11-22 14:44:35] =========================================
-[2025-11-22 14:44:35] Starting Chatty AI services...
-[2025-11-22 14:44:35] Playing startup video...
-[2025-11-22 14:44:50] Video sequence complete
-[2025-11-22 14:44:50] Waiting 75 seconds for services...
-[2025-11-22 16:13:46] =========================================
-[2025-11-22 16:13:46] Chatty AI Startup Sequence Initiated
-[2025-11-22 16:13:46] =========================================
-[2025-11-22 16:13:46] Waiting for X server...
-[2025-11-22 16:13:47] Hiding desktop elements...
-[2025-11-22 16:13:47] Displaying black screen...
-[2025-11-22 16:13:49] Closing black screen before video...
-[2025-11-22 16:13:50] Playing startup video...
-[2025-11-22 16:13:50] Video duration: 15 seconds
-[2025-11-22 16:14:06] Video playback complete
-[2025-11-22 16:14:07] Launching loading screen for 74 seconds ...
-[2025-11-22 16:14:07] Loading screen running for 74 seconds ...
-[2025-11-22 16:15:20] Loading screen complete, closing...
-[2025-11-22 16:15:21] Launching Chatty AI interface...
-[2025-11-22 16:15:21] Chatty AI interface launched successfully
-[2025-11-22 16:15:21] =========================================
-[2025-11-22 17:02:17] =========================================
-[2025-11-22 17:02:17] Chatty AI Startup Sequence Initiated
-[2025-11-22 17:02:17] =========================================
-[2025-11-22 17:02:17] Waiting for X server...
-[2025-11-22 17:02:17] Hiding desktop elements...
-[2025-11-22 17:02:18] Displaying black screen...
-[2025-11-22 17:02:20] Closing black screen before video...
-[2025-11-22 17:02:20] Playing startup video...
-[2025-11-22 17:02:20] Video duration: 15 seconds
-[2025-11-22 17:02:36] Video playback complete
-[2025-11-22 17:02:38] Launching loading screen for 74 seconds ...
-[2025-11-22 17:02:38] Loading screen running for 74 seconds ...
-[2025-11-22 17:03:52] Loading screen complete, closing...
-[2025-11-22 17:03:52] Launching Chatty AI interface...
-[2025-11-22 17:03:52] Chatty AI interface launched successfully
-[2025-11-22 17:03:52] =========================================
-nickspi5@raspberrypi:~ $ sudo systemctl start chattty-ai-preloader.service
-Failed to start chattty-ai-preloader.service: Unit chattty-ai-preloader.service not found.
-nickspi5@raspberrypi:~ $ sleep 10
-nickspi5@raspberrypi:~ $ sudo systemctl start chatty-ai.service
-nickspi5@raspberrypi:~ $ sleep 5
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: activating (auto-restart) (Result: exit-code) since Sat 2025-11-22 17:23:20 AEDT; 7s ago
- Invocation: 4d0560f5547f4661ab61e60531edbd68
-    Process: 22129 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py (code=exit>
-   Main PID: 22129 (code=exited, status=1/FAILURE)
-        CPU: 3.826s
+Nov 22 18:01:47 raspberrypi python[59087]: ð<9F><8E>¯ Wake word detection optimized
+Nov 22 18:01:47 raspberrypi python[59087]: ð<9F><93>± Web interface available
+Nov 22 18:01:47 raspberrypi python[59087]: ============================================================
+Nov 22 18:01:47 raspberrypi python[59087]:  * Serving Flask app 'chatty_ai'
+Nov 22 18:01:47 raspberrypi python[59087]:  * Debug mode: off
+Nov 22 18:01:47 raspberrypi python[59087]: WARNING: This is a development server. Do not use it in a production deployment. U>
+Nov 22 18:01:47 raspberrypi python[59087]:  * Running on all addresses (0.0.0.0)
+Nov 22 18:01:47 raspberrypi python[59087]:  * Running on http://127.0.0.1:5000
+Nov 22 18:01:47 raspberrypi python[59087]:  * Running on http://192.168.1.18:5000
+Nov 22 18:01:47 raspberrypi python[59087]: Press CTRL+C to quit
 
 nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai-preloader.service
 * chatty-ai-preloader.service - Chatty AI Model Preloader Service
      Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
-     Active: active (running) since Sat 2025-11-22 17:02:15 AEDT; 21min ago
- Invocation: 39ead1e9b9a24d49856d96dcd3326fc2
-   Main PID: 1104 (python)
-      Tasks: 18 (limit: 19361)
-        CPU: 1min 13.601s
+     Active: active (running) since Sat 2025-11-22 18:01:22 AEDT; 1min 22s ago
+ Invocation: 0f2440751a954dc1b790e6a066a82c26
+   Main PID: 58818 (python)
+      Tasks: 19 (limit: 19361)
+        CPU: 1min 4.217s
      CGroup: /system.slice/chatty-ai-preloader.service
-             `-1104 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+             `-58818 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
 
-Nov 22 17:19:17 raspberrypi python[1104]: 2025-11-22 17:19:17,145 - INFO - Status updated: {'heartbeat': 1763792357.1450052, >
-Nov 22 17:19:47 raspberrypi python[1104]: 2025-11-22 17:19:47,145 - INFO - Status updated: {'heartbeat': 1763792387.14538, 's>
-Nov 22 17:20:17 raspberrypi python[1104]: 2025-11-22 17:20:17,145 - INFO - Status updated: {'heartbeat': 1763792417.1457596, >
-Nov 22 17:20:47 raspberrypi python[1104]: 2025-11-22 17:20:47,146 - INFO - Status updated: {'heartbeat': 1763792447.1461363, >
-Nov 22 17:21:17 raspberrypi python[1104]: 2025-11-22 17:21:17,146 - INFO - Status updated: {'heartbeat': 1763792477.1465118, >
-Nov 22 17:21:47 raspberrypi python[1104]: 2025-11-22 17:21:47,147 - INFO - Status updated: {'heartbeat': 1763792507.146852, '>
-Nov 22 17:22:17 raspberrypi python[1104]: 2025-11-22 17:22:17,147 - INFO - Status updated: {'heartbeat': 1763792537.1472929, >
-Nov 22 17:22:47 raspberrypi python[1104]: 2025-11-22 17:22:47,147 - INFO - Status updated: {'heartbeat': 1763792567.1475995, >
-Nov 22 17:23:17 raspberrypi python[1104]: 2025-11-22 17:23:17,148 - INFO - Status updated: {'heartbeat': 1763792597.1479194, >
-Nov 22 17:23:47 raspberrypi python[1104]: 2025-11-22 17:23:47,149 - INFO - Status updated: {'heartbeat': 1763792627.1491323, >
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - Status updated: {'response_files': 'cached', 'fil>
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - =================================================>
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - â<9C>¨ All models preloaded in 20.76 seconds
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - Models will remain in memory for fast access
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - =================================================>
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - Status updated: {'status': 'ready', 'total_load_t>
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - Starting keep-alive loop...
+Nov 22 18:01:43 raspberrypi python[58818]: 2025-11-22 18:01:43,604 - INFO - Status updated: {'heartbeat': 1763794903.6044476,>
+Nov 22 18:02:13 raspberrypi python[58818]: 2025-11-22 18:02:13,604 - INFO - Status updated: {'heartbeat': 1763794933.604583, >
+Nov 22 18:02:43 raspberrypi python[58818]: 2025-11-22 18:02:43,605 - INFO - Status updated: {'heartbeat': 1763794963.6049273,>
 
-nickspi5@raspberrypi:~ $ netstat -tuln | grep 5000
-nickspi5@raspberrypi:~ $ ss -tuln | grep 5000
-nickspi5@raspberrypi:~ $ ls -lh /home/nickspi5/Chatty_AI/chatty-venv/bin/python
-lrwxrwxrwx 1 nickspi5 nickspi5 7 Jul 23 17:50 /home/nickspi5/Chatty_AI/chatty-venv/bin/python -> python3
-nickspi5@raspberrypi:~ $ sudo systemctl start chatty-ai-preloader.service
 nickspi5@raspberrypi:~ $ 
+
 
 
 
