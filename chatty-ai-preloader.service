@@ -31,7 +31,7 @@ IOSchedulingClass=best-effort
 IOSchedulingPriority=0
 
 # Memory settings
-MemoryMax=2G
+MemoryMax=4G
 MemorySwapMax=0
 
 # Security settings
