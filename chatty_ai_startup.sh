@@ -125,7 +125,31 @@ log_message "Loading screen complete, closing..."
 kill $LOADING_PID 2>/dev/null
 sleep 0.5
 
-# STEP 4: Launch main Chatty AI interface
+# STEP 4: Wait for service to be ready, then launch main Chatty AI interface
+log_message "Waiting for Chatty AI service to be ready..."
+
+MAX_WAIT=60
+WAITED=0
+
+while [ $WAITED -lt $MAX_WAIT ]; do
+    if curl -s http://localhost:5000 > /dev/null 2>&1; then
+        log_message "Chatty AI service is ready!"
+        break
+    fi
+    sleep 2
+    WAITED=$((WAITED + 2))
+    
+    if [ $((WAITED % 10)) -eq 0 ]; then
+        log_message "Still waiting for service... ($WAITED seconds)"
+    fi
+done
+
+if [ $WAITED -ge $MAX_WAIT ]; then
+    log_message "WARNING: Service not ready after $MAX_WAIT seconds, launching anyway..."
+fi
+
+sleep 2  # Extra buffer
+
 log_message "Launching Chatty AI interface..."
 chromium-browser \
     --kiosk \
@@ -138,7 +162,7 @@ chromium-browser \
     "$CHATTY_URL" 2>/dev/null &
 
 MAIN_PID=$!
-log_message "Chatty AI interface launched successfully"
+log_message "Chatty AI interface launched successfully (PID: $MAIN_PID)"
 log_message "========================================="
 
 # Keep the main interface running
