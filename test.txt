@@ -1,44 +1,38 @@
 
-Thank you, Claude,
+Actually, the simplest approach is to just dismiss the keyring entirely. Let's add more flags to Chromium:
+bashnano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Find each of the three chromium-browser commands and make sure they have ALL of these flags:
+bashchromium-browser --password-store=basic \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --disable-features=TranslateUI \
+    --disable-sync \
+    --no-first-run \
+    --disable-popup-blocking \
 
-I ran: nickspi5@raspberrypi:~ $ sed -i 's/chromium-browser \\/chromium-browser --password-store=basic \\/g' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-nickspi5@raspberrypi:~ $ grep "password-store" /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-chromium-browser --password-store=basic \
-chromium-browser --password-store=basic \
-chromium-browser --password-store=basic \
-nickspi5@raspberrypi:~ $ rm -rf ~/.local/share/keyrings/*
-nickspi5@raspberrypi:~ $ pkill chromium
-nickspi5@raspberrypi:~ $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-[2025-12-21 13:49:12] =========================================
-[2025-12-21 13:49:12] Chatty AI Startup Sequence Initiated
-[2025-12-21 13:49:12] =========================================
-[2025-12-21 13:49:12] Waiting for X server...
-[2025-12-21 13:49:12] Hiding desktop elements...
-[2025-12-21 13:49:12] Displaying black screen...
-[2025-12-21 13:49:14] Closing black screen before video...
-[2025-12-21 13:49:15] Playing startup video...
-[2025-12-21 13:49:15] Video duration: 15 seconds
-/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 98: 89264 Segmentation fault      cvlc --fullscreen --no-video-title-show --no-osd --quiet --intf dummy --play-and-exit "$VIDEO_PATH" 2> /dev/null
-[2025-12-21 13:49:31] Video playback complete
-[2025-12-21 13:49:32] Launching loading screen for 74 seconds ...
-[2025-12-21 13:49:32] Loading screen running for 74 seconds ...
-[2025-12-21 13:50:46] Loading screen complete, closing...
-[2025-12-21 13:50:46] Launching Chatty AI interface...
-[2025-12-21 13:50:46] Chatty AI interface launched successfully
-[2025-12-21 13:50:46] =========================================
-nickspi5@raspberrypi:~ $ 
+Fix 2: Let Me See the Current Script
+Let's check what's happening with Chromium:
+bashcat /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
 
-However, again the startup video played through once with audio but the html pages did not display in Chromium.
+Fix 3: Test Chromium Directly
+Let's test if Chromium can open the loading page at all:
+bashpkill chromium
 
-Also, I opened my Chromium browser again and this time another dialog box opened up with the title Choose password for new keyring and two text input boxes to enter and confirm the new password.
+# Test opening the loading page directly
+DISPLAY=:0 chromium-browser --password-store=basic --kiosk --no-first-run --disable-sync "file:///home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+Does this display the loading page? Or does the keyring popup appear again?
 
-Have can we remove this issue?
+Fix 4: Disable Keyring Completely via Environment Variable
+Add this to the beginning of your startup script (after the #!/bin/bash line):
+bashexport GNOME_KEYRING_CONTROL=""
+export SSH_AUTH_SOCK=""
+Or run this to edit the script:
+bashsed -i '2a export GNOME_KEYRING_CONTROL=""\nexport SSH_AUTH_SOCK=""' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
 
-
-
-
-
-
-
-
+Run the direct Chromium test first (Fix 3) and let me know what happens. Also share the current startup script content so I can see exactly what's being executed.
 
