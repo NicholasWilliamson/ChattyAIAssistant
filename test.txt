@@ -1,36 +1,44 @@
 
-Fix 1: Disable Chromium Keyring Prompt
-This is the main issue blocking your kiosk mode. Let's disable the keyring prompt for Chromium:
-bash# Create/edit Chromium flags file
-mkdir -p ~/.config/chromium
-echo '{"browser":{"enabled_labs_experiments":["password-manager-disabled"]}}' > ~/.config/chromium/Local\ State 2>/dev/null
+Thank you, Claude,
 
-# Better approach - add flags to the startup script
-Actually, the cleanest fix is to add --password-store=basic to all Chromium commands in your startup script.
-Let's edit the startup script:
-bashnano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-Find each chromium-browser command and add --password-store=basic to the flags. For example, change:
-bashchromium-browser \
-    --kiosk \
-    --noerrdialogs \
-To:
-bashchromium-browser \
-    --kiosk \
-    --noerrdialogs \
-    --password-store=basic \
-Do this for all three Chromium commands in the script (black screen, loading screen, and main interface).
+I ran: nickspi5@raspberrypi:~ $ sed -i 's/chromium-browser \\/chromium-browser --password-store=basic \\/g' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+nickspi5@raspberrypi:~ $ grep "password-store" /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+chromium-browser --password-store=basic \
+chromium-browser --password-store=basic \
+chromium-browser --password-store=basic \
+nickspi5@raspberrypi:~ $ rm -rf ~/.local/share/keyrings/*
+nickspi5@raspberrypi:~ $ pkill chromium
+nickspi5@raspberrypi:~ $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+[2025-12-21 13:49:12] =========================================
+[2025-12-21 13:49:12] Chatty AI Startup Sequence Initiated
+[2025-12-21 13:49:12] =========================================
+[2025-12-21 13:49:12] Waiting for X server...
+[2025-12-21 13:49:12] Hiding desktop elements...
+[2025-12-21 13:49:12] Displaying black screen...
+[2025-12-21 13:49:14] Closing black screen before video...
+[2025-12-21 13:49:15] Playing startup video...
+[2025-12-21 13:49:15] Video duration: 15 seconds
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 98: 89264 Segmentation fault      cvlc --fullscreen --no-video-title-show --no-osd --quiet --intf dummy --play-and-exit "$VIDEO_PATH" 2> /dev/null
+[2025-12-21 13:49:31] Video playback complete
+[2025-12-21 13:49:32] Launching loading screen for 74 seconds ...
+[2025-12-21 13:49:32] Loading screen running for 74 seconds ...
+[2025-12-21 13:50:46] Loading screen complete, closing...
+[2025-12-21 13:50:46] Launching Chatty AI interface...
+[2025-12-21 13:50:46] Chatty AI interface launched successfully
+[2025-12-21 13:50:46] =========================================
+nickspi5@raspberrypi:~ $ 
 
-Quick Fix Using sed
-Or let me give you a one-liner to do this automatically:
-bashsed -i 's/chromium-browser \\/chromium-browser --password-store=basic \\/g' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-Then verify it worked:
-bashgrep "password-store" /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-You should see --password-store=basic in the output.
+However, again the startup video played through once with audio but the html pages did not display in Chromium.
 
-Fix 2: Clear Existing Keyring Issue
-Also clear any existing keyring lock:
-bashrm -rf ~/.local/share/keyrings/*
+Also, I opened my Chromium browser again and this time another dialog box opened up with the title Choose password for new keyring and two text input boxes to enter and confirm the new password.
 
-Test the Fix
-bashpkill chromium
-bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Have can we remove this issue?
+
+
+
+
+
+
+
+
+
