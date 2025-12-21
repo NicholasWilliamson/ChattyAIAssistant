@@ -1,87 +1,113 @@
 
-Fix 1: Install scipy
-bashcd /home/nickspi5/Chatty_AI
-source chatty-venv/bin/activate
-pip install scipy
-Note: You shouldn't need --break-system-packages when installing inside a virtual environment.
+Thank you, Claude,
 
-Fix 2: Install curl (if not already installed)
-bashsudo apt-get install -y curl
+I ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ pip install scipy
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting scipy
+  Downloading scipy-1.16.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl.metadata (62 kB)
+Requirement already satisfied: numpy<2.6,>=1.25.2 in /usr/lib/python3/dist-packages (from scipy) (2.2.4)
+Downloading scipy-1.16.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (33.3 MB)
+   ---------------------------------------- 33.3/33.3 MB 3.6 MB/s  0:00:09
+Installing collected packages: scipy
+Successfully installed scipy-1.16.3
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo apt-get install -y curl
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+curl is already the newest version (8.14.1-2+deb13u2).
+The following package was automatically installed and is no longer required:
+  libwlroots-0.18
+Use 'sudo apt autoremove' to remove it.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ deactivate
+nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai.service
+* chatty-ai.service - Chatty AI Web Server
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2025-12-21 17:31:33 AEDT; 32s ago
+ Invocation: 19ae8ac704fa482eb7b62d3693c4447b
+   Main PID: 76079 (python)
+      Tasks: 17 (limit: 19361)
+        CPU: 4.326s
+     CGroup: /system.slice/chatty-ai.service
+             `-76079 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Fix 3: Update the Startup Script with Better Service Checking
-bashnano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-Find the STEP 4 section (around line 115-130) that looks like this:
-bash# Kill loading screen
-log_message "Loading screen complete, closing..."
-kill $LOADING_PID 2>/dev/null
-sleep 0.5
+Dec 21 17:31:39 raspberrypi python[76079]: ð<9F><8E>¯ Wake word detection optimized
+Dec 21 17:31:39 raspberrypi python[76079]: ð<9F><93>± Web interface available
+Dec 21 17:31:39 raspberrypi python[76079]: ============================================================
+Dec 21 17:31:39 raspberrypi python[76079]:  * Serving Flask app 'chatty_ai'
+Dec 21 17:31:39 raspberrypi python[76079]:  * Debug mode: off
+Dec 21 17:31:39 raspberrypi python[76079]: WARNING: This is a development server. Do not use it in a production deployment. U>
+Dec 21 17:31:39 raspberrypi python[76079]:  * Running on all addresses (0.0.0.0)
+Dec 21 17:31:39 raspberrypi python[76079]:  * Running on http://127.0.0.1:5000
+Dec 21 17:31:39 raspberrypi python[76079]:  * Running on http://10.183.102.39:5000
+Dec 21 17:31:39 raspberrypi python[76079]: Press CTRL+C to quit
 
-# STEP 4: Launch main Chatty AI interface
-log_message "Launching Chatty AI interface..."
-chromium --password-store=basic \
-Replace from # STEP 4: onwards (to the end of the file) with:
-bash# STEP 4: Wait for service to be ready, then launch main Chatty AI interface
-log_message "Waiting for Chatty AI service to be ready..."
+nickspi5@raspberrypi:~/Chatty_AI $ pkill chromium
+nickspi5@raspberrypi:~/Chatty_AI $ /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+[2025-12-21 17:33:26] =========================================
+[2025-12-21 17:33:26] Chatty AI Startup Sequence Initiated
+[2025-12-21 17:33:26] =========================================
+[2025-12-21 17:33:26] Waiting for X server...
+[2025-12-21 17:33:26] Hiding desktop elements...
+[2025-12-21 17:33:26] Displaying black screen...
+[2025-12-21 17:33:28] Closing black screen before video...
+[2025-12-21 17:33:29] Playing startup video...
+[2025-12-21 17:33:29] Video duration: 15 seconds
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 104: 77925 Segmentation fault      cvlc --fullscreen --no-video-title-show --no-osd --quiet --intf dummy --play-and-exit "$VIDEO_PATH" 2> /dev/null
+[2025-12-21 17:33:45] Video playback complete
+[2025-12-21 17:33:46] Launching loading screen for 74 seconds ...
+[2025-12-21 17:33:46] Loading screen running for 74 seconds ...
+[2025-12-21 17:35:00] Loading screen complete, closing...
+/home/nickspi5/Chatty_AI/chatty_ai_startup.sh: line 138: STEP: command not found
+[2025-12-21 17:35:01] Waiting for Chatty AI service to be ready...
+[2025-12-21 17:35:01] Chatty AI service is ready!
+[2025-12-21 17:35:03] Launching Chatty AI interface...
+[2025-12-21 17:35:03] Chatty AI interface launched successfully (PID: 79476)
+[2025-12-21 17:35:03] =========================================
+nickspi5@raspberrypi:~/Chatty_AI $ tail -30 /home/nickspi5/Chatty_AI/logs/startup.log
+[2025-12-21 16:04:43] Hiding desktop elements...
+[2025-12-21 16:04:43] Displaying black screen...
+[2025-12-21 16:04:46] Closing black screen before video...
+[2025-12-21 16:04:46] Playing startup video...
+[2025-12-21 16:04:46] Video duration: 15 seconds
+[2025-12-21 16:05:02] Video playback complete
+[2025-12-21 16:05:03] Launching loading screen for 74 seconds ...
+[2025-12-21 16:05:03] Loading screen running for 74 seconds ...
+[2025-12-21 16:06:17] Loading screen complete, closing...
+[2025-12-21 16:06:18] Launching Chatty AI interface...
+[2025-12-21 16:06:18] Chatty AI interface launched successfully
+[2025-12-21 16:06:18] =========================================
+[2025-12-21 17:33:26] =========================================
+[2025-12-21 17:33:26] Chatty AI Startup Sequence Initiated
+[2025-12-21 17:33:26] =========================================
+[2025-12-21 17:33:26] Waiting for X server...
+[2025-12-21 17:33:26] Hiding desktop elements...
+[2025-12-21 17:33:26] Displaying black screen...
+[2025-12-21 17:33:28] Closing black screen before video...
+[2025-12-21 17:33:29] Playing startup video...
+[2025-12-21 17:33:29] Video duration: 15 seconds
+[2025-12-21 17:33:45] Video playback complete
+[2025-12-21 17:33:46] Launching loading screen for 74 seconds ...
+[2025-12-21 17:33:46] Loading screen running for 74 seconds ...
+[2025-12-21 17:35:00] Loading screen complete, closing...
+[2025-12-21 17:35:01] Waiting for Chatty AI service to be ready...
+[2025-12-21 17:35:01] Chatty AI service is ready!
+[2025-12-21 17:35:03] Launching Chatty AI interface...
+[2025-12-21 17:35:03] Chatty AI interface launched successfully (PID: 79476)
+[2025-12-21 17:35:03] =========================================
+nickspi5@raspberrypi:~/Chatty_AI $ 
 
-MAX_WAIT=60
-WAITED=0
 
-while [ $WAITED -lt $MAX_WAIT ]; do
-    if curl -s http://localhost:5000 > /dev/null 2>&1; then
-        log_message "Chatty AI service is ready!"
-        break
-    fi
-    sleep 2
-    WAITED=$((WAITED + 2))
-    
-    if [ $((WAITED % 10)) -eq 0 ]; then
-        log_message "Still waiting for service... ($WAITED seconds)"
-    fi
-done
 
-if [ $WAITED -ge $MAX_WAIT ]; then
-    log_message "WARNING: Service not ready after $MAX_WAIT seconds, launching anyway..."
-fi
 
-sleep 2  # Extra buffer
 
-log_message "Launching Chatty AI interface..."
-chromium --password-store=basic \
-    --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --disable-web-security \
-    --start-fullscreen \
-    --disable-features=TranslateUI \
-    --disable-sync \
-    --no-first-run \
-    --disable-popup-blocking \
-    "$CHATTY_URL" 2>/dev/null &
 
-MAIN_PID=$!
-log_message "Chatty AI interface launched successfully (PID: $MAIN_PID)"
-log_message "========================================="
 
-# Keep the main interface running
-wait $MAIN_PID
-Save with Ctrl+O, Enter, then Ctrl+X.
 
-Fix 4: Test Without Rebooting
-bash# Deactivate virtual environment if still active
-deactivate
 
-# Restart the chatty-ai service to pick up scipy
-sudo systemctl restart chatty-ai.service
 
-# Check service status
-sudo systemctl status chatty-ai.service
-
-# Test the startup script
-pkill chromium
-bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-
-Fix 5: Check the Log
-bashtail -30 /home/nickspi5/Chatty_AI/logs/startup.log
 
