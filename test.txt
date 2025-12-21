@@ -1,204 +1,188 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ ls -la /home/nickspi5/Chatty_AI/
-total 288920
-drwxr-xr-x 20 nickspi5 nickspi5      4096 Nov 22 17:54 .
-drwx------ 17 nickspi5 nickspi5      4096 Dec 21 12:07 ..
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 31 17:20 audio_files
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Sep  8 19:49 backup
--rw-r--r--  1 nickspi5 nickspi5       282 Aug 18 20:10 bored_responses_generic.txt
--rw-r--r--  1 nickspi5 nickspi5       370 Aug 18 20:14 bored_responses.txt
--rwxr-xr-x  1 nickspi5 nickspi5       160 Jul 19 19:58 build.txt
-drwxr-xr-x  3 nickspi5 nickspi5      4096 Aug 25 20:20 .cache
--rw-r--r--  1 nickspi5 nickspi5       703 Aug 17 09:50 camera_fix.py
--rw-r--r--  1 nickspi5 nickspi5      1818 Sep  6 09:41 camera_test.py
--rw-r--r--  1 nickspi5 nickspi5     61643 Sep 26 12:42 chatty_ai_backup.py
--rw-r--r--  1 nickspi5 nickspi5       679 Sep  7 11:10 chatty-ai_backup.service
--rw-r--r--  1 nickspi5 nickspi5       604 Aug 30 14:19 chatty-ai-launcher.service
--rw-rw-r--  1 nickspi5 nickspi5     15143 Nov 22 15:17 chatty_ai_preloader.py
--rw-rw-r--  1 nickspi5 nickspi5      1096 Nov 22 17:53 chatty-ai-preloader.service
--rw-r--r--  1 nickspi5 nickspi5     61643 Sep 26 13:20 chatty_ai.py
--rw-rw-r--  1 nickspi5 nickspi5       714 Nov 22 17:46 chatty-ai.service
--rwxr-xr-x  1 nickspi5 nickspi5   4295927 Jul 13 08:09 Chatty_AI_starting.mp4
--rwxr-xr-x  1 nickspi5 nickspi5      2598 Sep 26 14:39 chatty_ai_startup_enhanced_backup.sh
--rw-r--r--  1 nickspi5 nickspi5      2692 Sep  9 05:44 chatty_ai_startup_enhanced_dos.sh
--rwxr-xr-x  1 nickspi5 nickspi5      2598 Sep 26 14:53 chatty_ai_startup_enhanced.sh
--rw-r--r--  1 nickspi5 nickspi5      2818 Sep  9 20:40 chatty_ai_startup_final_dos.sh
--rwxr-xr-x  1 nickspi5 nickspi5      3280 Sep 26 13:23 chatty_ai_startup_old.sh
--rwxr-xr-x  1 nickspi5 nickspi5      3722 Nov 22 14:51 chatty_ai_startup.sh
--rw-r--r--  1 nickspi5 nickspi5     47352 Aug  9 17:02 chatty_ai_terminal_working_version.py
--rwxr-xr-x  1 nickspi5 nickspi5       314 Jul 18 08:54 chatty_ai_test_speaking.py
--rw-r--r--  1 nickspi5 nickspi5  12708287 Sep 15 17:17 chatty_ai_web.log
--rw-r--r--  1 nickspi5 nickspi5     63511 Sep 22 06:36 chatty_ai_web_ui_with_errors.py
--rw-r--r--  1 nickspi5 nickspi5     77635 Aug 18 19:46 chatty_ai_with_llm_responses.py
--rw-r--r--  1 nickspi5 nickspi5     61643 Sep 22 07:23 chatty_ai_working.py
--rw-r--r--  1 nickspi5 nickspi5      3558 Aug  8 20:05 chatty_system_fix.sh
-drwxr-xr-x  6 nickspi5 nickspi5      4096 Jul 26 13:19 chatty-venv
--rw-r--r--  1 nickspi5 nickspi5       625 Jul 27 08:58 coco.names
-drwxrwxr-x  2 nickspi5 nickspi5      4096 Nov 19 19:38 .config
--rwxr-xr-x  1 nickspi5 nickspi5       236 Jul 16 18:57 config.json
-drwxr-xr-x  3 nickspi5 nickspi5      4096 Aug  8 20:12 dataset
--rw-r--r--  1 nickspi5 nickspi5      2731 Aug  9 13:54 debug_app.py
--rw-r--r--  1 nickspi5 nickspi5      6231 Aug  8 20:05 debug_startup.py
--rwxr-xr-x  1 nickspi5 nickspi5      5967 Aug 16 10:21 deploy_production.sh
--rw-r--r--  1 nickspi5 nickspi5     39517 Jul 27 19:57 encodings.pickle
--rwxr-xr-x  1 nickspi5 nickspi5       180 Jul 16 18:57 .env
--rw-r--r--  1 nickspi5 nickspi5        40 Jul 27 10:48 face_encodings.pkl
--rw-r--r--  1 nickspi5 nickspi5       614 Jul 27 10:44 face_encodings.py
--rw-r--r--  1 nickspi5 nickspi5      9015 Aug  6 18:43 fix_camera.py
--rwxr-xr-x  1 nickspi5 nickspi5       840 Sep  6 11:46 fix_camera.sh
--rwxr-xr-x  1 nickspi5 nickspi5      1923 Aug  7 20:25 fix_chatty_web.sh
--rwxr-xr-x  1 nickspi5 nickspi5      3377 Aug  9 12:28 fix_model_paths.sh
--rw-r--r--  1 nickspi5 nickspi5       705 Aug 18 20:09 fun_facts.txt
--rw-r--r--  1 nickspi5 nickspi5       242 Aug 18 20:18 greeting_responses.txt
--rwxr-xr-x  1 nickspi5 nickspi5      3110 Aug 16 10:24 gunicorn_config.py
--rwxr-xr-x  1 nickspi5 nickspi5        91 Sep 12 19:55 hide_desktop.sh
--rw-r--r--  1 nickspi5 nickspi5     22946 Jul 27 11:31 human_detection.py
--rwxr-xr-x  1 nickspi5 nickspi5      5592 Jul 23 18:45 image_analyse.py
--rw-r--r--  1 nickspi5 nickspi5      3661 Jul 27 19:50 image_capture.py
--rwxr-xr-x  1 nickspi5 nickspi5      6938 Jul 23 07:59 installation.sh
--rw-r--r--  1 nickspi5 nickspi5      1205 Jul 23 20:07 jokes.txt
--rw-r--r--  1 nickspi5 nickspi5       850 Sep 21 13:29 listening_responses_generic.txt
--rw-r--r--  1 nickspi5 nickspi5       983 Aug 19 20:54 listening_responses.txt
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Aug 30 15:28 logs
-lrwxrwxrwx  1 nickspi5 nickspi5        16 Aug  8 20:45 models -> tinyllama-models
--rw-r--r--  1 nickspi5 nickspi5      2564 Jul 26 20:39 model_training.py
--rw-r--r--  1 nickspi5 nickspi5     85673 Jul 27 12:30 nick_20250727_123004.jpg
--rw-r--r--  1 nickspi5 nickspi5     76442 Jul 27 15:28 nick_20250727_152830.jpg
--rw-r--r--  1 nickspi5 nickspi5     11469 Aug  6 18:55 opencv_test.jpg
--rw-r--r--  1 nickspi5 nickspi5    155948 Nov 22 18:23 output.wav
--rw-r--r--  1 nickspi5 nickspi5      8022 Aug  4 15:26 personalized_responses.json
--rw-r--r--  1 nickspi5 nickspi5      3126 Aug  2 17:20 personalized_responses_working.json
-drwxr-xr-x  4 nickspi5 nickspi5      4096 Nov 15  2023 piper
--rwxr-xr-x  1 nickspi5 nickspi5  26004717 Jul 18 13:56 piper_linux_aarch64.tar.gz
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Nov 16 19:16 __pycache__
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 16 19:00 qwen-models
--rwxr-xr-x  1 nickspi5 nickspi5    114856 Jul 23 18:42 README_app_py.md.rtf
--rw-r--r--  1 nickspi5 nickspi5    178145 Jul 27 08:29 README_human_detection.md.rtf
--rw-r--r--  1 nickspi5 nickspi5    283692 Aug  2 14:24 recognition_response.wav
--rwxr-xr-x  1 nickspi5 nickspi5    160044 Jul 19 16:06 record.wav
--rwxr-xr-x  1 nickspi5 nickspi5        77 Jul 16 18:28 requirements.txt
--rw-r--r--  1 nickspi5 nickspi5        77 Aug  4 18:09 requirements_web.txt
--rwxr-xr-x  1 nickspi5 nickspi5      3921 Jul 20 09:25 run_chatty_ai_10.py
--rwxr-xr-x  1 nickspi5 nickspi5      3922 Jul 22 12:16 run_chatty_ai_1.py
--rwxr-xr-x  1 nickspi5 nickspi5      3918 Jul 22 12:17 run_chatty_ai_2.py
--rwxr-xr-x  1 nickspi5 nickspi5      3916 Jul 22 12:19 run_chatty_ai_3.py
--rwxr-xr-x  1 nickspi5 nickspi5      3912 Jul 22 12:20 run_chatty_ai_4.py
--rwxr-xr-x  1 nickspi5 nickspi5      3924 Jul 22 12:09 run_chatty_ai_5.py
--rwxr-xr-x  1 nickspi5 nickspi5      3920 Jul 22 12:12 run_chatty_ai_6.py
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 27 12:26 security_alerts
--rw-r--r--  1 nickspi5 nickspi5       371 Jul 27 09:53 security_detection.log
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Aug  2 14:17 security_logs
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Nov 22 18:21 security_photos
--rw-r--r--  1 nickspi5 nickspi5    151340 Jul 27 09:04 security_response.wav
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 20 12:38 server
--rw-r--r--  1 nickspi5 nickspi5     12767 Aug  6 18:44 setup_chatty_web.py
--rwxr-xr-x  1 nickspi5 nickspi5      1506 Jul 16 18:50 setup.sh
--rw-r--r--  1 nickspi5 nickspi5       113 Sep 12 20:27 show_desktop.sh
--rw-r--r--  1 nickspi5 nickspi5      6002 Aug 16 08:14 simple_test.py
--rw-r--r--  1 nickspi5 nickspi5      1596 Aug  9 14:20 socketio_fix.py
--rw-r--r--  1 nickspi5 nickspi5      4091 Aug  9 14:16 start_chatty_fixed.sh
--rwxr-xr-x  1 nickspi5 nickspi5      4996 Aug  6 18:50 start_chatty_web.sh
--rwxr-xr-x  1 nickspi5 nickspi5       340 Aug 16 12:31 start_production.sh
--rwxr-xr-x  1 nickspi5 nickspi5       157 Aug 16 12:31 stop_production.sh
--rw-r--r--  1 nickspi5 nickspi5       507 Jul 27 12:28 telegram_config.json
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Nov 19 06:11 templates
--rwxr-xr-x  1 nickspi5 nickspi5    320044 Jul 18 11:30 test_audio_2.wav
--rwxr-xr-x  1 nickspi5 nickspi5     96044 Aug  6 18:26 test_audio.wav
--rw-r--r--  1 nickspi5 nickspi5      4097 Jul 27 11:36 test_camera_display.py
--rw-r--r--  1 nickspi5 nickspi5      5761 Aug  4 19:50 test_camera.py
--rwxr-xr-x  1 nickspi5 nickspi5      1183 Aug 30 20:32 test_camera_stream.py
--rw-r--r--  1 nickspi5 nickspi5     20193 Aug  2 11:29 test_chatty_ai.py
--rw-r--r--  1 nickspi5 nickspi5     16439 Jul 27 15:04 test_facial_recognition_error_on_pickle_file_missing.py
--rw-r--r--  1 nickspi5 nickspi5     20369 Jul 27 17:43 test_facial_recognition.py
--rw-r--r--  1 nickspi5 nickspi5     18257 Jul 27 12:23 test_facial_recognition_working.py
--rw-r--r--  1 nickspi5 nickspi5       628 Aug 10 12:45 test_flask.py
--rwxr-xr-x  1 nickspi5 nickspi5   1591701 Jul 23 07:46 test.jpg
--rw-r--r--  1 nickspi5 nickspi5       802 Sep  6 17:07 test_stream.py
--rwxr-xr-x  1 nickspi5 nickspi5       467 Jul 18 11:16 test_stt.py
--rwxr-xr-x  1 nickspi5 nickspi5       471 Jul 18 16:19 test_tts.py
--rw-r--r--  1 nickspi5 nickspi5       425 Aug 30 17:17 test_video_feed.py
--rw-r--r--  1 nickspi5 nickspi5       545 Sep 11 20:04 test_wake.py
--rw-r--r--  1 nickspi5 nickspi5      2840 Jul 28 06:00 test_wake_word_results.txt
-drwxr-xr-x  2 nickspi5 nickspi5      4096 Jul 19 19:48 tinyllama-models
--rw-r--r--  1 nickspi5 nickspi5    129346 Sep 14 20:55 user_audio.wav
--rw-r--r--  1 nickspi5 nickspi5    151354 Oct  4 09:56 user_input.wav
--rw-r--r--  1 nickspi5 nickspi5       305 Aug  9 16:57 visitor_greeting_responses.txt
-drwxr-xr-x  8 nickspi5 nickspi5      4096 Jul 18 12:42 voices
--rw-r--r--  1 nickspi5 nickspi5       261 Aug 18 20:12 waiting_responses_generic.txt
--rw-r--r--  1 nickspi5 nickspi5       331 Aug 18 20:15 waiting_responses.txt
--rw-r--r--  1 nickspi5 nickspi5    160044 Sep 15 06:54 wake_word_audio.wav
--rw-r--r--  1 nickspi5 nickspi5     96044 Oct 19 13:54 wake_word_check.wav
--rw-r--r--  1 nickspi5 nickspi5       645 Jul 23 20:08 warning_responses.txt
-drwxr-xr-x  4 nickspi5 nickspi5      4096 Jul 16 20:25 whisper-models
--rw-r--r--  1 nickspi5 nickspi5       564 Sep  6 22:53 wsgi_backup.py
--rw-r--r--  1 nickspi5 nickspi5       933 Aug 16 14:41 wsgi_complex.py
--rw-r--r--  1 nickspi5 nickspi5       738 Aug 16 13:04 wsgi.pi.backup
--rw-rw-r--  1 nickspi5 nickspi5       595 Nov 16 20:59 wsgi.py
--rw-r--r--  1 nickspi5 nickspi5      8342 Jul 27 08:56 yolov3.cfg
--rw-r--r--  1 nickspi5 nickspi5 248007048 Jul 27 09:43 yolov3.weights
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Sun 2025-12-21 12:07:07 AEDT; 3min 7s ago
- Invocation: 6ba214db10514bcb8887c83ce552cf92
-   Main PID: 1171 (python)
-      Tasks: 17 (limit: 19361)
-        CPU: 10.562s
-     CGroup: /system.slice/chatty-ai.service
-             `-1171 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
+I ran: nickspi5@raspberrypi:~ $ cat /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+#!/bin/bash
+#
+# Chatty AI Startup Script
+#
 
-Dec 21 12:07:22 raspberrypi python[1171]: ð<9F><8E>¯ Wake word detection optimized
-Dec 21 12:07:22 raspberrypi python[1171]: ð<9F><93>± Web interface available
-Dec 21 12:07:22 raspberrypi python[1171]: ============================================================
+# Configuration
+VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
+LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
+BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
+CHATTY_URL="http://localhost:5000"
+LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+
+# Create log directory
+mkdir -p /home/nickspi5/Chatty_AI/logs
+
+# Function to log messages
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Start logging
+log_message "========================================="
+log_message "Chatty AI Startup Sequence Initiated"
+log_message "========================================="
+
+# Set display
+export DISPLAY=:0
+export XAUTHORITY=/home/nickspi5/.Xauthority
+
+# Wait for X server to be ready
+log_message "Waiting for X server..."
+while ! xset q &>/dev/null; do
+    sleep 0.5
+done
+
+# Hide desktop elements
+log_message "Hiding desktop elements..."
+pkill lxpanel 2>/dev/null
+pkill pcmanfm 2>/dev/null
+sleep 0.2
+
+# STEP 1: Show black screen
+log_message "Displaying black screen..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --window-position=0,0 \
+    --window-size=1920,1080 \
+    "file://$BLACK_PAGE" 2>/dev/null &
+
+BLACK_PID=$!
+sleep 2  # Wait for black screen to render
+
+# Ensure desktop is completely hidden
+pcmanfm --desktop-off 2>/dev/null
+
+# STEP 2: CLOSE black screen, THEN play video (so video replaces black screen)
+log_message "Closing black screen before video..."
+kill $BLACK_PID 2>/dev/null
+sleep 0.5
+
+if [ -f "$VIDEO_PATH" ]; then
+    log_message "Playing startup video..."
+    
+    # Video is 15.02 seconds, so we know exact duration
+    log_message "Video duration: 15 seconds"
+    
+    # Play video with optimal settings
+    cvlc \
+        --fullscreen \
+        --no-video-title-show \
+        --no-osd \
+        --quiet \
+        --intf dummy \
+        --play-and-exit \
+        "$VIDEO_PATH" 2>/dev/null &
+    
+    VLC_PID=$!
+    
+    # Wait for exact video duration (15 seconds + 1 second buffer)
+    sleep 16
+    
+    # Force kill VLC if still running
+    if ps -p $VLC_PID > /dev/null; then
+        kill $VLC_PID 2>/dev/null
+        sleep 1
+    fi
+    
+    log_message "Video playback complete"
+else
+    log_message "Video not found at $VIDEO_PATH"
+    sleep 15  # Show black screen for 15 seconds if no video
+fi
+
+# Kill any remaining VLC processes
+pkill vlc 2>/dev/null
+pkill cvlc 2>/dev/null
+sleep 1
+
+# STEP 3: Show loading screen for FULL 74 seconds
+log_message "Launching loading screen for 74 seconds ..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "file://$LOADING_PAGE" 2>/dev/null &
+
+LOADING_PID=$!
+
+# Wait for FULL loading screen duration (74 seconds)
+log_message "Loading screen running for 74 seconds ..."
+sleep 74
+
+# Kill loading screen
+log_message "Loading screen complete, closing..."
+kill $LOADING_PID 2>/dev/null
+sleep 0.5
+
+# STEP 4: Launch main Chatty AI interface
+log_message "Launching Chatty AI interface..."
+chromium-browser \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    "$CHATTY_URL" 2>/dev/null &
+
+MAIN_PID=$!
+log_message "Chatty AI interface launched successfully"
+log_message "========================================="
+
+# Keep the main interface running
+wait $MAIN_PID
+nickspi5@raspberrypi:~ $ cat ~/.config/lxsession/LXDE-pi/autostart
+cat: /home/nickspi5/.config/lxsession/LXDE-pi/autostart: No such file or directory
+nickspi5@raspberrypi:~ $ cat /etc/xdg/lxsession/LXDE-pi/autostart
+cat: /etc/xdg/lxsession/LXDE-pi/autostart: No such file or directory
+nickspi5@raspberrypi:~ $ cat /home/nickspi5/.config/autostart/autostart
+cat: /home/nickspi5/.config/autostart/autostart: No such file or directory
+nickspi5@raspberrypi:~ $ cat /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop
+[Desktop Entry]
+Type=Application
+Name=Chatty AI Auto Launcher
+Comment=Automatically launch Chatty AI on boot
+Exec=/bin/bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Terminal=false
+StartupNotify=false
+nickspi5@raspberrypi:~ $ journalctl -b --no-pager | grep -i chromium
+Dec 21 12:20:30 raspberrypi systemd[1252]: Started app-org.chromium.Chromium-13457.scope.
+Dec 21 12:20:30 raspberrypi dbus-daemon[829]: [system] Activating via systemd: service name='org.freedesktop.UPower' unit='upower.service' requested by ':1.59' (uid=1000 pid=13457 comm="/usr/lib/chromium/chromium --js-flags=--no-decommi")
+Dec 21 12:20:30 raspberrypi dbus-daemon[1287]: [session uid=1000 pid=1287 pidfd=5] Activating service name='org.freedesktop.secrets' requested by ':1.48' (uid=1000 pid=13457 comm="/usr/lib/chromium/chromium --js-flags=--no-decommi")
+nickspi5@raspberrypi:~ $ journalctl -b --no-pager | grep -i chatty
+Dec 21 12:07:07 raspberrypi systemd[1]: Started chatty-ai-preloader.service - Chatty AI Model Preloader Service.
+Dec 21 12:07:07 raspberrypi systemd[1]: Started chatty-ai.service - Chatty AI Web Server.
+Dec 21 12:07:08 raspberrypi systemd-xdg-autostart-generator[1266]: Configuration file /home/nickspi5/.config/autostart/chatty-ai-launcher.desktop is marked executable. Please remove executable permission bits. Proceeding anyway.
+Dec 21 12:07:08 raspberrypi python[1169]: 2025-12-21 12:07:08,857 - INFO - ð Chatty AI Model Preloader Starting...
+Dec 21 12:07:22 raspberrypi python[1171]: Initialising Chatty AI...
+Dec 21 12:07:22 raspberrypi python[1171]: Chatty AI initialised successfully!
+Dec 21 12:07:22 raspberrypi python[1171]: Chatty AI Web Server Starting...
 Dec 21 12:07:22 raspberrypi python[1171]:  * Serving Flask app 'chatty_ai'
-Dec 21 12:07:22 raspberrypi python[1171]:  * Debug mode: off
-Dec 21 12:07:22 raspberrypi python[1171]: WARNING: This is a development server. Do not use it in a production deployment. Us>
-Dec 21 12:07:22 raspberrypi python[1171]:  * Running on all addresses (0.0.0.0)
-Dec 21 12:07:22 raspberrypi python[1171]:  * Running on http://127.0.0.1:5000
-Dec 21 12:07:22 raspberrypi python[1171]:  * Running on http://10.183.102.39:5000
-Dec 21 12:07:22 raspberrypi python[1171]: Press CTRL+C to quit
-
-nickspi5@raspberrypi:~ $ sudo systemctl status chatty-ai-preloader.service
-* chatty-ai-preloader.service - Chatty AI Model Preloader Service
-     Loaded: loaded (/etc/systemd/system/chatty-ai-preloader.service; enabled; preset: enabled)
-     Active: active (running) since Sun 2025-12-21 12:07:07 AEDT; 4min 9s ago
- Invocation: d5f9b93c951e4659aa7ea92651a6018f
-   Main PID: 1169 (python)
-      Tasks: 18 (limit: 19361)
-        CPU: 1min 10.217s
-     CGroup: /system.slice/chatty-ai-preloader.service
-             `-1169 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
-
-Dec 21 12:07:40 raspberrypi python[1169]: 2025-12-21 12:07:40,003 - INFO - Status updated: {'status': 'ready', 'total_load_ti>
-Dec 21 12:07:40 raspberrypi python[1169]: 2025-12-21 12:07:40,003 - INFO - Starting keep-alive loop...
-Dec 21 12:07:40 raspberrypi python[1169]: 2025-12-21 12:07:40,003 - INFO - Status updated: {'heartbeat': 1766279260.0034392, >
-Dec 21 12:08:10 raspberrypi python[1169]: 2025-12-21 12:08:10,003 - INFO - Status updated: {'heartbeat': 1766279290.0036173, >
-Dec 21 12:08:40 raspberrypi python[1169]: 2025-12-21 12:08:40,004 - INFO - Status updated: {'heartbeat': 1766279320.0041234, >
-Dec 21 12:09:10 raspberrypi python[1169]: 2025-12-21 12:09:10,004 - INFO - Status updated: {'heartbeat': 1766279350.0046554, >
-Dec 21 12:09:40 raspberrypi python[1169]: 2025-12-21 12:09:40,005 - INFO - Status updated: {'heartbeat': 1766279380.0050337, >
-Dec 21 12:10:10 raspberrypi python[1169]: 2025-12-21 12:10:10,005 - INFO - Status updated: {'heartbeat': 1766279410.0054398, >
-Dec 21 12:10:40 raspberrypi python[1169]: 2025-12-21 12:10:40,009 - INFO - Status updated: {'heartbeat': 1766279440.0092273, >
-Dec 21 12:11:10 raspberrypi python[1169]: 2025-12-21 12:11:10,009 - INFO - Status updated: {'heartbeat': 1766279470.009604, '>
-
-nickspi5@raspberrypi:~ $ 
-
-I rebooted my Raspberry Pi 5.
-
-First it booted to the desktop.
-
-Then after a few deconds, the /home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4 video played correctly through one time with video.
-
-However, now the /home/nickspi5/Chatty_AI/templates/chatty_loading.html web page did not automatically open in the Chromium browser in kiosk mode and play through.
-
-Then, also, the /home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html did not open up automatically in the Chromium browser in kiosk mode.
-
-How can we fix this first?
-
-
-
-
+Dec 21 12:07:38 raspberrypi python[1169]: 2025-12-21 12:07:38,413 - INFO - Loading LLaMA model: /home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+Dec 21 12:07:39 raspberrypi python[1169]: 2025-12-21 12:07:39,217 - INFO - Preloading Piper voice model: /home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx
+Dec 21 12:07:40 raspberrypi python[1169]: 2025-12-21 12:07:40,001 - INFO - Loading face encodings from: /home/nickspi5/Chatty_AI/encodings.pickle
+Dec 21 12:10:15 raspberrypi sudo[4768]: nickspi5 : TTY=pts/0 ; PWD=/home/nickspi5 ; USER=root ; COMMAND=/usr/bin/systemctl status chatty-ai.service
+Dec 21 12:11:17 raspberrypi sudo[5642]: nickspi5 : TTY=pts/0 ; PWD=/home/nickspi5 ; USER=root ; COMMAND=/usr/bin/systemctl status chatty-ai-preloader.service
+nickspi5@raspberrypi:~ $
 
 
 
