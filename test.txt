@@ -1,52 +1,87 @@
 
-Fix 1: Update the Startup Script to Use chromium Instead of chromium-browser
-bashsed -i 's/chromium-browser/chromium/g' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-Verify the change:
-bashgrep "chromium" /home/nickspi5/Chatty_AI/chatty_ai_startup.sh | head -5
+Fix 1: Install scipy
+bashcd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
+pip install scipy
+Note: You shouldn't need --break-system-packages when installing inside a virtual environment.
 
-Fix 2: Disable Keyring Permanently
-The simplest way to disable the keyring prompt is to create an empty keyring with no password:
-bash# Remove existing keyrings
-rm -rf ~/.local/share/keyrings/*
+Fix 2: Install curl (if not already installed)
+bashsudo apt-get install -y curl
 
-# Create a new default keyring with empty password
-mkdir -p ~/.local/share/keyrings
+Fix 3: Update the Startup Script with Better Service Checking
+bashnano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Find the STEP 4 section (around line 115-130) that looks like this:
+bash# Kill loading screen
+log_message "Loading screen complete, closing..."
+kill $LOADING_PID 2>/dev/null
+sleep 0.5
 
-cat > ~/.local/share/keyrings/default << 'EOF'
-[keyring]
-display-name=Default keyring
-ctime=0
-mtime=0
-lock-on-idle=false
-lock-after=false
-EOF
+# STEP 4: Launch main Chatty AI interface
+log_message "Launching Chatty AI interface..."
+chromium --password-store=basic \
+Replace from # STEP 4: onwards (to the end of the file) with:
+bash# STEP 4: Wait for service to be ready, then launch main Chatty AI interface
+log_message "Waiting for Chatty AI service to be ready..."
 
-cat > ~/.local/share/keyrings/default.keyring << 'EOF'
-[keyring]
-display-name=Default keyring
-ctime=0
-mtime=0
-lock-on-idle=false
-lock-after=false
-EOF
+MAX_WAIT=60
+WAITED=0
 
-Fix 3: Alternative - Disable Keyring Daemon at Login
-bash# Create autostart directory if it doesn't exist
-mkdir -p ~/.config/autostart
+while [ $WAITED -lt $MAX_WAIT ]; do
+    if curl -s http://localhost:5000 > /dev/null 2>&1; then
+        log_message "Chatty AI service is ready!"
+        break
+    fi
+    sleep 2
+    WAITED=$((WAITED + 2))
+    
+    if [ $((WAITED % 10)) -eq 0 ]; then
+        log_message "Still waiting for service... ($WAITED seconds)"
+    fi
+done
 
-# Disable gnome-keyring-daemon
-cat > ~/.config/autostart/gnome-keyring-daemon.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Disable Keyring
-Exec=/bin/true
-Hidden=false
-NoDisplay=true
-X-GNOME-Autostart-enabled=false
-EOF
+if [ $WAITED -ge $MAX_WAIT ]; then
+    log_message "WARNING: Service not ready after $MAX_WAIT seconds, launching anyway..."
+fi
 
-Test the Fix
-Now let's test the startup script:
-bashpkill chromium
+sleep 2  # Extra buffer
+
+log_message "Launching Chatty AI interface..."
+chromium --password-store=basic \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-web-security \
+    --start-fullscreen \
+    --disable-features=TranslateUI \
+    --disable-sync \
+    --no-first-run \
+    --disable-popup-blocking \
+    "$CHATTY_URL" 2>/dev/null &
+
+MAIN_PID=$!
+log_message "Chatty AI interface launched successfully (PID: $MAIN_PID)"
+log_message "========================================="
+
+# Keep the main interface running
+wait $MAIN_PID
+Save with Ctrl+O, Enter, then Ctrl+X.
+
+Fix 4: Test Without Rebooting
+bash# Deactivate virtual environment if still active
+deactivate
+
+# Restart the chatty-ai service to pick up scipy
+sudo systemctl restart chatty-ai.service
+
+# Check service status
+sudo systemctl status chatty-ai.service
+
+# Test the startup script
+pkill chromium
 bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+
+Fix 5: Check the Log
+bashtail -30 /home/nickspi5/Chatty_AI/logs/startup.log
 
