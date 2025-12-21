@@ -1,34 +1,14 @@
 
-Let's find the correct Chromium command:
+Fix 1: Completely Disable Keyring for Chromium
+First, set an empty password for the keyring (this effectively disables it):
+bash# Install dbus-x11 if needed for the keyring management
+sudo apt-get install -y libsecret-tools
 
-Step 1: Find Where Chromium Is
-bashwhich chromium
-which chromium-browser
-whereis chromium
-ls /usr/bin/chrom*
-
-Step 2: Check If Chromium Is Running After the Script
-When you ran the startup script and the HTML pages didn't display, let's check if Chromium actually started:
-bashps aux | grep chromium
-
-Step 3: Test Chromium Directly with Full Path
-bashpkill chromium
-
-# Try with just 'chromium' instead of 'chromium-browser'
-DISPLAY=:0 /usr/bin/chromium --password-store=basic --kiosk --no-first-run --disable-sync "file:///home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-
-Step 4: Check for Errors in Chromium Launch
-Let's run the script without redirecting stderr so we can see any errors:
-bashpkill chromium
-
-# Temporarily test one Chromium launch with visible errors
-DISPLAY=:0 XAUTHORITY=/home/nickspi5/.Xauthority chromium-browser --password-store=basic --kiosk --no-first-run "file:///home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-If that fails, try:
-bashDISPLAY=:0 XAUTHORITY=/home/nickspi5/.Xauthority chromium --password-store=basic --kiosk --no-first-run "file:///home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-
-Let me know what these commands show. The key is finding out:
-
-What the correct Chromium command name is
-Why it's not displaying even though the script logs say it launched
+# Create an empty keyring with no password
+python3 << 'EOF'
+import secretstorage
+connection = secretstorage.dbus_init()
+collection = secretstorage.get_default_collection(connection)
+EOF
 
 
