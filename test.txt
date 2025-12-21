@@ -1,65 +1,52 @@
 
-Thank you, Claude,
+Fix 1: Update the Startup Script to Use chromium Instead of chromium-browser
+bashsed -i 's/chromium-browser/chromium/g' /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
+Verify the change:
+bashgrep "chromium" /home/nickspi5/Chatty_AI/chatty_ai_startup.sh | head -5
 
-I ran: nickspi5@raspberrypi:~ $ which chromium
-/usr/bin/chromium
-nickspi5@raspberrypi:~ $ which chromium-browser
-nickspi5@raspberrypi:~ $ whereis chromium
-chromium: /usr/bin/chromium /usr/lib/chromium /etc/chromium /usr/share/chromium /usr/share/man/man1/chromium.1.gz
-nickspi5@raspberrypi:~ $ ls /usr/bin/chrom*
-/usr/bin/chromium
-nickspi5@raspberrypi:~ $ ps aux | grep chromium
-nickspi5  147897  0.0  0.0   4128  2064 pts/0    S+   14:57   0:00 grep --color=auto chromium
-nickspi5@raspberrypi:~ $ pkill chromium
-nickspi5@raspberrypi:~ $ DISPLAY=:0 /usr/bin/chromium --password-store=basic --kiosk --no-first-run --disable-sync "file:///home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-[148978:149017:1221/145836.183727:ERROR:google_apis/gcm/engine/registration_request.cc:292] Registration response error message: DEPRECATED_ENDPOINT
-[148978:149017:1221/145901.378004:ERROR:google_apis/gcm/engine/registration_request.cc:292] Registration response error message: DEPRECATED_ENDPOINT
-[149038:149038:1221/145941.503494:ERROR:gpu/command_buffer/service/shared_image/shared_image_manager.cc:397] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
-[149038:149038:1221/145941.510230:ERROR:gpu/command_buffer/service/shared_image/shared_image_manager.cc:397] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.
-[148978:149017:1221/145952.663980:ERROR:google_apis/gcm/engine/registration_request.cc:292] Registration response error message: DEPRECATED_ENDPOINT
-nickspi5@raspberrypi:~ $ 
+Fix 2: Disable Keyring Permanently
+The simplest way to disable the keyring prompt is to create an empty keyring with no password:
+bash# Remove existing keyrings
+rm -rf ~/.local/share/keyrings/*
 
-This time the chatty_loading.html file displayed correctly in Chromium.
+# Create a new default keyring with empty password
+mkdir -p ~/.local/share/keyrings
 
-I also manually launched Chromium and found it was asking me to input and confirm the keyring password again.
-
-So I also ran the following: nickspi5@raspberrypi:~ $ sudo apt-get install -y libsecret-tools
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following package was automatically installed and is no longer required:
-  libwlroots-0.18
-Use 'sudo apt autoremove' to remove it.
-The following NEW packages will be installed:
-  libsecret-tools
-0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
-Need to get 13.9 kB of archives.
-After this operation, 92.2 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian trixie/main arm64 libsecret-tools arm64 0.21.7-1 [13.9 kB]
-Fetched 13.9 kB in 0s (29.8 kB/s)          
-Selecting previously unselected package libsecret-tools.
-(Reading database ... 146711 files and directories currently installed.)
-Preparing to unpack .../libsecret-tools_0.21.7-1_arm64.deb ...
-Unpacking libsecret-tools (0.21.7-1) ...
-Setting up libsecret-tools (0.21.7-1) ...
-Processing triggers for man-db (2.13.1-1) ...
-nickspi5@raspberrypi:~ $ python3 << 'EOF'
-import secretstorage
-connection = secretstorage.dbus_init()
-collection = secretstorage.get_default_collection(connection)
+cat > ~/.local/share/keyrings/default << 'EOF'
+[keyring]
+display-name=Default keyring
+ctime=0
+mtime=0
+lock-on-idle=false
+lock-after=false
 EOF
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ModuleNotFoundError: No module named 'secretstorage'
-nickspi5@raspberrypi:~ $ 
 
+cat > ~/.local/share/keyrings/default.keyring << 'EOF'
+[keyring]
+display-name=Default keyring
+ctime=0
+mtime=0
+lock-on-idle=false
+lock-after=false
+EOF
 
+Fix 3: Alternative - Disable Keyring Daemon at Login
+bash# Create autostart directory if it doesn't exist
+mkdir -p ~/.config/autostart
 
+# Disable gnome-keyring-daemon
+cat > ~/.config/autostart/gnome-keyring-daemon.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Disable Keyring
+Exec=/bin/true
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=false
+EOF
 
-
-
-
-
-
-
+Test the Fix
+Now let's test the startup script:
+bashpkill chromium
+bash /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
 
