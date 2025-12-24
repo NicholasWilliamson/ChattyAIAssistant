@@ -1,21 +1,63 @@
 
+Thank you, Claude,
 
-First, let's check what model your Chatty AI is actually using:
-bashgrep -n "whisper\|Whisper\|faster_whisper\|WhisperModel" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "whisper\|Whisper\|faster_whisper\|WhisperModel" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+24:from faster_whisper import WhisperModel
+152:        self.whisper_model = None
+485:            # Load Whisper model
+486:            self.emit_log("Loading Whisper model...", 'info')
+487:            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+488:            self.emit_log("Whisper model loaded successfully", 'success')
+614:        """Transcribe audio using Whisper - Same as original but with web logging"""
+619:            segments, _ = self.whisper_model.transcribe(filename)
+700:                # Save audio (convert to 16kHz for Whisper if needed)
+704:                    # Convert to 16kHz for Whisper if we recorded at different rate
+755:                    # Convert to 16kHz for Whisper if needed
+1134:                models_status = self.whisper_model is not None and self.llama_model is not None
+1168:        if not self.whisper_model or not self.llama_model:
+1306:        'models_preloaded': chatty_ai.whisper_model is not None and chatty_ai.llama_model is not None,
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A5 -B5 "WhisperModel\|model_size\|compute_type" /home/nickspi5/Chatty_AI/chatty_ai.py
+import json
+import requests
+import logging
+import psutil
+from datetime import datetime, timedelta
+from faster_whisper import WhisperModel
+from llama_cpp import Llama
+from picamera2 import Picamera2
+from flask import Flask, render_template, jsonify, Response, request
+from flask_socketio import SocketIO, emit
+import base64
+--
+    def preload_models(self):
+        """CRITICAL: Preload models for maximum speed - Same as original approach"""
+        try:
+            # Load Whisper model
+            self.emit_log("Loading Whisper model...", 'info')
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+            self.emit_log("Whisper model loaded successfully", 'success')
+            
+            # Load LLaMA model
+            self.emit_log("Loading LLaMA model...", 'info')
+            self.llama_model = Llama(
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "n_threads\|Llama(" /home/nickspi5/Chatty_AI/chatty_ai.py
+492:            self.llama_model = Llama(
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ ffprobe -i /home/nickspi5/Chatty_AI/test_audio.wav 2>&1 | grep Duration
+  Duration: 00:00:03.00, bitrate: 256 kb/s
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ ls -la /home/nickspi5/Chatty_AI/test_audio.wav
+-rwxr-xr-x 1 nickspi5 nickspi5 96044 Aug  6 18:26 /home/nickspi5/Chatty_AI/test_audio.wav
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-2. Check Current Whisper Configuration
-bashgrep -A5 -B5 "WhisperModel\|model_size\|compute_type" /home/nickspi5/Chatty_AI/chatty_ai.py
 
-3. Optimize LLM with More Threads
-Your Pi 5 has 4 cores. Let's check if we're using all of them:
-bashgrep -n "n_threads\|Llama(" /home/nickspi5/Chatty_AI/chatty_ai.py
 
-4. Check Audio Recording Duration
-Long audio files take longer to transcribe. Let's see what the test audio file looks like:
-bash# Check audio file duration
-ffprobe -i /home/nickspi5/Chatty_AI/test_audio.wav 2>&1 | grep Duration
-If ffprobe isn't installed:
-bashls -la /home/nickspi5/Chatty_AI/test_audio.wav
+
+
+
+
+
+
+
+
 
 
 
