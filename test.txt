@@ -1,114 +1,21 @@
 
-Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
-nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 performance_test.py
+First, let's check what model your Chatty AI is actually using:
+bashgrep -n "whisper\|Whisper\|faster_whisper\|WhisperModel" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
 
-============================================================
-  CHATTY AI PERFORMANCE BENCHMARK
-============================================================
+2. Check Current Whisper Configuration
+bashgrep -A5 -B5 "WhisperModel\|model_size\|compute_type" /home/nickspi5/Chatty_AI/chatty_ai.py
 
-System: aarch64
-Python: 3.13.5
-RAM: 15.8 GB
-CPU Cores: 4
+3. Optimize LLM with More Threads
+Your Pi 5 has 4 cores. Let's check if we're using all of them:
+bashgrep -n "n_threads\|Llama(" /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Hailo AI HAT Status:
-  [OK] Hailo AI HAT is working
-    Firmware Version: 4.23.0 (release,app,extended context switch buffer)
-    Device Architecture: HAILO8L
-    Product Name: HAILO-8L AI ACC M.2 B+M KEY MODULE EXT TMP
-
-[1/5] Testing Faster-Whisper Model Loading...
-
-==================================================
-Benchmarking: Faster-Whisper Load
-==================================================
-  Run 1: 1.444s
-  Average: 1.444s
-  Min: 1.444s | Max: 1.444s
-
-[2/5] Testing Speech-to-Text (Faster-Whisper)...
-  Using: /home/nickspi5/Chatty_AI/test_audio.wav
-
-==================================================
-Benchmarking: STT Transcription
-==================================================
-  Run 1: 3.483s
-  Run 2: 3.403s
-  Run 3: 3.488s
-  Average: 3.458s
-  Min: 3.403s | Max: 3.488s
-
-[3/5] Testing LLaMA Model Loading...
-
-==================================================
-Benchmarking: LLaMA Load
-==================================================
-llama_context: n_ctx_per_seq (512) < n_ctx_train (2048) -- the full capacity of the model will not be utilized
-  Run 1: 0.139s
-  Average: 0.139s
-  Min: 0.139s | Max: 0.139s
-llama_context: n_ctx_per_seq (512) < n_ctx_train (2048) -- the full capacity of the model will not be utilized
-
-[4/5] Testing LLM Inference...
-
-==================================================
-Benchmarking: LLM Inference
-==================================================
-  Run 1: 3.196s
-  Run 2: 0.469s
-  Run 3: 0.076s
-  Average: 1.247s
-  Min: 0.076s | Max: 3.196s
-
-[5/5] Testing Text-to-Speech (Piper)...
-
-==================================================
-Benchmarking: TTS Generation
-==================================================
-  Run 1: 0.744s
-  Run 2: 0.732s
-  Run 3: 0.776s
-  Average: 0.751s
-  Min: 0.732s | Max: 0.776s
-
-============================================================
-  PERFORMANCE SUMMARY
-============================================================
-
-Component                 Time (seconds)  Status
--------------------------------------------------------
-whisper_load              1.444           [OK]
-stt                       3.458           [SLOW]
-llama_load                0.139           [OK]
-llm                       1.247           [OK]
-tts                       0.751           [OK]
-
--------------------------------------------------------
-Estimated Response Time   5.456          
-
-============================================================
-  RECOMMENDATIONS
-============================================================
-- STT is slow - consider using 'tiny' model instead of 'base'
-
-- To use Hailo AI HAT acceleration, models need to be
-  converted to HEF format (Hailo Executable Format)
-
-Done!
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
-
-
-
-
-
-
-
-
-
+4. Check Audio Recording Duration
+Long audio files take longer to transcribe. Let's see what the test audio file looks like:
+bash# Check audio file duration
+ffprobe -i /home/nickspi5/Chatty_AI/test_audio.wav 2>&1 | grep Duration
+If ffprobe isn't installed:
+bashls -la /home/nickspi5/Chatty_AI/test_audio.wav
 
 
 
