@@ -8,9 +8,7 @@ import time
 import sys
 import os
 
-# Ensure UTF-8 output
 os.environ['PYTHONIOENCODING'] = 'utf-8'
-
 sys.path.insert(0, '/home/nickspi5/Chatty_AI')
 
 def benchmark(name, func, *args, iterations=3):
@@ -32,16 +30,17 @@ def benchmark(name, func, *args, iterations=3):
     print(f"  Min: {min(times):.3f}s | Max: {max(times):.3f}s")
     return avg
 
-def test_whisper_loading():
-    """Test Whisper model loading time"""
-    import whisper
-    model = whisper.load_model("base")
+def test_faster_whisper_loading():
+    """Test faster-whisper model loading time"""
+    from faster_whisper import WhisperModel
+    model = WhisperModel("base", device="cpu", compute_type="int8")
     return model
 
-def test_whisper_transcription(model, audio_file):
-    """Test speech-to-text transcription"""
-    result = model.transcribe(audio_file)
-    return result["text"]
+def test_faster_whisper_transcription(model, audio_file):
+    """Test speech-to-text transcription with faster-whisper"""
+    segments, info = model.transcribe(audio_file, beam_size=5)
+    text = " ".join([segment.text for segment in segments])
+    return text
 
 def test_llama_loading():
     """Test LLaMA model loading time"""
@@ -84,60 +83,61 @@ def main():
     result = subprocess.run(['hailortcli', 'fw-control', 'identify'], capture_output=True, text=True)
     if result.returncode == 0:
         print("  [OK] Hailo AI HAT is working")
-        print(f"  {result.stdout.strip()}")
+        # Print just the key info
+        for line in result.stdout.strip().split('\n'):
+            if any(x in line for x in ['Firmware Version', 'Device Architecture', 'Product Name']):
+                print(f"    {line.strip()}")
     else:
         print("  [NOT WORKING] Hailo AI HAT firmware not loaded")
-        print("  Run: sudo apt install hailo-all && sudo reboot")
     
     results = {}
     
-    # Test 1: Whisper Loading
-    print("\n[1/5] Testing Whisper Model Loading...")
+    # Test 1: Faster-Whisper Loading
+    print("\n[1/5] Testing Faster-Whisper Model Loading...")
+    whisper_model = None
     try:
-        whisper_load_time = benchmark("Whisper Load", test_whisper_loading, iterations=1)
+        whisper_load_time = benchmark("Faster-Whisper Load", test_faster_whisper_loading, iterations=1)
         results['whisper_load'] = whisper_load_time
         
         # Keep model for transcription test
-        import whisper
-        whisper_model = whisper.load_model("base")
+        from faster_whisper import WhisperModel
+        whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
     except Exception as e:
         print(f"  ERROR: {e}")
         results['whisper_load'] = None
-        whisper_model = None
     
     # Test 2: Speech-to-Text
-    print("\n[2/5] Testing Speech-to-Text (Whisper)...")
-    test_audio = "/home/nickspi5/Chatty_AI/test_audio.wav"
+    print("\n[2/5] Testing Speech-to-Text (Faster-Whisper)...")
     try:
-        if os.path.exists(test_audio) and whisper_model:
-            stt_time = benchmark("STT Transcription", test_whisper_transcription, whisper_model, test_audio, iterations=3)
+        # Find an audio file to test with
+        audio_files = [
+            "/home/nickspi5/Chatty_AI/test_audio.wav",
+            "/home/nickspi5/Chatty_AI/user_audio.wav",
+            "/home/nickspi5/Chatty_AI/wake_word_audio.wav",
+            "/home/nickspi5/Chatty_AI/record.wav",
+            "/home/nickspi5/Chatty_AI/user_input.wav"
+        ]
+        
+        found_audio = None
+        for f in audio_files:
+            if os.path.exists(f) and os.path.getsize(f) > 1000:
+                found_audio = f
+                break
+        
+        if found_audio and whisper_model:
+            print(f"  Using: {found_audio}")
+            stt_time = benchmark("STT Transcription", test_faster_whisper_transcription, whisper_model, found_audio, iterations=3)
             results['stt'] = stt_time
         else:
-            # Try alternative audio files
-            alt_files = [
-                "/home/nickspi5/Chatty_AI/user_audio.wav",
-                "/home/nickspi5/Chatty_AI/wake_word_audio.wav",
-                "/home/nickspi5/Chatty_AI/record.wav"
-            ]
-            found_audio = None
-            for f in alt_files:
-                if os.path.exists(f):
-                    found_audio = f
-                    break
-            
-            if found_audio and whisper_model:
-                print(f"  Using: {found_audio}")
-                stt_time = benchmark("STT Transcription", test_whisper_transcription, whisper_model, found_audio, iterations=3)
-                results['stt'] = stt_time
-            else:
-                print(f"  SKIPPED: No test audio found")
-                results['stt'] = None
+            print(f"  SKIPPED: No suitable test audio found or model not loaded")
+            results['stt'] = None
     except Exception as e:
         print(f"  ERROR: {e}")
         results['stt'] = None
     
     # Test 3: LLaMA Loading
     print("\n[3/5] Testing LLaMA Model Loading...")
+    llm = None
     try:
         llama_load_time = benchmark("LLaMA Load", test_llama_loading, iterations=1)
         results['llama_load'] = llama_load_time
@@ -149,7 +149,6 @@ def main():
     except Exception as e:
         print(f"  ERROR: {e}")
         results['llama_load'] = None
-        llm = None
     
     # Test 4: LLM Inference
     print("\n[4/5] Testing LLM Inference...")
@@ -179,31 +178,51 @@ def main():
     print("  PERFORMANCE SUMMARY")
     print("="*60)
     print(f"\n{'Component':<25} {'Time (seconds)':<15} {'Status'}")
-    print("-"*50)
+    print("-"*55)
+    
+    targets = {
+        'whisper_load': 5.0,
+        'stt': 3.0,
+        'llama_load': 1.0,
+        'llm': 2.0,
+        'tts': 1.0
+    }
     
     for name, time_val in results.items():
         if time_val is not None:
-            status = "[OK]" if time_val < 5 else "[SLOW]"
+            target = targets.get(name, 5.0)
+            status = "[OK]" if time_val < target else "[SLOW]"
             print(f"{name:<25} {time_val:<15.3f} {status}")
         else:
             print(f"{name:<25} {'N/A':<15} [FAILED]")
+    
+    # Total end-to-end estimate
+    print("\n" + "-"*55)
+    valid_times = [v for v in results.values() if v is not None]
+    if valid_times:
+        # Estimate total response time (STT + LLM + TTS)
+        stt = results.get('stt', 0) or 0
+        llm = results.get('llm', 0) or 0
+        tts = results.get('tts', 0) or 0
+        total = stt + llm + tts
+        print(f"{'Estimated Response Time':<25} {total:<15.3f}")
     
     print("\n" + "="*60)
     print("  RECOMMENDATIONS")
     print("="*60)
     
     if results.get('llm') and results['llm'] > 2:
-        print("- LLM inference is slow - consider using more CPU threads")
-        print("  or enabling Hailo AI acceleration")
+        print("- LLM inference is slow on first run (cache warming)")
+        print("  Consider keeping the model warm in memory")
     
     if results.get('stt') and results['stt'] > 3:
-        print("- STT is slow - consider using whisper 'tiny' model instead of 'base'")
+        print("- STT is slow - consider using 'tiny' model instead of 'base'")
     
     if results.get('tts') and results['tts'] > 1:
-        print("- TTS is slow - check Piper voice model")
+        print("- TTS could be faster with a smaller voice model")
     
-    if results.get('whisper_load') is None:
-        print("- Whisper not installed. Run: pip install openai-whisper")
+    print("\n- To use Hailo AI HAT acceleration, models need to be")
+    print("  converted to HEF format (Hailo Executable Format)")
     
     print("\nDone!")
 
