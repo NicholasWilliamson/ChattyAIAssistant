@@ -1,63 +1,64 @@
 
-Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "whisper\|Whisper\|faster_whisper\|WhisperModel" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-24:from faster_whisper import WhisperModel
-152:        self.whisper_model = None
-485:            # Load Whisper model
-486:            self.emit_log("Loading Whisper model...", 'info')
-487:            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-488:            self.emit_log("Whisper model loaded successfully", 'success')
-614:        """Transcribe audio using Whisper - Same as original but with web logging"""
-619:            segments, _ = self.whisper_model.transcribe(filename)
-700:                # Save audio (convert to 16kHz for Whisper if needed)
-704:                    # Convert to 16kHz for Whisper if we recorded at different rate
-755:                    # Convert to 16kHz for Whisper if needed
-1134:                models_status = self.whisper_model is not None and self.llama_model is not None
-1168:        if not self.whisper_model or not self.llama_model:
-1306:        'models_preloaded': chatty_ai.whisper_model is not None and chatty_ai.llama_model is not None,
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A5 -B5 "WhisperModel\|model_size\|compute_type" /home/nickspi5/Chatty_AI/chatty_ai.py
-import json
-import requests
-import logging
-import psutil
-from datetime import datetime, timedelta
+Now I can see the configuration. Let's check the current settings and optimize them.
+
+Current Configuration
+
+Whisper: Using WHISPER_MODEL_SIZE variable (need to check what it's set to)
+LLaMA: Need to see the full configuration
+Test audio: 3 seconds long, but taking 3.46s to transcribe (>1x realtime - too slow!)
+
+
+Step 1: Check Current Model Settings
+bashgrep -n "WHISPER_MODEL_SIZE\|LLAMA_MODEL\|n_threads\|n_ctx" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+
+Step 2: See the Full LLaMA Configuration
+bashsed -n '490,510p' /home/nickspi5/Chatty_AI/chatty_ai.py
+
+Step 3: Check Available Whisper Models
+The tiny model is about 4-5x faster than base with only slightly reduced accuracy:
+ModelSizeRelative SpeedEnglish Accuracytiny39MBFastestGoodbase74MBMediumBettersmall244MBSlowBest
+
+Step 4: Quick Test with Tiny Model
+Let's test the speed difference:
+bashpython3 << 'EOF'
+import time
 from faster_whisper import WhisperModel
-from llama_cpp import Llama
-from picamera2 import Picamera2
-from flask import Flask, render_template, jsonify, Response, request
-from flask_socketio import SocketIO, emit
-import base64
---
-    def preload_models(self):
-        """CRITICAL: Preload models for maximum speed - Same as original approach"""
-        try:
-            # Load Whisper model
-            self.emit_log("Loading Whisper model...", 'info')
-            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-            self.emit_log("Whisper model loaded successfully", 'success')
-            
-            # Load LLaMA model
-            self.emit_log("Loading LLaMA model...", 'info')
-            self.llama_model = Llama(
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "n_threads\|Llama(" /home/nickspi5/Chatty_AI/chatty_ai.py
-492:            self.llama_model = Llama(
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ ffprobe -i /home/nickspi5/Chatty_AI/test_audio.wav 2>&1 | grep Duration
-  Duration: 00:00:03.00, bitrate: 256 kb/s
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ ls -la /home/nickspi5/Chatty_AI/test_audio.wav
--rwxr-xr-x 1 nickspi5 nickspi5 96044 Aug  6 18:26 /home/nickspi5/Chatty_AI/test_audio.wav
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
+audio_file = "/home/nickspi5/Chatty_AI/test_audio.wav"
 
+print("Testing 'tiny' model...")
+start = time.perf_counter()
+model_tiny = WhisperModel("tiny", device="cpu", compute_type="int8")
+load_time = time.perf_counter() - start
+print(f"  Load time: {load_time:.3f}s")
 
+start = time.perf_counter()
+segments, _ = model_tiny.transcribe(audio_file)
+text = " ".join([s.text for s in segments])
+transcribe_time = time.perf_counter() - start
+print(f"  Transcribe time: {transcribe_time:.3f}s")
+print(f"  Text: {text[:100]}...")
 
+print("\nTesting 'base' model...")
+start = time.perf_counter()
+model_base = WhisperModel("base", device="cpu", compute_type="int8")
+load_time = time.perf_counter() - start
+print(f"  Load time: {load_time:.3f}s")
 
+start = time.perf_counter()
+segments, _ = model_base.transcribe(audio_file)
+text = " ".join([s.text for s in segments])
+transcribe_time = time.perf_counter() - start
+print(f"  Transcribe time: {transcribe_time:.3f}s")
+print(f"  Text: {text[:100]}...")
+EOF
 
+Run these commands and share the output. This will help us determine:
 
-
-
-
-
+What model size you're currently using
+How much faster the tiny model would be
+What LLaMA settings can be optimized
 
 
 
