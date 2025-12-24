@@ -1,27 +1,35 @@
 
+Thank you, Claude,
 
-Now I can see the configuration. Let's check the current settings and optimize them.
-
-Current Configuration
-
-Whisper: Using WHISPER_MODEL_SIZE variable (need to check what it's set to)
-LLaMA: Need to see the full configuration
-Test audio: 3 seconds long, but taking 3.46s to transcribe (>1x realtime - too slow!)
-
-
-Step 1: Check Current Model Settings
-bashgrep -n "WHISPER_MODEL_SIZE\|LLAMA_MODEL\|n_threads\|n_ctx" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-
-Step 2: See the Full LLaMA Configuration
-bashsed -n '490,510p' /home/nickspi5/Chatty_AI/chatty_ai.py
-
-Step 3: Check Available Whisper Models
-The tiny model is about 4-5x faster than base with only slightly reduced accuracy:
-ModelSizeRelative SpeedEnglish Accuracytiny39MBFastestGoodbase74MBMediumBettersmall244MBSlowBest
-
-Step 4: Quick Test with Tiny Model
-Let's test the speed difference:
-bashpython3 << 'EOF'
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "WHISPER_MODEL_SIZE\|LLAMA_MODEL\|n_threads\|n_ctx" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+35:WHISPER_MODEL_SIZE = "base"
+36:LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+487:            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+493:                model_path=LLAMA_MODEL_PATH,
+494:                n_ctx=2048,
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '490,510p' /home/nickspi5/Chatty_AI/chatty_ai.py
+            # Load LLaMA model
+            self.emit_log("Loading LLaMA model...", 'info')
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            self.emit_log("LLaMA model loaded successfully", 'success')
+            
+            return True
+            
+        except Exception as e:
+            self.emit_log(f"Failed to load models: {e}", 'error')
+            return False
+    
+    def load_encodings(self):
+        """Load facial recognition encodings"""
+        try:
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
 import time
 from faster_whisper import WhisperModel
 
@@ -50,15 +58,28 @@ start = time.perf_counter()
 segments, _ = model_base.transcribe(audio_file)
 text = " ".join([s.text for s in segments])
 transcribe_time = time.perf_counter() - start
-print(f"  Transcribe time: {transcribe_time:.3f}s")
-print(f"  Text: {text[:100]}...")
-EOF
+EOFnt(f"  Text: {text[:100]}...")cribe_time:.3f}s")
+Testing 'tiny' model...
+  Load time: 67.689s
+  Transcribe time: 1.722s
+  Text:  Are you alive?...
 
-Run these commands and share the output. This will help us determine:
+Testing 'base' model...
+  Load time: 5.846s
+  Transcribe time: 3.401s
+  Text:  Are you alive?...
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-What model size you're currently using
-How much faster the tiny model would be
-What LLaMA settings can be optimized
+
+
+
+
+
+
+
+
+
+
 
 
 
