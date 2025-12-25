@@ -1,24 +1,26 @@
 
 Thank you, Claude,
 
-I ran the alternative quick test first: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A15 "self.llama_model = Llama" /home/nickspi5/Chatty_AI/chatty_ai.py
-            self.llama_model = Llama(
-                model_path=LLAMA_MODEL_PATH,
-                n_ctx=2048,
-                n_threads=4,
-                temperature=0.7,
-                repeat_penalty=1.1,
-                n_gpu_layers=0,
-                verbose=False
-            )
-            self.emit_log("LLaMA model loaded successfully", 'success')
-            
-            return True
-            
-        except Exception as e:
-            self.emit_log(f"Failed to load models: {e}", 'error')
-            return False
+I did what you recommended to update my chatty_ai.py Python script.
+
+I then ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ journalctl -u chatty-ai.service -f
+Dec 25 19:49:15 raspberrypi python[235084]: ð¯ Wake word detection optimized
+Dec 25 19:49:15 raspberrypi python[235084]: ð± Web interface available
+Dec 25 19:49:15 raspberrypi python[235084]: ============================================================
+Dec 25 19:49:15 raspberrypi python[235084]:  * Serving Flask app 'chatty_ai'
+Dec 25 19:49:15 raspberrypi python[235084]:  * Debug mode: off
+Dec 25 19:49:15 raspberrypi python[235084]: WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+Dec 25 19:49:15 raspberrypi python[235084]:  * Running on all addresses (0.0.0.0)
+Dec 25 19:49:15 raspberrypi python[235084]:  * Running on http://127.0.0.1:5000
+Dec 25 19:49:15 raspberrypi python[235084]:  * Running on http://192.168.1.19:5000
+Dec 25 19:49:15 raspberrypi python[235084]: Press CTRL+C to quit
+^C
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+
+
+
 
 
 
