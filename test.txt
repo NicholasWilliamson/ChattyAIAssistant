@@ -1,256 +1,114 @@
 
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '779,830p' /home/nickspi5/Chatty_AI/chatty_ai.py
-    def process_user_input(self, text):
-        """Process user input - Same as original"""
-        self.emit_log(f"Processing user input: '{text}'", 'info')
-        command = self.is_command(text)
-        if command:
-            self.emit_log(f"Executing command: {command}", 'info')
-            response = self.execute_command(command)
-        else:
-            self.emit_log("Generating LLM response", 'info')
-            response = self.query_llama(text)
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '640,725p' /home/nickspi5/Chatty_AI/chatty_ai.py
         
-        return response
+        self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
+        return False
     
-    def is_command(self, text):
-        """Check if text is a command"""
-        text_lower = text.lower().strip()
-        for command in COMMANDS.keys():
-            if command in text_lower:
-                return command
-        return None
-
-    def execute_command(self, command):
-        """Execute system command"""
-        if command == "flush the toilet":
-            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
-        elif command == "turn on the lights":
-            response = "I would turn on the lights if I was connected to a smart home system."
-        elif command == "turn off the lights":
-            response = "I would turn off the lights if I was connected to a smart home system."
-        elif command == "play music":
-            response = "I would start playing music if I had access to a music system."
-        elif command == "stop music":
-            response = "I would stop the music if any music was playing."
-        elif command == "who is sponsoring this video":
-            self.play_laughing()
-            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
-        elif command == "how is the weather today":
-            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
-        elif command == "what time is it":
-            import datetime
-            current_time = datetime.datetime.now().strftime("%I:%M %p")
-            response = f"The current time is {current_time}"
-        elif command == "shutdown system":
-            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
-        elif command == "reboot system":
-            response = "I would reboot the system, but I will skip that for safety reasons during testing."
-        else:
-            response = f"I understand you want me to {command}, but I dont have that capability yet."
-        
-        return response
-    
-    def query_llama(self, prompt):
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '888,960p' /home/nickspi5/Chatty_AI/chatty_ai.py
-    def listen_for_wake_word(self):
-        """Listen for wake words in background - Same as original"""
-        self.emit_log("Wake word detection thread started", 'success')
-    
-        while self.is_running:
-            try:
-                # Only listen if someone is present and wake word detection is active
-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
-                    # Check for bored response first
-                    if self.check_for_bored_response(self.current_person):
-                        # Bored response was given, continue to next iteration
-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                        continue
-                
-                    # Record audio for wake word detection
-                    if self.record_wake_word_check():
-                        # Transcribe and check for wake word
-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                    
-                        if transcript and self.detect_wake_word(transcript):
-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
-                            self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
-                            self.play_beep()
-                        
-                            # Speak listening response
-                            if self.listening_responses:
-                                listening_template = random.choice(self.listening_responses)
-                                listening_response = listening_template.replace("{name}", self.current_person)
-                            else:
-                                listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
-                        
-                            self.speak_text(listening_response)
-                        
-                            # Record full request
-                            self.emit_log("Please speak your request...", 'info')
-                            if self.record_with_silence_detection():
-                                user_text = self.transcribe_audio(WAV_FILENAME)
-                                if user_text and len(user_text.strip()) > 2:
-                                    self.emit_log(f"User said: '{user_text}'", 'info')
-                                    self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                    response = self.process_user_input(user_text)
-                                    self.emit_log(f"Response: '{response}'", 'info')
-                                    self.emit_conversation(f"Response: {response}", 'response')
-                                    self.speak_text(response)
-                                    self.last_interaction_time = time.time()
-                                    # Reset bored response timer only after successful interaction
-                                    self.last_bored_response_time = time.time()
-                                else:
-                                    self.speak_text("I didn't catch that. Could you repeat your request?")
-                                    self.emit_conversation("No clear speech detected", 'info')
-                            else:
-                                self.speak_text("I'm having trouble hearing you. Please try again.")
-                                self.emit_conversation("Failed to record audio", 'info')
-                
-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                else:
-                    # No one present or wake word not active, sleep longer
-                    time.sleep(2.0)
-                
-            except Exception as e:
-                self.emit_log(f"Wake word detection error: {e}", 'error')
-                time.sleep(2.0)
-    
-        self.emit_log("Wake word detection thread stopped", 'info')
-
-    def camera_monitoring_loop(self):
-        """Main camera monitoring loop - optimized for web"""
-        while self.is_running:
-            try:
-                frame = self.picam2.capture_array()
+    def record_with_silence_detection(self):
+        """Record audio until silence detected - Same as original with better sample rate handling"""
+        try:
+            # Auto-detect working sample rate
+            working_sample_rate = None
+            for rate in [44100, 48000, 22050, 16000]:
+                try:
+                    sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
+                    working_sample_rate = rate
+                    break
+                except:
+                    continue
             
-                # Convert from RGB to BGR for OpenCV if needed
-                if len(frame.shape) == 3 and frame.shape[2] == 4:
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '553,615p' /home/nickspi5/Chatty_AI/chatty_ai.py 
-    def speak_text(self, text):
-        """Convert text to speech using Piper - Same as original"""
-        try:
-            with self.audio_recording_lock:
-                command = [
-                    PIPER_EXECUTABLE,
-                    "--model", VOICE_PATH,
-                    "--config", CONFIG_PATH,
-                    "--output_file", RESPONSE_AUDIO
-                ]
-                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
-                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
-                self.emit_log(f"Speaking: '{text[:50]}...'", 'info')
-        except subprocess.CalledProcessError as e:
-            self.emit_log(f"TTS failed: {e}", 'error')
-    
-    def play_beep(self):
-        """Play beep sound - Same as original"""
-        try:
-            with self.audio_recording_lock:
-                subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
-                self.emit_log("Beep sound played", 'debug')
-        except subprocess.CalledProcessError:
-            pass
-
-    def play_laughing(self):
-        """Play laughing sound"""
-        try:
-            with self.audio_recording_lock:
-                subprocess.run(["aplay", LAUGHING_SOUND], check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            pass
-
-    def detect_faces(self, frame):
-        """Detect and recognize faces in frame - Same as original"""
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_frame, model="hog")
-        
-        if len(face_locations) == 0:
-            return None, None, 0.0
-        
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        
-        best_name = "Unknown"
-        best_confidence = 0.0
-        
-        for face_encoding in face_encodings:
-            matches = face_recognition.compare_faces(self.known_encodings, face_encoding, tolerance=0.6)
-            
-            if True in matches:
-                face_distances = face_recognition.face_distance(self.known_encodings, face_encoding)
-                best_match_index = face_distances.argmin()
-                confidence = 1.0 - face_distances[best_match_index]
-                
-                if matches[best_match_index] and confidence > 0.4:
-                    if confidence > best_confidence:
-                        best_name = self.known_names[best_match_index]
-                        best_confidence = confidence
-        
-        return best_name, face_locations[0], best_confidence
-    
-    def transcribe_audio(self, filename):
-        """Transcribe audio using Whisper - Same as original but with web logging"""
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '724,780p' /home/nickspi5/Chatty_AI/chatty_ai.py
-    def record_wake_word_check(self):
-        """Record short audio clip for wake word detection with auto sample rate"""
-        try:
-            if not self.audio_recording_lock.acquire(blocking=False):
+            if not working_sample_rate:
+                self.emit_log("No compatible sample rate found", 'error')
                 return False
-        
-            try:
-                # Auto-detect working sample rate (same as user input recording)
-                working_sample_rate = None
-                for rate in [44100, 48000, 22050, 16000]:
-                    try:
-                        sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-                        working_sample_rate = rate
-                        break
-                    except:
-                        continue
             
-                if not working_sample_rate:
-                    self.emit_log("No compatible sample rate found for wake word", 'error')
-                    return False
-            
-                # Record 3 seconds for wake word detection
-                audio_data = sd.rec(int(3 * working_sample_rate), 
-                                    samplerate=working_sample_rate, 
-                                    channels=CHANNELS, 
-                                    dtype='float32')
-                sd.wait()
-            
-            
-                # Check if audio contains sound above threshold
-                rms = np.sqrt(np.mean(audio_data**2))
-                if rms > SILENCE_THRESHOLD * 2:
-                    # Convert to 16kHz for Whisper if needed
+            with self.audio_recording_lock:
+                self.emit_log(f"Recording with sample rate: {working_sample_rate} Hz", 'debug')
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.1
+                samples_per_check = int(working_sample_rate * check_interval)
+                
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        self.emit_log(f"Audio status: {status}", 'warning')
+                    audio_data.extend(indata[:, 0])
+                
+                with sd.InputStream(callback=audio_callback, 
+                                  samplerate=working_sample_rate, 
+                                  channels=1,
+                                  dtype='float32'):
+                    
+                    while recording_duration < 30:  # Max 30 seconds
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                        
+                        if len(audio_data) >= samples_per_check:
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+                            rms = np.sqrt(np.mean(recent_audio**2))
+                            
+                            # Debug every second
+                            if int(recording_duration * 10) % 10 == 0:
+                                self.emit_log(f"Recording: {recording_duration:.1f}s | Audio: {rms:.4f} | Silence: {silence_duration:.1f}s", 'debug')
+                            
+                            if rms < SILENCE_THRESHOLD:
+                                silence_duration += check_interval
+                                if silence_duration >= MIN_SILENCE_DURATION:
+                                    self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'info')
+                                    break
+                            else:
+                                if silence_duration > 0.5:
+                                    self.emit_log(f"Speech resumed after {silence_duration:.1f}s silence", 'debug')
+                                silence_duration = 0
+                
+                # Save audio (convert to 16kHz for Whisper if needed)
+                if len(audio_data) > 0:
+                    audio_array = np.array(audio_data)
+                    
+                    # Convert to 16kHz for Whisper if we recorded at different rate
                     if working_sample_rate != 16000:
                         from scipy import signal
-                        target_length = int(len(audio_data) * 16000 / working_sample_rate)
-                        audio_data = signal.resample(audio_data, target_length)
+                        target_length = int(len(audio_array) * 16000 / working_sample_rate)
+                        audio_array = signal.resample(audio_array, target_length)
                         save_sample_rate = 16000
                     else:
                         save_sample_rate = working_sample_rate
-                
-                    sf.write(WAKE_WORD_AUDIO, audio_data, save_sample_rate)
-                    self.emit_log(f"Wake word audio saved, RMS: {rms:.4f}", 'debug')
+                        
+                    sf.write(WAV_FILENAME, audio_array, save_sample_rate)
+                    self.emit_log(f"Audio saved: {len(audio_array)/save_sample_rate:.1f}s", 'info')
                     return True
                 else:
-                    self.emit_log(f"Audio too quiet for wake word, RMS: {rms:.4f}", 'debug')
                     return False
-                
-            finally:
-                self.audio_recording_lock.release()
-            
+                    
         except Exception as e:
-            self.emit_log(f"Wake word recording error: {e}", 'error')
+            self.emit_log(f"Recording error: {e}", 'error')
             return False
 
-    def process_user_input(self, text):
-        """Process user input - Same as original"""
+    def record_wake_word_check(self):
+        """Record short audio clip for wake word detection with auto sample rate"""
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "WAKE_WORD_CHECK_INTERVAL\|SILENCE\|RECORD\|Duration" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+97:SILENCE_THRESHOLD = 0.035
+98:MIN_SILENCE_DURATION = 1.5
+99:MAX_RECORDING_DURATION = 30
+105:WAKE_WORD_CHECK_INTERVAL = 1.0
+691:                            if rms < SILENCE_THRESHOLD:
+693:                                if silence_duration >= MIN_SILENCE_DURATION:
+755:                if rms > SILENCE_THRESHOLD * 2:
+899:                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+942:                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+The 15+ second delay was occuring after the users question was translated to text and display on the screen.
+
+If the users question required a LLM response, the words "generating LLM response" appear on the screen.
+
+Then the 15+ second delay occured while waiting for the LLM response to be displayed on the screen and the words where spoken by the system.
+
+I hope that helps you to find where the bottleneck is occuring.
+
+
 
 
 
