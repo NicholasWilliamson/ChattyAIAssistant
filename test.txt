@@ -1,150 +1,29 @@
 
-Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ sudo dmesg | grep -i "imx\|camera"
-[    0.029081] /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/csi@128000
-[    0.029107] /axi/pcie@1000120000/rp1/csi@128000: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a
-[    0.029261] /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/csi@128000
-[    0.029289] /axi/pcie@1000120000/rp1/csi@128000: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a
-[    0.524502] /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/csi@128000
-[    0.524834] /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/csi@128000
-[    0.524848] /axi/pcie@1000120000/rp1/csi@128000: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a
-[    2.762777] /axi/pcie@1000120000/rp1/csi@128000: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a
-[    2.762815] /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a: Fixed dependency cycle(s) with /axi/pcie@1000120000/rp1/csi@128000
-[    3.059664] rp1-cfe 1f00128000.csi: found subdevice /axi/pcie@1000120000/rp1/i2c@80000/imx708@1a
-[    3.373929] imx708 11-001a: camera module ID 0x0301
-[    3.377119] rp1-cfe 1f00128000.csi: Using sensor imx708 for capture
-nickspi5@raspberrypi:~ $ cat /boot/firmware/config.txt | grep -i camera
-# Automatically load overlays for detected cameras
-camera_auto_detect=1
-nickspi5@raspberrypi:~ $ grep -n "llama_model\|generate\|__call__" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-153:        self.llama_model = None
-492:            self.llama_model = Llama(
-835:            result = self.llama_model(formatted_prompt, max_tokens=100)
-1135:                models_status = self.whisper_model is not None and self.llama_model is not None
-1169:        if not self.whisper_model or not self.llama_model:
-1243:    def generate():
-1266:    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
-1307:        'models_preloaded': chatty_ai.whisper_model is not None and chatty_ai.llama_model is not None,
-nickspi5@raspberrypi:~ $ grep -A30 "def generate_response\|def get_llm_response\|def process_question" /home/nickspi5/Chatty_AI/chatty_ai.py | head -50
-nickspi5@raspberrypi:~ $ cat /home/nickspi5/Chatty_AI/chatty_ai_startup.sh | head -40
-#!/bin/bash
-#
-export GNOME_KEYRING_CONTROL=""
-export SSH_AUTH_SOCK=""
-# Chatty AI Startup Script
-#
+The 15+ Second Delay is NOT the LLM!
+Since the LLM responds in under 1 second when tested directly, the delay must be elsewhere. Let's find it.
+Check the full question-processing pipeline:
+bash# Find the function that handles user questions
+grep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+Check around line 835 where the LLM is called:
+bashsed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
+Check the wake word and speech processing flow:
+bashgrep -n "transcribe\|speak\|piper\|wake_word" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
 
-# Configuration
-VIDEO_PATH="/home/nickspi5/Chatty_AI/Chatty_AI_starting.mp4"
-LOADING_PAGE="/home/nickspi5/Chatty_AI/templates/chatty_loading.html"
-BLACK_PAGE="/home/nickspi5/Chatty_AI/templates/black.html"
-CHATTY_URL="http://localhost:5000"
-LOG_FILE="/home/nickspi5/Chatty_AI/logs/startup.log"
+About the Second Camera
+Only your Pi Camera Module 3 (IMX708) is being detected. To use the Waveshare IMX219:
 
-# Create log directory
-mkdir -p /home/nickspi5/Chatty_AI/logs
+Check physical connection - The IMX219 needs to be on a different CSI port
+Check if dual camera is enabled:
 
-# Function to log messages
-log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
+bash# Check for second CSI port configuration
+cat /boot/firmware/config.txt | grep -i "dtoverlay\|csi"
+For dual cameras, you typically need to add overlay configuration. But let's focus on the LLM delay first.
 
-# Start logging
-log_message "========================================="
-log_message "Chatty AI Startup Sequence Initiated"
-log_message "========================================="
-
-# Set display
-export DISPLAY=:0
-export XAUTHORITY=/home/nickspi5/.Xauthority
-
-# Set audio volumes to 100%
-/home/nickspi5/Chatty_AI/set_audio_volume.sh
-log_message "Audio volumes set to 100%"
-
-# Wait for X server to be ready
-log_message "Waiting for X server..."
-while ! xset q &>/dev/null; do
-    sleep 0.5
-done
-nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
-source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
-import time
-from llama_cpp import Llama
-
-print("Loading LLaMA model...")
-start = time.perf_counter()
-llm = Llama(
-    model_path="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
-    n_ctx=2048,
-    n_threads=4,
-    verbose=False
-)
-load_time = time.perf_counter() - start
-print(f"Model loaded in {load_time:.2f}s")
-
-# Test various prompts
-prompts = [
-    "Hello, how are you?",
-    "What is the capital of France?",
-    "Tell me a short joke."
-]
-
-for prompt in prompts:
-    print(f"\nPrompt: '{prompt}'")
-    start = time.perf_counter()
-    response = llm(
-        prompt,
-        max_tokens=100,
-        temperature=0.7,
-    print(f"Response ({elapsed:.2f}s): {text[:100]}...")
-> EOF
-Loading LLaMA model...
-Model loaded in 0.09s
-
-Prompt: 'Hello, how are you?'
-Response (0.58s): This is a simple greeting....
-
-Prompt: 'What is the capital of France?'
-Response (0.22s): ...
-
-Prompt: 'Tell me a short joke.'
-Response (0.17s): ...
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ top -bn1 | head -20
-top - 16:34:47 up  1:20,  2 users,  load average: 1.50, 1.61, 1.49
-Tasks: 248 total,   2 running, 246 sleeping,   0 stopped,   0 zombie
-%Cpu(s):  2.3 us,  2.3 sy,  0.0 ni, 95.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
-MiB Mem :  16218.0 total,  11399.5 free,   2272.1 used,   2802.3 buff/cache     
-MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.  13945.9 avail Mem 
-
-    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-      1 root      20   0   25760  15168  10128 S   0.0   0.1   0:00.93 systemd
-      2 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kthreadd
-      3 root      20   0       0      0      0 S   0.0   0.0   0:00.00 pool_wo+
-      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-      7 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-      8 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-     11 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-     13 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
-     14 root      20   0       0      0      0 I   0.0   0.0   0:00.00 rcu_tas+
-     15 root      20   0       0      0      0 I   0.0   0.0   0:00.00 rcu_tas+
-     16 root      20   0       0      0      0 I   0.0   0.0   0:00.00 rcu_tas+
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ free -h
-               total        used        free      shared  buff/cache   available
-Mem:            15Gi       2.2Gi        11Gi       143Mi       2.7Gi        13Gi
-Swap:          2.0Gi          0B       2.0Gi
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ vcgencmd measure_temp
-temp=51.0'C
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
-
-
-
+Find Where the Delay Occurs
+Run these commands to identify the bottleneck:
+bashsed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
+bashgrep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+This will show us the code path from receiving a question to generating a response, so we can identify where the 15+ second delay is happening.
 
 
