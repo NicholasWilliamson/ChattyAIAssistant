@@ -1,323 +1,79 @@
 
-Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --no-pager -n 100 | tail -100
-Dec 25 15:15:47 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:47] "GET / HTTP/1.1" 200 -
-Dec 25 15:15:49 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:49] "GET / HTTP/1.1" 200 -
-Dec 25 15:15:49 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:49] "GET /static/Chatty_AI_logo.png HTTP/1.1" 304 -
-Dec 25 15:15:49 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:49] "GET /video_feed HTTP/1.1" 200 -
-Dec 25 15:15:49 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:49] "GET /captured_image HTTP/1.1" 200 -
-Dec 25 15:15:49 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:49] "GET /static/diamond_coding_logo.png HTTP/1.1" 304 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "GET /socket.io/?EIO=4&transport=polling&t=PjJk5q7 HTTP/1.1" 200 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "POST /socket.io/?EIO=4&transport=polling&t=PjJk5qt&sid=QSJJA-nw8FO5r4F5AAAC HTTP/1.1" 200 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "GET /socket.io/?EIO=4&transport=polling&t=PjJk5qv&sid=QSJJA-nw8FO5r4F5AAAC HTTP/1.1" 200 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "GET /socket.io/?EIO=4&transport=polling&t=PjJk5rP&sid=QSJJA-nw8FO5r4F5AAAC HTTP/1.1" 200 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "GET /socket.io/?EIO=4&transport=polling&t=PjJk5rj&sid=QSJJA-nw8FO5r4F5AAAC HTTP/1.1" 200 -
-Dec 25 15:15:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:50] "GET /favicon.ico HTTP/1.1" 404 -
-Dec 25 15:15:52 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:15:52] "GET /health HTTP/1.1" 200 -
-Dec 25 15:16:13 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:13] "GET /captured_image?t=1766636173943 HTTP/1.1" 200 -
-Dec 25 15:16:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:15] "GET /captured_image?t=1766636175030 HTTP/1.1" 200 -
-Dec 25 15:16:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:20] "GET /video_feed?t=1766636180026 HTTP/1.1" 200 -
-Dec 25 15:16:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:20] "GET /captured_image?t=1766636180032 HTTP/1.1" 200 -
-Dec 25 15:16:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:25] "GET /captured_image?t=1766636185032 HTTP/1.1" 200 -
-Dec 25 15:16:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:30] "GET /captured_image?t=1766636190036 HTTP/1.1" 200 -
-Dec 25 15:16:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:35] "GET /captured_image?t=1766636195039 HTTP/1.1" 200 -
-Dec 25 15:16:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:40] "GET /captured_image?t=1766636200035 HTTP/1.1" 200 -
-Dec 25 15:16:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:45] "GET /captured_image?t=1766636205038 HTTP/1.1" 200 -
-Dec 25 15:16:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:50] "GET /video_feed?t=1766636210025 HTTP/1.1" 200 -
-Dec 25 15:16:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:50] "GET /captured_image?t=1766636210054 HTTP/1.1" 200 -
-Dec 25 15:16:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:16:55] "GET /captured_image?t=1766636215038 HTTP/1.1" 200 -
-Dec 25 15:17:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:00] "GET /captured_image?t=1766636220046 HTTP/1.1" 200 -
-Dec 25 15:17:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:05] "GET /captured_image?t=1766636225040 HTTP/1.1" 200 -
-Dec 25 15:17:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:10] "GET /captured_image?t=1766636230042 HTTP/1.1" 200 -
-Dec 25 15:17:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:15] "GET /captured_image?t=1766636235042 HTTP/1.1" 200 -
-Dec 25 15:17:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:20] "GET /video_feed?t=1766636240029 HTTP/1.1" 200 -
-Dec 25 15:17:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:20] "GET /captured_image?t=1766636240043 HTTP/1.1" 200 -
-Dec 25 15:17:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:25] "GET /captured_image?t=1766636245044 HTTP/1.1" 200 -
-Dec 25 15:17:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:30] "GET /captured_image?t=1766636250045 HTTP/1.1" 200 -
-Dec 25 15:17:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:35] "GET /captured_image?t=1766636255046 HTTP/1.1" 200 -
-Dec 25 15:17:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:40] "GET /captured_image?t=1766636260047 HTTP/1.1" 200 -
-Dec 25 15:17:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:45] "GET /captured_image?t=1766636265048 HTTP/1.1" 200 -
-Dec 25 15:17:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:50] "GET /video_feed?t=1766636270025 HTTP/1.1" 200 -
-Dec 25 15:17:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:50] "GET /captured_image?t=1766636270049 HTTP/1.1" 200 -
-Dec 25 15:17:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:17:55] "GET /captured_image?t=1766636275050 HTTP/1.1" 200 -
-Dec 25 15:18:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:00] "GET /captured_image?t=1766636280051 HTTP/1.1" 200 -
-Dec 25 15:18:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:05] "GET /captured_image?t=1766636285052 HTTP/1.1" 200 -
-Dec 25 15:18:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:10] "GET /captured_image?t=1766636290055 HTTP/1.1" 200 -
-Dec 25 15:18:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:15] "GET /captured_image?t=1766636295054 HTTP/1.1" 200 -
-Dec 25 15:18:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:20] "GET /video_feed?t=1766636300026 HTTP/1.1" 200 -
-Dec 25 15:18:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:20] "GET /captured_image?t=1766636300056 HTTP/1.1" 200 -
-Dec 25 15:18:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:25] "GET /captured_image?t=1766636305056 HTTP/1.1" 200 -
-Dec 25 15:18:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:30] "GET /captured_image?t=1766636310057 HTTP/1.1" 200 -
-Dec 25 15:18:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:35] "GET /captured_image?t=1766636315064 HTTP/1.1" 200 -
-Dec 25 15:18:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:40] "GET /captured_image?t=1766636320059 HTTP/1.1" 200 -
-Dec 25 15:18:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:45] "GET /captured_image?t=1766636325060 HTTP/1.1" 200 -
-Dec 25 15:18:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:50] "GET /video_feed?t=1766636330029 HTTP/1.1" 200 -
-Dec 25 15:18:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:50] "GET /captured_image?t=1766636330061 HTTP/1.1" 200 -
-Dec 25 15:18:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:18:55] "GET /captured_image?t=1766636335062 HTTP/1.1" 200 -
-Dec 25 15:19:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:00] "GET /captured_image?t=1766636340063 HTTP/1.1" 200 -
-Dec 25 15:19:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:05] "GET /captured_image?t=1766636345064 HTTP/1.1" 200 -
-Dec 25 15:19:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:10] "GET /captured_image?t=1766636350065 HTTP/1.1" 200 -
-Dec 25 15:19:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:15] "GET /captured_image?t=1766636355066 HTTP/1.1" 200 -
-Dec 25 15:19:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:20] "GET /video_feed?t=1766636360026 HTTP/1.1" 200 -
-Dec 25 15:19:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:20] "GET /captured_image?t=1766636360076 HTTP/1.1" 200 -
-Dec 25 15:19:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:25] "GET /captured_image?t=1766636365069 HTTP/1.1" 200 -
-Dec 25 15:19:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:30] "GET /captured_image?t=1766636370071 HTTP/1.1" 200 -
-Dec 25 15:19:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:35] "GET /captured_image?t=1766636375070 HTTP/1.1" 200 -
-Dec 25 15:19:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:40] "GET /captured_image?t=1766636380071 HTTP/1.1" 200 -
-Dec 25 15:19:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:45] "GET /captured_image?t=1766636385072 HTTP/1.1" 200 -
-Dec 25 15:19:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:50] "GET /video_feed?t=1766636390026 HTTP/1.1" 200 -
-Dec 25 15:19:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:50] "GET /captured_image?t=1766636390086 HTTP/1.1" 200 -
-Dec 25 15:19:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:19:55] "GET /captured_image?t=1766636395074 HTTP/1.1" 200 -
-Dec 25 15:20:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:00] "GET /captured_image?t=1766636400075 HTTP/1.1" 200 -
-Dec 25 15:20:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:05] "GET /captured_image?t=1766636405084 HTTP/1.1" 200 -
-Dec 25 15:20:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:10] "GET /captured_image?t=1766636410077 HTTP/1.1" 200 -
-Dec 25 15:20:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:15] "GET /captured_image?t=1766636415078 HTTP/1.1" 200 -
-Dec 25 15:20:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:20] "GET /video_feed?t=1766636420035 HTTP/1.1" 200 -
-Dec 25 15:20:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:20] "GET /captured_image?t=1766636420081 HTTP/1.1" 200 -
-Dec 25 15:20:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:25] "GET /captured_image?t=1766636425080 HTTP/1.1" 200 -
-Dec 25 15:20:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:30] "GET /captured_image?t=1766636430081 HTTP/1.1" 200 -
-Dec 25 15:20:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:35] "GET /captured_image?t=1766636435093 HTTP/1.1" 200 -
-Dec 25 15:20:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:40] "GET /captured_image?t=1766636440089 HTTP/1.1" 200 -
-Dec 25 15:20:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:45] "GET /captured_image?t=1766636445090 HTTP/1.1" 200 -
-Dec 25 15:20:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:50] "GET /video_feed?t=1766636450025 HTTP/1.1" 200 -
-Dec 25 15:20:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:50] "GET /captured_image?t=1766636450085 HTTP/1.1" 200 -
-Dec 25 15:20:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:20:55] "GET /captured_image?t=1766636455086 HTTP/1.1" 200 -
-Dec 25 15:21:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:00] "GET /captured_image?t=1766636460087 HTTP/1.1" 200 -
-Dec 25 15:21:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:05] "GET /captured_image?t=1766636465101 HTTP/1.1" 200 -
-Dec 25 15:21:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:10] "GET /captured_image?t=1766636470089 HTTP/1.1" 200 -
-Dec 25 15:21:15 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:15] "GET /captured_image?t=1766636475090 HTTP/1.1" 200 -
-Dec 25 15:21:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:20] "GET /video_feed?t=1766636480029 HTTP/1.1" 200 -
-Dec 25 15:21:20 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:20] "GET /captured_image?t=1766636480092 HTTP/1.1" 200 -
-Dec 25 15:21:25 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:25] "GET /captured_image?t=1766636485092 HTTP/1.1" 200 -
-Dec 25 15:21:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:30] "GET /captured_image?t=1766636490093 HTTP/1.1" 200 -
-Dec 25 15:21:30 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:30] "GET /captured_image?t=1766636490821 HTTP/1.1" 200 -
-Dec 25 15:21:35 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:35] "GET /captured_image?t=1766636495094 HTTP/1.1" 200 -
-Dec 25 15:21:40 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:40] "GET /captured_image?t=1766636500095 HTTP/1.1" 200 -
-Dec 25 15:21:45 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:45] "GET /captured_image?t=1766636505096 HTTP/1.1" 200 -
-Dec 25 15:21:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:50] "GET /video_feed?t=1766636510025 HTTP/1.1" 200 -
-Dec 25 15:21:50 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:50] "GET /captured_image?t=1766636510101 HTTP/1.1" 200 -
-Dec 25 15:21:55 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:21:55] "GET /captured_image?t=1766636515098 HTTP/1.1" 200 -
-Dec 25 15:22:00 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:22:00] "GET /captured_image?t=1766636520100 HTTP/1.1" 200 -
-Dec 25 15:22:05 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:22:05] "GET /captured_image?t=1766636525109 HTTP/1.1" 200 -
-Dec 25 15:22:10 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:22:10] "GET /captured_image?t=1766636530103 HTTP/1.1" 200 -
-Dec 25 15:22:14 raspberrypi python[1181]: 127.0.0.1 - - [25/Dec/2025 15:22:14] "GET /socket.io/?EIO=4&transport=websocket&sid=QSJJA-nw8FO5r4F5AAAC HTTP/1.1" 200 -
-nickspi5@raspberrypi:~ $ cat /home/nickspi5/Chatty_AI/logs/chatty_ai_web.log | tail -100
-cat: /home/nickspi5/Chatty_AI/logs/chatty_ai_web.log: No such file or directory
-nickspi5@raspberrypi:~ $ grep -n "time\|Time\|response\|generate\|llama" /home/nickspi5/Chatty_AI/chatty_ai.py | head -40
-13:import time
-23:from datetime import datetime, timedelta
-25:from llama_cpp import Llama
-36:LLAMA_MODEL_PATH = "tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-57:BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
-58:WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
-59:LISTENING_RESPONSES_GENERIC_FILE = "listening_responses_generic.txt"
-60:LISTENING_RESPONSES_FILE = "listening_responses.txt"
-61:WAITING_RESPONSES_FILE = "waiting_responses.txt"
-62:WARNING_RESPONSES_FILE = "warning_responses.txt"
-63:GREETING_RESPONSES_FILE = "greeting_responses.txt"
-64:BORED_RESPONSES_FILE = "bored_responses.txt"
-65:VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
-87:    "what time is it": "get_time",
-122:        self.last_greeting_time = {}
-123:        self.last_interaction_time = None
-125:        self.last_bored_response_time = None
-133:        self.bored_responses_generic = []
-134:        self.waiting_responses_generic = []
-135:        self.listening_responses_generic = []
-136:        self.listening_responses = []
-137:        self.waiting_responses = []
-138:        self.warning_responses = []
-139:        self.greeting_responses = []
-140:        self.bored_responses = []
-141:        self.visitor_greeting_responses = []
-153:        self.llama_model = None
-177:        self.load_response_files()
-191:        timestamp = datetime.now().strftime("%I:%M:%S %p")  # 12-hour format with AM/PM
-195:            'timestamp': timestamp
-199:        print(f"[{timestamp}] {message}")
-203:        timestamp = datetime.now().strftime("%I:%M:%S %p")  # 12-hour format with AM/PM
-207:            'timestamp': timestamp
-227:        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
-257:    def check_for_bored_response(self, name):
-258:        """Check if it's time to give a bored response with natural pauses and generic responses for visitors"""
-259:        if not self.wake_word_active or not self.last_bored_response_time:
-262:        current_time = time.time()
-263:        time_since_bored = current_time - self.last_bored_response_time
-265:        if time_since_bored >= BORED_RESPONSE_INTERVAL:
-nickspi5@raspberrypi:~ $ aplay -l
-**** List of PLAYBACK Hardware Devices ****
-card 0: vc4hdmi0 [vc4-hdmi-0], device 0: MAI PCM i2s-hifi-0 [MAI PCM i2s-hifi-0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-card 1: vc4hdmi1 [vc4-hdmi-1], device 0: MAI PCM i2s-hifi-0 [MAI PCM i2s-hifi-0]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-nickspi5@raspberrypi:~ $ arecord -l
-**** List of CAPTURE Hardware Devices ****
-card 2: Device [USB PnP Sound Device], device 0: USB Audio [USB Audio]
-  Subdevices: 1/1
-  Subdevice #0: subdevice #0
-nickspi5@raspberrypi:~ $ amixer
-Simple mixer control 'Master',0
-  Capabilities: pvolume pswitch pswitch-joined
-  Playback channels: Front Left - Front Right
-  Limits: Playback 0 - 65536
-  Mono:
-  Front Left: Playback 65536 [100%] [on]
-  Front Right: Playback 65536 [100%] [on]
-Simple mixer control 'Capture',0
-  Capabilities: cvolume cvolume-joined cswitch cswitch-joined
-  Capture channels: Mono
-  Limits: Capture 0 - 65536
-  Mono: Capture 65536 [100%] [on]
-nickspi5@raspberrypi:~ $ pactl list sinks short
-92	bluez_output.DA_1F_35_B9_D8_F5.1	PipeWire	s16le 2ch 48000Hz	SUSPENDED
-nickspi5@raspberrypi:~ $ pactl list sources short
-57	alsa_input.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-mono	PipeWire	s16le 1ch 48000Hz	SUSPENDED
-92	bluez_output.DA_1F_35_B9_D8_F5.1.monitor	PipeWire	s16le 2ch 48000Hz	SUSPENDED
-94	bluez_input.DA:1F:35:B9:D8:F5	PipeWire	float32le 1ch 48000Hz	SUSPENDED
-nickspi5@raspberrypi:~ $ cat > /home/nickspi5/Chatty_AI/set_audio_volume.sh << 'EOF'
-#!/bin/bash
-# Set all audio volumes to 100%
+Issue 1: Camera Detection
+Good news - only one camera is detected: the IMX708 (Pi Camera Module 3). The Waveshare IMX219 camera is not being detected by libcamera. This could be a connection issue or it may need to be enabled.
+Let's check:
+bash# Check if both cameras are connected properly
+sudo dmesg | grep -i "imx\|camera"
 
-# Set ALSA master volume to 100%
-amixer set Master 100% unmute 2>/dev/null
-amixer set PCM 100% unmute 2>/dev/null
-amixer set Speaker 100% unmute 2>/dev/null
+# Check the camera configuration
+cat /boot/firmware/config.txt | grep -i camera
 
-# Set capture (microphone) volume to 100%
-amixer set Capture 100% cap 2>/dev/null
-amixer set Mic 100% unmute cap 2>/dev/null
+Issue 2: LLM Response Time - Need More Detailed Logs
+The service logs don't show LLM timing details. Let's check the actual LLM code and add timing:
+bash# Find where LLM generates responses
+grep -n "llama_model\|generate\|__call__" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
 
-# For USB audio devices
-amixer -c 1 set Speaker 100% unmute 2>/dev/null
-amixer -c 1 set PCM 100% unmute 2>/dev/null
-amixer -c 1 set Capture 100% cap 2>/dev/null
+# Check the specific LLM generation function
+grep -A30 "def generate_response\|def get_llm_response\|def process_question" /home/nickspi5/Chatty_AI/chatty_ai.py | head -50
 
-# For PulseAudio (if used)
-pactl set-sink-volume @DEFAULT_SINK@ 100% 2>/dev/null
-pactl set-sink-mute @DEFAULT_SINK@ 0 2>/dev/null
-pactl set-source-volume @DEFAULT_SOURCE@ 100% 2>/dev/null
-pactl set-source-mute @DEFAULT_SOURCE@ 0 2>/dev/null
+Issue 3: Audio Setup
+Your audio is already at 100%! The Bluetooth speaker is detected. Let's verify the startup script was updated:
+bashcat /home/nickspi5/Chatty_AI/chatty_ai_startup.sh | head -40
 
-echo "Audio volumes set to 100%"
+Issue 4: Test LLM Response Time Directly
+Let's test the LLM directly to measure actual response time:
+bashcd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
+
+python3 << 'EOF'
+import time
+from llama_cpp import Llama
+
+print("Loading LLaMA model...")
+start = time.perf_counter()
+llm = Llama(
+    model_path="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+    n_ctx=2048,
+    n_threads=4,
+    verbose=False
+)
+load_time = time.perf_counter() - start
+print(f"Model loaded in {load_time:.2f}s")
+
+# Test various prompts
+prompts = [
+    "Hello, how are you?",
+    "What is the capital of France?",
+    "Tell me a short joke."
+]
+
+for prompt in prompts:
+    print(f"\nPrompt: '{prompt}'")
+    start = time.perf_counter()
+    response = llm(
+        prompt,
+        max_tokens=100,
+        temperature=0.7,
+        stop=["\n", "User:", "Human:"]
+    )
+    elapsed = time.perf_counter() - start
+    text = response['choices'][0]['text'].strip()
+    print(f"Response ({elapsed:.2f}s): {text[:100]}...")
 EOF
-nickspi5@raspberrypi:~ $ chmod +x /home/nickspi5/Chatty_AI/set_audio_volume.sh
-nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai_startup.sh
-nickspi5@raspberrypi:~ $ ls -la /dev/video*
-crw-rw----+ 1 root video 81, 17 Dec 25 15:14 /dev/video0
-crw-rw----+ 1 root video 81, 18 Dec 25 15:14 /dev/video1
-crw-rw----+ 1 root video 81,  4 Dec 25 15:14 /dev/video19
-crw-rw----+ 1 root video 81, 19 Dec 25 15:14 /dev/video2
-crw-rw----+ 1 root video 81,  0 Dec 25 15:14 /dev/video20
-crw-rw----+ 1 root video 81,  1 Dec 25 15:14 /dev/video21
-crw-rw----+ 1 root video 81,  2 Dec 25 15:14 /dev/video22
-crw-rw----+ 1 root video 81,  3 Dec 25 15:14 /dev/video23
-crw-rw----+ 1 root video 81,  5 Dec 25 15:14 /dev/video24
-crw-rw----+ 1 root video 81,  6 Dec 25 15:14 /dev/video25
-crw-rw----+ 1 root video 81,  7 Dec 25 15:14 /dev/video26
-crw-rw----+ 1 root video 81,  8 Dec 25 15:14 /dev/video27
-crw-rw----+ 1 root video 81,  9 Dec 25 15:14 /dev/video28
-crw-rw----+ 1 root video 81, 10 Dec 25 15:14 /dev/video29
-crw-rw----+ 1 root video 81, 20 Dec 25 15:14 /dev/video3
-crw-rw----+ 1 root video 81, 11 Dec 25 15:14 /dev/video30
-crw-rw----+ 1 root video 81, 12 Dec 25 15:14 /dev/video31
-crw-rw----+ 1 root video 81, 13 Dec 25 15:14 /dev/video32
-crw-rw----+ 1 root video 81, 14 Dec 25 15:14 /dev/video33
-crw-rw----+ 1 root video 81, 15 Dec 25 15:14 /dev/video34
-crw-rw----+ 1 root video 81, 16 Dec 25 15:14 /dev/video35
-crw-rw----+ 1 root video 81, 21 Dec 25 15:14 /dev/video4
-crw-rw----+ 1 root video 81, 22 Dec 25 15:14 /dev/video5
-crw-rw----+ 1 root video 81, 23 Dec 25 15:14 /dev/video6
-crw-rw----+ 1 root video 81, 24 Dec 25 15:14 /dev/video7
-nickspi5@raspberrypi:~ $ v4l2-ctl --list-devices
-pispbe (platform:1000880000.pisp_be):
-	/dev/video20
-	/dev/video21
-	/dev/video22
-	/dev/video23
-	/dev/video24
-	/dev/video25
-	/dev/video26
-	/dev/video27
-	/dev/video28
-	/dev/video29
-	/dev/video30
-	/dev/video31
-	/dev/video32
-	/dev/video33
-	/dev/video34
-	/dev/video35
-	/dev/media2
-	/dev/media3
 
-rp1-cfe (platform:1f00128000.csi):
-	/dev/video0
-	/dev/video1
-	/dev/video2
-	/dev/video3
-	/dev/video4
-	/dev/video5
-	/dev/video6
-	/dev/video7
-	/dev/media1
+Issue 5: Check What's Causing the 15+ Second Delay
+The delay might not be the LLM itself. Let's check if there's something else causing slowdown:
+bash# Check system resource usage during operation
+top -bn1 | head -20
 
-rpi-hevc-dec (platform:rpi-hevc-dec):
-	/dev/video19
-	/dev/media0
-nickspi5@raspberrypi:~ $ libcamera-hello --list-cameras
-bash: libcamera-hello: command not found
-nickspi5@raspberrypi:~ $ sudo libcamera-hello --list-cameras
-sudo: libcamera-hello: command not found
-nickspi5@raspberrypi:~ $ python3 << 'EOF'
-from picamera2 import Picamera2
+# Check if swap is being used (would indicate memory pressure)
+free -h
 
-# List all available cameras
-cameras = Picamera2.global_camera_info()
-print("Available cameras:")
-for i, cam in enumerate(cameras):
-    print(f"  Camera {i}: {cam}")
-EOF
-[0:57:12.488845852] [51505]  INFO Camera camera_manager.cpp:340 libcamera v0.6.0+rpt20251202
-[0:57:12.498863678] [51511]  INFO RPI pisp.cpp:720 libpisp version 1.3.0
-[0:57:12.499423764] [51511] ERROR V4L2 v4l2_device.cpp:411 'imx708': Unable to set controls: Device or resource busy
-[0:57:12.501306186] [51511]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/imx708.json
-[0:57:12.508411657] [51511]  INFO Camera camera_manager.cpp:223 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a' for pipeline handler rpi/pisp
-[0:57:12.508435416] [51511]  INFO RPI pisp.cpp:1181 Registered camera /base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a to CFE device /dev/media1 and ISP device /dev/media2 using PiSP variant BCM2712_D0
-Available cameras:
-  Camera 0: {'Model': 'imx708', 'Location': 2, 'Rotation': 180, 'Id': '/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a', 'Num': 0}
-nickspi5@raspberrypi:~ $ grep -n "Picamera2\|camera\|Camera" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
-26:from picamera2 import Picamera2
-148:        self.camera_thread = None
-159:        # Camera
-181:        self.setup_camera()
-538:    def setup_camera(self):
-539:        """Initialise camera"""
-541:            self.picam2 = Picamera2()
-546:            time.sleep(2)  # Camera warm-up
-547:            self.emit_log("Camera initialised successfully", 'success')
-550:            self.emit_log(f"Failed to initialise camera: {e}", 'error')
-953:    def camera_monitoring_loop(self):
-954:        """Main camera monitoring loop - optimized for web"""
-1030:                self.emit_log(f"Camera loop error: {e}", 'error')
-1134:                camera_status = self.picam2 is not None
-1139:                camera_status = False
-1149:                'camera_initialized': camera_status,
-1175:        # Verify camera is ready
-1177:            self.emit_log("Camera not initialised - attempting to setup...", 'warning')
-1178:            if not self.setup_camera():
-1179:                self.emit_log("Failed to setup camera - cannot start system", 'error')
-1184:        # Start ONLY camera monitoring thread - wake word thread starts after person detection
-1185:        self.camera_thread = threading.Thread(target=self.camera_monitoring_loop, daemon=True)
-1186:        self.camera_thread.start()
-1201:        if self.camera_thread and self.camera_thread.is_alive():
-1202:            self.camera_thread.join(timeout=3)
-1250:                        # Create a black frame if no camera data
-1308:        'camera_ready': chatty_ai.picam2 is not None,
-nickspi5@raspberrypi:~ $ 
+# Check CPU temperature (throttling?)
+vcgencmd measure_temp
 
-
+Run these commands and share the output. The direct LLM test will tell us if the LLM itself is slow, or if the delay is happening elsewhere in your code (STT, audio processing, etc.).
 
 
 
