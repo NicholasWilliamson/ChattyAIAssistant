@@ -1,29 +1,267 @@
 
+Thank you, Claude,
 
-The 15+ Second Delay is NOT the LLM!
-Since the LLM responds in under 1 second when tested directly, the delay must be elsewhere. Let's find it.
-Check the full question-processing pipeline:
-bash# Find the function that handles user questions
-grep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-Check around line 835 where the LLM is called:
-bashsed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
-Check the wake word and speech processing flow:
-bashgrep -n "transcribe\|speak\|piper\|wake_word" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+779:    def process_user_input(self, text):
+1082:    def handle_unknown_person(self, frame, confidence):
+1319:def handle_connect():
+1329:def handle_disconnect():
+1334:def handle_start_system():
+1344:def handle_stop_system():
+1354:def handle_get_system_info():
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+    
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
 
-About the Second Camera
-Only your Pi Camera Module 3 (IMX708) is being detected. To use the Waveshare IMX219:
+    def greet_person(self, name):
+        """Greet a detected person - Same as original"""
+        current_time = time.time()
+    
+        # Check if we should greet this person (cooldown check)
+        if name in self.last_greeting_time:
+            time_since_last = current_time - self.last_greeting_time[name]
+            if time_since_last < GREETING_COOLDOWN:
+                return False
+    
+        # Use generic greeting with person's name
+        if self.greeting_responses:
+            greeting_template = random.choice(self.greeting_responses)
+            greeting = greeting_template.replace("{name}", name)
+        else:
+            greeting = f"Hey {name}! Good to see you, buddy! What's up?"
+    
+        self.speak_text(greeting)
+        self.last_greeting_time[name] = current_time
+        self.last_interaction_time = current_time
+    
+        # Enable wake word detection after greeting
+        self.wake_word_active = True
+        self.last_bored_response_time = current_time
+        self.bored_cycle = 0
+    
+        # Start wake word thread if not already running
+        if not self.audio_thread or not self.audio_thread.is_alive():
+            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+            self.audio_thread.start()
+            self.emit_log("Wake word detection thread started after greeting", 'success')
+    
+        self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
+        return True
 
-Check physical connection - The IMX219 needs to be on a different CSI port
-Check if dual camera is enabled:
+    def listen_for_wake_word(self):
+        """Listen for wake words in background - Same as original"""
+        self.emit_log("Wake word detection thread started", 'success')
+    
+        while self.is_running:
+            try:
+                # Only listen if someone is present and wake word detection is active
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        # Bored response was given, continue to next iteration
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ rep -n "transcribe\|speak\|piper\|wake_word" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
+bash: rep: command not found
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "transcribe\|speak\|piper\|wake_word" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
+39:PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
+48:WAKE_WORD_AUDIO = "wake_word_check.wav"
+128:        self.wake_word_active = False
+259:        if not self.wake_word_active or not self.last_bored_response_time:
+287:                self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
+310:                self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
+409:    def speak_text_with_pauses(self, parts, pause_duration=0.5):
+414:                    if part.strip():  # Only speak non-empty parts
+553:    def speak_text(self, text):
+614:    def transcribe_audio(self, filename):
+620:            segments, _ = self.whisper_model.transcribe(filename)
+628:    def detect_wake_word(self, text):
+635:        for wake_word in WAKE_WORDS:
+636:            wake_word_cleaned = wake_word.lower().strip()
+637:            if wake_word_cleaned in text_cleaned:
+638:                self.emit_log(f"Wake word detected: '{wake_word}' in '{text}'", 'success')
+724:    def record_wake_word_check(self):
+870:        self.speak_text(greeting)
+875:        self.wake_word_active = True
+881:            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+888:    def listen_for_wake_word(self):
+895:                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+903:                    if self.record_wake_word_check():
+905:                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
+907:                        if transcript and self.detect_wake_word(transcript):
+909:                            self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
+919:                            self.speak_text(listening_response)
+922:                            self.emit_log("Please speak your request...", 'info')
+924:                                user_text = self.transcribe_audio(WAV_FILENAME)
+931:                                    self.speak_text(response)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ cat /boot/firmware/config.txt | grep -i "dtoverlay\|csi"
+dtoverlay=vc4-kms-v3d
+dtoverlay=dwc2,dr_mode=host
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+        elif command == "play music":
+            response = "I would start playing music if I had access to a music system."
+        elif command == "stop music":
+            response = "I would stop the music if any music was playing."
+        elif command == "who is sponsoring this video":
+            self.play_laughing()
+            response = f"You are very funny {self.current_person}. You know you dont have any sponsors for your videos!"
+        elif command == "how is the weather today":
+            response = f"O M G {self.current_person}! Surely you DO NOT want to waste my valuable resources by asking me what the weather is today. Cant you just look out the window or ask Siri. That is about all Siri is good for!"
+        elif command == "what time is it":
+            import datetime
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            response = f"The current time is {current_time}"
+        elif command == "shutdown system":
+            response = "I would shutdown the system, but I will skip that for safety reasons during testing."
+        elif command == "reboot system":
+            response = "I would reboot the system, but I will skip that for safety reasons during testing."
+        else:
+            response = f"I understand you want me to {command}, but I dont have that capability yet."
+        
+        return response
+    
+    def query_llama(self, prompt):
+        """Generate LLM response"""
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            result = self.llama_model(formatted_prompt, max_tokens=100)
+            if "choices" in result and result["choices"]:
+                reply_text = result["choices"][0]["text"].strip()
+                reply_text = re.sub(r"\(.*?\)", "", reply_text)
+                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
+                reply_text = reply_text.strip()
+                
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
+                
+                return reply_text
+            else:
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
 
-bash# Check for second CSI port configuration
-cat /boot/firmware/config.txt | grep -i "dtoverlay\|csi"
-For dual cameras, you typically need to add overlay configuration. But let's focus on the LLM delay first.
+    def greet_person(self, name):
+        """Greet a detected person - Same as original"""
+        current_time = time.time()
+    
+        # Check if we should greet this person (cooldown check)
+        if name in self.last_greeting_time:
+            time_since_last = current_time - self.last_greeting_time[name]
+            if time_since_last < GREETING_COOLDOWN:
+                return False
+    
+        # Use generic greeting with person's name
+        if self.greeting_responses:
+            greeting_template = random.choice(self.greeting_responses)
+            greeting = greeting_template.replace("{name}", name)
+        else:
+            greeting = f"Hey {name}! Good to see you, buddy! What's up?"
+    
+        self.speak_text(greeting)
+        self.last_greeting_time[name] = current_time
+        self.last_interaction_time = current_time
+    
+        # Enable wake word detection after greeting
+        self.wake_word_active = True
+        self.last_bored_response_time = current_time
+        self.bored_cycle = 0
+    
+        # Start wake word thread if not already running
+        if not self.audio_thread or not self.audio_thread.is_alive():
+            self.audio_thread = threading.Thread(target=self.listen_for_wake_word, daemon=True)
+            self.audio_thread.start()
+            self.emit_log("Wake word detection thread started after greeting", 'success')
+    
+        self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
+        return True
 
-Find Where the Delay Occurs
-Run these commands to identify the bottleneck:
-bashsed -n '800,900p' /home/nickspi5/Chatty_AI/chatty_ai.py
-bashgrep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-This will show us the code path from receiving a question to generating a response, so we can identify where the 15+ second delay is happening.
+    def listen_for_wake_word(self):
+        """Listen for wake words in background - Same as original"""
+        self.emit_log("Wake word detection thread started", 'success')
+    
+        while self.is_running:
+            try:
+                # Only listen if someone is present and wake word detection is active
+                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
+                    # Check for bored response first
+                    if self.check_for_bored_response(self.current_person):
+                        # Bored response was given, continue to next iteration
+                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                        continue
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "def.*question\|def.*process\|def.*handle\|def.*respond" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
+779:    def process_user_input(self, text):
+1082:    def handle_unknown_person(self, frame, confidence):
+1319:def handle_connect():
+1329:def handle_disconnect():
+1334:def handle_start_system():
+1344:def handle_stop_system():
+1354:def handle_get_system_info():
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+
+
+
+
 
 
