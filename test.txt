@@ -1,112 +1,25 @@
 
 Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '640,725p' /home/nickspi5/Chatty_AI/chatty_ai.py
-        
-        self.emit_log(f"No wake word found in: '{text_cleaned}'", 'debug')
-        return False
-    
-    def record_with_silence_detection(self):
-        """Record audio until silence detected - Same as original with better sample rate handling"""
-        try:
-            # Auto-detect working sample rate
-            working_sample_rate = None
-            for rate in [44100, 48000, 22050, 16000]:
-                try:
-                    sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
-                    working_sample_rate = rate
-                    break
-                except:
-                    continue
+I ran the alternative quick test first: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A15 "self.llama_model = Llama" /home/nickspi5/Chatty_AI/chatty_ai.py
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                n_threads=4,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
+            )
+            self.emit_log("LLaMA model loaded successfully", 'success')
             
-            if not working_sample_rate:
-                self.emit_log("No compatible sample rate found", 'error')
-                return False
+            return True
             
-            with self.audio_recording_lock:
-                self.emit_log(f"Recording with sample rate: {working_sample_rate} Hz", 'debug')
-                audio_data = []
-                silence_duration = 0
-                recording_duration = 0
-                check_interval = 0.1
-                samples_per_check = int(working_sample_rate * check_interval)
-                
-                def audio_callback(indata, frames, time, status):
-                    if status:
-                        self.emit_log(f"Audio status: {status}", 'warning')
-                    audio_data.extend(indata[:, 0])
-                
-                with sd.InputStream(callback=audio_callback, 
-                                  samplerate=working_sample_rate, 
-                                  channels=1,
-                                  dtype='float32'):
-                    
-                    while recording_duration < 30:  # Max 30 seconds
-                        time.sleep(check_interval)
-                        recording_duration += check_interval
-                        
-                        if len(audio_data) >= samples_per_check:
-                            recent_audio = np.array(audio_data[-samples_per_check:])
-                            rms = np.sqrt(np.mean(recent_audio**2))
-                            
-                            # Debug every second
-                            if int(recording_duration * 10) % 10 == 0:
-                                self.emit_log(f"Recording: {recording_duration:.1f}s | Audio: {rms:.4f} | Silence: {silence_duration:.1f}s", 'debug')
-                            
-                            if rms < SILENCE_THRESHOLD:
-                                silence_duration += check_interval
-                                if silence_duration >= MIN_SILENCE_DURATION:
-                                    self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'info')
-                                    break
-                            else:
-                                if silence_duration > 0.5:
-                                    self.emit_log(f"Speech resumed after {silence_duration:.1f}s silence", 'debug')
-                                silence_duration = 0
-                
-                # Save audio (convert to 16kHz for Whisper if needed)
-                if len(audio_data) > 0:
-                    audio_array = np.array(audio_data)
-                    
-                    # Convert to 16kHz for Whisper if we recorded at different rate
-                    if working_sample_rate != 16000:
-                        from scipy import signal
-                        target_length = int(len(audio_array) * 16000 / working_sample_rate)
-                        audio_array = signal.resample(audio_array, target_length)
-                        save_sample_rate = 16000
-                    else:
-                        save_sample_rate = working_sample_rate
-                        
-                    sf.write(WAV_FILENAME, audio_array, save_sample_rate)
-                    self.emit_log(f"Audio saved: {len(audio_array)/save_sample_rate:.1f}s", 'info')
-                    return True
-                else:
-                    return False
-                    
         except Exception as e:
-            self.emit_log(f"Recording error: {e}", 'error')
+            self.emit_log(f"Failed to load models: {e}", 'error')
             return False
-
-    def record_wake_word_check(self):
-        """Record short audio clip for wake word detection with auto sample rate"""
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "WAKE_WORD_CHECK_INTERVAL\|SILENCE\|RECORD\|Duration" /home/nickspi5/Chatty_AI/chatty_ai.py | head -20
-97:SILENCE_THRESHOLD = 0.035
-98:MIN_SILENCE_DURATION = 1.5
-99:MAX_RECORDING_DURATION = 30
-105:WAKE_WORD_CHECK_INTERVAL = 1.0
-691:                            if rms < SILENCE_THRESHOLD:
-693:                                if silence_duration >= MIN_SILENCE_DURATION:
-755:                if rms > SILENCE_THRESHOLD * 2:
-899:                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
-942:                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
 (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-The 15+ second delay was occuring after the users question was translated to text and display on the screen.
-
-If the users question required a LLM response, the words "generating LLM response" appear on the screen.
-
-Then the 15+ second delay occured while waiting for the LLM response to be displayed on the screen and the words where spoken by the system.
-
-I hope that helps you to find where the bottleneck is occuring.
 
 
 
