@@ -1,86 +1,68 @@
 
 
-I see the problem! The logs show only HTTP requests but no application-level logging (like "Processing user input", "LLM inference took", etc.). This means the emit_log function is probably sending logs to the web interface via SocketIO but not to the system journal.
-Let's check how emit_log works and also add print statements that will definitely appear in the journal:
+Thank you, Claude,
 
-Step 1: Check the emit_log function
-bashgrep -A10 "def emit_log" /home/nickspi5/Chatty_AI/chatty_ai.py
+I just started up my Raspberry Pi 5 and ran a test by asking the LLM a few questiosn.
 
-Step 2: Add print statements for definite logging
-Let's modify the query_llama function to use print() which will definitely show in journalctl:
-bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
-Find the query_llama function and update it to include print statements:
-python    def query_llama(self, prompt):
-        """Generate LLM response"""
-        import time as t
-        
-        print(f"[TIMING] query_llama called with prompt: '{prompt[:50]}...'")
-        start = t.perf_counter()
-        
-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-        
-        try:
-            print(f"[TIMING] Starting LLM inference...")
-            llm_start = t.perf_counter()
-            
-            result = self.llama_model(
-                formatted_prompt, 
-                max_tokens=100,
-                stop=["\n", "User:", "Human:", "\n\n"]
-            )
-            
-            llm_time = t.perf_counter() - llm_start
-            print(f"[TIMING] LLM inference completed in {llm_time:.2f}s")
-            
-            if "choices" in result and result["choices"]:
-                reply_text = result["choices"][0]["text"].strip()
-                reply_text = re.sub(r"\(.*?\)", "", reply_text)
-                reply_text = re.sub(r"(User:|Assistant:)", "", reply_text)
-                reply_text = reply_text.strip()
-                
-                sentences = reply_text.split('.')
-                if len(sentences) > 3:
-                    reply_text = '. '.join(sentences[:3]) + '.'
-                
-                total_time = t.perf_counter() - start
-                print(f"[TIMING] query_llama total time: {total_time:.2f}s, response: '{reply_text[:50]}...'")
-                return reply_text
-            else:
-                print("[TIMING] No choices in LLM result")
-                return "I'm not sure how to answer that."
-        except Exception as e:
-            print(f"[TIMING] LLM error: {e}")
-            return "Sorry, I had trouble processing that question."
-Also update the process_user_input function to add print statements:
-python    def process_user_input(self, text):
-        """Process user input - Same as original"""
-        import time as t
-        start = t.perf_counter()
-        
-        print(f"[TIMING] process_user_input called with: '{text}'")
-        self.emit_log(f"Processing user input: '{text}'", 'info')
-        
-        command = self.is_command(text)
-        if command:
-            print(f"[TIMING] Executing command: {command}")
-            self.emit_log(f"Executing command: {command}", 'info')
-            response = self.execute_command(command)
-        else:
-            print(f"[TIMING] Calling LLM...")
-            self.emit_log("Generating LLM response", 'info')
-            response = self.query_llama(text)
-        
-        total = t.perf_counter() - start
-        print(f"[TIMING] process_user_input total time: {total:.2f}s")
-        return response
-Save and exit.
+I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service -f | grep -i "timing\|llm\|process"
+^C
+nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service -f
+Dec 26 16:03:50 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:03:50] "GET /captured_image?t=1766725430637 HTTP/1.1" 200 -
+Dec 26 16:03:55 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:03:55] "GET /captured_image?t=1766725435638 HTTP/1.1" 200 -
+Dec 26 16:04:00 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:00] "GET /captured_image?t=1766725440639 HTTP/1.1" 200 -
+Dec 26 16:04:05 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:05] "GET /captured_image?t=1766725445640 HTTP/1.1" 200 -
+Dec 26 16:04:10 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:10] "GET /captured_image?t=1766725450641 HTTP/1.1" 200 -
+Dec 26 16:04:15 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:15] "GET /video_feed?t=1766725455606 HTTP/1.1" 200 -
+Dec 26 16:04:15 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:15] "GET /captured_image?t=1766725455654 HTTP/1.1" 200 -
+Dec 26 16:04:20 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:20] "GET /captured_image?t=1766725460643 HTTP/1.1" 200 -
+Dec 26 16:04:25 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:25] "GET /captured_image?t=1766725465644 HTTP/1.1" 200 -
+Dec 26 16:04:48 raspberrypi python[1105]: 127.0.0.1 - - [26/Dec/2025 16:04:48] "GET /socket.io/?EIO=4&transport=websocket&sid=rDSoemNEUS4kD4MxAAAC HTTP/1.1" 200 -
+^C
+nickspi5@raspberrypi:~ $ 
 
-Step 3: Restart and test
-bashsudo systemctl restart chatty-ai.service
-Now ask a question and watch the logs:
-bashjournalctl -u chatty-ai.service -f | grep -i "timing\|llm\|process"
-Or just watch all logs:
-bashjournalctl -u chatty-ai.service -f
+I then ran: nickspi5@raspberrypi:~ $ grep -A10 "def emit_log" /home/nickspi5/Chatty_AI/chatty_ai.py 
+    def emit_log(self, message, level='info'):
+        """Emit log message to web interface"""
+        timestamp = datetime.now().strftime("%I:%M:%S %p")  # 12-hour format with AM/PM
+        socketio.emit('log_update', {
+            'message': message,
+            'type': level,
+            'timestamp': timestamp
+        })
+    
+        # Also log to console for debugging
+        print(f"[{timestamp}] {message}")
 
-This will show us exactly where the time is being spent. Share the output after asking a question!
+I then updated my chatty_ai.py Python script as you recommended.
+
+I then ran: nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
+nickspi5@raspberrypi:~ $ 
+
+I then rebooted my Raspberry Pi 5.
+
+I then tested my Chatty AI system again and asked the LLM a few different questions.
+
+I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service -f |grep -i "timing\|llm\|process"
+^C
+nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service -f
+Dec 26 17:05:17 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:17] "GET /captured_image?t=1766729117930 HTTP/1.1" 200 -
+Dec 26 17:05:22 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:22] "GET /captured_image?t=1766729122931 HTTP/1.1" 200 -
+Dec 26 17:05:27 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:27] "GET /captured_image?t=1766729127932 HTTP/1.1" 200 -
+Dec 26 17:05:32 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:32] "GET /captured_image?t=1766729132935 HTTP/1.1" 200 -
+Dec 26 17:05:37 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:37] "GET /captured_image?t=1766729137933 HTTP/1.1" 200 -
+Dec 26 17:05:42 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:42] "GET /video_feed?t=1766729142883 HTTP/1.1" 200 -
+Dec 26 17:05:42 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:42] "GET /captured_image?t=1766729142941 HTTP/1.1" 200 -
+Dec 26 17:05:47 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:47] "GET /captured_image?t=1766729147937 HTTP/1.1" 200 -
+Dec 26 17:05:52 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:52] "GET /captured_image?t=1766729152936 HTTP/1.1" 200 -
+Dec 26 17:05:54 raspberrypi python[1098]: 127.0.0.1 - - [26/Dec/2025 17:05:54] "GET /socket.io/?EIO=4&transport=websocket&sid=YZwOyx8iMX3GJX_CAAAC HTTP/1.1" 200 -
+^C
+nickspi5@raspberrypi:~ $ 
+
+
+
+
+
+
+
+
 
