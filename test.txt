@@ -2,81 +2,73 @@
 
 Thank you, Claude,
 
-I made the change to my chatty_ai.py Python script as you recommended:
+I ran: nickspi5@raspberrypi:~ $ sudo nano /home/nickspi5/Chatty_AI/chatty_ai.py
 
-        try:
-            print(f"[TIMING] Starting LLM inference...")
-            llm_start = t.perf_counter()
-            
-            result = self.llama_model(
-                formatted_prompt, 
-                max_tokens=50,
-                stop=[".", "!", "?", "\n", "User:", "Human:"]
+I then modified my chatty_ai.py Python script with the following code, as you recommended:
+
+            # Load LLaMA model
+            self.emit_log("Loading LLaMA model...", 'info')
+            self.llama_model = Llama(
+                model_path=LLAMA_MODEL_PATH,
+                n_ctx=2048,
+                n_threads=4,
+                temperature=0.7,
+                repeat_penalty=1.1,
+                n_gpu_layers=0,
+                verbose=False
             )
-            
-            llm_time = t.perf_counter() - llm_start
-            print(f"[TIMING] LLM inference completed in {llm_time:.2f}s")
+            self.emit_log("LLaMA model loaded successfully", 'success')
+
+            # Warm up the LLM with a simple query
+            self.emit_log("Warming up LLM...", 'info')
+            _ = self.llama_model("Hello", max_tokens=5)
+            self.emit_log("LLM warm-up complete", 'success')
+           
+            return True
 
 I then ran: nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
+nickspi5@raspberrypi:~ $ grep "WHISPER_MODEL_SIZE" /home/nickspi5/Chatty_AI/chatty_ai.py
+WHISPER_MODEL_SIZE = "tiny"
+            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+nickspi5@raspberrypi:~ $ grep "WHISPER_MODEL_SIZE" /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
+WHISPER_MODEL_SIZE = "tiny"
+            logger.info(f"Loading Whisper model: {WHISPER_MODEL_SIZE}")
+                WHISPER_MODEL_SIZE, 
 nickspi5@raspberrypi:~ $ sudo reboot
 
-After my Raspberry Pi 5 restarted, I tested the Chatty AI system with 3 questions and 1 command.
+After my Raspberry Pi 5 started up again, I tested my Chatty AI service by asking it three questions and one command.
 
-I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service -f | grep -i "timing"
-^C
-nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "30 minutes ago" --no-pager | grep -i "timing\|llm\|generat\|process_user\|inference"
-Dec 27 10:04:49 raspberrypi python[1111]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
-Dec 27 10:04:49 raspberrypi python[1111]: [TIMING] Calling LLM...
-Dec 27 10:04:49 raspberrypi python[1111]: [10:04:49 AM] Generating LLM response
-Dec 27 10:04:49 raspberrypi python[1111]: [TIMING] query_llama called with prompt: 'What is the longest road in the world?...'
-Dec 27 10:04:49 raspberrypi python[1111]: [TIMING] Starting LLM inference...
-Dec 27 10:04:56 raspberrypi python[1111]: [TIMING] LLM inference completed in 7.90s
-Dec 27 10:04:56 raspberrypi python[1111]: [TIMING] query_llama total time: 7.91s, response: '6,777 kilometers , which is the length of the Grea...'
-Dec 27 10:04:56 raspberrypi python[1111]: [TIMING] process_user_input total time: 7.91s
-Dec 27 10:05:26 raspberrypi python[1111]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
-Dec 27 10:05:26 raspberrypi python[1111]: [TIMING] Calling LLM...
-Dec 27 10:05:26 raspberrypi python[1111]: [10:05:26 AM] Generating LLM response
-Dec 27 10:05:26 raspberrypi python[1111]: [TIMING] query_llama called with prompt: 'What is the longest river in the world?...'
-Dec 27 10:05:26 raspberrypi python[1111]: [TIMING] Starting LLM inference...
-Dec 27 10:05:29 raspberrypi python[1111]: [TIMING] LLM inference completed in 2.58s
-Dec 27 10:05:29 raspberrypi python[1111]: [TIMING] query_llama total time: 2.58s, response: '78,408 kilometers...'
-Dec 27 10:05:29 raspberrypi python[1111]: [TIMING] process_user_input total time: 2.58s
-Dec 27 10:05:56 raspberrypi python[1111]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
-Dec 27 10:05:56 raspberrypi python[1111]: [TIMING] Calling LLM...
-Dec 27 10:05:56 raspberrypi python[1111]: [10:05:56 AM] Generating LLM response
-Dec 27 10:05:56 raspberrypi python[1111]: [TIMING] query_llama called with prompt: 'What is the deepest ocean in the world?...'
-Dec 27 10:05:56 raspberrypi python[1111]: [TIMING] Starting LLM inference...
-Dec 27 10:05:59 raspberrypi python[1111]: [TIMING] LLM inference completed in 2.76s
-Dec 27 10:05:59 raspberrypi python[1111]: [TIMING] query_llama total time: 2.76s, response: '12,646 feet deep...'
-Dec 27 10:05:59 raspberrypi python[1111]: [TIMING] process_user_input total time: 2.76s
-Dec 27 10:06:41 raspberrypi python[1111]: [TIMING] process_user_input called with: 'Who is sponsoring this video?'
-Dec 27 10:06:41 raspberrypi python[1111]: [TIMING] Executing command: who is sponsoring this video
-Dec 27 10:06:43 raspberrypi python[1111]: [TIMING] process_user_input total time: 1.64s
-
-I also ran: nickspi5@raspberrypi:~ $ sudo nano /etc/systemd/system/chatty-ai-preloader.service
-nickspi5@raspberrypi:~ $ sudo nano /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
-
-I then modified my /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
-
-from:
-
-# Configuration
-WHISPER_MODEL_SIZE = "base"
-LLAMA_MODEL_PATH = "/home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-
-to:
-
-# Configuration
-WHISPER_MODEL_SIZE = "tiny"
-LLAMA_MODEL_PATH = "/home/nickspi5/Chatty_AI/tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-VOICE_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx"
-CONFIG_PATH = "/home/nickspi5/Chatty_AI/voices/en_US-amy-low/en_US-amy-low.onnx.json"
-PIPER_EXECUTABLE = "/home/nickspi5/Chatty_AI/piper/piper"
-
-and then saved the changes to this file.
+I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "30 minutes ago" --no-pager | grep -i "timing\|llm\|generat\|process_user\|inference"
+Dec 27 12:13:51 raspberrypi python[1103]: [12:13:51 PM] Warming up LLM...
+Dec 27 12:13:51 raspberrypi python[1103]: [12:13:51 PM] LLM warm-up complete
+Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
+Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] Calling LLM...
+Dec 27 12:16:54 raspberrypi python[1103]: [12:16:54 PM] Generating LLM response
+Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the longest road in the world?...'
+Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] Starting LLM inference...
+Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] LLM inference completed in 3.72s
+Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] query_llama total time: 3.72s, response: '41,105 miles or 68,000 kilometers...'
+Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] process_user_input total time: 3.72s
+Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
+Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] Calling LLM...
+Dec 27 12:17:25 raspberrypi python[1103]: [12:17:25 PM] Generating LLM response
+Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the longest river in the world?...'
+Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] Starting LLM inference...
+Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] LLM inference completed in 0.72s
+Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] query_llama total time: 0.72s, response: '1...'
+Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] process_user_input total time: 0.72s
+Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
+Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] Calling LLM...
+Dec 27 12:17:49 raspberrypi python[1103]: [12:17:49 PM] Generating LLM response
+Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the deepest ocean in the world?...'
+Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] Starting LLM inference...
+Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] LLM inference completed in 5.39s
+Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] query_llama total time: 5.39s, response: '150 meters below the ocean surface, located at the...'
+Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] process_user_input total time: 5.39s
+Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] process_user_input called with: 'flush the toilet'
+Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] Executing command: flush the toilet
+Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] process_user_input total time: 0.00s
+nickspi5@raspberrypi:~ $ 
 
 
 
