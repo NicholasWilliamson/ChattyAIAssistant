@@ -2,11 +2,24 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ grep -A20 "def process_user_input" /home/nickspi5/Chatty_AI/chatty_ai.py
-    def process_user_input(self, text):
-        """Process user input - Same as original"""
-        import time as t
-        start = t.perf_counter()
+I ran: nickspi5@raspberrypi:~ $ grep -A15 "def is_command" /home/nickspi5/Chatty_AI/chatty_ai.py
+    def is_command(self, text):
+        """Check if text is a command"""
+        text_lower = text.lower().strip()
+        for command in COMMANDS.keys():
+            if command in text_lower:
+                return command
+        return None
+
+    def execute_command(self, command):
+        """Execute system command"""
+        if command == "flush the toilet":
+            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
+        elif command == "turn on the lights":
+            response = "I would turn on the lights if I was connected to a smart home system."
+        elif command == "turn off the lights":
+            response = "I would turn off the lights if I was connected to a smart home system."
+nickspi5@raspberrypi:~ $ grep -B5 -A15 "if command:" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
         
         print(f"[TIMING] process_user_input called with: '{text}'")
         self.emit_log(f"Processing user input: '{text}'", 'info')
@@ -24,15 +37,20 @@ I ran: nickspi5@raspberrypi:~ $ grep -A20 "def process_user_input" /home/nickspi
             def token_callback(token):
                 socketio.emit('llm_token', {'token': token})
             
+            # Use streaming version - it speaks as it generates
+            response = self.query_llama_streaming(text, callback=token_callback)
+            
+            # Response was already spoken during streaming, so we return it
 nickspi5@raspberrypi:~ $ 
 
-I also noticed the command translation says 'Fush the toilet' instead of 'Flush the toilet.
+I think I would prefer to stick with just faster-whisper 'tiny' for now as it was working fine before we added the straming LLM function.
 
-This maybe because we are currently using faster-whisper 'tiny' instead of faster-whisper 'base'.
+I might decide to change back to faster-whisper 'base' later after we get all this streaming processing done properly due to the lengthy time savings now that the Chatty AI service does not have to wait to speak the LLM response anymore.
 
-I found previously the translations from faster-whisper 'base' were much more accurate.
+I really like the wait that is working.
 
-So, possibly the Chatty AI service did not consider 'Fush the toilet' to be a command.
+
+
 
 
 
