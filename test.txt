@@ -1,56 +1,45 @@
 
 
-Thank you, Claude,
+Check faster-whisper Streaming Capability
+Let's first check if faster-whisper supports streaming transcription:
+cd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
 
-I now consider this current performance is good for conversational AI.
+python3 << 'EOF'
+from faster_whisper import WhisperModel
+import inspect
 
-However, I wonder if we can modify some of the methods used to make it great, or even excellent.
+# Check available methods
+model = WhisperModel("tiny", device="cpu", compute_type="int8")
+print("Available methods:")
+for name, method in inspect.getmembers(model, predicate=inspect.ismethod):
+    if not name.startswith('_'):
+        print(f"  - {name}")
 
-Right now, I believe the process is as follows:
+# Check transcribe signature
+print("\nTranscribe signature:")
+print(inspect.signature(model.transcribe))
+EOF
 
-After Chatty AI successfully detects a wake word phrase, it speaks to the user to inform them it is waiting for their question or command.
+Check llama-cpp-python Streaming Capability
+python3 << 'EOF'
+from llama_cpp import Llama
+import inspect
 
-The user can then ask a question for the LLM or issue a command for up to a maximum of 30 seconds of talking time.
+# Check if streaming is supported
+print("Checking Llama streaming capability...")
+llm = Llama(
+    model_path="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+    n_ctx=512,
+    n_threads=4,
+    verbose=False
+)
 
-Chatty AI then converts the speach to text.
-
-Chatty AI then decides whether the user has issued a command or asked a question for the LLM to answer.
-
-If it is a command, Chatty AI then acts on that command as it is instructed to do.
-
-If it is a question, Chatty AI then forwards the question to the LLM.
-
-The LLM, the generates a response, which is first displayed fully on the screen before it speaks it's response.
-
-I am wondering if we can modify the methods used now to stream the TTS and STT processes.
-
-For example, remove the 30 second limit from where the user can ask a question or isse a command. Chatty AI will now continue to keep recording the audio until silence is detected. This way, the user can ask a question of any length.
-
-However, while the user is asking their question, the recorded audio can be translated to text in segments and these segments can be analysed by Chatty AI to determine if the user is asking a question or is issuing a command. This will be a streaming method.
-
-If the user is issuing a command, this could be acted upon as soon as the user finishes speaking and silence is detected, rather than waiting until after the user has finished speaking.
-
-If Chatty AI is satisfied the user is not issuing a command but is asking a question, Chatty AI can stream the question to the LLM in segments until the users full recorded text has been feed to the LLM.
-
-Most importantly, when the LLM is generating it's response, the response can bhe feed in segements back to Chatty AI and displayed on the screen and Chatty AI can commence speaking the LLM response, rather than waiting for the LLM's complete response to be displayed on the screen and then spoken after it has completed displaying the response on the screen. This is another streaming method.
-
-In this way, I believe the complete process can be sped up significantly and be more natural a process, rather than the way the process current has to wait until each step is completed before commencing the next step.
-
-Is this possible?
-
-If so, let us do this in steps, starting with the users spoken question or command.
-
-I will back up my current chatty_ai.py Python script before commencing this, just in case it cannot be done satisfactorily.
-
-
-
-
-
-
-
-
-
-
-
-
+# Test streaming
+print("\nTesting streaming generation:")
+prompt = "What is the capital of France?"
+for token in llm(prompt, max_tokens=20, stream=True):
+    print(token['choices'][0]['text'], end='', flush=True)
+print("\n\nStreaming works!")
+EOF
 
