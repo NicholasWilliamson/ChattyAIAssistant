@@ -2,56 +2,48 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ sudo nano /home/nickspi5/Chatty_AI/chatty_ai.py
+I now consider this current performance is good for conversational AI.
 
-I then modified my chatty_ai.py Python script with the following code as you recommended:
+However, I wonder if we can modify some of the methods used to make it great, or even excellent.
 
-            result = self.llama_model(
-                formatted_prompt, 
-                max_tokens=75,
-                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"]
-            )
+Right now, I believe the process is as follows:
 
-I then found and verified the following code in my chatty_ai.py Python script as you recommended:
+After Chatty AI successfully detects a wake word phrase, it speaks to the user to inform them it is waiting for their question or command.
 
-                sentences = reply_text.split('.')
-                if len(sentences) > 3:
-                    reply_text = '. '.join(sentences[:3]) + '.'
+The user can then ask a question for the LLM or issue a command for up to a maximum of 30 seconds of talking time.
 
-I then ran: nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
-nickspi5@raspberrypi:~ $ sudo reboot
+Chatty AI then converts the speach to text.
 
-After my Raspberry Pi 5 restarted, I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "30 minutes ago" --no-pager | grep -i "timing\|llm\|generat\|process_user\|inference"
-Dec 27 12:56:57 raspberrypi python[1105]: [12:56:57 PM] Warming up LLM...
-Dec 27 12:56:58 raspberrypi python[1105]: [12:56:58 PM] LLM warm-up complete
-Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
-Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] Calling LLM...
-Dec 27 13:00:37 raspberrypi python[1105]: [01:00:37 PM] Generating LLM response
-Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the longest road in the world?...'
-Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] Starting LLM inference...
-Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] LLM inference completed in 3.87s
-Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] query_llama total time: 3.87s, response: '41,105 miles or 68,000 kilometers....'
-Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] process_user_input total time: 3.87s
-Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
-Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] Calling LLM...
-Dec 27 13:01:09 raspberrypi python[1105]: [01:01:09 PM] Generating LLM response
-Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the longest river in the world?...'
-Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] Starting LLM inference...
-Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] LLM inference completed in 2.49s
-Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] query_llama total time: 2.49s, response: '1.  The Nile River.  It is the longest river in th...'
-Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] process_user_input total time: 2.49s
-Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
-Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] Calling LLM...
-Dec 27 13:01:40 raspberrypi python[1105]: [01:01:40 PM] Generating LLM response
-Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the deepest ocean in the world?...'
-Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] Starting LLM inference...
-Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] LLM inference completed in 5.58s
-Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] query_llama total time: 5.58s, response: '150 meters below the ocean surface, located at the...'
-Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] process_user_input total time: 5.58s
-Dec 27 13:02:20 raspberrypi python[1105]: [TIMING] process_user_input called with: 'Who is sponsoring this video?'
-Dec 27 13:02:20 raspberrypi python[1105]: [TIMING] Executing command: who is sponsoring this video
-Dec 27 13:02:22 raspberrypi python[1105]: [TIMING] process_user_input total time: 1.63s
-nickspi5@raspberrypi:~ $ 
+Chatty AI then decides whether the user has issued a command or asked a question for the LLM to answer.
+
+If it is a command, Chatty AI then acts on that command as it is instructed to do.
+
+If it is a question, Chatty AI then forwards the question to the LLM.
+
+The LLM, the generates a response, which is first displayed fully on the screen before it speaks it's response.
+
+I am wondering if we can modify the methods used now to stream the TTS and STT processes.
+
+For example, remove the 30 second limit from where the user can ask a question or isse a command. Chatty AI will now continue to keep recording the audio until silence is detected. This way, the user can ask a question of any length.
+
+However, while the user is asking their question, the recorded audio can be translated to text in segments and these segments can be analysed by Chatty AI to determine if the user is asking a question or is issuing a command. This will be a streaming method.
+
+If the user is issuing a command, this could be acted upon as soon as the user finishes speaking and silence is detected, rather than waiting until after the user has finished speaking.
+
+If Chatty AI is satisfied the user is not issuing a command but is asking a question, Chatty AI can stream the question to the LLM in segments until the users full recorded text has been feed to the LLM.
+
+Most importantly, when the LLM is generating it's response, the response can bhe feed in segements back to Chatty AI and displayed on the screen and Chatty AI can commence speaking the LLM response, rather than waiting for the LLM's complete response to be displayed on the screen and then spoken after it has completed displaying the response on the screen. This is another streaming method.
+
+In this way, I believe the complete process can be sped up significantly and be more natural a process, rather than the way the process current has to wait until each step is completed before commencing the next step.
+
+Is this possible?
+
+If so, let us do this in steps, starting with the users spoken question or command.
+
+I will back up my current chatty_ai.py Python script before commencing this, just in case it cannot be done satisfactorily.
+
+
+
 
 
 
