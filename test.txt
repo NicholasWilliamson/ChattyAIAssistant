@@ -4,72 +4,54 @@ Thank you, Claude,
 
 I ran: nickspi5@raspberrypi:~ $ sudo nano /home/nickspi5/Chatty_AI/chatty_ai.py
 
-I then modified my chatty_ai.py Python script with the following code, as you recommended:
+I then modified my chatty_ai.py Python script with the following code as you recommended:
 
-            # Load LLaMA model
-            self.emit_log("Loading LLaMA model...", 'info')
-            self.llama_model = Llama(
-                model_path=LLAMA_MODEL_PATH,
-                n_ctx=2048,
-                n_threads=4,
-                temperature=0.7,
-                repeat_penalty=1.1,
-                n_gpu_layers=0,
-                verbose=False
+            result = self.llama_model(
+                formatted_prompt, 
+                max_tokens=75,
+                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"]
             )
-            self.emit_log("LLaMA model loaded successfully", 'success')
 
-            # Warm up the LLM with a simple query
-            self.emit_log("Warming up LLM...", 'info')
-            _ = self.llama_model("Hello", max_tokens=5)
-            self.emit_log("LLM warm-up complete", 'success')
-           
-            return True
+I then found and verified the following code in my chatty_ai.py Python script as you recommended:
+
+                sentences = reply_text.split('.')
+                if len(sentences) > 3:
+                    reply_text = '. '.join(sentences[:3]) + '.'
 
 I then ran: nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
-nickspi5@raspberrypi:~ $ grep "WHISPER_MODEL_SIZE" /home/nickspi5/Chatty_AI/chatty_ai.py
-WHISPER_MODEL_SIZE = "tiny"
-            self.whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
-nickspi5@raspberrypi:~ $ grep "WHISPER_MODEL_SIZE" /home/nickspi5/Chatty_AI/chatty_ai_preloader.py
-WHISPER_MODEL_SIZE = "tiny"
-            logger.info(f"Loading Whisper model: {WHISPER_MODEL_SIZE}")
-                WHISPER_MODEL_SIZE, 
 nickspi5@raspberrypi:~ $ sudo reboot
 
-After my Raspberry Pi 5 started up again, I tested my Chatty AI service by asking it three questions and one command.
-
-I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "30 minutes ago" --no-pager | grep -i "timing\|llm\|generat\|process_user\|inference"
-Dec 27 12:13:51 raspberrypi python[1103]: [12:13:51 PM] Warming up LLM...
-Dec 27 12:13:51 raspberrypi python[1103]: [12:13:51 PM] LLM warm-up complete
-Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
-Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] Calling LLM...
-Dec 27 12:16:54 raspberrypi python[1103]: [12:16:54 PM] Generating LLM response
-Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the longest road in the world?...'
-Dec 27 12:16:54 raspberrypi python[1103]: [TIMING] Starting LLM inference...
-Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] LLM inference completed in 3.72s
-Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] query_llama total time: 3.72s, response: '41,105 miles or 68,000 kilometers...'
-Dec 27 12:16:57 raspberrypi python[1103]: [TIMING] process_user_input total time: 3.72s
-Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
-Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] Calling LLM...
-Dec 27 12:17:25 raspberrypi python[1103]: [12:17:25 PM] Generating LLM response
-Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the longest river in the world?...'
-Dec 27 12:17:25 raspberrypi python[1103]: [TIMING] Starting LLM inference...
-Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] LLM inference completed in 0.72s
-Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] query_llama total time: 0.72s, response: '1...'
-Dec 27 12:17:26 raspberrypi python[1103]: [TIMING] process_user_input total time: 0.72s
-Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
-Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] Calling LLM...
-Dec 27 12:17:49 raspberrypi python[1103]: [12:17:49 PM] Generating LLM response
-Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] query_llama called with prompt: 'What is the deepest ocean in the world?...'
-Dec 27 12:17:49 raspberrypi python[1103]: [TIMING] Starting LLM inference...
-Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] LLM inference completed in 5.39s
-Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] query_llama total time: 5.39s, response: '150 meters below the ocean surface, located at the...'
-Dec 27 12:17:54 raspberrypi python[1103]: [TIMING] process_user_input total time: 5.39s
-Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] process_user_input called with: 'flush the toilet'
-Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] Executing command: flush the toilet
-Dec 27 12:18:27 raspberrypi python[1103]: [TIMING] process_user_input total time: 0.00s
+After my Raspberry Pi 5 restarted, I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "30 minutes ago" --no-pager | grep -i "timing\|llm\|generat\|process_user\|inference"
+Dec 27 12:56:57 raspberrypi python[1105]: [12:56:57 PM] Warming up LLM...
+Dec 27 12:56:58 raspberrypi python[1105]: [12:56:58 PM] LLM warm-up complete
+Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
+Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] Calling LLM...
+Dec 27 13:00:37 raspberrypi python[1105]: [01:00:37 PM] Generating LLM response
+Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the longest road in the world?...'
+Dec 27 13:00:37 raspberrypi python[1105]: [TIMING] Starting LLM inference...
+Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] LLM inference completed in 3.87s
+Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] query_llama total time: 3.87s, response: '41,105 miles or 68,000 kilometers....'
+Dec 27 13:00:41 raspberrypi python[1105]: [TIMING] process_user_input total time: 3.87s
+Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
+Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] Calling LLM...
+Dec 27 13:01:09 raspberrypi python[1105]: [01:01:09 PM] Generating LLM response
+Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the longest river in the world?...'
+Dec 27 13:01:09 raspberrypi python[1105]: [TIMING] Starting LLM inference...
+Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] LLM inference completed in 2.49s
+Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] query_llama total time: 2.49s, response: '1.  The Nile River.  It is the longest river in th...'
+Dec 27 13:01:12 raspberrypi python[1105]: [TIMING] process_user_input total time: 2.49s
+Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
+Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] Calling LLM...
+Dec 27 13:01:40 raspberrypi python[1105]: [01:01:40 PM] Generating LLM response
+Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] query_llama called with prompt: 'What is the deepest ocean in the world?...'
+Dec 27 13:01:40 raspberrypi python[1105]: [TIMING] Starting LLM inference...
+Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] LLM inference completed in 5.58s
+Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] query_llama total time: 5.58s, response: '150 meters below the ocean surface, located at the...'
+Dec 27 13:01:46 raspberrypi python[1105]: [TIMING] process_user_input total time: 5.58s
+Dec 27 13:02:20 raspberrypi python[1105]: [TIMING] process_user_input called with: 'Who is sponsoring this video?'
+Dec 27 13:02:20 raspberrypi python[1105]: [TIMING] Executing command: who is sponsoring this video
+Dec 27 13:02:22 raspberrypi python[1105]: [TIMING] process_user_input total time: 1.63s
 nickspi5@raspberrypi:~ $ 
-
 
 
 
