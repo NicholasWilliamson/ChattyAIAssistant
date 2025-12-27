@@ -1,140 +1,104 @@
 
 
-Excellent! Both streaming capabilities are confirmed:
+Thank you, Claude,
 
-✅ faster-whisper has generate_segments method for streaming transcription
-✅ llama-cpp-python supports stream=True for token-by-token generation
-
-
-Now Let's Back Up Your Current Script
-bashcp /home/nickspi5/Chatty_AI/chatty_ai.py /home/nickspi5/Chatty_AI/chatty_ai.py.backup.$(date +%Y%m%d_%H%M%S)
-ls -la /home/nickspi5/Chatty_AI/chatty_ai.py.backup.*
-
-Stage 1: Implement Streaming LLM Response
-Let's start with the most impactful change - streaming LLM responses. This will make the biggest difference in perceived responsiveness because the user will start hearing the response immediately instead of waiting for the full generation.
-Step 1: Create a New Streaming TTS Function
-First, let's see the current speak_text function:
-bashsed -n '553,580p' /home/nickspi5/Chatty_AI/chatty_ai.py
-Step 2: Check Piper's Streaming Capability
-bash# Check if Piper supports streaming
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ cp /home/nickspi5/Chatty_AI/chatty_ai.py /home/nickspi5/Chatty_AI/chatty_ai.py.backup.$(date +%Y%m%d_%H%M%S)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ ls -la /home/nickspi5/Chatty_AI/chatty_ai.py.backup.*
+-rw-r--r-- 1 nickspi5 nickspi5 63056 Dec 27 15:35 /home/nickspi5/Chatty_AI/chatty_ai.py.backup.20251227_153507
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '553,580p' /home/nickspi5/Chatty_AI/chatty_ai.py
+            return True
+        except Exception as e:
+            self.emit_log(f"Failed to initialise camera: {e}", 'error')
+            return False
+    
+    def speak_text(self, text):
+        """Convert text to speech using Piper - Same as original"""
+        try:
+            with self.audio_recording_lock:
+                command = [
+                    PIPER_EXECUTABLE,
+                    "--model", VOICE_PATH,
+                    "--config", CONFIG_PATH,
+                    "--output_file", RESPONSE_AUDIO
+                ]
+                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
+                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+                self.emit_log(f"Speaking: '{text[:50]}...'", 'info')
+        except subprocess.CalledProcessError as e:
+            self.emit_log(f"TTS failed: {e}", 'error')
+    
+    def play_beep(self):
+        """Play beep sound - Same as original"""
+        try:
+            with self.audio_recording_lock:
+                subprocess.run(["aplay", BEEP_SOUND], check=True, capture_output=True)
+                self.emit_log("Beep sound played", 'debug')
+        except subprocess.CalledProcessError:
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ # Check if Piper supports streaming
 /home/nickspi5/Chatty_AI/piper/piper --help 2>&1 | head -30
 
-Step 3: Create a Streaming LLM + TTS Function
-Let's add a new method that streams the LLM response and speaks it in chunks.
-bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
-Find the query_llama function and add this new streaming function right after it (around line 860):
-python    def query_llama_streaming(self, prompt, callback=None):
-        """Generate LLM response with streaming - speaks as tokens arrive"""
-        import time as t
-        
-        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
-        start = t.perf_counter()
-        
-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-        
-        try:
-            print(f"[TIMING] Starting streaming LLM inference...")
-            llm_start = t.perf_counter()
-            
-            full_response = ""
-            current_sentence = ""
-            sentences_spoken = 0
-            max_sentences = 3
-            
-            # Stream tokens from LLM
-            for token_data in self.llama_model(
-                formatted_prompt, 
-                max_tokens=100,
-                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
-                stream=True
-            ):
-                token = token_data['choices'][0]['text']
-                full_response += token
-                current_sentence += token
-                
-                # Emit each token to web interface for real-time display
-                if callback:
-                    callback(token)
-                
-                # Check if we have a complete sentence
-                if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
-                    sentences_spoken += 1
-                    
-                    # Clean up the sentence
-                    sentence_to_speak = current_sentence.strip()
-                    sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
-                    sentence_to_speak = re.sub(r"(User:|Assistant:)", "", sentence_to_speak)
-                    sentence_to_speak = sentence_to_speak.strip()
-                    
-                    if sentence_to_speak and len(sentence_to_speak) > 2:
-                        print(f"[STREAMING] Speaking sentence {sentences_spoken}: '{sentence_to_speak[:50]}...'")
-                        self.speak_text(sentence_to_speak)
-                    
-                    current_sentence = ""
-                    
-                    # Stop after max sentences
-                    if sentences_spoken >= max_sentences:
-                        print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
-                        break
-            
-            # Speak any remaining text
-            if current_sentence.strip() and sentences_spoken < max_sentences:
-                remaining = current_sentence.strip()
-                remaining = re.sub(r"\(.*?\)", "", remaining)
-                remaining = re.sub(r"(User:|Assistant:)", "", remaining)
-                if remaining and len(remaining) > 2:
-                    print(f"[STREAMING] Speaking remaining: '{remaining[:50]}...'")
-                    self.speak_text(remaining)
-            
-            llm_time = t.perf_counter() - llm_start
-            total_time = t.perf_counter() - start
-            print(f"[TIMING] Streaming LLM completed in {llm_time:.2f}s, total: {total_time:.2f}s")
-            
-            # Clean up full response for return
-            full_response = re.sub(r"\(.*?\)", "", full_response)
-            full_response = re.sub(r"(User:|Assistant:)", "", full_response)
-            
-            return full_response.strip()
-            
-        except Exception as e:
-            print(f"[TIMING] Streaming LLM error: {e}")
-            return "Sorry, I had trouble processing that question."
+usage: /home/nickspi5/Chatty_AI/piper/piper [options]
 
-Step 4: Update process_user_input to Use Streaming
-Now find the process_user_input function and modify it to use the streaming version for LLM queries:
-Find this section (around line 779):
-python        else:
-            print(f"[TIMING] Calling LLM...")
-            self.emit_log("Generating LLM response", 'info')
-            response = self.query_llama(text)
-Change it to:
-python        else:
-            print(f"[TIMING] Calling streaming LLM...")
-            self.emit_log("Generating LLM response (streaming)", 'info')
-            
-            # Define callback to emit tokens to web interface
-            def token_callback(token):
-                socketio.emit('llm_token', {'token': token})
-            
-            # Use streaming version - it speaks as it generates
-            response = self.query_llama_streaming(text, callback=token_callback)
-            
-            # Response was already spoken during streaming, so we return it
-            # but the caller should NOT speak it again
+options:
+   -h        --help              show this message and exit
+   -m  FILE  --model       FILE  path to onnx model file
+   -c  FILE  --config      FILE  path to model config file (default: model path + .json)
+   -f  FILE  --output_file FILE  path to output WAV file ('-' for stdout)
+   -d  DIR   --output_dir  DIR   path to output directory (default: cwd)
+   --output_raw                  output raw audio to stdout as it becomes available
+   -s  NUM   --speaker     NUM   id of speaker (default: 0)
+   --noise_scale           NUM   generator noise (default: 0.667)
+   --length_scale          NUM   phoneme length (default: 1.0)
+   --noise_w               NUM   phoneme width noise (default: 0.8)
+   --sentence_silence      NUM   seconds of silence after each sentence (default: 0.2)
+   --espeak_data           DIR   path to espeak-ng data directory
+   --tashkeel_model        FILE  path to libtashkeel onnx model (arabic)
+   --json-input                  stdin input is lines of JSON instead of plain text
+   --debug                       print DEBUG messages to the console
+   -q       --quiet              disable logging
 
-Step 5: Update the listen_for_wake_word to Not Double-Speak
-Find the section in listen_for_wake_word where speak_text(response) is called after process_user_input:
-bashgrep -n "speak_text(response)" /home/nickspi5/Chatty_AI/chatty_ai.py
-We need to remove or conditionally skip the speak_text(response) call since the streaming function already speaks.
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo nano /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Save the file after making the changes, then let's test:
-bashsudo systemctl restart chatty-ai.service
+I then edited the chatty_ai.py Python script as you recommended.
 
-Share the output of:
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -n "speak_text(response)" /home/nickspi5/Chatty_AI/chatty_ai.py
+1050:                                    self.speak_text(response)
 
-The backup command
-The Piper help command
-The grep for speak_text(response)
+I then edited the chatty_ai.py file as follows:
 
-Then I'll give you the complete modifications to make.
+                            # Record full request
+                            self.emit_log("Please speak your request...", 'info')
+                            if self.record_with_silence_detection():
+                                user_text = self.transcribe_audio(WAV_FILENAME)
+                                if user_text and len(user_text.strip()) > 2:
+                                    self.emit_log(f"User said: '{user_text}'", 'info')
+                                    self.emit_conversation(f"User said: {user_text}", 'user_input')
+                                    response = self.process_user_input(user_text)
+                                    self.emit_log(f"Response: '{response}'", 'info')
+                                    self.emit_conversation(f"Response: {response}", 'response')
+                                    # self.speak_text(response)
+                                    self.last_interaction_time = time.time()
+                                    # Reset bored response timer only after successful interaction
+                                    self.last_bored_response_time = time.time()
+                                else:
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                                    self.emit_conversation("No clear speech detected", 'info')
+                            else:
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                                self.emit_conversation("Failed to record audio", 'info')
+
+I then ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+
+
+
+
+
+
+
+
+
+
+
 
