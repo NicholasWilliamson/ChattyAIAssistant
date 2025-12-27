@@ -1,11 +1,10 @@
 
 
-Check faster-whisper Streaming Capability
-Let's first check if faster-whisper supports streaming transcription:
-cd /home/nickspi5/Chatty_AI
-source chatty-venv/bin/activate
+Thank you, Claude,
 
-python3 << 'EOF'
+I ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
 from faster_whisper import WhisperModel
 import inspect
 
@@ -20,9 +19,21 @@ for name, method in inspect.getmembers(model, predicate=inspect.ismethod):
 print("\nTranscribe signature:")
 print(inspect.signature(model.transcribe))
 EOF
+Available methods:
+  - add_word_timestamps
+  - detect_language
+  - encode
+  - find_alignment
+  - generate_segments
+  - generate_with_fallback
+  - get_prompt
+  - transcribe
 
-Check llama-cpp-python Streaming Capability
-python3 << 'EOF'
+Transcribe signature:
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+UnicodeEncodeError: 'latin-1' codec can't encode character '\u201c' in position 891: ordinal not in range(256)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
 from llama_cpp import Llama
 import inspect
 
@@ -42,4 +53,24 @@ for token in llm(prompt, max_tokens=20, stream=True):
     print(token['choices'][0]['text'], end='', flush=True)
 print("\n\nStreaming works!")
 EOF
+Checking Llama streaming capability...
+llama_context: n_ctx_per_seq (512) < n_ctx_train (2048) -- the full capacity of the model will not be utilized
+
+Testing streaming generation:
+ A. Paris B. Lyon C. Toulouse D. Marseille Answer: C. Toulouse
+
+Streaming works!
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+
+
+
+
+
+
+
+
+
+
+
 
