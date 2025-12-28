@@ -2,54 +2,56 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ grep -A15 "def is_command" /home/nickspi5/Chatty_AI/chatty_ai.py
-    def is_command(self, text):
-        """Check if text is a command"""
-        text_lower = text.lower().strip()
-        for command in COMMANDS.keys():
-            if command in text_lower:
-                return command
-        return None
+I ran: sudo nano /home/nickspi5/Chatty_AI/chatty_ai.py
 
-    def execute_command(self, command):
-        """Execute system command"""
-        if command == "flush the toilet":
-            response = f"Oh {self.current_person}, you know I am a digital assistant. I cannot actually flush toilets! So why dont you haul your lazy butt up off the couch and flush the toilet yourself!"
-        elif command == "turn on the lights":
-            response = "I would turn on the lights if I was connected to a smart home system."
-        elif command == "turn off the lights":
-            response = "I would turn off the lights if I was connected to a smart home system."
-nickspi5@raspberrypi:~ $ grep -B5 -A15 "if command:" /home/nickspi5/Chatty_AI/chatty_ai.py | head -30
-        
-        print(f"[TIMING] process_user_input called with: '{text}'")
-        self.emit_log(f"Processing user input: '{text}'", 'info')
-        
-        command = self.is_command(text)
+I then changed the command = self.is_command(text) like you recommended, as follows:
+
         if command:
             print(f"[TIMING] Executing command: {command}")
             self.emit_log(f"Executing command: {command}", 'info')
             response = self.execute_command(command)
+            # Commands need to speak their response
+            self.speak_text(response)
         else:
             print(f"[TIMING] Calling streaming LLM...")
             self.emit_log("Generating LLM response (streaming)", 'info')
-            
-            # Define callback to emit tokens to web interface
-            def token_callback(token):
-                socketio.emit('llm_token', {'token': token})
-            
-            # Use streaming version - it speaks as it generates
-            response = self.query_llama_streaming(text, callback=token_callback)
-            
-            # Response was already spoken during streaming, so we return it
-nickspi5@raspberrypi:~ $ 
 
-I think I would prefer to stick with just faster-whisper 'tiny' for now as it was working fine before we added the straming LLM function.
+Next, I added the timing for the first sentence, like you recommended, as follows:
 
-I might decide to change back to faster-whisper 'base' later after we get all this streaming processing done properly due to the lengthy time savings now that the Chatty AI service does not have to wait to speak the LLM response anymore.
+                # Check if we have a complete sentence
+                if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
+                    sentences_spoken += 1
 
-I really like the wait that is working.
+                    # Log time to first speech
+                    if sentences_spoken += 1:
+                        first_speech_time = t.perf_counter() - llm_start
+                        print(f"[TIMING] Time to first speech: {first_speech_time:.2f}s")
 
+                    # Clean up the sentence
+                    sentence_to_speak = current_sentence.strip()
+                    sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
+                    sentence_to_speak = re.sub(r"(User:|Assistant:)", "", sentence_to_speak)
 
+I then saved my chatty_ai.py Python script and exited.
+
+I then ran: nickspi5@raspberrypi:~ $ sudo systemctl restart chatty-ai.service
+nickspi5@raspberrypi:~ $ sudo reboot
+
+The time to first sentence speaking should be quite quick (1 second to 2 seconds) if this streaming service is working properly.
+
+I would like to eventually remove the response limit of only 3 sentences as well, so that the llm can give lengthy responses to the users questions.
+
+After my Raspberry Pi 5 restarted, the startup video played through once with audio.
+
+Next,the /home/nickspi5/Chatty_AI/templates/chatty_loading.html played through in the Chromium browser in kiosk mode.
+
+However, the /home/nickspi5/Chatty_AI/templates/Chatty_AI_HighTech.html did not correctly open up in the Chrmium browser in kiosk mode.
+
+Instead, I got a "Site cannot be reached error".
+
+This was previously working fine before I made the above changes you recommended to my /home/nickspi5/Chatty_AI/chatty_ai.py Python script.
+
+We need to fix this first before I can test my Chatty AI service again.
 
 
 
