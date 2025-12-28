@@ -2,38 +2,47 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+I ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors!"
+  File "chatty_ai.py", line 918
+    break
+    ^^^^^
+SyntaxError: 'break' outside loop
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ systemctl status chatty-ai.service
+* chatty-ai.service - Chatty AI Web Server
+     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
+     Active: activating (auto-restart) (Result: exit-code) since Sun 2025-12-28 13:46:37 AEDT; 62ms ago
+ Invocation: 6efd21575ef245a9aa5280d6c695a667
+    Process: 17680 ExecStart=/home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py (code=exit>
+   Main PID: 17680 (code=exited, status=1/FAILURE)
+        CPU: 65ms
 
-I then changed max_sentences = 3 to max_sentenves = 200
+Dec 28 13:46:37 raspberrypi systemd[1]: chatty-ai.service: Failed with result 'exit-code'.
 
-I then added the following code to my chatty_ai.py Python script as you recommended:
-
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A50 "def query_llama_streaming" /home/nickspi5/Chatty_AI/chatty_ai.py | head -60
+    def query_llama_streaming(self, prompt, callback=None):
+        """Generate LLM response with streaming - speaks as tokens arrive"""
+        import time as t
+        
+        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
+        start = t.perf_counter()
+        
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            print(f"[TIMING] Starting streaming LLM inference...")
+            llm_start = t.perf_counter()
+            
             full_response = ""
             current_sentence = ""
             sentences_spoken = 0
             max_sentences = 99
-            
+
             # Stop after max sentences
             if sentences_spoken >= max_sentences:
                 print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
                 break
-
-I then modified the following code in my chatty_ai.py Python script as you recommended:
-
-From:
-
-            # Stream tokens from LLM
-            for token_data in self.llama_model(
-                formatted_prompt, 
-                max_tokens=100,
-                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
-                stream=True
-            ):
-                token = token_data['choices'][0]['text']
-                full_response += token
-                current_sentence += token
-
-To:
 
             # Stream tokens from LLM
             for token_data in self.llama_model(
@@ -45,90 +54,26 @@ To:
                 token = token_data['choices'][0]['text']
                 full_response += token
                 current_sentence += token
+                
+                # Emit each token to web interface for real-time display
+                if callback:
+                    callback(token)
+                
+                # Check if we have a complete sentence
+                if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
+                    sentences_spoken += 1
 
-I then saved and exited to save the changes to my chatty_ai.py Python script.
+                    # Log time to first speech
+                    if sentences_spoken == 1:
+                        first_speech_time = t.perf_counter() - llm_start
+                        print(f"[TIMING] Time to first speech: {first_speech_time:.2f}s")
 
-I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI               
-nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
+                    # Clean up the sentence
+                    sentence_to_speak = current_sentence.strip()
+                    sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
+                    sentence_to_speak = re.sub(r"(User:|Assistant:)", "", sentence_to_speak)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-> python3 << 'EOF'ort Llama
-> 
-> python3 << 'EOF'
-> source chatty-venv/bin/activate
-> python3 << 'EOF'
-import time
-from llama_cpp import Llama
-
-print("Loading model...")
-llm = Llama(
-    model_path="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
-    n_ctx=2048,
-    n_threads=4,
-    verbose=False
-)
-print("Model loaded.\n")
-
-# Test different prompts
-prompts = [
-    "What is the longest river in the world?",
-    "What is the deepest ocean in the world?",
-    "What is the longest road in the world?",
-    "Tell me about the moon.",
-]
-
-for prompt in prompts:
-    formatted = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-    
-    print(f"Prompt: '{prompt}'")
-    
-    start = time.perf_counter()
-    first_token_time = None
-    first_sentence_time = None
-    print()"  Response: {full_response[:80]}...")e:.2f}s" if first_sentence_time else "  First sentence: N/A")
-> EOF
-Loading model...
-Model loaded.
-
-Prompt: 'What is the longest river in the world?'
-  First token: 0.75s
-  First sentence: 1.74s
-  Total time: 1.80s
-  Tokens: 19
-  Response: 9,455 kilometers (5,911 miles) long....
-
-Prompt: 'What is the deepest ocean in the world?'
-  First token: 0.36s
-  First sentence: 1.23s
-  Total time: 1.28s
-  Tokens: 17
-  Response: 330 meters below the surface, deep down in the Atlantic Ocean....
-
-Prompt: 'What is the longest road in the world?'
-  First token: 0.26s
-  First sentence: 0.66s
-  Total time: 1.25s
-  Tokens: 18
-  Response: 12,893 km. That's a long way around....
-
-Prompt: 'Tell me about the moon.'
-  First token: 0.43s
-  First sentence: 2.27s
-  Total time: 5.31s
-  Tokens: 75
-Traceback (most recent call last):
-  File "<stdin>", line 50, in <module>
-UnicodeEncodeError: 'latin-1' codec can't encode characters in position 12-14: ordinal not in range(256)
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo reboot
-
-When my Raspberry Pi 5 restarted, again the starting video played through and the chatty_loading.html file loaded in the Chrome browser in kiosk mode and played through.
-
-The chatty_loading.html did not load in my Chromium browser.
-
-I checked the changes I made in my chatty_ai.py Python script but could not see any syntax errors.
-
-How can we fix this?
 
 
 
