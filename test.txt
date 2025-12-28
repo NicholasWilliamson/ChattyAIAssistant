@@ -1,289 +1,56 @@
 
 
-Thank you, Claude,
+python3 << 'EOF'
+import time
+from llama_cpp import Llama
 
-I apologise for making that syntax error.
+print("Loading model...")
+llm = Llama(
+    model_path="tinyllama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+    n_ctx=2048,
+    n_threads=4,
+    verbose=False
+)
+print("Model loaded.\n")
 
-I have fixed that error in my chatty_ai.py Python script now.
+# Test different prompts
+prompts = [
+    "What is the longest river in the world?",
+    "What is the deepest ocean in the world?",
+    "What is the longest road in the world?",
+    "Tell me about the moon.",
+]
 
-I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
-nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors"
-No syntax errors
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl status chatty-ai.service
-* chatty-ai.service - Chatty AI Web Server
-     Loaded: loaded (/etc/systemd/system/chatty-ai.service; enabled; preset: enabled)
-     Active: active (running) since Sun 2025-12-28 12:21:25 AEDT; 36s ago
- Invocation: d6025c0f946a46cf9735e313a77b722d
-   Main PID: 19852 (python)
-      Tasks: 20 (limit: 19361)
-        CPU: 5.300s
-     CGroup: /system.slice/chatty-ai.service
-             `-19852 /home/nickspi5/Chatty_AI/chatty-venv/bin/python /home/nickspi5/Chatty_AI/chatty_ai.py
-
-Dec 28 12:21:31 raspberrypi python[19852]: ð<9F><93>± Web interface available
-Dec 28 12:21:31 raspberrypi python[19852]: ============================================================
-Dec 28 12:21:31 raspberrypi python[19852]: Werkzeug appears to be used in a production deployment. Consider switching to a pr>
-Dec 28 12:21:31 raspberrypi python[19852]:  * Serving Flask app 'chatty_ai'
-Dec 28 12:21:31 raspberrypi python[19852]:  * Debug mode: off
-Dec 28 12:21:31 raspberrypi python[19852]: WARNING: This is a development server. Do not use it in a production deployment. U>
-Dec 28 12:21:31 raspberrypi python[19852]:  * Running on all addresses (0.0.0.0)
-Dec 28 12:21:31 raspberrypi python[19852]:  * Running on http://127.0.0.1:5000
-Dec 28 12:21:31 raspberrypi python[19852]:  * Running on http://192.168.1.19:5000
-Dec 28 12:21:31 raspberrypi python[19852]: Press CTRL+C to quit
-
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo reboot
-
-When my Raspberry Pi 5 restarted, I tested my Chatty AI service with 3 questions and 1 command.
-
-I then ran: nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "15 minutes ago" --no-pager | tail -30
-Dec 28 12:41:43 raspberrypi python[1104]: [12:41:43 PM] Recording: 1.1s | Audio: 0.0632 | Silence: 0.0s
-Dec 28 12:41:44 raspberrypi python[1104]: [12:41:44 PM] Recording: 2.0s | Audio: 0.1592 | Silence: 0.0s
-Dec 28 12:41:45 raspberrypi python[1104]: [12:41:45 PM] Recording: 3.0s | Audio: 0.0306 | Silence: 0.2s
-Dec 28 12:41:46 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:45] "GET /captured_image?t=1766886105988 HTTP/1.1" 200 -
-Dec 28 12:41:46 raspberrypi python[1104]: [12:41:46 PM] Recording: 4.0s | Audio: 0.0266 | Silence: 1.2s
-Dec 28 12:41:46 raspberrypi python[1104]: [12:41:46 PM] Speech resumed after 1.3s silence
-Dec 28 12:41:47 raspberrypi python[1104]: [12:41:47 PM] Recording: 5.1s | Audio: 0.0375 | Silence: 0.0s
-Dec 28 12:41:48 raspberrypi python[1104]: [12:41:48 PM] Recording: 6.1s | Audio: 0.0261 | Silence: 0.9s
-Dec 28 12:41:49 raspberrypi python[1104]: [12:41:49 PM] Silence detected! Recorded 6.6s
-Dec 28 12:41:49 raspberrypi python[1104]: [12:41:49 PM] Audio saved: 6.7s
-Dec 28 12:41:51 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:51] "GET /captured_image?t=1766886110990 HTTP/1.1" 200 -
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Transcription: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] User said: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [TIMING] process_user_input called with: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Processing user input: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [TIMING] Executing command: who is sponsoring this video
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Executing command: who is sponsoring this video
-Dec 28 12:41:55 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:55] "GET /video_feed?t=1766886115945 HTTP/1.1" 200 -
-Dec 28 12:41:56 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:56] "GET /captured_image?t=1766886116001 HTTP/1.1" 200 -
-Dec 28 12:42:01 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:00] "GET /captured_image?t=1766886120991 HTTP/1.1" 200 -
-Dec 28 12:42:01 raspberrypi python[1104]: [12:42:01 PM] Speaking: 'You are very funny Nick. You know you dont have an...'
-Dec 28 12:42:01 raspberrypi python[1104]: [TIMING] process_user_input total time: 8.94s
-Dec 28 12:42:01 raspberrypi python[1104]: [12:42:01 PM] Response: 'You are very funny Nick. You know you dont have any sponsors for your videos!'
-Dec 28 12:42:06 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:06] "GET /captured_image?t=1766886125992 HTTP/1.1" 200 -
-Dec 28 12:42:06 raspberrypi python[1104]: [12:42:06 PM] Audio too quiet for wake word, RMS: 0.0222
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Stopping Chatty AI system...
-Dec 28 12:42:07 raspberrypi python[1104]: Client disconnected
-Dec 28 12:42:07 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:07] "GET /socket.io/?EIO=4&transport=websocket&sid=np2wpoQJDRB7bBTfAAAC HTTP/1.1" 200 -
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Wake word detection thread stopped
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Chatty AI system stopped
-nickspi5@raspberrypi:~ $ journalctl -u chatty-ai.service --since "15 minutes ago" --no-pager | tail -200
-Dec 28 12:39:03 raspberrypi python[1104]: [12:39:03 PM] Speaking: 'Hello Nick, my master. I am so happy to see you ag...'
-Dec 28 12:39:03 raspberrypi python[1104]: [12:39:03 PM] Wake word detection thread started
-Dec 28 12:39:03 raspberrypi python[1104]: [12:39:03 PM] Wake word detection thread started after greeting
-Dec 28 12:39:03 raspberrypi python[1104]: [12:39:03 PM] Greeted Nick - Wake word detection now active
-Dec 28 12:39:05 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:05] "GET /captured_image?t=1766885945956 HTTP/1.1" 200 -
-Dec 28 12:39:07 raspberrypi python[1104]: [12:39:07 PM] Wake word audio saved, RMS: 0.1035
-Dec 28 12:39:10 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:10] "GET /captured_image?t=1766885950957 HTTP/1.1" 200 -
-Dec 28 12:39:11 raspberrypi python[1104]: [12:39:11 PM] Transcription: 'Hello, chatty!'
-Dec 28 12:39:11 raspberrypi python[1104]: [12:39:11 PM] Wake word detected: 'hello chatty' in 'Hello, chatty!'
-Dec 28 12:39:11 raspberrypi python[1104]: [12:39:11 PM] WAKE WORD DETECTED! Starting conversation...
-Dec 28 12:39:11 raspberrypi python[1104]: [12:39:11 PM] Beep sound played
-Dec 28 12:39:15 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:15] "GET /captured_image?t=1766885955965 HTTP/1.1" 200 -
-Dec 28 12:39:18 raspberrypi python[1104]: [12:39:18 PM] Speaking: 'Yes Nick, I am actively listening to you and ready...'
-Dec 28 12:39:18 raspberrypi python[1104]: [12:39:18 PM] Please speak your request...
-Dec 28 12:39:18 raspberrypi python[1104]: [12:39:18 PM] Recording with sample rate: 44100 Hz
-Dec 28 12:39:19 raspberrypi python[1104]: [12:39:19 PM] Recording: 1.1s | Audio: 0.0187 | Silence: 0.9s
-Dec 28 12:39:19 raspberrypi python[1104]: [12:39:19 PM] Speech resumed after 1.0s silence
-Dec 28 12:39:20 raspberrypi python[1104]: [12:39:20 PM] Recording: 2.0s | Audio: 0.1589 | Silence: 0.1s
-Dec 28 12:39:20 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:20] "GET /captured_image?t=1766885960959 HTTP/1.1" 200 -
-Dec 28 12:39:21 raspberrypi python[1104]: [12:39:21 PM] Recording: 3.0s | Audio: 0.1582 | Silence: 0.0s
-Dec 28 12:39:22 raspberrypi python[1104]: [12:39:22 PM] Recording: 4.0s | Audio: 0.1296 | Silence: 0.0s
-Dec 28 12:39:23 raspberrypi python[1104]: [12:39:23 PM] Recording: 5.1s | Audio: 0.0205 | Silence: 0.9s
-Dec 28 12:39:23 raspberrypi python[1104]: [12:39:23 PM] Silence detected! Recorded 5.6s
-Dec 28 12:39:23 raspberrypi python[1104]: [12:39:23 PM] Audio saved: 5.7s
-Dec 28 12:39:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:25] "GET /video_feed?t=1766885965943 HTTP/1.1" 200 -
-Dec 28 12:39:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:25] "GET /captured_image?t=1766885965969 HTTP/1.1" 200 -
-Dec 28 12:39:27 raspberrypi python[1104]: [12:39:27 PM] Transcription: 'What is the longest road in the world?'
-Dec 28 12:39:27 raspberrypi python[1104]: [12:39:27 PM] User said: 'What is the longest road in the world?'
-Dec 28 12:39:27 raspberrypi python[1104]: [TIMING] process_user_input called with: 'What is the longest road in the world?'
-Dec 28 12:39:27 raspberrypi python[1104]: [12:39:27 PM] Processing user input: 'What is the longest road in the world?'
-Dec 28 12:39:27 raspberrypi python[1104]: [TIMING] Calling streaming LLM...
-Dec 28 12:39:27 raspberrypi python[1104]: [12:39:27 PM] Generating LLM response (streaming)
-Dec 28 12:39:27 raspberrypi python[1104]: [TIMING] query_llama_streaming called with prompt: 'What is the longest road in the world?...'
-Dec 28 12:39:27 raspberrypi python[1104]: [TIMING] Starting streaming LLM inference...
-Dec 28 12:39:30 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:30] "GET /captured_image?t=1766885970962 HTTP/1.1" 200 -
-Dec 28 12:39:31 raspberrypi python[1104]: [TIMING] Time to first speech: 3.91s
-Dec 28 12:39:31 raspberrypi python[1104]: [STREAMING] Speaking sentence 1: '41,105 miles or 68,000 kilometers....'
-Dec 28 12:39:35 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:35] "GET /captured_image?t=1766885975962 HTTP/1.1" 200 -
-Dec 28 12:39:38 raspberrypi python[1104]: [12:39:38 PM] Speaking: '41,105 miles or 68,000 kilometers....'
-Dec 28 12:39:38 raspberrypi python[1104]: [TIMING] Streaming LLM completed in 11.08s, total: 11.08s
-Dec 28 12:39:38 raspberrypi python[1104]: [TIMING] process_user_input total time: 11.08s
-Dec 28 12:39:38 raspberrypi python[1104]: [12:39:38 PM] Response: '41,105 miles or 68,000 kilometers.'
-Dec 28 12:39:40 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:40] "GET /captured_image?t=1766885980964 HTTP/1.1" 200 -
-Dec 28 12:39:42 raspberrypi python[1104]: [12:39:42 PM] Wake word audio saved, RMS: 0.1064
-Dec 28 12:39:46 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:46] "GET /captured_image?t=1766885985964 HTTP/1.1" 200 -
-Dec 28 12:39:46 raspberrypi python[1104]: [12:39:46 PM] Transcription: 'Hello, Chetty.'
-Dec 28 12:39:46 raspberrypi python[1104]: [12:39:46 PM] Wake word detected: 'hello chetty' in 'Hello, Chetty.'
-Dec 28 12:39:46 raspberrypi python[1104]: [12:39:46 PM] WAKE WORD DETECTED! Starting conversation...
-Dec 28 12:39:47 raspberrypi python[1104]: [12:39:47 PM] Beep sound played
-Dec 28 12:39:50 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:50] "GET /captured_image?t=1766885990966 HTTP/1.1" 200 -
-Dec 28 12:39:52 raspberrypi python[1104]: [12:39:52 PM] Speaking: 'Yes Nick, I heard you! What do you need?...'
-Dec 28 12:39:52 raspberrypi python[1104]: [12:39:52 PM] Please speak your request...
-Dec 28 12:39:52 raspberrypi python[1104]: [12:39:52 PM] Recording with sample rate: 44100 Hz
-Dec 28 12:39:53 raspberrypi python[1104]: [12:39:53 PM] Recording: 1.1s | Audio: 0.0349 | Silence: 0.0s
-Dec 28 12:39:54 raspberrypi python[1104]: [12:39:54 PM] Recording: 2.0s | Audio: 0.2232 | Silence: 0.0s
-Dec 28 12:39:55 raspberrypi python[1104]: [12:39:55 PM] Recording: 3.0s | Audio: 0.0223 | Silence: 0.1s
-Dec 28 12:39:55 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:55] "GET /video_feed?t=1766885995944 HTTP/1.1" 200 -
-Dec 28 12:39:55 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:39:55] "GET /captured_image?t=1766885995966 HTTP/1.1" 200 -
-Dec 28 12:39:56 raspberrypi python[1104]: [12:39:56 PM] Recording: 4.0s | Audio: 0.0189 | Silence: 1.1s
-Dec 28 12:39:56 raspberrypi python[1104]: [12:39:56 PM] Silence detected! Recorded 4.3s
-Dec 28 12:39:56 raspberrypi python[1104]: [12:39:56 PM] Audio saved: 4.3s
-Dec 28 12:40:00 raspberrypi python[1104]: [12:40:00 PM] Transcription: 'What is the longest river in the world?'
-Dec 28 12:40:00 raspberrypi python[1104]: [12:40:00 PM] User said: 'What is the longest river in the world?'
-Dec 28 12:40:00 raspberrypi python[1104]: [TIMING] process_user_input called with: 'What is the longest river in the world?'
-Dec 28 12:40:00 raspberrypi python[1104]: [12:40:00 PM] Processing user input: 'What is the longest river in the world?'
-Dec 28 12:40:00 raspberrypi python[1104]: [TIMING] Calling streaming LLM...
-Dec 28 12:40:00 raspberrypi python[1104]: [12:40:00 PM] Generating LLM response (streaming)
-Dec 28 12:40:00 raspberrypi python[1104]: [TIMING] query_llama_streaming called with prompt: 'What is the longest river in the world?...'
-Dec 28 12:40:00 raspberrypi python[1104]: [TIMING] Starting streaming LLM inference...
-Dec 28 12:40:00 raspberrypi python[1104]: [TIMING] Time to first speech: 0.71s
-Dec 28 12:40:00 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:00] "GET /captured_image?t=1766886000967 HTTP/1.1" 200 -
-Dec 28 12:40:01 raspberrypi python[1104]: [STREAMING] Speaking sentence 2: 'The Nile River....'
-Dec 28 12:40:04 raspberrypi python[1104]: [12:40:04 PM] Speaking: 'The Nile River....'
-Dec 28 12:40:05 raspberrypi python[1104]: [STREAMING] Speaking sentence 3: 'It is the longest river in the world....'
-Dec 28 12:40:06 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:06] "GET /captured_image?t=1766886005981 HTTP/1.1" 200 -
-Dec 28 12:40:09 raspberrypi python[1104]: [12:40:09 PM] Speaking: 'It is the longest river in the world....'
-Dec 28 12:40:09 raspberrypi python[1104]: [STREAMING] Reached 3 sentences, stopping
-Dec 28 12:40:09 raspberrypi python[1104]: [TIMING] Streaming LLM completed in 9.14s, total: 9.14s
-Dec 28 12:40:09 raspberrypi python[1104]: [TIMING] process_user_input total time: 9.14s
-Dec 28 12:40:09 raspberrypi python[1104]: [12:40:09 PM] Response: '1. The Nile River. It is the longest river in the world.'
-Dec 28 12:40:10 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:10] "GET /captured_image?t=1766886010969 HTTP/1.1" 200 -
-Dec 28 12:40:13 raspberrypi python[1104]: [12:40:13 PM] Wake word audio saved, RMS: 0.1031
-Dec 28 12:40:15 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:15] "GET /captured_image?t=1766886015971 HTTP/1.1" 200 -
-Dec 28 12:40:16 raspberrypi python[1104]: [12:40:16 PM] Transcription: 'Hello, Chetty.'
-Dec 28 12:40:16 raspberrypi python[1104]: [12:40:16 PM] Wake word detected: 'hello chetty' in 'Hello, Chetty.'
-Dec 28 12:40:16 raspberrypi python[1104]: [12:40:16 PM] WAKE WORD DETECTED! Starting conversation...
-Dec 28 12:40:17 raspberrypi python[1104]: [12:40:17 PM] Beep sound played
-Dec 28 12:40:20 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:20] "GET /captured_image?t=1766886020971 HTTP/1.1" 200 -
-Dec 28 12:40:23 raspberrypi python[1104]: [12:40:23 PM] Speaking: 'Hello Nick, I am tuned in, what would you like to ...'
-Dec 28 12:40:23 raspberrypi python[1104]: [12:40:23 PM] Please speak your request...
-Dec 28 12:40:23 raspberrypi python[1104]: [12:40:23 PM] Recording with sample rate: 44100 Hz
-Dec 28 12:40:24 raspberrypi python[1104]: [12:40:24 PM] Recording: 1.1s | Audio: 0.1263 | Silence: 0.0s
-Dec 28 12:40:25 raspberrypi python[1104]: [12:40:25 PM] Recording: 2.0s | Audio: 0.0662 | Silence: 0.0s
-Dec 28 12:40:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:25] "GET /video_feed?t=1766886025944 HTTP/1.1" 200 -
-Dec 28 12:40:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:25] "GET /captured_image?t=1766886025973 HTTP/1.1" 200 -
-Dec 28 12:40:26 raspberrypi python[1104]: [12:40:26 PM] Recording: 3.0s | Audio: 0.0240 | Silence: 0.2s
-Dec 28 12:40:27 raspberrypi python[1104]: [12:40:27 PM] Recording: 4.0s | Audio: 0.0179 | Silence: 1.2s
-Dec 28 12:40:27 raspberrypi python[1104]: [12:40:27 PM] Silence detected! Recorded 4.2s
-Dec 28 12:40:27 raspberrypi python[1104]: [12:40:27 PM] Audio saved: 4.2s
-Dec 28 12:40:30 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:30] "GET /captured_image?t=1766886030974 HTTP/1.1" 200 -
-Dec 28 12:40:31 raspberrypi python[1104]: [12:40:31 PM] Transcription: 'What is the deepest ocean in the world?'
-Dec 28 12:40:31 raspberrypi python[1104]: [12:40:31 PM] User said: 'What is the deepest ocean in the world?'
-Dec 28 12:40:31 raspberrypi python[1104]: [TIMING] process_user_input called with: 'What is the deepest ocean in the world?'
-Dec 28 12:40:31 raspberrypi python[1104]: [12:40:31 PM] Processing user input: 'What is the deepest ocean in the world?'
-Dec 28 12:40:31 raspberrypi python[1104]: [TIMING] Calling streaming LLM...
-Dec 28 12:40:31 raspberrypi python[1104]: [12:40:31 PM] Generating LLM response (streaming)
-Dec 28 12:40:31 raspberrypi python[1104]: [TIMING] query_llama_streaming called with prompt: 'What is the deepest ocean in the world?...'
-Dec 28 12:40:31 raspberrypi python[1104]: [TIMING] Starting streaming LLM inference...
-Dec 28 12:40:35 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:35] "GET /captured_image?t=1766886035975 HTTP/1.1" 200 -
-Dec 28 12:40:37 raspberrypi python[1104]: [TIMING] Time to first speech: 5.55s
-Dec 28 12:40:37 raspberrypi python[1104]: [STREAMING] Speaking sentence 1: '150 meters below the ocean surface, located at the...'
-Dec 28 12:40:40 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:40] "GET /captured_image?t=1766886040976 HTTP/1.1" 200 -
-Dec 28 12:40:45 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:45] "GET /captured_image?t=1766886045976 HTTP/1.1" 200 -
-Dec 28 12:40:50 raspberrypi python[1104]: [12:40:50 PM] Speaking: '150 meters below the ocean surface, located at the...'
-Dec 28 12:40:50 raspberrypi python[1104]: [TIMING] Streaming LLM completed in 18.82s, total: 18.82s
-Dec 28 12:40:50 raspberrypi python[1104]: [TIMING] process_user_input total time: 18.82s
-Dec 28 12:40:50 raspberrypi python[1104]: [12:40:50 PM] Response: '150 meters below the ocean surface, located at the Mariana Trench, a sub-oceanic trench located between the Mariana Island and the Mariana Islands.'
-Dec 28 12:40:50 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:50] "GET /captured_image?t=1766886050978 HTTP/1.1" 200 -
-Dec 28 12:40:54 raspberrypi python[1104]: [12:40:54 PM] Wake word audio saved, RMS: 0.0942
-Dec 28 12:40:55 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:55] "GET /video_feed?t=1766886055947 HTTP/1.1" 200 -
-Dec 28 12:40:56 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:40:56] "GET /captured_image?t=1766886055979 HTTP/1.1" 200 -
-Dec 28 12:40:57 raspberrypi python[1104]: [12:40:57 PM] Transcription: 'Hello, chatty!'
-Dec 28 12:40:57 raspberrypi python[1104]: [12:40:57 PM] Wake word detected: 'hello chatty' in 'Hello, chatty!'
-Dec 28 12:40:57 raspberrypi python[1104]: [12:40:57 PM] WAKE WORD DETECTED! Starting conversation...
-Dec 28 12:40:58 raspberrypi python[1104]: [12:40:58 PM] Beep sound played
-Dec 28 12:41:00 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:00] "GET /captured_image?t=1766886060979 HTTP/1.1" 200 -
-Dec 28 12:41:03 raspberrypi python[1104]: [12:41:03 PM] Speaking: 'Hey Nick, You have my full attention, go ahead!...'
-Dec 28 12:41:03 raspberrypi python[1104]: [12:41:03 PM] Please speak your request...
-Dec 28 12:41:03 raspberrypi python[1104]: [12:41:03 PM] Recording with sample rate: 44100 Hz
-Dec 28 12:41:04 raspberrypi python[1104]: [12:41:04 PM] Recording: 1.1s | Audio: 0.2558 | Silence: 0.0s
-Dec 28 12:41:05 raspberrypi python[1104]: [12:41:05 PM] Recording: 2.0s | Audio: 0.0997 | Silence: 0.0s
-Dec 28 12:41:05 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:05] "GET /captured_image?t=1766886065986 HTTP/1.1" 200 -
-Dec 28 12:41:06 raspberrypi python[1104]: [12:41:06 PM] Recording: 3.0s | Audio: 0.0386 | Silence: 0.0s
-Dec 28 12:41:07 raspberrypi python[1104]: [12:41:07 PM] Recording: 4.0s | Audio: 0.0824 | Silence: 0.0s
-Dec 28 12:41:08 raspberrypi python[1104]: [12:41:08 PM] Recording: 5.1s | Audio: 0.0580 | Silence: 0.0s
-Dec 28 12:41:09 raspberrypi python[1104]: [12:41:09 PM] Recording: 6.1s | Audio: 0.0712 | Silence: 0.0s
-Dec 28 12:41:10 raspberrypi python[1104]: [12:41:10 PM] Recording: 7.1s | Audio: 0.0267 | Silence: 0.3s
-Dec 28 12:41:10 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:10] "GET /captured_image?t=1766886070981 HTTP/1.1" 200 -
-Dec 28 12:41:11 raspberrypi python[1104]: [12:41:11 PM] Recording: 8.1s | Audio: 0.0241 | Silence: 1.3s
-Dec 28 12:41:12 raspberrypi python[1104]: [12:41:12 PM] Silence detected! Recorded 8.2s
-Dec 28 12:41:12 raspberrypi python[1104]: [12:41:12 PM] Audio saved: 8.3s
-Dec 28 12:41:15 raspberrypi python[1104]: [12:41:15 PM] Transcription: 'Tell me some interesting facts about the moon.'
-Dec 28 12:41:15 raspberrypi python[1104]: [12:41:15 PM] User said: 'Tell me some interesting facts about the moon.'
-Dec 28 12:41:15 raspberrypi python[1104]: [TIMING] process_user_input called with: 'Tell me some interesting facts about the moon.'
-Dec 28 12:41:15 raspberrypi python[1104]: [12:41:15 PM] Processing user input: 'Tell me some interesting facts about the moon.'
-Dec 28 12:41:15 raspberrypi python[1104]: [TIMING] Calling streaming LLM...
-Dec 28 12:41:15 raspberrypi python[1104]: [12:41:15 PM] Generating LLM response (streaming)
-Dec 28 12:41:15 raspberrypi python[1104]: [TIMING] query_llama_streaming called with prompt: 'Tell me some interesting facts about the moon....'
-Dec 28 12:41:15 raspberrypi python[1104]: [TIMING] Starting streaming LLM inference...
-Dec 28 12:41:16 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:16] "GET /captured_image?t=1766886076000 HTTP/1.1" 200 -
-Dec 28 12:41:16 raspberrypi python[1104]: [TIMING] Time to first speech: 0.96s
-Dec 28 12:41:19 raspberrypi python[1104]: [STREAMING] Speaking sentence 2: 'The moon is the only natural object in the solar s...'
-Dec 28 12:41:20 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:20] "GET /captured_image?t=1766886080986 HTTP/1.1" 200 -
-Dec 28 12:41:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:25] "GET /video_feed?t=1766886085943 HTTP/1.1" 200 -
-Dec 28 12:41:25 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:25] "GET /captured_image?t=1766886085988 HTTP/1.1" 200 -
-Dec 28 12:41:28 raspberrypi python[1104]: [12:41:28 PM] Speaking: 'The moon is the only natural object in the solar s...'
-Dec 28 12:41:28 raspberrypi python[1104]: [TIMING] Streaming LLM completed in 12.75s, total: 12.75s
-Dec 28 12:41:28 raspberrypi python[1104]: [TIMING] process_user_input total time: 12.75s
-Dec 28 12:41:28 raspberrypi python[1104]: [12:41:28 PM] Response: '1. The moon is the only natural object in the solar system that orbits around another natural object.'
-Dec 28 12:41:30 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:30] "GET /captured_image?t=1766886090985 HTTP/1.1" 200 -
-Dec 28 12:41:32 raspberrypi python[1104]: [12:41:32 PM] Wake word audio saved, RMS: 0.0907
-Dec 28 12:41:35 raspberrypi python[1104]: [12:41:35 PM] Transcription: 'Hello, chatty.'
-Dec 28 12:41:35 raspberrypi python[1104]: [12:41:35 PM] Wake word detected: 'hello chatty' in 'Hello, chatty.'
-Dec 28 12:41:35 raspberrypi python[1104]: [12:41:35 PM] WAKE WORD DETECTED! Starting conversation...
-Dec 28 12:41:36 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:36] "GET /captured_image?t=1766886095992 HTTP/1.1" 200 -
-Dec 28 12:41:36 raspberrypi python[1104]: [12:41:36 PM] Beep sound played
-Dec 28 12:41:41 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:41] "GET /captured_image?t=1766886100987 HTTP/1.1" 200 -
-Dec 28 12:41:42 raspberrypi python[1104]: [12:41:42 PM] Speaking: 'Hello Nick, I am tuned in, what would you like to ...'
-Dec 28 12:41:42 raspberrypi python[1104]: [12:41:42 PM] Please speak your request...
-Dec 28 12:41:42 raspberrypi python[1104]: [12:41:42 PM] Recording with sample rate: 44100 Hz
-Dec 28 12:41:43 raspberrypi python[1104]: [12:41:43 PM] Recording: 1.1s | Audio: 0.0632 | Silence: 0.0s
-Dec 28 12:41:44 raspberrypi python[1104]: [12:41:44 PM] Recording: 2.0s | Audio: 0.1592 | Silence: 0.0s
-Dec 28 12:41:45 raspberrypi python[1104]: [12:41:45 PM] Recording: 3.0s | Audio: 0.0306 | Silence: 0.2s
-Dec 28 12:41:46 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:45] "GET /captured_image?t=1766886105988 HTTP/1.1" 200 -
-Dec 28 12:41:46 raspberrypi python[1104]: [12:41:46 PM] Recording: 4.0s | Audio: 0.0266 | Silence: 1.2s
-Dec 28 12:41:46 raspberrypi python[1104]: [12:41:46 PM] Speech resumed after 1.3s silence
-Dec 28 12:41:47 raspberrypi python[1104]: [12:41:47 PM] Recording: 5.1s | Audio: 0.0375 | Silence: 0.0s
-Dec 28 12:41:48 raspberrypi python[1104]: [12:41:48 PM] Recording: 6.1s | Audio: 0.0261 | Silence: 0.9s
-Dec 28 12:41:49 raspberrypi python[1104]: [12:41:49 PM] Silence detected! Recorded 6.6s
-Dec 28 12:41:49 raspberrypi python[1104]: [12:41:49 PM] Audio saved: 6.7s
-Dec 28 12:41:51 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:51] "GET /captured_image?t=1766886110990 HTTP/1.1" 200 -
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Transcription: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] User said: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [TIMING] process_user_input called with: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Processing user input: 'Who is sponsoring this video?'
-Dec 28 12:41:52 raspberrypi python[1104]: [TIMING] Executing command: who is sponsoring this video
-Dec 28 12:41:52 raspberrypi python[1104]: [12:41:52 PM] Executing command: who is sponsoring this video
-Dec 28 12:41:55 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:55] "GET /video_feed?t=1766886115945 HTTP/1.1" 200 -
-Dec 28 12:41:56 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:41:56] "GET /captured_image?t=1766886116001 HTTP/1.1" 200 -
-Dec 28 12:42:01 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:00] "GET /captured_image?t=1766886120991 HTTP/1.1" 200 -
-Dec 28 12:42:01 raspberrypi python[1104]: [12:42:01 PM] Speaking: 'You are very funny Nick. You know you dont have an...'
-Dec 28 12:42:01 raspberrypi python[1104]: [TIMING] process_user_input total time: 8.94s
-Dec 28 12:42:01 raspberrypi python[1104]: [12:42:01 PM] Response: 'You are very funny Nick. You know you dont have any sponsors for your videos!'
-Dec 28 12:42:06 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:06] "GET /captured_image?t=1766886125992 HTTP/1.1" 200 -
-Dec 28 12:42:06 raspberrypi python[1104]: [12:42:06 PM] Audio too quiet for wake word, RMS: 0.0222
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Stopping Chatty AI system...
-Dec 28 12:42:07 raspberrypi python[1104]: Client disconnected
-Dec 28 12:42:07 raspberrypi python[1104]: 127.0.0.1 - - [28/Dec/2025 12:42:07] "GET /socket.io/?EIO=4&transport=websocket&sid=np2wpoQJDRB7bBTfAAAC HTTP/1.1" 200 -
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Wake word detection thread stopped
-Dec 28 12:42:07 raspberrypi python[1104]: [12:42:07 PM] Chatty AI system stopped
-nickspi5@raspberrypi:~ $ 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for prompt in prompts:
+    formatted = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+    
+    print(f"Prompt: '{prompt}'")
+    
+    start = time.perf_counter()
+    first_token_time = None
+    first_sentence_time = None
+    full_response = ""
+    token_count = 0
+    
+    for token_data in llm(formatted, max_tokens=100, stream=True, 
+                          stop=["\n", "\n\n", "User:", "Human:", "Assistant:"]):
+        token = token_data['choices'][0]['text']
+        full_response += token
+        token_count += 1
+        
+        if first_token_time is None:
+            first_token_time = time.perf_counter() - start
+        
+        if first_sentence_time is None and any(full_response.rstrip().endswith(p) for p in ['.', '!', '?']):
+            first_sentence_time = time.perf_counter() - start
+    
+    total_time = time.perf_counter() - start
+    
+    print(f"  First token: {first_token_time:.2f}s")
+    print(f"  First sentence: {first_sentence_time:.2f}s" if first_sentence_time else "  First sentence: N/A")
+    print(f"  Total time: {total_time:.2f}s")
+    print(f"  Tokens: {token_count}")
+    print(f"  Response: {full_response[:80]}...")
+    print()
+EOF
 
