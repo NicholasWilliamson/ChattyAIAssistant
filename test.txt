@@ -1,9 +1,5 @@
 
 
-Thank you, Claude,
-
-I changed the code in my chatty_ai.py Python script, like you recommended, as follows:
-
     def query_llama_streaming(self, prompt, callback=None):
         """Generate LLM response with streaming - speaks as tokens arrive"""
         import time as t
@@ -21,14 +17,9 @@ I changed the code in my chatty_ai.py Python script, like you recommended, as fo
             current_sentence = ""
             sentences_spoken = 0
             max_sentences = 99
-
+            
             # Stream tokens from LLM
             for token_data in self.llama_model(
-                # Stop after max sentences
-                if sentences_spoken >= max_sentences:
-                    print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
-                    break
-
                 formatted_prompt, 
                 max_tokens=200,
                 stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
@@ -45,12 +36,12 @@ I changed the code in my chatty_ai.py Python script, like you recommended, as fo
                 # Check if we have a complete sentence
                 if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
                     sentences_spoken += 1
-
+                    
                     # Log time to first speech
                     if sentences_spoken == 1:
                         first_speech_time = t.perf_counter() - llm_start
                         print(f"[TIMING] Time to first speech: {first_speech_time:.2f}s")
-
+                    
                     # Clean up the sentence
                     sentence_to_speak = current_sentence.strip()
                     sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
@@ -90,116 +81,4 @@ I changed the code in my chatty_ai.py Python script, like you recommended, as fo
         except Exception as e:
             print(f"[TIMING] Streaming LLM error: {e}")
             return "Sorry, I had trouble processing that question."
-
-    def greet_person(self, name):
-        """Greet a detected person - Same as original"""
-        current_time = time.time()
-
-I then ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -A80 "def query_llama_streaming" /home/nickspi5/Chatty_AI/chatty_ai.py : head -90
-/home/nickspi5/Chatty_AI/chatty_ai.py:    def query_llama_streaming(self, prompt, callback=None):
-/home/nickspi5/Chatty_AI/chatty_ai.py-        """Generate LLM response with streaming - speaks as tokens arrive"""
-/home/nickspi5/Chatty_AI/chatty_ai.py-        import time as t
-/home/nickspi5/Chatty_AI/chatty_ai.py-        
-/home/nickspi5/Chatty_AI/chatty_ai.py-        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
-/home/nickspi5/Chatty_AI/chatty_ai.py-        start = t.perf_counter()
-/home/nickspi5/Chatty_AI/chatty_ai.py-        
-/home/nickspi5/Chatty_AI/chatty_ai.py-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-/home/nickspi5/Chatty_AI/chatty_ai.py-        
-/home/nickspi5/Chatty_AI/chatty_ai.py-        try:
-/home/nickspi5/Chatty_AI/chatty_ai.py-            print(f"[TIMING] Starting streaming LLM inference...")
-/home/nickspi5/Chatty_AI/chatty_ai.py-            llm_start = t.perf_counter()
-/home/nickspi5/Chatty_AI/chatty_ai.py-            
-/home/nickspi5/Chatty_AI/chatty_ai.py-            full_response = ""
-/home/nickspi5/Chatty_AI/chatty_ai.py-            current_sentence = ""
-/home/nickspi5/Chatty_AI/chatty_ai.py-            sentences_spoken = 0
-/home/nickspi5/Chatty_AI/chatty_ai.py-            max_sentences = 99
-/home/nickspi5/Chatty_AI/chatty_ai.py-
-/home/nickspi5/Chatty_AI/chatty_ai.py-            # Stream tokens from LLM
-/home/nickspi5/Chatty_AI/chatty_ai.py-            for token_data in self.llama_model(
-/home/nickspi5/Chatty_AI/chatty_ai.py-                # Stop after max sentences
-/home/nickspi5/Chatty_AI/chatty_ai.py-                if sentences_spoken >= max_sentences:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    break
-/home/nickspi5/Chatty_AI/chatty_ai.py-
-/home/nickspi5/Chatty_AI/chatty_ai.py-                formatted_prompt, 
-/home/nickspi5/Chatty_AI/chatty_ai.py-                max_tokens=200,
-/home/nickspi5/Chatty_AI/chatty_ai.py-                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
-/home/nickspi5/Chatty_AI/chatty_ai.py-                stream=True
-/home/nickspi5/Chatty_AI/chatty_ai.py-            ):
-/home/nickspi5/Chatty_AI/chatty_ai.py-                token = token_data['choices'][0]['text']
-/home/nickspi5/Chatty_AI/chatty_ai.py-                full_response += token
-/home/nickspi5/Chatty_AI/chatty_ai.py-                current_sentence += token
-/home/nickspi5/Chatty_AI/chatty_ai.py-                
-/home/nickspi5/Chatty_AI/chatty_ai.py-                # Emit each token to web interface for real-time display
-/home/nickspi5/Chatty_AI/chatty_ai.py-                if callback:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    callback(token)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                
-/home/nickspi5/Chatty_AI/chatty_ai.py-                # Check if we have a complete sentence
-/home/nickspi5/Chatty_AI/chatty_ai.py-                if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    sentences_spoken += 1
-/home/nickspi5/Chatty_AI/chatty_ai.py-
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    # Log time to first speech
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    if sentences_spoken == 1:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        first_speech_time = t.perf_counter() - llm_start
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        print(f"[TIMING] Time to first speech: {first_speech_time:.2f}s")
-/home/nickspi5/Chatty_AI/chatty_ai.py-
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    # Clean up the sentence
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    sentence_to_speak = current_sentence.strip()
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    sentence_to_speak = re.sub(r"(User:|Assistant:)", "", sentence_to_speak)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    sentence_to_speak = sentence_to_speak.strip()
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    if sentence_to_speak and len(sentence_to_speak) > 2:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        print(f"[STREAMING] Speaking sentence {sentences_spoken}: '{sentence_to_speak[:50]}...'")
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        self.speak_text(sentence_to_speak)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    current_sentence = ""
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    # Stop after max sentences
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    if sentences_spoken >= max_sentences:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
-/home/nickspi5/Chatty_AI/chatty_ai.py-                        break
-/home/nickspi5/Chatty_AI/chatty_ai.py-            
-/home/nickspi5/Chatty_AI/chatty_ai.py-            # Speak any remaining text
-/home/nickspi5/Chatty_AI/chatty_ai.py-            if current_sentence.strip() and sentences_spoken < max_sentences:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                remaining = current_sentence.strip()
-/home/nickspi5/Chatty_AI/chatty_ai.py-                remaining = re.sub(r"\(.*?\)", "", remaining)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                remaining = re.sub(r"(User:|Assistant:)", "", remaining)
-/home/nickspi5/Chatty_AI/chatty_ai.py-                if remaining and len(remaining) > 2:
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    print(f"[STREAMING] Speaking remaining: '{remaining[:50]}...'")
-/home/nickspi5/Chatty_AI/chatty_ai.py-                    self.speak_text(remaining)
-/home/nickspi5/Chatty_AI/chatty_ai.py-            
-/home/nickspi5/Chatty_AI/chatty_ai.py-            llm_time = t.perf_counter() - llm_start
-/home/nickspi5/Chatty_AI/chatty_ai.py-            total_time = t.perf_counter() - start
-/home/nickspi5/Chatty_AI/chatty_ai.py-            print(f"[TIMING] Streaming LLM completed in {llm_time:.2f}s, total: {total_time:.2f}s")
-/home/nickspi5/Chatty_AI/chatty_ai.py-            
-/home/nickspi5/Chatty_AI/chatty_ai.py-            # Clean up full response for return
-/home/nickspi5/Chatty_AI/chatty_ai.py-            full_response = re.sub(r"\(.*?\)", "", full_response)
-/home/nickspi5/Chatty_AI/chatty_ai.py-            full_response = re.sub(r"(User:|Assistant:)", "", full_response)
-/home/nickspi5/Chatty_AI/chatty_ai.py-            
-grep: :: No such file or directory
-grep: head: No such file or directory
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors"
-  File "chatty_ai.py", line 918
-    if sentences_spoken >= max_sentences:
-    ^^
-SyntaxError: invalid syntax
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
