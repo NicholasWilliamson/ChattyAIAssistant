@@ -1,122 +1,132 @@
 
 
-Thank you, Claude,
-
-I ran: nickspi5@raspberrypi:~ $ grep -A15 "def speak_text" /home/nickspi5/Chatty_AI/chatty_ai.py
-    def speak_text_with_pauses(self, parts, pause_duration=0.5):
-        """Speak text with pauses between parts"""
+Find the speak_text function and add this new streaming version right after it:
+    def speak_text_streaming(self, text_queue, stop_event):
+        """Stream TTS audio from a queue of text chunks - runs in separate thread"""
+        import subprocess
+        import threading
+        
         try:
-            with self.audio_recording_lock:
-                for i, part in enumerate(parts):
-                    if part.strip():  # Only speak non-empty parts
-                        command = [
-                            PIPER_EXECUTABLE,
-                            "--model", VOICE_PATH,
-                            "--config", CONFIG_PATH,
-                            "--output_file", RESPONSE_AUDIO
-                        ]
-                        subprocess.run(command, input=part.encode("utf-8"), check=True, capture_output=True)
-                        subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+            while not stop_event.is_set() or not text_queue.empty():
+                try:
+                    # Get text chunk with timeout
+                    text_chunk = text_queue.get(timeout=0.5)
+                    if text_chunk and len(text_chunk.strip()) > 0:
+                        with self.audio_recording_lock:
+                            command = [
+                                PIPER_EXECUTABLE,
+                                "--model", VOICE_PATH,
+                                "--config", CONFIG_PATH,
+                                "--output_file", RESPONSE_AUDIO
+                            ]
+                            subprocess.run(command, input=text_chunk.encode("utf-8"), check=True, capture_output=True)
+                            subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
+                    text_queue.task_done()
+                except Exception:
+                    # Queue empty, continue waiting
+                    pass
+        except Exception as e:
+            print(f"[STREAMING TTS] Error: {e}")
+
+Step 2: Update query_llama_streaming to Use Threaded TTS
+Replace the entire query_llama_streaming function with this improved version that uses a separate thread for TTS:
+    def query_llama_streaming(self, prompt, callback=None):
+        """Generate LLM response with streaming - speaks as tokens arrive using threaded TTS"""
+        import time as t
+        import threading
+        import queue
+        
+        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
+        start = t.perf_counter()
+        
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            print(f"[TIMING] Starting streaming LLM inference...")
+            llm_start = t.perf_counter()
+            
+            full_response = ""
+            current_sentence = ""
+            sentences_spoken = 0
+            max_sentences = 30
+            first_speech_logged = False
+            
+            # Create a queue for TTS chunks and start TTS thread
+            tts_queue = queue.Queue()
+            tts_stop_event = threading.Event()
+            tts_thread = threading.Thread(
+                target=self.speak_text_streaming,
+                args=(tts_queue, tts_stop_event),
+                daemon=True
+            )
+            tts_thread.start()
+            
+            # Stream tokens from LLM
+            for token_data in self.llama_model(
+                formatted_prompt, 
+                max_tokens=150,
+                stop=["User:", "Human:", "Assistant:", "\n\n"],
+                stream=True
+            ):
+                token = token_data['choices'][0]['text']
+                full_response += token
+                current_sentence += token
+                
+                # Emit each token to web interface for real-time display
+                if callback:
+                    callback(token)
+                
+                # Check if we have a complete sentence
+                if any(current_sentence.rstrip().endswith(p) for p in ['.', '!', '?']):
+                    sentences_spoken += 1
                     
-                        # Add pause between parts (except after the last part)
---
-    def speak_text(self, text):
-        """Convert text to speech using Piper - Same as original"""
-        try:
-            with self.audio_recording_lock:
-                command = [
-                    PIPER_EXECUTABLE,
-                    "--model", VOICE_PATH,
-                    "--config", CONFIG_PATH,
-                    "--output_file", RESPONSE_AUDIO
-                ]
-                subprocess.run(command, input=text.encode("utf-8"), check=True, capture_output=True)
-                subprocess.run(["aplay", RESPONSE_AUDIO], check=True, capture_output=True)
-                self.emit_log(f"Speaking: '{text[:50]}...'", 'info')
-        except subprocess.CalledProcessError as e:
-            self.emit_log(f"TTS failed: {e}", 'error')
-    
-nickspi5@raspberrypi:~ $ grep -B5 -A20 "bored" /home/nickspi5/Chatty_AI/chatty_ai.py | head -60
-SECURITY_LOGS_DIR = "/home/nickspi5/Chatty_AI/security_logs"
-
-# Response files
-JOKES_FILE = "jokes.txt"
-FUN_FACTS_FILE = "fun_facts.txt"
-BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
-WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
-LISTENING_RESPONSES_GENERIC_FILE = "listening_responses_generic.txt"
-LISTENING_RESPONSES_FILE = "listening_responses.txt"
-WAITING_RESPONSES_FILE = "waiting_responses.txt"
-WARNING_RESPONSES_FILE = "warning_responses.txt"
-GREETING_RESPONSES_FILE = "greeting_responses.txt"
-BORED_RESPONSES_FILE = "bored_responses.txt"
-VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
-
-# Wake word phrases - Same as original
-WAKE_WORDS = [
-    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
-    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
-    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
-    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
-    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
-    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
-    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
-    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
-    "hi cherry", "yo cherry"
-]
-
-# Command keywords - Same as original
-COMMANDS = {
-    "flush the toilet": "toilet_flush",
-    "turn on the lights": "lights_on",
-    "turn off the lights": "lights_off",
---
-        self.is_running = False
-        self.current_person = None
-        self.last_greeting_time = {}
-        self.last_interaction_time = None
-        self.person_absent_since = None
-        self.last_bored_response_time = None
-        self.bored_cycle = 0
-        self.audio_recording_lock = threading.Lock()
-        self.wake_word_active = False
-        
-        # Response lists
-        self.jokes = []
-        self.fun_facts = []
-        self.bored_responses_generic = []
-        self.waiting_responses_generic = []
-        self.listening_responses_generic = []
-        self.listening_responses = []
-        self.waiting_responses = []
-        self.warning_responses = []
-        self.greeting_responses = []
-        self.bored_responses = []
-        self.visitor_greeting_responses = []
-        
-        # Telegram
-        self.telegram_token = None
-        self.telegram_chat_id = None
-nickspi5@raspberrypi:~ $ grep -B5 -A10 "didn't catch" /home/nickspi5/Chatty_AI/chatty_ai.py
-                                    # self.speak_text(response)
-                                    self.last_interaction_time = time.time()
-                                    # Reset bored response timer only after successful interaction
-                                    self.last_bored_response_time = time.time()
-                                else:
-                                    self.speak_text("I didn't catch that. Could you repeat your request?")
-                                    self.emit_conversation("No clear speech detected", 'info')
-                            else:
-                                self.speak_text("I'm having trouble hearing you. Please try again.")
-                                self.emit_conversation("Failed to record audio", 'info')
-                
-                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                else:
-                    # No one present or wake word not active, sleep longer
-                    time.sleep(2.0)
-                
-nickspi5@raspberrypi:~ $ 
-
-I agree, Claude. I certainly believe a great solution to the sentence delay issue would be to pre-generate the next sentence's or segments audion while the current one is playing (audio buffering. Perhaps an alternative method may be to not generate the audio based on a sentence by sentence process. It may be better to just generate the first 1 second of the LLM's response as audio, then start speaking it while generating the next 1 second of the LLM's repsonse audio and so on, and so on and building up a streaming buffer of audio that is continuously spoken until the end of the LLM's response is reached.
-
-
+                    # Log time to first speech
+                    if not first_speech_logged:
+                        first_speech_time = t.perf_counter() - llm_start
+                        print(f"[TIMING] Time to first speech: {first_speech_time:.2f}s")
+                        first_speech_logged = True
+                    
+                    # Clean up the sentence
+                    sentence_to_speak = current_sentence.strip()
+                    sentence_to_speak = re.sub(r"\(.*?\)", "", sentence_to_speak)
+                    sentence_to_speak = re.sub(r"(User:|Assistant:)", "", sentence_to_speak)
+                    sentence_to_speak = sentence_to_speak.strip()
+                    
+                    if sentence_to_speak and len(sentence_to_speak) > 2:
+                        print(f"[STREAMING] Queuing sentence {sentences_spoken}: '{sentence_to_speak[:50]}...'")
+                        tts_queue.put(sentence_to_speak)
+                    
+                    current_sentence = ""
+                    
+                    # Stop after max sentences
+                    if sentences_spoken >= max_sentences:
+                        print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
+                        break
+            
+            # Queue any remaining text
+            if current_sentence.strip() and sentences_spoken < max_sentences:
+                remaining = current_sentence.strip()
+                remaining = re.sub(r"\(.*?\)", "", remaining)
+                remaining = re.sub(r"(User:|Assistant:)", "", remaining)
+                if remaining and len(remaining) > 2:
+                    print(f"[STREAMING] Queuing remaining: '{remaining[:50]}...'")
+                    tts_queue.put(remaining)
+            
+            # Signal TTS thread to stop after queue is empty and wait for it
+            tts_stop_event.set()
+            tts_thread.join(timeout=60)  # Wait up to 60 seconds for TTS to finish
+            
+            llm_time = t.perf_counter() - llm_start
+            total_time = t.perf_counter() - start
+            print(f"[TIMING] Streaming LLM completed in {llm_time:.2f}s, total: {total_time:.2f}s")
+            
+            # Clean up full response for return
+            full_response = re.sub(r"\(.*?\)", "", full_response)
+            full_response = re.sub(r"(User:|Assistant:)", "", full_response)
+            
+            return full_response.strip()
+            
+        except Exception as e:
+            print(f"[TIMING] Streaming LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
 
