@@ -1,6 +1,62 @@
 
 
-python3 << 'EOF'
+Thank you, Claude,
+
+I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+
+I then changed max_sentences = 3 to max_sentenves = 200
+
+I then added the following code to my chatty_ai.py Python script as you recommended:
+
+            full_response = ""
+            current_sentence = ""
+            sentences_spoken = 0
+            max_sentences = 99
+            
+            # Stop after max sentences
+            if sentences_spoken >= max_sentences:
+                print(f"[STREAMING] Reached {max_sentences} sentences, stopping")
+                break
+
+I then modified the following code in my chatty_ai.py Python script as you recommended:
+
+From:
+
+            # Stream tokens from LLM
+            for token_data in self.llama_model(
+                formatted_prompt, 
+                max_tokens=100,
+                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
+                stream=True
+            ):
+                token = token_data['choices'][0]['text']
+                full_response += token
+                current_sentence += token
+
+To:
+
+            # Stream tokens from LLM
+            for token_data in self.llama_model(
+                formatted_prompt, 
+                max_tokens=200,
+                stop=["\n", "\n\n", "User:", "Human:", "Assistant:"],
+                stream=True
+            ):
+                token = token_data['choices'][0]['text']
+                full_response += token
+                current_sentence += token
+
+I then saved and exited to save the changes to my chatty_ai.py Python script.
+
+I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI               
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
+
+> python3 << 'EOF'ort Llama
+> 
+> python3 << 'EOF'
+> source chatty-venv/bin/activate
+> python3 << 'EOF'
 import time
 from llama_cpp import Llama
 
@@ -29,28 +85,64 @@ for prompt in prompts:
     start = time.perf_counter()
     first_token_time = None
     first_sentence_time = None
-    full_response = ""
-    token_count = 0
-    
-    for token_data in llm(formatted, max_tokens=100, stream=True, 
-                          stop=["\n", "\n\n", "User:", "Human:", "Assistant:"]):
-        token = token_data['choices'][0]['text']
-        full_response += token
-        token_count += 1
-        
-        if first_token_time is None:
-            first_token_time = time.perf_counter() - start
-        
-        if first_sentence_time is None and any(full_response.rstrip().endswith(p) for p in ['.', '!', '?']):
-            first_sentence_time = time.perf_counter() - start
-    
-    total_time = time.perf_counter() - start
-    
-    print(f"  First token: {first_token_time:.2f}s")
-    print(f"  First sentence: {first_sentence_time:.2f}s" if first_sentence_time else "  First sentence: N/A")
-    print(f"  Total time: {total_time:.2f}s")
-    print(f"  Tokens: {token_count}")
-    print(f"  Response: {full_response[:80]}...")
-    print()
-EOF
+    print()"  Response: {full_response[:80]}...")e:.2f}s" if first_sentence_time else "  First sentence: N/A")
+> EOF
+Loading model...
+Model loaded.
+
+Prompt: 'What is the longest river in the world?'
+  First token: 0.75s
+  First sentence: 1.74s
+  Total time: 1.80s
+  Tokens: 19
+  Response: 9,455 kilometers (5,911 miles) long....
+
+Prompt: 'What is the deepest ocean in the world?'
+  First token: 0.36s
+  First sentence: 1.23s
+  Total time: 1.28s
+  Tokens: 17
+  Response: 330 meters below the surface, deep down in the Atlantic Ocean....
+
+Prompt: 'What is the longest road in the world?'
+  First token: 0.26s
+  First sentence: 0.66s
+  Total time: 1.25s
+  Tokens: 18
+  Response: 12,893 km. That's a long way around....
+
+Prompt: 'Tell me about the moon.'
+  First token: 0.43s
+  First sentence: 2.27s
+  Total time: 5.31s
+  Tokens: 75
+Traceback (most recent call last):
+  File "<stdin>", line 50, in <module>
+UnicodeEncodeError: 'latin-1' codec can't encode characters in position 12-14: ordinal not in range(256)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo systemctl restart chatty-ai.service
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sudo reboot
+
+When my Raspberry Pi 5 restarted, again the starting video played through and the chatty_loading.html file loaded in the Chrome browser in kiosk mode and played through.
+
+The chatty_loading.html did not load in my Chromium browser.
+
+I checked the changes I made in my chatty_ai.py Python script but could not see any syntax errors.
+
+How can we fix this?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
