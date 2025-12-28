@@ -1,134 +1,50 @@
 
 
-Thank you, Claude,
+grep -n "BORED_RESPONSE_INTERVAL" /home/nickspi5/Chatty_AI/chatty_ai.py
+Also, let's see the rest of the wake word loop to understand the flow after "I didn't catch that":
+bashsed -n '1150,1180p' /home/nickspi5/Chatty_AI/chatty_ai.py
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ grep -B5 -A50 "def listen_for_wake_word" /home/nickspi5/Chatty_AI/chatty_ai.py | head -80
-            self.emit_log("Wake word detection thread started after greeting", 'success')
-    
-        self.emit_log(f"Greeted {name} - Wake word detection now active", 'success')
-        return True
+Now let me provide the fixes. First, let me see the full context:
+bashsed -n '1140,1170p' /home/nickspi5/Chatty_AI/chatty_ai.py
 
-    def listen_for_wake_word(self):
-        """Listen for wake words in background - Same as original"""
-        self.emit_log("Wake word detection thread started", 'success')
-    
-        while self.is_running:
-            try:
-                # Only listen if someone is present and wake word detection is active
-                if self.current_person and self.current_person != "Unknown" and self.wake_word_active:
-                    # Check for bored response first
-                    if self.check_for_bored_response(self.current_person):
-                        # Bored response was given, continue to next iteration
-                        time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                        continue
-                
-                    # Record audio for wake word detection
-                    if self.record_wake_word_check():
-                        # Transcribe and check for wake word
-                        transcript = self.transcribe_audio(WAKE_WORD_AUDIO)
-                    
-                        if transcript and self.detect_wake_word(transcript):
-                            self.emit_log("WAKE WORD DETECTED! Starting conversation...", 'success')
-                            self.emit_conversation(f"Wake word detected: {transcript}", 'wake_word')
-                            self.play_beep()
-                        
-                            # Speak listening response
-                            if self.listening_responses:
-                                listening_template = random.choice(self.listening_responses)
-                                listening_response = listening_template.replace("{name}", self.current_person)
-                            else:
-                                listening_response = f"Yes {self.current_person}, I'm listening. What would you like to know?"
-                        
-                            self.speak_text(listening_response)
-                        
-                            # Record full request
-                            self.emit_log("Please speak your request...", 'info')
-                            if self.record_with_silence_detection():
-                                user_text = self.transcribe_audio(WAV_FILENAME)
-                                if user_text and len(user_text.strip()) > 2:
-                                    self.emit_log(f"User said: '{user_text}'", 'info')
-                                    self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                    response = self.process_user_input(user_text)
-                                    self.emit_log(f"Response: '{response}'", 'info')
-                                    self.emit_conversation(f"Response: {response}", 'response')
-                                    # self.speak_text(response)
-                                    self.last_interaction_time = time.time()
-                                    # Reset bored response timer only after successful interaction
-                                    self.last_bored_response_time = time.time()
-                                else:
+The Issue
+When the user says the wake word but then the transcription fails (empty text), the code says "I didn't catch that" but doesn't reset the bored response timer. So if 30 seconds have passed since the greeting, the bored response triggers immediately on the next loop.
+The Fix
+After saying "I didn't catch that", we should reset the last_bored_response_time to give the user more time:
+bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
+Find this section (around line 1145-1155):
+python                                else:
                                     self.speak_text("I didn't catch that. Could you repeat your request?")
                                     self.emit_conversation("No clear speech detected", 'info')
                             else:
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '257,320p' /home/nickspi5/Chatty_AI/chatty_ai.py
-    def check_for_bored_response(self, name):
-        """Check if it's time to give a bored response with natural pauses and generic responses for visitors"""
-        if not self.wake_word_active or not self.last_bored_response_time:
-            return False
-    
-        current_time = time.time()
-        time_since_bored = current_time - self.last_bored_response_time
-    
-        if time_since_bored >= BORED_RESPONSE_INTERVAL:
-            # Determine if this is a known person or visitor/unknown
-            is_known_person = name and name != "Unknown" and name != "No Entity Detected"
-        
-            if self.bored_cycle == 0:
-                # Give bored response + joke from file
-                if is_known_person and self.bored_responses:
-                    bored_template = random.choice(self.bored_responses)
-                    bored_msg = bored_template.replace("{name}", name)
-                elif self.bored_responses_generic:
-                    bored_msg = random.choice(self.bored_responses_generic)
-                else:
-                    bored_msg = "I'm getting a bit bored waiting here"
-            
-                joke = self.get_joke_from_file()
-            
-                # Speak with natural pauses
-                speech_parts = [
-                    bored_msg,
-                    "Let me tell you a joke!",
-                    joke
-                ]
-                self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
-            
-                self.emit_conversation(f"Bored response with joke: {joke}", 'info')
-                self.bored_cycle = 1
-                self.emit_log(f"Gave {'visitor' if not is_known_person else name} a bored response with joke from file", 'info')
-            else:
-                # Give waiting response + fun fact from file
-                if is_known_person and self.waiting_responses:
-                    waiting_template = random.choice(self.waiting_responses)
-                    waiting_msg = waiting_template.replace("{name}", name)
-                elif self.waiting_responses_generic:
-                    waiting_msg = random.choice(self.waiting_responses_generic)
-                else:
-                    waiting_msg = "I am still around if you need assistance"
-            
-                fun_fact = self.get_fun_fact_from_file()
-            
-                # Speak with natural pauses
-                speech_parts = [
-                    waiting_msg,
-                    "Let me tell you a fun fact!",
-                    fun_fact
-                ]
-                self.speak_text_with_pauses(speech_parts, pause_duration=0.5)
-            
-                self.emit_conversation(f"Waiting response with fun fact: {fun_fact}", 'info')
-                self.bored_cycle = 0
-                self.emit_log(f"Gave {'visitor' if not is_known_person else name} a waiting response with fun fact from file", 'info')
-        
-            self.last_bored_response_time = current_time
-            return True
-    
-        return False
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                                self.emit_conversation("Failed to record audio", 'info')
+Change it to:
+python                                else:
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                                    self.emit_conversation("No clear speech detected", 'info')
+                                    # Reset bored response timer to give user more time
+                                    self.last_bored_response_time = time.time()
+                            else:
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                                self.emit_conversation("Failed to record audio", 'info')
+                                # Reset bored response timer to give user more time
+                                self.last_bored_response_time = time.time()
+Save and exit.
 
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+Test for Syntax Errors
+bashpython3 -m py_compile chatty_ai.py && echo "No syntax errors!"
+
+Restart and Test
+bashsudo systemctl restart chatty-ai.service
+Test by:
+
+Say "Hello Chatty"
+When it asks for your request, stay silent or speak too quietly
+It should say "I didn't catch that"
+The bored response should NOT trigger for another 30 seconds
 
 
-
-
-
+Run the grep commands first to confirm the BORED_RESPONSE_INTERVAL value, then make the fix. Once that's working, we'll move on to streaming STT.
 
 
