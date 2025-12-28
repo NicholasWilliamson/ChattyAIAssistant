@@ -1,22 +1,204 @@
 
 
-Part 1: Fix Bored Response Timing
-Let's see the current bored response logic:
-bashgrep -B10 -A30 "bored_response" /home/nickspi5/Chatty_AI/chatty_ai.py | head -80
-Also, let's check where the bored response is triggered:
-bashgrep -n "bored" /home/nickspi5/Chatty_AI/chatty_ai.py
+Thank you, Claude,
 
-Part 2: Check Current STT Implementation
-Let's see the current transcribe_audio and record_with_silence_detection functions:
-bashgrep -A20 "def transcribe_audio" /home/nickspi5/Chatty_AI/chatty_ai.py
-bashgrep -A40 "def record_with_silence_detection" /home/nickspi5/Chatty_AI/chatty_ai.py
+I ran: nickspi5@raspberrypi:~ $ grep -B10 -A30 "bored_response" /home/nickspi5/Chatty_AI/chatty_ai.py | head -80
+RESPONSE_AUDIO = "output.wav"
+WAKE_WORD_AUDIO = "wake_word_check.wav"
 
-Part 3: Check faster-whisper Streaming Capabilities
-Let's verify what streaming options faster-whisper supports:
-bashcd /home/nickspi5/Chatty_AI
-source chatty-venv/bin/activate
+# Security directories
+SECURITY_PHOTOS_DIR = "/home/nickspi5/Chatty_AI/security_photos"
+SECURITY_LOGS_DIR = "/home/nickspi5/Chatty_AI/security_logs"
 
-python3 << 'EOF'
+# Response files
+JOKES_FILE = "jokes.txt"
+FUN_FACTS_FILE = "fun_facts.txt"
+BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
+WAITING_RESPONSES_GENERIC_FILE = "waiting_responses_generic.txt"
+LISTENING_RESPONSES_GENERIC_FILE = "listening_responses_generic.txt"
+LISTENING_RESPONSES_FILE = "listening_responses.txt"
+WAITING_RESPONSES_FILE = "waiting_responses.txt"
+WARNING_RESPONSES_FILE = "warning_responses.txt"
+GREETING_RESPONSES_FILE = "greeting_responses.txt"
+BORED_RESPONSES_FILE = "bored_responses.txt"
+VISITOR_GREETING_RESPONSES_FILE = "visitor_greeting_responses.txt"
+
+# Wake word phrases - Same as original
+WAKE_WORDS = [
+    "are you awake", "are you alive", "hey chatty", "hello chatty", "sup chatty",
+    "sub-chatty", "how's it chatty", "howzit chatty", "hi chatty", "yo chatty",
+    "hey chuddy", "hello chuddy", "sup chuddy", "sub-chuddy", "how's it chuddy",
+    "howzit chuddy", "hi chuddy", "yo chuddy", "hey cheddy", "hello cheddy",
+    "sup cheddy", "sub-cheddy", "how's it cheddy", "howzit cheddy", "hi cheddy",
+    "yo cheddy", "hey chetty", "hello chetty", "sup chetty", "sub-chetty",
+    "how's it chetty", "howzit chetty", "hi chetty", "yo chetty", "hey cherry",
+    "hello cherry", "sup cherry", "sub-cherry", "how's it cherry", "howzit cherry",
+    "hi cherry", "yo cherry"
+]
+
+# Command keywords - Same as original
+COMMANDS = {
+    "flush the toilet": "toilet_flush",
+    "turn on the lights": "lights_on",
+    "turn off the lights": "lights_off",
+    "play music": "play_music",
+    "stop music": "stop_music",
+    "what time is it": "get_time",
+    "shutdown system": "shutdown_system",
+    "who is sponsoring this video": "who_is_sponsoring_this_video",
+    "how is the weather today": "how_is_the_weather_today",
+    "reboot system": "reboot_system"
+}
+
+# Audio parameters - Same as original
+--
+    def __init__(self):
+        """Initialise with optimised approach - preload everything"""
+        print("Initialising Chatty AI...")
+
+        # Core state - Same as original
+        self.is_running = False
+        self.current_person = None
+        self.last_greeting_time = {}
+        self.last_interaction_time = None
+        self.person_absent_since = None
+        self.last_bored_response_time = None
+        self.bored_cycle = 0
+        self.audio_recording_lock = threading.Lock()
+        self.wake_word_active = False
+        
+        # Response lists
+        self.jokes = []
+        self.fun_facts = []
+        self.bored_responses_generic = []
+        self.waiting_responses_generic = []
+        self.listening_responses_generic = []
+        self.listening_responses = []
+        self.waiting_responses = []
+        self.warning_responses = []
+        self.greeting_responses = []
+        self.bored_responses = []
+        self.visitor_greeting_responses = []
+        
+        # Telegram
+        self.telegram_token = None
+        self.telegram_chat_id = None
+nickspi5@raspberrypi:~ $ grep -n "bored" /home/nickspi5/Chatty_AI/chatty_ai.py
+57:BORED_RESPONSES_GENERIC_FILE = "bored_responses_generic.txt"
+64:BORED_RESPONSES_FILE = "bored_responses.txt"
+125:        self.last_bored_response_time = None
+126:        self.bored_cycle = 0
+133:        self.bored_responses_generic = []
+140:        self.bored_responses = []
+257:    def check_for_bored_response(self, name):
+258:        """Check if it's time to give a bored response with natural pauses and generic responses for visitors"""
+259:        if not self.wake_word_active or not self.last_bored_response_time:
+263:        time_since_bored = current_time - self.last_bored_response_time
+265:        if time_since_bored >= BORED_RESPONSE_INTERVAL:
+269:            if self.bored_cycle == 0:
+270:                # Give bored response + joke from file
+271:                if is_known_person and self.bored_responses:
+272:                    bored_template = random.choice(self.bored_responses)
+273:                    bored_msg = bored_template.replace("{name}", name)
+274:                elif self.bored_responses_generic:
+275:                    bored_msg = random.choice(self.bored_responses_generic)
+277:                    bored_msg = "I'm getting a bit bored waiting here"
+283:                    bored_msg,
+290:                self.bored_cycle = 1
+291:                self.emit_log(f"Gave {'visitor' if not is_known_person else name} a bored response with joke from file", 'info')
+313:                self.bored_cycle = 0
+316:            self.last_bored_response_time = current_time
+344:                    self.bored_responses_generic = [line.strip() for line in f if line.strip()]
+346:                self.bored_responses_generic = [
+347:                    "I'm getting a bit bored waiting here",
+352:                self.emit_log("Created default generic bored responses", 'info')
+390:            # Load bored responses
+393:                    self.bored_responses = [line.strip() for line in f if line.strip()]
+395:                self.create_default_bored_responses()
+502:    def create_default_bored_responses(self):
+503:        """Create default bored responses file"""
+504:        default_bored = [
+505:            "I'm getting a bit bored waiting here",
+514:                for response in default_bored:
+516:            self.bored_responses = default_bored
+518:            self.bored_responses = default_bored
+542:        self.bored_responses_generic = ["I'm getting a bit bored waiting here"]
+549:        self.bored_responses = ["I'm getting a bit bored waiting here"]
+1090:        self.last_bored_response_time = current_time
+1091:        self.bored_cycle = 0
+1110:                    # Check for bored response first
+1111:                    if self.check_for_bored_response(self.current_person):
+1147:                                    # Reset bored response timer only after successful interaction
+1148:                                    self.last_bored_response_time = time.time()
+1226:                            self.last_bored_response_time = None
+1227:                            self.bored_cycle = 0
+nickspi5@raspberrypi:~ $ grep -A20 "def transcribe_audio" /home/nickspi5/Chatty_AI/chatty_ai.py
+    def transcribe_audio(self, filename):
+        """Transcribe audio using Whisper - Same as original but with web logging"""
+        try:
+            if not os.path.exists(filename):
+                return ""
+            
+            segments, _ = self.whisper_model.transcribe(filename)
+            transcript = " ".join(segment.text for segment in segments).strip()
+            self.emit_log(f"Transcription: '{transcript}'", 'info')
+            return transcript
+        except Exception as e:
+            self.emit_log(f"Transcription error: {e}", 'error')
+            return ""
+    
+    def detect_wake_word(self, text):
+        """Check if text contains wake word - Same as original"""
+        if not text:
+            return False
+        
+        text_cleaned = text.lower().replace(',', '').replace('.', '').strip()
+        
+nickspi5@raspberrypi:~ $ grep -A40 "def record_with_silence_detection" /home/nickspi5/Chatty_AI/chatty_ai.py
+    def record_with_silence_detection(self):
+        """Record audio until silence detected - Same as original with better sample rate handling"""
+        try:
+            # Auto-detect working sample rate
+            working_sample_rate = None
+            for rate in [44100, 48000, 22050, 16000]:
+                try:
+                    sd.check_input_settings(channels=1, samplerate=rate, dtype='float32')
+                    working_sample_rate = rate
+                    break
+                except:
+                    continue
+            
+            if not working_sample_rate:
+                self.emit_log("No compatible sample rate found", 'error')
+                return False
+            
+            with self.audio_recording_lock:
+                self.emit_log(f"Recording with sample rate: {working_sample_rate} Hz", 'debug')
+                audio_data = []
+                silence_duration = 0
+                recording_duration = 0
+                check_interval = 0.1
+                samples_per_check = int(working_sample_rate * check_interval)
+                
+                def audio_callback(indata, frames, time, status):
+                    if status:
+                        self.emit_log(f"Audio status: {status}", 'warning')
+                    audio_data.extend(indata[:, 0])
+                
+                with sd.InputStream(callback=audio_callback, 
+                                  samplerate=working_sample_rate, 
+                                  channels=1,
+                                  dtype='float32'):
+                    
+                    while recording_duration < 30:  # Max 30 seconds
+                        time.sleep(check_interval)
+                        recording_duration += check_interval
+                        
+                        if len(audio_data) >= samples_per_check:
+                            recent_audio = np.array(audio_data[-samples_per_check:])
+nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 << 'EOF'
 from faster_whisper import WhisperModel
 import inspect
 
@@ -34,13 +216,60 @@ sig = inspect.signature(model.transcribe)
 for param_name, param in sig.parameters.items():
     print(f"  {param_name}: {param.default if param.default != inspect.Parameter.empty else 'required'}")
 EOF
+WhisperModel methods:
+  - add_word_timestamps
+  - detect_language
+  - encode
+  - feat_kwargs
+  - feature_extractor
+  - find_alignment
+  - frames_per_second
+  - generate_segments
+  - generate_with_fallback
+  - get_prompt
+  - hf_tokenizer
+  - input_stride
+  - logger
+  - max_length
+  - model
+  - num_samples_per_token
+  - supported_languages
+  - time_precision
+  - tokens_per_second
+  - transcribe
 
-Run these commands and share the output. This will help me understand:
+Transcribe method parameters:
+  audio: required
+  language: None
+  task: transcribe
+  log_progress: False
+  beam_size: 5
+  best_of: 5
+  patience: 1
+  length_penalty: 1
+  repetition_penalty: 1
+  no_repeat_ngram_size: 0
+  temperature: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  compression_ratio_threshold: 2.4
+  log_prob_threshold: -1.0
+  no_speech_threshold: 0.6
+  condition_on_previous_text: True
+  prompt_reset_on_temperature: 0.5
+  initial_prompt: None
+  prefix: None
+  suppress_blank: True
+  suppress_tokens: [-1]
+  without_timestamps: False
+  max_initial_timestamp: 1.0
+  word_timestamps: False
+Traceback (most recent call last):
+  File "<stdin>", line 16, in <module>
+UnicodeEncodeError: 'latin-1' codec can't encode character '\u201c' in position 26: ordinal not in range(256)
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-How the bored response is currently triggered
-The current recording/transcription flow
-What streaming options faster-whisper supports
 
-Then I'll provide the fixes for both issues.
+
+
+
 
 
