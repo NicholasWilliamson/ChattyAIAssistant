@@ -1,25 +1,85 @@
 
 
+Thank you, Claude,
 
-The issue is that we're doing two transcriptions: one during streaming (partial) and then another full transcription at the end. This is redundant and causes the delay.
-Let's fix this by reusing the partial transcript instead of transcribing again:
-bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
-Find the section in listen_for_wake_word that looks like this (around line 1135-1150):
-python                            # Record full request with streaming transcription
+I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+
+I then modified the listen_for_wake_word method in my chatty_ai.py Python script as you recommended:
+
+From:
+
+                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             if self.record_with_streaming_transcription():
                                 user_text = self.transcribe_audio(WAV_FILENAME)
-Change it to skip the redundant transcription:
-python                            # Record full request with streaming transcription
+                                if user_text and len(user_text.strip()) > 2:
+
+To:
+
+                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             if self.record_with_streaming_transcription():
                                 # Final transcription on saved audio (more accurate)
                                 user_text = self.transcribe_audio(WAV_FILENAME)
-Actually wait - we need to look at this more carefully. The issue is that we're always doing a final transcription even though we already have partial transcripts. Let me check what the function returns:
-bashgrep -A5 "return True" /home/nickspi5/Chatty_AI/chatty_ai.py | grep -A5 "record_with_streaming"
-Let's modify the function to return the transcript directly instead of just True/False. First, show me the end of the function:
-bashsed -n '900,950p' /home/nickspi5/Chatty_AI/chatty_ai.py
-This will help me see how to optimize so we don't need to transcribe twice.
+
+However, I cannot see any difference in the code.
+
+I then saved and exited to save the changes to my chatty_ai.py Python script.
+
+I then ran: nickspi5@raspberrypi:~ $ grep -A5 "return True" /home/nickspi5/Chatty_AI/chatty_ai.py | grep -A5 "record_with_streaming"
+nickspi5@raspberrypi:~ $ sed -n '900,950p' /home/nickspi5/Chatty_AI/chatty_ai.py
+                                        wf.setframerate(16000)
+                                        wf.writeframes((temp_audio * 32767).astype(np.int16).tobytes())
+                                    
+                                    # Transcribe chunk
+                                    chunk_transcript = self.transcribe_audio(temp_file)
+                                    if chunk_transcript and chunk_transcript.strip():
+                                        full_transcript = chunk_transcript
+                                        self.emit_log(f"[STREAMING STT] Partial: '{full_transcript}'", 'info')
+                                        socketio.emit('partial_transcript', {'text': full_transcript})
+                                        
+                                        # Check for command in partial transcript - EARLY DETECTION
+                                        command = self.is_command(full_transcript)
+                                        if command:
+                                            self.emit_log(f"[STREAMING STT] Command detected early: {command}", 'success')
+                                            command_detected = command
+                                            # Don't break yet - save audio first
+                                            break
+                                    
+                                    last_transcription_time = recording_duration
+                                
+                                # Stop on silence (only after we have some audio)
+                                if silence_duration >= MIN_SILENCE_DURATION and recording_duration > 1.5:
+                                    self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'debug')
+                                    break
+                
+                # Save final audio
+                with buffer_lock:
+                    if len(audio_buffer) > 0:
+                        full_audio = np.array(audio_buffer)
+                    else:
+                        return False
+                
+                # Resample to 16kHz for Whisper
+                if working_sample_rate != 16000:
+                    from scipy import signal
+                    num_samples = int(len(full_audio) * 16000 / working_sample_rate)
+                    if num_samples > 0:
+                        full_audio = signal.resample(full_audio, num_samples)
+                
+                # Normalize
+                max_val = np.max(np.abs(full_audio))
+                if max_val > 0:
+                    full_audio = full_audio / max_val * 0.9
+                
+                # Save final audio
+                import wave
+                with wave.open(WAV_FILENAME, 'w') as wf:
+                    wf.setnchannels(1)
+                    wf.setsampwidth(2)
+                    wf.setframerate(16000)
+                    wf.writeframes((full_audio * 32767).astype(np.int16).tobytes())
+nickspi5@raspberrypi:~ $ 
 
 
 
