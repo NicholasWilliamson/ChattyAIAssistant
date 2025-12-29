@@ -1,86 +1,65 @@
 
 
-Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+I see the issue now. The function currently returns True/False, but we're doing a redundant transcription after. Let me modify the function to return the transcript directly so we don't need to transcribe twice.
 
-I then modified the listen_for_wake_word method in my chatty_ai.py Python script as you recommended:
+Step 1: Modify record_with_streaming_transcription to Return the Transcript
+bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
+Find the end of the record_with_streaming_transcription function (around line 950-960) and look for:
+python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
+                return True
+                
+        except Exception as e:
+            self.emit_log(f"Streaming recording error: {e}", 'error')
+            import traceback
+            traceback.print_exc()
+            return False
+Change it to return the transcript instead:
+python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
+                
+                # Return the last partial transcript if we have one, otherwise transcribe now
+                if full_transcript and len(full_transcript.strip()) > 2:
+                    self.emit_log(f"[STREAMING STT] Using cached transcript: '{full_transcript}'", 'info')
+                    return full_transcript
+                else:
+                    # Transcribe the full audio as fallback
+                    final_transcript = self.transcribe_audio(WAV_FILENAME)
+                    return final_transcript if final_transcript else ""
+                
+        except Exception as e:
+            self.emit_log(f"Streaming recording error: {e}", 'error')
+            import traceback
+            traceback.print_exc()
+            return ""
 
-From:
-
-                            # Record full request with streaming transcription
-                            self.emit_log("Please speak your request...", 'info')
-                            if self.record_with_streaming_transcription():
-                                user_text = self.transcribe_audio(WAV_FILENAME)
-                                if user_text and len(user_text.strip()) > 2:
-
-To:
-
-                            # Record full request with streaming transcription
+Step 2: Update the Caller in listen_for_wake_word
+Now find the section in listen_for_wake_word where we call the function (around line 1135-1160):
+bashsed -n '1130,1170p' /home/nickspi5/Chatty_AI/chatty_ai.py
+Then change this:
+python                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             if self.record_with_streaming_transcription():
                                 # Final transcription on saved audio (more accurate)
                                 user_text = self.transcribe_audio(WAV_FILENAME)
+                                if user_text and len(user_text.strip()) > 2:
+To this:
+python                            # Record full request with streaming transcription
+                            self.emit_log("Please speak your request...", 'info')
+                            user_text = self.record_with_streaming_transcription()
+                            if user_text and len(user_text.strip()) > 2:
+This removes the redundant self.transcribe_audio(WAV_FILENAME) call since the function now returns the transcript directly.
+Save and exit.
 
-However, I cannot see any difference in the code.
+Step 3: Test for Syntax Errors
+bashcd /home/nickspi5/Chatty_AI
+source chatty-venv/bin/activate
+python3 -m py_compile chatty_ai.py && echo "No syntax errors!"
 
-I then saved and exited to save the changes to my chatty_ai.py Python script.
-
-I then ran: nickspi5@raspberrypi:~ $ grep -A5 "return True" /home/nickspi5/Chatty_AI/chatty_ai.py | grep -A5 "record_with_streaming"
-nickspi5@raspberrypi:~ $ sed -n '900,950p' /home/nickspi5/Chatty_AI/chatty_ai.py
-                                        wf.setframerate(16000)
-                                        wf.writeframes((temp_audio * 32767).astype(np.int16).tobytes())
-                                    
-                                    # Transcribe chunk
-                                    chunk_transcript = self.transcribe_audio(temp_file)
-                                    if chunk_transcript and chunk_transcript.strip():
-                                        full_transcript = chunk_transcript
-                                        self.emit_log(f"[STREAMING STT] Partial: '{full_transcript}'", 'info')
-                                        socketio.emit('partial_transcript', {'text': full_transcript})
-                                        
-                                        # Check for command in partial transcript - EARLY DETECTION
-                                        command = self.is_command(full_transcript)
-                                        if command:
-                                            self.emit_log(f"[STREAMING STT] Command detected early: {command}", 'success')
-                                            command_detected = command
-                                            # Don't break yet - save audio first
-                                            break
-                                    
-                                    last_transcription_time = recording_duration
-                                
-                                # Stop on silence (only after we have some audio)
-                                if silence_duration >= MIN_SILENCE_DURATION and recording_duration > 1.5:
-                                    self.emit_log(f"Silence detected! Recorded {recording_duration:.1f}s", 'debug')
-                                    break
-                
-                # Save final audio
-                with buffer_lock:
-                    if len(audio_buffer) > 0:
-                        full_audio = np.array(audio_buffer)
-                    else:
-                        return False
-                
-                # Resample to 16kHz for Whisper
-                if working_sample_rate != 16000:
-                    from scipy import signal
-                    num_samples = int(len(full_audio) * 16000 / working_sample_rate)
-                    if num_samples > 0:
-                        full_audio = signal.resample(full_audio, num_samples)
-                
-                # Normalize
-                max_val = np.max(np.abs(full_audio))
-                if max_val > 0:
-                    full_audio = full_audio / max_val * 0.9
-                
-                # Save final audio
-                import wave
-                with wave.open(WAV_FILENAME, 'w') as wf:
-                    wf.setnchannels(1)
-                    wf.setsampwidth(2)
-                    wf.setframerate(16000)
-                    wf.writeframes((full_audio * 32767).astype(np.int16).tobytes())
-nickspi5@raspberrypi:~ $ 
-
+Step 4: Restart and Test
+bashsudo systemctl restart chatty-ai.service
+Test with a question. The response should now be faster since we're not transcribing twice.
+bashjournalctl -u chatty-ai.service -f
+Look for [STREAMING STT] Using cached transcript: in the logs - this confirms we're reusing the partial transcript instead of transcribing again.
 
 
 
