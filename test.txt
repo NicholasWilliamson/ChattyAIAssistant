@@ -1,10 +1,12 @@
 
 
+Thank you, Claude,
 
-I can see the issue - the indentation is wrong. The lines after if user_text and len(user_text.strip()) > 2: have too much indentation, and there's also an else that doesn't match. Let me fix this:
-bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
-Find the section starting at line 1305 and replace it with this correctly indented version:
-python                            # Record full request with streaming transcription
+I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+
+I then modified my chatty_ai.py Python script's code starting at line 1305 with the following code, as you recommended:
+
+                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             user_text = self.record_with_streaming_transcription()
                             if user_text and len(user_text.strip()) > 2:
@@ -24,15 +26,15 @@ python                            # Record full request with streaming transcrip
                                 self.last_bored_response_time = time.time()
                 
                     time.sleep(WAKE_WORD_CHECK_INTERVAL)
-The key changes:
 
-Removed the extra indentation (4 spaces) from lines 1309-1317 (the block inside the if)
-Removed the extra indentation from lines 1319-1322 (the else block)
-Removed the duplicate else block for "I'm having trouble hearing you" (that was for the old nested structure)
+I then saved and exited to save the changes to my chatty_ai.py Python script.
 
-Save and exit.
+I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors"
+No syntax errors
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-Test for Syntax Errors
-bashpython3 -m py_compile chatty_ai.py && echo "No syntax errors!"
+
 
 
