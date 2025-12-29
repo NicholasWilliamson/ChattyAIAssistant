@@ -2,99 +2,7 @@
 
 Thank you, Claude,
 
-I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
-
-I then modified the record_with_streaming_transcription method in my chatty_ai.py Python script, as you recommended:
-
-From:
-
-                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
-                return True
-                
-        except Exception as e:
-            self.emit_log(f"Streaming recording error: {e}", 'error')
-            import traceback
-            traceback.print_exc()
-            return False
-
-To:
-
-                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
-                
-                # Return the last partial transcript if we have one, otherwise transcribe now
-                if full_transcript and len(full_transcript.strip()) > 2:
-                    self.emit_log(f"[STREAMING STT] Using cached transcript: '{full_transcript}'", 'info')
-                    return full_transcript
-                else:
-                    # Transcribe the full audio as fallback
-                    final_transcript = self.transcribe_audio(WAV_FILENAME)
-                    return final_transcript if final_transcript else ""
-                
-        except Exception as e:
-            self.emit_log(f"Streaming recording error: {e}", 'error')
-            import traceback
-            traceback.print_exc()
-            return ""
-
-I then saved and excited to save the changes I made to my chatty_ai.py Python script.
-
-I then ran: nickspi5@raspberrypi:~ $ sed -n '1130,1170p' /home/nickspi5/Chatty_AI/chatty_ai.py
-            else:
-                print("[TIMING] No choices in LLM result")
-                return "I'm not sure how to answer that."
-        except Exception as e:
-            print(f"[TIMING] LLM error: {e}")
-            return "Sorry, I had trouble processing that question."
-
-    def query_llama_streaming(self, prompt, callback=None):
-        """Generate LLM response with streaming - speaks as tokens arrive using threaded TTS"""
-        import time as t
-        import threading
-        import queue
-        
-        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
-        start = t.perf_counter()
-        
-        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
-        
-        try:
-            print(f"[TIMING] Starting streaming LLM inference...")
-            llm_start = t.perf_counter()
-            
-            full_response = ""
-            current_sentence = ""
-            sentences_spoken = 0
-            max_sentences = 30
-            first_speech_logged = False
-            
-            # Create a queue for TTS chunks and start TTS thread
-            tts_queue = queue.Queue()
-            tts_stop_event = threading.Event()
-            tts_thread = threading.Thread(
-                target=self.speak_text_streaming,
-                args=(tts_queue, tts_stop_event),
-                daemon=True
-            )
-            tts_thread.start()
-            
-            # Stream tokens from LLM
-            for token_data in self.llama_model(
-                formatted_prompt, 
-nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
-
-I then modified the listen_for_wake_word method in my chatty_ai.py Python script as you recommended:
-
-From:
-
-                           # Record full request with streaming transcription
-                            self.emit_log("Please speak your request...", 'info')
-                            if self.record_with_streaming_transcription():
-                                # Final transcription on saved audio (more accurate)
-                                user_text = self.transcribe_audio(WAV_FILENAME)
-                                if user_text and len(user_text.strip()) > 2:
-
-To:
-
+I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '1305,1340p' /home/nickspi5/Chatty_AI/chatty_ai.py
                             # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             user_text = self.record_with_streaming_transcription()
@@ -130,14 +38,9 @@ To:
     
         self.emit_log("Wake word detection thread stopped", 'info')
 
-I then saved and exited to save the changes to my chatty_ai.py Python script.
+    def camera_monitoring_loop(self):
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
 
-I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
-nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors"
-Sorry: IndentationError: unindent does not match any outer indentation level (chatty_ai.py, line 1318)(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
-
-I see there is an indentation error now in my chatty_ai.py Python script.
 
 
 
