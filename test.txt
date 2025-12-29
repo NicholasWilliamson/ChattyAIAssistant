@@ -1,12 +1,14 @@
 
 
+Thank you, Claude,
 
-I see the issue now. The function currently returns True/False, but we're doing a redundant transcription after. Let me modify the function to return the transcript directly so we don't need to transcribe twice.
+I ran: nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
 
-Step 1: Modify record_with_streaming_transcription to Return the Transcript
-bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
-Find the end of the record_with_streaming_transcription function (around line 950-960) and look for:
-python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
+I then modified the record_with_streaming_transcription method in my chatty_ai.py Python script, as you recommended:
+
+From:
+
+                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
                 return True
                 
         except Exception as e:
@@ -14,8 +16,10 @@ python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s"
             import traceback
             traceback.print_exc()
             return False
-Change it to return the transcript instead:
-python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
+
+To:
+
+                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s", 'debug')
                 
                 # Return the last partial transcript if we have one, otherwise transcribe now
                 if full_transcript and len(full_transcript.strip()) > 2:
@@ -32,34 +36,108 @@ python                self.emit_log(f"Audio saved: {len(full_audio)/16000:.1f}s"
             traceback.print_exc()
             return ""
 
-Step 2: Update the Caller in listen_for_wake_word
-Now find the section in listen_for_wake_word where we call the function (around line 1135-1160):
-bashsed -n '1130,1170p' /home/nickspi5/Chatty_AI/chatty_ai.py
-Then change this:
-python                            # Record full request with streaming transcription
+I then saved and excited to save the changes I made to my chatty_ai.py Python script.
+
+I then ran: nickspi5@raspberrypi:~ $ sed -n '1130,1170p' /home/nickspi5/Chatty_AI/chatty_ai.py
+            else:
+                print("[TIMING] No choices in LLM result")
+                return "I'm not sure how to answer that."
+        except Exception as e:
+            print(f"[TIMING] LLM error: {e}")
+            return "Sorry, I had trouble processing that question."
+
+    def query_llama_streaming(self, prompt, callback=None):
+        """Generate LLM response with streaming - speaks as tokens arrive using threaded TTS"""
+        import time as t
+        import threading
+        import queue
+        
+        print(f"[TIMING] query_llama_streaming called with prompt: '{prompt[:50]}...'")
+        start = t.perf_counter()
+        
+        formatted_prompt = f"You are a friendly, helpful assistant. Give a brief, conversational answer.\nUser: {prompt}\nAssistant: "
+        
+        try:
+            print(f"[TIMING] Starting streaming LLM inference...")
+            llm_start = t.perf_counter()
+            
+            full_response = ""
+            current_sentence = ""
+            sentences_spoken = 0
+            max_sentences = 30
+            first_speech_logged = False
+            
+            # Create a queue for TTS chunks and start TTS thread
+            tts_queue = queue.Queue()
+            tts_stop_event = threading.Event()
+            tts_thread = threading.Thread(
+                target=self.speak_text_streaming,
+                args=(tts_queue, tts_stop_event),
+                daemon=True
+            )
+            tts_thread.start()
+            
+            # Stream tokens from LLM
+            for token_data in self.llama_model(
+                formatted_prompt, 
+nickspi5@raspberrypi:~ $ nano /home/nickspi5/Chatty_AI/chatty_ai.py
+
+I then modified the listen_for_wake_word method in my chatty_ai.py Python script as you recommended:
+
+From:
+
+                           # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             if self.record_with_streaming_transcription():
                                 # Final transcription on saved audio (more accurate)
                                 user_text = self.transcribe_audio(WAV_FILENAME)
                                 if user_text and len(user_text.strip()) > 2:
-To this:
-python                            # Record full request with streaming transcription
+
+To:
+
+                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             user_text = self.record_with_streaming_transcription()
                             if user_text and len(user_text.strip()) > 2:
-This removes the redundant self.transcribe_audio(WAV_FILENAME) call since the function now returns the transcript directly.
-Save and exit.
+                                    self.emit_log(f"User said: '{user_text}'", 'info')
+                                    self.emit_conversation(f"User said: {user_text}", 'user_input')
+                                    response = self.process_user_input(user_text)
+                                    self.emit_log(f"Response: '{response}'", 'info')
+                                    self.emit_conversation(f"Response: {response}", 'response')
+                                    # self.speak_text(response)
+                                    self.last_interaction_time = time.time()
+                                    # Reset bored response timer only after successful interaction
+                                    self.last_bored_response_time = time.time()
+                                else:
+                                    self.speak_text("I didn't catch that. Could you repeat your request?")
+                                    self.emit_conversation("No clear speech detected", 'info')
+                                    # Reset bored response timer to give user more time
+                                    self.last_bored_response_time = time.time()
+                            else:
+                                self.speak_text("I'm having trouble hearing you. Please try again.")
+                                self.emit_conversation("Failed to record audio", 'info')
+                                # Reset bored response timer to give user more time
+                                self.last_bored_response_time = time.time()
+                
+                    time.sleep(WAKE_WORD_CHECK_INTERVAL)
+                else:
+                    # No one present or wake word not active, sleep longer
+                    time.sleep(2.0)
+                
+            except Exception as e:
+                self.emit_log(f"Wake word detection error: {e}", 'error')
+                time.sleep(2.0)
+    
+        self.emit_log("Wake word detection thread stopped", 'info')
 
-Step 3: Test for Syntax Errors
-bashcd /home/nickspi5/Chatty_AI
-source chatty-venv/bin/activate
-python3 -m py_compile chatty_ai.py && echo "No syntax errors!"
+I then saved and exited to save the changes to my chatty_ai.py Python script.
 
-Step 4: Restart and Test
-bashsudo systemctl restart chatty-ai.service
-Test with a question. The response should now be faster since we're not transcribing twice.
-bashjournalctl -u chatty-ai.service -f
-Look for [STREAMING STT] Using cached transcript: in the logs - this confirms we're reusing the partial transcript instead of transcribing again.
+I then ran: nickspi5@raspberrypi:~ $ cd /home/nickspi5/Chatty_AI
+nickspi5@raspberrypi:~/Chatty_AI $ source chatty-venv/bin/activate
+(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ python3 -m py_compile chatty_ai.py && echo "No syntax errors"
+Sorry: IndentationError: unindent does not match any outer indentation level (chatty_ai.py, line 1318)(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+
+I see there is an indentation error now in my chatty_ai.py Python script.
 
 
 
