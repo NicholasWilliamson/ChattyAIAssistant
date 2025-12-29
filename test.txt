@@ -1,46 +1,38 @@
 
 
-Thank you, Claude,
 
-I ran: (chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ sed -n '1305,1340p' /home/nickspi5/Chatty_AI/chatty_ai.py
-                            # Record full request with streaming transcription
+I can see the issue - the indentation is wrong. The lines after if user_text and len(user_text.strip()) > 2: have too much indentation, and there's also an else that doesn't match. Let me fix this:
+bashnano /home/nickspi5/Chatty_AI/chatty_ai.py
+Find the section starting at line 1305 and replace it with this correctly indented version:
+python                            # Record full request with streaming transcription
                             self.emit_log("Please speak your request...", 'info')
                             user_text = self.record_with_streaming_transcription()
                             if user_text and len(user_text.strip()) > 2:
-                                    self.emit_log(f"User said: '{user_text}'", 'info')
-                                    self.emit_conversation(f"User said: {user_text}", 'user_input')
-                                    response = self.process_user_input(user_text)
-                                    self.emit_log(f"Response: '{response}'", 'info')
-                                    self.emit_conversation(f"Response: {response}", 'response')
-                                    # self.speak_text(response)
-                                    self.last_interaction_time = time.time()
-                                    # Reset bored response timer only after successful interaction
-                                    self.last_bored_response_time = time.time()
-                                else:
-                                    self.speak_text("I didn't catch that. Could you repeat your request?")
-                                    self.emit_conversation("No clear speech detected", 'info')
-                                    # Reset bored response timer to give user more time
-                                    self.last_bored_response_time = time.time()
+                                self.emit_log(f"User said: '{user_text}'", 'info')
+                                self.emit_conversation(f"User said: {user_text}", 'user_input')
+                                response = self.process_user_input(user_text)
+                                self.emit_log(f"Response: '{response}'", 'info')
+                                self.emit_conversation(f"Response: {response}", 'response')
+                                # self.speak_text(response)
+                                self.last_interaction_time = time.time()
+                                # Reset bored response timer only after successful interaction
+                                self.last_bored_response_time = time.time()
                             else:
-                                self.speak_text("I'm having trouble hearing you. Please try again.")
-                                self.emit_conversation("Failed to record audio", 'info')
+                                self.speak_text("I didn't catch that. Could you repeat your request?")
+                                self.emit_conversation("No clear speech detected", 'info')
                                 # Reset bored response timer to give user more time
                                 self.last_bored_response_time = time.time()
                 
                     time.sleep(WAKE_WORD_CHECK_INTERVAL)
-                else:
-                    # No one present or wake word not active, sleep longer
-                    time.sleep(2.0)
-                
-            except Exception as e:
-                self.emit_log(f"Wake word detection error: {e}", 'error')
-                time.sleep(2.0)
-    
-        self.emit_log("Wake word detection thread stopped", 'info')
+The key changes:
 
-    def camera_monitoring_loop(self):
-(chatty-venv) nickspi5@raspberrypi:~/Chatty_AI $ 
+Removed the extra indentation (4 spaces) from lines 1309-1317 (the block inside the if)
+Removed the extra indentation from lines 1319-1322 (the else block)
+Removed the duplicate else block for "I'm having trouble hearing you" (that was for the old nested structure)
 
+Save and exit.
 
+Test for Syntax Errors
+bashpython3 -m py_compile chatty_ai.py && echo "No syntax errors!"
 
 
